@@ -1,0 +1,9 @@
+backups/*
+autosaves/*
+auto-save-list/*
+elpa/*
+eshell/*
+places
+.ido.last
+.smex-items
+tramp
