@@ -29,8 +29,9 @@
 
 (add-to-list 'load-path basis/emacs-dir)
 (add-to-list 'load-path basis/site-lisp-dir)
-;; (add-to-list 'load-path (concat basis/lisp-dir "evil/"))
-;; (add-to-list 'load-path (concat basis/lisp-dir "evil-leader/"))
+
+(when (file-exists-p "~/.emacs.d/doc/info")
+  (add-to-list 'Info-default-directory-list "~/.emacs.d/doc/info"))
 
 (require 'init-package)
 (require 'init-settings)
@@ -39,7 +40,6 @@
 (require 'init-keys)
 (require 'init-ibuffer)
 (require 'init-dired)
-;;(require 'init-evil)
 (require 'init-ido)
 (require 'init-completion)
 (require 'init-lisp)
