@@ -107,7 +107,8 @@
 (dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (define-key mode (kbd "<f5>") 'eval-last-sexp)
   (define-key mode (kbd "<f6>") 'basis/eval-something)
-  (define-key mode (kbd "<f7>") 'eval-buffer))
+  (define-key mode (kbd "<f7>") 'macroexpand-point)
+  (define-key mode (kbd "<f8>") 'eval-buffer))
 
 ;; more scheme setup -----------------------------------------------------------
 
@@ -146,9 +147,9 @@
        'basis/scheme-send-something)
      (define-key scheme-mode-map (kbd "<M-f6>")
        'scheme-compile-definition-and-go)
-     (define-key scheme-mode-map (kbd "<f7>")
+     (define-key scheme-mode-map (kbd "<f8>")
        'scheme-compile-file)
-     (define-key scheme-mode-map (kbd "<M-f7>")
+     (define-key scheme-mode-map (kbd "<M-f8>")
        'scheme-load-file)))
 
 
