@@ -18,7 +18,7 @@
 (setq smart-tab-using-hippie-expand t)
 
 (setq smart-tab-disabled-major-modes
-      '(lisp-mode slime-repl-mode scheme-mode org-mode term-mode))
+      '(lisp-mode slime-repl-mode scheme-mode eshell-mode org-mode term-mode))
 
 
 (provide 'init-completion)
