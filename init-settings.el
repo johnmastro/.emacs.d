@@ -50,6 +50,7 @@
 ;; recentf
 (recentf-mode 1)
 (setq recentf-max-saved-items 50)
+(setq recentf-save-file (concat basis/emacs-dir ".recentf"))
 
 (add-to-list 'safe-local-variable-values '(lexical-binding . t))
 (add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
@@ -58,11 +59,11 @@
   (setq frame-title-format '(buffer-file-name "%f" ("%b"))))
 
 ;; UTF-8 everywhere
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8-unix)
+(set-default-coding-systems 'utf-8-unix)
+(set-terminal-coding-system 'utf-8-unix)
+(set-keyboard-coding-system 'utf-8-unix)
+(set-selection-coding-system 'utf-8-unix)
 
 ;; Backups and autosaves
 (setq backup-by-copying t
