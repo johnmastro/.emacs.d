@@ -37,9 +37,9 @@ On OS X, instead define a binding with <kp-enter> as prefix."
     'event-apply-hyper-modifier))
 
 (case system-type
-  ('gnu/linux  (init-modifiers/linux))
-  ('darwin     (init-modifiers/os-x))
-  ('windows-nt (init-modifiers/windows)))
+  (gnu/linux  (init-modifiers/linux))
+  (darwin     (init-modifiers/os-x))
+  (windows-nt (init-modifiers/windows)))
 
 ;; Hyper- mappings
 (basis/define-hyper global-map "f" 'ido-find-file)
@@ -47,6 +47,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (basis/define-hyper global-map "d" 'basis/ido-dir-selector)
 (basis/define-hyper global-map "D" 'basis/dired-dir-selector)
 (basis/define-hyper global-map "s" 'save-buffer)
+(basis/define-hyper global-map "i" 'imenu)
 
 ;; Unshifted parens
 (keyboard-translate ?\( ?\[)
@@ -67,9 +68,6 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "C-w") 'backward-kill-word)
 (global-set-key (kbd "C-x C-k") 'kill-region)
 
-;; Jump to a definition in the current file
-(global-set-key (kbd "C-x C-i") 'imenu)
-
 ;; Start eshell or switch to it if it's active
 (global-set-key (kbd "C-x m") 'eshell)
 
@@ -77,6 +75,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "C-x M") (lambda () (interactive) (eshell t)))
 
 ;; M-x without using meta
+(global-set-key (kbd "C-c m") 'smex)
 (global-set-key (kbd "C-c x") 'execute-extended-command)
 
 ;; Expand-region
@@ -87,6 +86,9 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "M-z") 'zap-up-to-char)
 (global-set-key (kbd "M-Z") 'zap-to-char)
 
+;; Kill frames with C-x C-c
+(global-set-key (kbd "C-x C-c") 'delete-frame)
+
 ;; Aliases ---------------------------------------------------------------------
 
 (defalias 'ls 'ibuffer)
@@ -96,6 +98,8 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (defalias 'ack-same 'ack-and-a-half-same)
 (defalias 'ack-find-file 'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
+
+(defalias 'sayonara 'save-buffers-kill-terminal)
 
 
 (provide 'init-keys)
