@@ -4,6 +4,7 @@ auto-save-list/*
 elpa/*
 eshell/*
 places
+tramp
 .ido.last
 .smex-items
-tramp
+.recentf
