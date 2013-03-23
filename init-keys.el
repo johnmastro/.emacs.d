@@ -48,12 +48,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (basis/define-hyper global-map "D" 'basis/dired-dir-selector)
 (basis/define-hyper global-map "s" 'save-buffer)
 (basis/define-hyper global-map "i" 'imenu)
-
-;; Unshifted parens
-(keyboard-translate ?\( ?\[)
-(keyboard-translate ?\) ?\])
-(keyboard-translate ?\[ ?\()
-(keyboard-translate ?\] ?\))
+(basis/define-hyper global-map "0" 'delete-window)
+(basis/define-hyper global-map "1" 'delete-other-windows)
+(basis/define-hyper global-map "2" 'split-window-below)
+(basis/define-hyper global-map "3" 'split-window-right)
 
 ;; Easier window management
 (winner-mode 1)
