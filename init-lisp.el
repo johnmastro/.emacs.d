@@ -17,19 +17,19 @@
 
 (eval-after-load 'paredit
   '(progn
-     (define-key paredit-mode-map (kbd "C-w") 'paredit-backward-kill-word)
-     (define-key paredit-mode-map (kbd "M-e") 'paredit-forward)
-     (define-key paredit-mode-map (kbd "<M-right>") 'paredit-forward)
-     (define-key paredit-mode-map (kbd "M-a") 'paredit-backward)
-     (define-key paredit-mode-map (kbd "<M-left>") 'paredit-backward)
-     (define-key paredit-mode-map [remap kill-sentence] 'paredit-kill)
-     (define-key paredit-mode-map
-       [remap backward-kill-sentence]
-       'backward-kill-sexp)))
+    (define-key paredit-mode-map (kbd "C-w") 'paredit-backward-kill-word)
+    (define-key paredit-mode-map (kbd "M-e") 'paredit-forward)
+    (define-key paredit-mode-map (kbd "<M-right>") 'paredit-forward)
+    (define-key paredit-mode-map (kbd "M-a") 'paredit-backward)
+    (define-key paredit-mode-map (kbd "<M-left>") 'paredit-backward)
+    (define-key paredit-mode-map [remap kill-sentence] 'paredit-kill)
+    (define-key paredit-mode-map
+     [remap backward-kill-sentence]
+     'backward-kill-sexp)))
 
 (defvar basis/paredit-minibuffer-commands '(eval-expression
-					    pp-eval-expression
-					    eval-expression-with-eldoc
+                                            pp-eval-expression
+                                            eval-expression-with-eldoc
                                             slime-interactive-eval)
   "Interactive commands for which Paredit should be enabled in the minibuffer.")
 
@@ -75,7 +75,7 @@
                        ielm-mode-hook))
        (lispy-hooks (append elispy-hooks
                             '(lisp-mode-hook
-			      slime-repl-mode-hook
+                              slime-repl-mode-hook
                               inferior-lisp-mode-hook
                               scheme-mode-hook
                               inferior-scheme-mode-hook)))
@@ -101,8 +101,8 @@
   (interactive)
   (if (region-active-p)
       (eval-region (region-beginning)
-		   (region-end))
-    (eval-defun nil)))
+                   (region-end))
+      (eval-defun nil)))
 
 (dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (define-key mode (kbd "<f5>") 'eval-last-sexp)
@@ -115,7 +115,7 @@
 (setq quack-default-program
       (if (eq system-type 'windows-nt)
           "larceny"
-        "scheme"))
+          "scheme"))
 
 (require 'quack)
 
@@ -135,22 +135,22 @@
   (if (region-active-p)
       (scheme-send-region (region-beginning)
                           (region-end))
-    (scheme-send-definition)))
+      (scheme-send-definition)))
 
 (eval-after-load 'scheme
   '(progn
-     (define-key scheme-mode-map (kbd "<tab>")
-       'scheme-complete-or-indent)
-     (define-key scheme-mode-map (kbd "<f5>")
-       'scheme-send-last-sexp)
-     (define-key scheme-mode-map (kbd "<f6>")
-       'basis/scheme-send-something)
-     (define-key scheme-mode-map (kbd "<M-f6>")
-       'scheme-compile-definition-and-go)
-     (define-key scheme-mode-map (kbd "<f8>")
-       'scheme-compile-file)
-     (define-key scheme-mode-map (kbd "<M-f8>")
-       'scheme-load-file)))
+    (define-key scheme-mode-map (kbd "<tab>")
+     'scheme-complete-or-indent)
+    (define-key scheme-mode-map (kbd "<f5>")
+     'scheme-send-last-sexp)
+    (define-key scheme-mode-map (kbd "<f6>")
+     'basis/scheme-send-something)
+    (define-key scheme-mode-map (kbd "<M-f6>")
+     'scheme-compile-definition-and-go)
+    (define-key scheme-mode-map (kbd "<f8>")
+     'scheme-compile-file)
+    (define-key scheme-mode-map (kbd "<M-f8>")
+     'scheme-load-file)))
 
 
 (provide 'init-lisp)

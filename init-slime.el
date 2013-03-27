@@ -5,7 +5,7 @@
 (let ((quicklisp-slime-helper (expand-file-name "~/quicklisp/slime-helper.el")))
   (if (file-exists-p quicklisp-slime-helper)
       (load quicklisp-slime-helper)
-    (message "%s" "SLIME is not installed. Use Quicklisp to install it.")))
+      (message "%s" "SLIME is not installed. Use Quicklisp to install it.")))
 
 (setq slime-lisp-implementations
       '((sbcl ("sbcl" "--noinform") :coding-system utf-8-unix)))
@@ -18,7 +18,7 @@
 
 (defun basis/slime-repl-paredit-backspace ()
   (define-key slime-repl-mode-map
-    (read-kbd-macro paredit-backward-delete-key) nil))
+      (read-kbd-macro paredit-backward-delete-key) nil))
 
 (add-hook 'slime-repl-mode-hook 'basis/slime-repl-paredit-backspace)
 
@@ -27,8 +27,8 @@
   (interactive)
   (if (region-active-p)
       (slime-eval-region (region-beginning)
-			 (region-end))
-    (slime-eval-defun)))
+                         (region-end))
+      (slime-eval-defun)))
 
 (defun basis/slime-expand-defun (&optional repeatedly)
   "Display the macro expansion of the form surrounding point.
