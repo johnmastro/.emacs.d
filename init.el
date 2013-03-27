@@ -11,10 +11,11 @@
 (defvar basis/site-lisp-dir (concat basis/emacs-dir "site-lisp/"))
 (defvar basis/backups-dir (concat basis/emacs-dir "backups/"))
 (defvar basis/autosaves-dir (concat basis/emacs-dir "autosaves/"))
+(defvar basis/tmp-dir (concat basis/emacs-dir "tmp/"))
 (defvar basis/custom-file (concat basis/emacs-dir "custom.el"))
 (defvar basis/themes-dir (concat basis/emacs-dir "themes/"))
 
-(dolist (dir (list basis/backups-dir basis/autosaves-dir))
+(dolist (dir (list basis/backups-dir basis/autosaves-dir basis/tmp-dir))
   (unless (file-exists-p dir)
     (make-directory dir)))
 
@@ -45,6 +46,7 @@
 (require 'init-lisp)
 (require 'init-slime)
 (require 'init-python)
+(require 'init-org)
 (require 'init-markdown)
 (require 'init-deft)
 (require 'init-interface)

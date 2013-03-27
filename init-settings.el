@@ -65,11 +65,12 @@
 (set-keyboard-coding-system 'utf-8-unix)
 (set-selection-coding-system 'utf-8-unix)
 
-;; Backups and autosaves
+;; Backups, autosaves, and temporary files
 (setq backup-by-copying t
       backup-directory-alist `((".*" . ,basis/backups-dir))
       auto-save-file-name-transforms `((".*" ,basis/autosaves-dir t))
-      save-place-file (concat basis/emacs-dir "places"))
+      save-place-file (concat basis/emacs-dir "places")
+      temporary-file-directory basis/tmp-dir)
 
 ;; Automatically refresh buffers
 (global-auto-revert-mode 1)

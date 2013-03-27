@@ -1,6 +1,7 @@
 backups/*
 autosaves/*
 auto-save-list/*
+tmp/*
 elpa/*
 eshell/*
 places
