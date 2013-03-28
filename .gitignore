@@ -9,3 +9,4 @@ tramp
 .ido.last
 .smex-items
 .recentf
+*.elc
