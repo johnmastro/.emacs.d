@@ -30,6 +30,7 @@
 
 (add-to-list 'load-path basis/emacs-dir)
 (add-to-list 'load-path basis/site-lisp-dir)
+(add-to-list 'load-path (concat basis/site-lisp-dir "tramp-2.2.7/"))
 
 (when (file-exists-p "~/.emacs.d/doc/info")
   (add-to-list 'Info-default-directory-list "~/.emacs.d/doc/info"))
