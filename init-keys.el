@@ -58,6 +58,9 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (windmove-default-keybindings)
 (global-set-key (kbd "M-o") 'other-window)
 
+;; I use Meta-space for ace-jump-mode
+(global-set-key (kbd "C-c SPC") 'just-one-space)
+
 ;; Movement by sexp
 (global-set-key (kbd "<M-right>") 'forward-sexp)
 (global-set-key (kbd "<M-left>") 'backward-sexp)

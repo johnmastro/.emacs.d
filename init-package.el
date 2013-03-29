@@ -63,6 +63,7 @@ optionally, the name of the archive to use in its cdr."
          (ack-and-a-half . melpa)
          (markdown-mode . melpa)
          (deft . melpa)
+         (ace-jump-mode . melpa)
          )))
   (basis/install-packages basis/required-packages))
 

@@ -40,6 +40,7 @@
 (require 'init-uniquify)
 (require 'init-utils)
 (require 'init-keys)
+(require 'init-ace-jump)
 (require 'init-ibuffer)
 (require 'init-dired)
 (require 'init-ido)
