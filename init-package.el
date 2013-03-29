@@ -64,6 +64,7 @@ optionally, the name of the archive to use in its cdr."
          (markdown-mode . melpa)
          (deft . melpa)
          (ace-jump-mode . melpa)
+         (jump-char . melpa)
          )))
   (basis/install-packages basis/required-packages))
 

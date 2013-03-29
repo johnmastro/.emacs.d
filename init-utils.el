@@ -25,6 +25,14 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
     `(let ,(funcall make-varlist names)
        ,@body)))
 
+;; editing ---------------------------------------------------------------------
+
+(defun beginning-of-line-or-indentation ()
+  (interactive)
+  (if (= (point) (save-excursion (back-to-indentation) (point)))
+      (move-beginning-of-line nil)
+      (back-to-indentation)))
+
 ;; mark commands ---------------------------------------------------------------
 
 (defun push-mark-no-activate ()
