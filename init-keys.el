@@ -65,6 +65,19 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 ;; Clever C-w
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
 
+;; Transpose stuff with M-t
+;; from github.com/magnars/.emacs.d/
+(global-unset-key (kbd "M-t"))
+(global-set-key (kbd "M-t l") 'transpose-lines)
+(global-set-key (kbd "M-t w") 'transpose-words)
+(global-set-key (kbd "M-t s") 'transpose-sexps)
+
+;; Comment/uncomment stuff
+(global-set-key (kbd "C-c ;") 'comment-or-uncomment-region)
+
+;; Eval and replace anywhere
+(global-set-key (kbd "C-c C-e") 'basis/eval-and-replace)
+
 ;; I use Meta-space for ace-jump-mode
 (global-set-key (kbd "C-c SPC") 'just-one-space)
 

@@ -40,6 +40,41 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
       (kill-region (region-beginning) (region-end))
       (backward-kill-word 1)))
 
+;; files -----------------------------------------------------------------------
+
+(defun rename-current-buffer-file ()
+  "Rename the current buffer and the file it's visiting."
+  ;; from github.com/magnars/.emacs.d
+  (interactive)
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a file" name)
+        (let ((new-name (read-file-name "New name: " filename)))
+          (if (get-buffer new-name)
+              (error "A buffer named '%s' already exists" new-name)
+              (progn
+                (rename-file filename new-name 1)
+                (rename-buffer new-name)
+                (set-visited-file-name new-name)
+                (set-buffer-modified-p nil)
+                (message "File '%s' renamed to '%s'"
+                         name (file-name-nondirectory new-name))))))))
+
+(defun delete-current-buffer-file ()
+  "Kill the current buffer and delete the file it's visiting."
+  ;; from github.com/magnars/.emacs.d
+  (interactive)
+  (let ((name (buffer-name))
+        (buffer (current-buffer))
+        (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (ido-kill-buffer)
+        (when (yes-or-no-p "Are you sure you want to delete this file? ")
+          (delete-file filename)
+          (kill-buffer buffer)
+          (message "File '%s' successfully deleted" filename)))))
+  
 ;; miscellaneous ---------------------------------------------------------------
 
 (defun basis/google ()
@@ -55,6 +90,17 @@ display a prompt."
      (if mark-active
          (buffer-substring (region-beginning) (region-end))
          (read-string "Google: "))))))
+
+(defun basis/eval-and-replace ()
+  "Replace the preceding sexp with its value."
+  ;; from github.com/magnars/.emacs.d
+  (interactive)
+  (backward-kill-sexp)
+  (condition-case nil
+      (prin1 (eval (read (current-kill 0)))
+             (current-buffer))
+    (error (message "Invalid expression")
+           (insert (current-kill 0)))))
 
 ;; mark commands ---------------------------------------------------------------
 
