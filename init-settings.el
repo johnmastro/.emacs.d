@@ -24,6 +24,9 @@
 (setq-default indent-tabs-mode nil
               fill-column 80)
 
+(electric-indent-mode 1)
+(electric-pair-mode 1)
+
 (whitespace-mode 1)
 (size-indication-mode 1)
 (global-hl-line-mode 1)
