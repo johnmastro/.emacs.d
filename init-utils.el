@@ -33,6 +33,22 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
       (move-beginning-of-line nil)
       (back-to-indentation)))
 
+;; miscellaneous ---------------------------------------------------------------
+
+(defun basis/google ()
+  "Run a Google search.
+Use the selected region as the search string if any, otherwise
+display a prompt."
+  ;; from emacsredux.com/blog/2013/03/28/google/
+  (interactive)
+  (browse-url
+   (concat
+    "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
+    (url-hexify-string
+     (if mark-active
+         (buffer-substring (region-beginning) (region-end))
+         (read-string "Google: "))))))
+
 ;; mark commands ---------------------------------------------------------------
 
 (defun push-mark-no-activate ()

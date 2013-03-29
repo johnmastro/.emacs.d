@@ -52,6 +52,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (basis/define-hyper global-map "1" 'delete-other-windows)
 (basis/define-hyper global-map "2" 'split-window-below)
 (basis/define-hyper global-map "3" 'split-window-right)
+(basis/define-hyper global-map "g" 'basis/google)
 
 ;; Easier window management
 (winner-mode 1)
