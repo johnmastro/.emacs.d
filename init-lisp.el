@@ -15,6 +15,12 @@
 
 (add-hook 'paredit-mode-hook 'basis/maybe-map-paredit-newline)
 
+(defun paredit-kill-region-or-backward-word ()
+  (interactive)
+  (if (region-active-p)
+      (kill-region (region-beginning) (region-end))
+      (paredit-backward-kill-word)))
+
 (eval-after-load 'paredit
   '(progn
     (define-key paredit-mode-map (kbd "C-w") 'paredit-backward-kill-word)
@@ -23,6 +29,9 @@
     (define-key paredit-mode-map (kbd "M-a") 'paredit-backward)
     (define-key paredit-mode-map (kbd "<M-left>") 'paredit-backward)
     (define-key paredit-mode-map [remap kill-sentence] 'paredit-kill)
+    (define-key paredit-mode-map
+     (kbd "C-w")
+     'paredit-kill-region-or-backward-word)
     (define-key paredit-mode-map
      [remap backward-kill-sentence]
      'backward-kill-sexp)))

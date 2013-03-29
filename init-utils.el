@@ -33,6 +33,13 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
       (move-beginning-of-line nil)
       (back-to-indentation)))
 
+(defun kill-region-or-backward-word ()
+  ;; from github.com/magnars/.emacs.d
+  (interactive)
+  (if (region-active-p)
+      (kill-region (region-beginning) (region-end))
+      (backward-kill-word 1)))
+
 ;; miscellaneous ---------------------------------------------------------------
 
 (defun basis/google ()

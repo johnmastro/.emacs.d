@@ -62,6 +62,9 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 ;; Clever C-a
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 
+;; Clever C-w
+(global-set-key (kbd "C-w") 'kill-region-or-backward-word)
+
 ;; I use Meta-space for ace-jump-mode
 (global-set-key (kbd "C-c SPC") 'just-one-space)
 
@@ -72,10 +75,6 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 ;; Movement by sexp
 (global-set-key (kbd "<M-right>") 'forward-sexp)
 (global-set-key (kbd "<M-left>") 'backward-sexp)
-
-;; Easier mapping for backward-kill-word
-(global-set-key (kbd "C-w") 'backward-kill-word)
-(global-set-key (kbd "C-x C-k") 'kill-region)
 
 ;; Start eshell or switch to it if it's active
 (global-set-key (kbd "C-x m") 'eshell)
