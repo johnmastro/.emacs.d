@@ -53,6 +53,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (basis/define-hyper global-map "2" 'split-window-below)
 (basis/define-hyper global-map "3" 'split-window-right)
 (basis/define-hyper global-map "g" 'basis/google)
+(basis/define-hyper global-map "r" ctl-x-r-map)
 
 ;; Easier window management
 (winner-mode 1)
@@ -71,6 +72,12 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "M-t l") 'transpose-lines)
 (global-set-key (kbd "M-t w") 'transpose-words)
 (global-set-key (kbd "M-t s") 'transpose-sexps)
+(global-set-key (kbd "M-t c") 'transpose-chars)
+(global-set-key (kbd "M-t W") 'transpose-windows)
+
+;; Multiple cursors
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 
 ;; Comment/uncomment stuff
 (global-set-key (kbd "C-c ;") 'comment-or-uncomment-region)
