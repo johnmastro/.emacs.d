@@ -10,3 +10,5 @@ tramp
 .smex-items
 .recentf
 *.elc
+/.mc-lists.el
+/bookmarks
