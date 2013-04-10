@@ -56,7 +56,10 @@
 (add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
 
 (when (display-graphic-p)
-  (setq frame-title-format '(buffer-file-name "%f" ("%b"))))
+  (setq frame-title-format
+        '((:eval (if (buffer-file-name)
+                     (abbreviate-file-name (buffer-file-name))
+                   "%b")))))
 
 ;; UTF-8 everywhere
 (prefer-coding-system 'utf-8-unix)

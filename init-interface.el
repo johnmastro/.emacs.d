@@ -10,9 +10,9 @@
 
 (defvar basis/default-font
   (case system-type
-    ('gnu/linux  "Inconsolata-11")
-    ('darwin     "Andale Mono-12")
-    ('windows-nt "Consolas-10")))
+    (gnu/linux  "Inconsolata-11")
+    (darwin     "Andale Mono-12")
+    (windows-nt "Consolas-10")))
 
 (when (and (display-graphic-p) basis/default-font)
   (set-face-attribute 'default nil :font basis/default-font))

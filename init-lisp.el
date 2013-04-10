@@ -19,22 +19,26 @@
   (interactive)
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
-      (paredit-backward-kill-word)))
+    (paredit-backward-kill-word)))
 
 (eval-after-load 'paredit
   '(progn
-    (define-key paredit-mode-map (kbd "C-w") 'paredit-backward-kill-word)
-    (define-key paredit-mode-map (kbd "M-e") 'paredit-forward)
-    (define-key paredit-mode-map (kbd "<M-right>") 'paredit-forward)
-    (define-key paredit-mode-map (kbd "M-a") 'paredit-backward)
-    (define-key paredit-mode-map (kbd "<M-left>") 'paredit-backward)
-    (define-key paredit-mode-map [remap kill-sentence] 'paredit-kill)
-    (define-key paredit-mode-map
-     (kbd "C-w")
-     'paredit-kill-region-or-backward-word)
-    (define-key paredit-mode-map
-     [remap backward-kill-sentence]
-     'backward-kill-sexp)))
+     (define-key paredit-mode-map (kbd "[") 'paredit-open-round)
+     (define-key paredit-mode-map (kbd "M-[") 'paredit-open-square)
+     (define-key paredit-mode-map (kbd "M-e") 'paredit-forward)
+     (define-key paredit-mode-map (kbd "<M-right>") 'paredit-forward)
+     (define-key paredit-mode-map (kbd "M-a") 'paredit-backward)
+     (define-key paredit-mode-map (kbd "<M-left>") 'paredit-backward)
+     (define-key paredit-mode-map [remap kill-sentence] 'paredit-kill)
+     (define-key paredit-mode-map
+       (kbd "C-w")
+       'paredit-kill-region-or-backward-word)
+     (define-key paredit-mode-map
+       (kbd "M-<backspace>")
+       'paredit-kill-region-or-backward-word)
+     (define-key paredit-mode-map
+       [remap backward-kill-sentence]
+       'backward-kill-sexp)))
 
 (defvar basis/paredit-minibuffer-commands '(eval-expression
                                             pp-eval-expression
@@ -44,8 +48,8 @@
 
 (defun basis/maybe-enable-paredit-mode ()
   "Enable Paredit during lisp-related minibuffer commands."
-  (if (memq this-command basis/paredit-minibuffer-commands)
-      (enable-paredit-mode)))
+  (when (memq this-command basis/paredit-minibuffer-commands)
+    (enable-paredit-mode)))
 
 (add-hook 'minibuffer-setup-hook 'basis/maybe-enable-paredit-mode)
 
@@ -100,8 +104,7 @@
 
 (setq lisp-lambda-list-keyword-alignment t
       lisp-lambda-list-keyword-parameter-alignment t
-      lisp-loop-forms-indentation 6
-      lisp-indent-function #'common-lisp-indent-function)
+      lisp-loop-forms-indentation 6)
 
 ;; emacs lisp ------------------------------------------------------------------
 
@@ -111,7 +114,7 @@
   (if (region-active-p)
       (eval-region (region-beginning)
                    (region-end))
-      (eval-defun nil)))
+    (eval-defun nil)))
 
 (dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (define-key mode (kbd "<f5>") 'eval-last-sexp)
@@ -124,7 +127,7 @@
 (setq quack-default-program
       (if (eq system-type 'windows-nt)
           "larceny"
-          "scheme"))
+        "scheme"))
 
 (require 'quack)
 
@@ -144,22 +147,22 @@
   (if (region-active-p)
       (scheme-send-region (region-beginning)
                           (region-end))
-      (scheme-send-definition)))
+    (scheme-send-definition)))
 
 (eval-after-load 'scheme
   '(progn
-    (define-key scheme-mode-map (kbd "<tab>")
-     'scheme-complete-or-indent)
-    (define-key scheme-mode-map (kbd "<f5>")
-     'scheme-send-last-sexp)
-    (define-key scheme-mode-map (kbd "<f6>")
-     'basis/scheme-send-something)
-    (define-key scheme-mode-map (kbd "<M-f6>")
-     'scheme-compile-definition-and-go)
-    (define-key scheme-mode-map (kbd "<f8>")
-     'scheme-compile-file)
-    (define-key scheme-mode-map (kbd "<M-f8>")
-     'scheme-load-file)))
+     (define-key scheme-mode-map (kbd "<tab>")
+       'scheme-complete-or-indent)
+     (define-key scheme-mode-map (kbd "<f5>")
+       'scheme-send-last-sexp)
+     (define-key scheme-mode-map (kbd "<f6>")
+       'basis/scheme-send-something)
+     (define-key scheme-mode-map (kbd "<M-f6>")
+       'scheme-compile-definition-and-go)
+     (define-key scheme-mode-map (kbd "<f8>")
+       'scheme-compile-file)
+     (define-key scheme-mode-map (kbd "<M-f8>")
+       'scheme-load-file)))
 
 
 (provide 'init-lisp)

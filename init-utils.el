@@ -30,14 +30,14 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
   (interactive)
   (if (= (point) (save-excursion (back-to-indentation) (point)))
       (move-beginning-of-line nil)
-      (back-to-indentation)))
+    (back-to-indentation)))
 
 (defun kill-region-or-backward-word ()
   ;; from github.com/magnars/.emacs.d
   (interactive)
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
-      (backward-kill-word 1)))
+    (backward-kill-word 1)))
 
 ;; files -----------------------------------------------------------------------
 
@@ -49,16 +49,16 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
         (filename (buffer-file-name)))
     (if (not (and filename (file-exists-p filename)))
         (error "Buffer '%s' is not visiting a file" name)
-        (let ((new-name (read-file-name "New name: " filename)))
-          (if (get-buffer new-name)
-              (error "A buffer named '%s' already exists" new-name)
-              (progn
-                (rename-file filename new-name 1)
-                (rename-buffer new-name)
-                (set-visited-file-name new-name)
-                (set-buffer-modified-p nil)
-                (message "File '%s' renamed to '%s'"
-                         name (file-name-nondirectory new-name))))))))
+      (let ((new-name (read-file-name "New name: " filename)))
+        (if (get-buffer new-name)
+            (error "A buffer named '%s' already exists" new-name)
+          (progn
+            (rename-file filename new-name 1)
+            (rename-buffer new-name)
+            (set-visited-file-name new-name)
+            (set-buffer-modified-p nil)
+            (message "File '%s' renamed to '%s'"
+                     name (file-name-nondirectory new-name))))))))
 
 (defun delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
@@ -69,11 +69,32 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
         (filename (buffer-file-name)))
     (if (not (and filename (file-exists-p filename)))
         (ido-kill-buffer)
-        (when (yes-or-no-p "Are you sure you want to delete this file? ")
-          (delete-file filename)
-          (kill-buffer buffer)
-          (message "File '%s' successfully deleted" filename)))))
-  
+      (when (yes-or-no-p "Are you sure you want to delete this file? ")
+        (delete-file filename)
+        (kill-buffer buffer)
+        (message "File '%s' successfully deleted" filename)))))
+
+(defun recentf-ido-find-file ()
+  "Find recently open files using ido and recentf."
+  (interactive)
+  (let* ((recent (mapcar #'abbreviate-file-name recentf-list))
+         (file (ido-completing-read "Choose recent file: " recent nil t)))
+    (when file
+      (find-file file))))
+
+(defun kill-line-backward ()
+  "Kill everything before point. Respect indentation."
+  (interactive)
+  (kill-line 0)
+  (indent-according-to-mode))
+
+(defun smart-kill-whole-line (&optional arg)
+  "A simple wrapper around `kill-whole-line` that respects indentation."
+  ;; from emacsredux.com
+  (interactive "P")
+  (kill-whole-line arg)
+  (back-to-indentation))
+
 ;; miscellaneous ---------------------------------------------------------------
 
 (defun basis/google ()
@@ -88,7 +109,7 @@ display a prompt."
     (url-hexify-string
      (if mark-active
          (buffer-substring (region-beginning) (region-end))
-         (read-string "Google: "))))))
+       (read-string "Google: "))))))
 
 (defun basis/eval-and-replace ()
   "Replace the preceding sexp with its value."
@@ -130,7 +151,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   (deactivate-mark nil))
 
 (define-key global-map
-    [remap exchange-point-and-mark] 'exchange-point-and-mark-no-activate)
+  [remap exchange-point-and-mark] 'exchange-point-and-mark-no-activate)
 
 ;; window commands -------------------------------------------------------------
 
@@ -164,7 +185,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
             (if (= (car this-win-edges)
                    (car (window-edges (next-window))))
                 'split-window-horizontally
-                'split-window-vertically)))
+              'split-window-vertically)))
       (delete-other-windows)
       (let ((first-win (selected-window)))
         (funcall splitter)
@@ -182,17 +203,17 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   "Insert `item` into sorted list `lst`.
 Key and comparison functions can optionally be specified as
 quasi-keyword arguments (`key` and `cmp` respectively)."
-  (let ((key (or (getf args :key) #'identity))
-        (cmp (or (getf args :cmp) #'<)))
-    (labels ((ins? (x y)
-               (funcall cmp
-                        (funcall key x)
-                        (funcall key y)))
-             (ins (lst)
-               (cond ((null lst) (cons item nil))
-                     ((ins? item (car lst)) (cons item lst))
-                     (t (cons (car lst) (ins (cdr lst)))))))
-      (ins lst))))
+  (let* ((key (or (getf args :key) #'identity))
+         (cmp (or (getf args :cmp) #'<))
+         (ins? #'(lambda (x y)
+                   (funcall cmp
+                            (funcall key x)
+                            (funcall key y))))
+         (ins #'(lambda (lst)
+                  (cond ((null lst) (cons item nil))
+                        ((funcall ins? item (car lst)) (cons item lst))
+                        (t (cons (car lst) (funcall ins (cdr lst))))))))
+    (funcall ins lst)))
 
 (defmacro push/sorted (place item &rest args)
   "Insert `item` into the sorted list stored at `place`.

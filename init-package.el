@@ -17,10 +17,10 @@
 
 ;; Make sure every archive is present in the elpa/archives/ folder
 (let* ((archive-folder "~/.emacs.d/elpa/archives/")
-       (archive-folders (mapcar (lambda (archive)
-                                  (concat archive-folder (car archive)))
+       (archive-folders (mapcar #'(lambda (archive)
+                                    (concat archive-folder (car archive)))
                                 package-archives)))
-  (unless (every 'file-exists-p archive-folders)
+  (unless (every #'file-exists-p archive-folders)
     (package-refresh-contents)))
 
 (defun basis/maybe-select-archive (archive)
@@ -48,7 +48,7 @@ optionally, the name of the archive to use in its cdr."
 (defun basis/install-packages (packages)
   "Install each of `packages` via `basis/install-package`."
   (package-refresh-contents)
-  (mapc 'basis/install-package packages)
+  (mapc #'basis/install-package packages)
   (package-initialize))
 
 (let ((basis/required-packages
@@ -67,6 +67,7 @@ optionally, the name of the archive to use in its cdr."
          (jump-char . melpa)
          (magit . melpa)
          (multiple-cursors . melpa)
+         (helm . melpa)
          )))
   (basis/install-packages basis/required-packages))
 

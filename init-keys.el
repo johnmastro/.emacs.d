@@ -63,8 +63,15 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 ;; Clever C-a
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 
-;; Clever C-w
+;; Movement by paragraph
+(global-set-key (kbd "M-n") 'forward-paragraph)
+(global-set-key (kbd "M-p") 'backward-paragraph)
+
+;; Kill stuff
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
+(global-set-key (kbd "M-<backspace>") 'kill-region-or-backward-word)
+(global-set-key (kbd "C-<backspace>") 'kill-line-backward)
+(global-set-key [remap kill-whole-line] 'smart-kill-whole-line)
 
 ;; Transpose stuff with M-t
 ;; from github.com/magnars/.emacs.d/
@@ -75,6 +82,14 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "M-t c") 'transpose-chars)
 (global-set-key (kbd "M-t W") 'transpose-windows)
 
+;; Move between errors
+(global-set-key (kbd "s-.") 'next-error)
+(global-set-key (kbd "s-,") 'previous-error)
+
+;; Occur
+(define-key occur-mode-map (kbd "n") 'occur-next)
+(define-key occur-mode-map (kbd "p") 'occur-prev)
+
 ;; Multiple cursors
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
@@ -82,7 +97,8 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 ;; Comment/uncomment stuff
 (global-set-key (kbd "C-c ;") 'comment-or-uncomment-region)
 
-;; Eval and replace anywhere
+;; Eval
+(global-set-key (kbd "C-x C-e") 'pp-eval-last-sexp)
 (global-set-key (kbd "C-c C-e") 'basis/eval-and-replace)
 
 ;; I use Meta-space for ace-jump-mode
@@ -116,6 +132,31 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 ;; Kill frames with C-x C-c
 (global-set-key (kbd "C-x C-c") 'delete-frame)
+
+;; Help map --------------------------------------------------------------------
+
+;; from github.com/jwiegley/dot-emacs
+
+(define-prefix-command 'lisp-find-map)
+
+(global-set-key (kbd "C-h e") 'lisp-find-map)
+
+(defun scratch! ()
+  "Switch to the scratch buffer, creating it if necessary."
+  (interactive)
+  (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
+
+(global-set-key (kbd "C-h e c") 'finder-commentary)
+(global-set-key (kbd "C-h e e") 'view-echo-area-messages)
+(global-set-key (kbd "C-h e f") 'find-function)
+(global-set-key (kbd "C-h e F") 'find-face-definition)
+(global-set-key (kbd "C-h e i") 'info-apropos)
+(global-set-key (kbd "C-h e k") 'find-function-on-key)
+(global-set-key (kbd "C-h e l") 'find-library)
+(global-set-key (kbd "C-h e s") 'scratch!)
+(global-set-key (kbd "C-h e v") 'find-variable)
+(global-set-key (kbd "C-h e V") 'apropos-value)
+(global-set-key (kbd "C-h e a") 'helm-apropos)
 
 ;; Aliases ---------------------------------------------------------------------
 
