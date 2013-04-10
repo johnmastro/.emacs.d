@@ -8,7 +8,10 @@
     (message "%s" "SLIME is not installed. Use Quicklisp to install it.")))
 
 (setq slime-lisp-implementations
-      '((sbcl ("sbcl" "--noinform") :coding-system utf-8-unix)))
+      '((sbcl ("sbcl" "--noinform") :coding-system utf-8-unix)
+        (ccl ("ccl"))))
+
+(setq slime-default-lisp 'sbcl)
 
 (defun basis/start-slime ()
   (unless (slime-connected-p)
