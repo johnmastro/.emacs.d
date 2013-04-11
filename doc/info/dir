@@ -14,6 +14,9 @@ File: dir,	Node: Top	This is the top of the INFO tree
 
 * Menu:
 
+Common LISP
+* On Lisp: (onlisp).            *On Lisp* by Paul Graham.
+
 Emacs network features
 * TRAMP: (tramp).               Transparent Remote Access, Multiple Protocol 
                                   Emacs remote file access via rsh and rcp.
