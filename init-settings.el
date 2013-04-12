@@ -24,6 +24,10 @@
 (setq-default indent-tabs-mode nil
               fill-column 80)
 
+(setq tab-stop-list
+      (loop for n from 4 to 120 by 4
+            collect n))
+
 (whitespace-mode 1)
 (size-indication-mode 1)
 (global-hl-line-mode 1)
