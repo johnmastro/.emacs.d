@@ -12,3 +12,4 @@ tramp
 *.elc
 /.mc-lists.el
 /bookmarks
+.ac-comphist.dat

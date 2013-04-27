@@ -47,8 +47,6 @@ Use `slime-expand-1` to produce the expansion."
      (setq slime-autodoc-use-multiline-p t)
      (global-set-key (kbd "<f9>") 'slime-selector)
      (define-key slime-mode-map
-       (kbd "<tab>") 'slime-indent-and-complete-symbol)
-     (define-key slime-mode-map
        (kbd "<f5>") 'slime-eval-last-expression)
      (define-key slime-mode-map
        (kbd "<M-f5>") 'slime-eval-last-expression-in-repl)
@@ -64,6 +62,19 @@ Use `slime-expand-1` to produce the expansion."
        (kbd "<f7>") 'slime-expand-1)
      (define-key slime-mode-map
        (kbd "<f8>") 'slime-compile-and-load-file)))
+
+;; auto-complete setup ---------------------------------------------------------
+
+(defun basis/set-up-slime-fuzzy-ac ()
+  "Integrate SLIME's fuzzy completion with auto-complete."
+  (interactive)
+  (set-up-slime-ac t))
+
+(add-hook 'slime-mode-hook 'basis/set-up-slime-fuzzy-ac)
+(add-hook 'slime-repl-mode-hook 'basis/set-up-slime-fuzzy-ac)
+
+(eval-after-load "auto-complete"
+  `(add-to-list 'ac-modes 'slime-repl-mode))
 
 
 (provide 'init-slime)

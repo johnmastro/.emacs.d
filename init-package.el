@@ -68,6 +68,8 @@ optionally, the name of the archive to use in its cdr."
          (magit . melpa)
          (multiple-cursors . melpa)
          (helm . melpa)
+         (auto-complete . melpa)
+         (ac-slime . melpa)
          )))
   (basis/install-packages basis/required-packages))
 

@@ -151,8 +151,6 @@
 
 (eval-after-load 'scheme
   '(progn
-     (define-key scheme-mode-map (kbd "<tab>")
-       'scheme-complete-or-indent)
      (define-key scheme-mode-map (kbd "<f5>")
        'scheme-send-last-sexp)
      (define-key scheme-mode-map (kbd "<f6>")

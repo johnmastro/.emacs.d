@@ -21,8 +21,6 @@
   '(diminish 'elisp-slime-nav-mode))
 (eval-after-load 'eldoc
   '(diminish 'eldoc-mode))
-(eval-after-load 'smart-tab
-  '(diminish 'smart-tab-mode))
 (eval-after-load 'undo-tree
   '(diminish 'undo-tree-mode))
 
