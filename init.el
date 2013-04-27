@@ -48,6 +48,7 @@
 (require 'init-auto-complete)
 (require 'init-lisp)
 (require 'init-slime)
+(require 'init-smartparens)
 (require 'init-python)
 (require 'init-org)
 (require 'init-markdown)
