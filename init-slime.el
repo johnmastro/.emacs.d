@@ -76,5 +76,12 @@ Use `slime-expand-1` to produce the expansion."
 (eval-after-load "auto-complete"
   `(add-to-list 'ac-modes 'slime-repl-mode))
 
+;; redshank --------------------------------------------------------------------
+
+(require 'redshank-loader)
+
+(eval-after-load "redshank-loader"
+  '(redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t))
+
 
 (provide 'init-slime)

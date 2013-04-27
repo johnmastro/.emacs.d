@@ -71,6 +71,7 @@ optionally, the name of the archive to use in its cdr."
          (auto-complete . melpa)
          (ac-slime . melpa)
          (smartparens . melpa)
+         (redshank . melpa)
          )))
   (basis/install-packages basis/required-packages))
 
