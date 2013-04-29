@@ -23,8 +23,8 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   ;; Use <kp-enter>, conveniently located to the right of the space
   ;; bar on my MBP, as a stand-in for mapping the <menu>/<apps> key on
   ;; PC keyboards to hyper.
-  (define-prefix-command 'fake-hyper)
-  (global-set-key (kbd "<kp-enter>") 'fake-hyper))
+  (define-prefix-command 'quasi-hyper)
+  (global-set-key (kbd "<kp-enter>") 'quasi-hyper))
 
 (defun init-modifiers/windows ()
   (setq w32-pass-apps-to-system nil
@@ -52,7 +52,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (basis/define-hyper global-map "1" 'delete-other-windows)
 (basis/define-hyper global-map "2" 'split-window-below)
 (basis/define-hyper global-map "3" 'split-window-right)
-(basis/define-hyper global-map "g" 'basis/google)
+(basis/define-hyper global-map "g" 'basis/ido-tramp-selector)
 (basis/define-hyper global-map "r" ctl-x-r-map)
 
 ;; Easier window management
@@ -69,9 +69,13 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 ;; Kill stuff
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
-(global-set-key (kbd "M-<backspace>") 'kill-region-or-backward-word)
-(global-set-key (kbd "C-<backspace>") 'kill-line-backward)
+(global-set-key (kbd "<M-backspace>") 'kill-region-or-backward-word)
+(global-set-key (kbd "<C-backspace>") 'kill-line-backward)
 (global-set-key [remap kill-whole-line] 'smart-kill-whole-line)
+(global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
+
+;; Join lines
+(global-set-key (kbd "C-c j") 'join-line)
 
 ;; Transpose stuff with M-t
 ;; from github.com/magnars/.emacs.d/
@@ -132,6 +136,12 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 ;; Kill frames with C-x C-c
 (global-set-key (kbd "C-x C-c") 'delete-frame)
+
+;; Google stuff
+(global-set-key (kbd "C-c g") 'basis/google)
+
+;; Proced
+(global-set-key (kbd "C-x p") 'proced)
 
 ;; Help map --------------------------------------------------------------------
 
