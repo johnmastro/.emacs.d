@@ -16,4 +16,6 @@
                 ac-source-words-in-buffer
                 ac-source-words-in-same-mode-buffers))
 
+(define-key ac-completing-map (kbd "ESC") 'ac-stop)
+
 (provide 'init-auto-complete)
