@@ -52,6 +52,7 @@
 (require 'init-scheme)
 (require 'init-smartparens)
 (require 'init-python)
+(require 'init-yaml-mode)
 (require 'init-org)
 (require 'init-markdown)
 (require 'init-deft)
