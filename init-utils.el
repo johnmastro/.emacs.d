@@ -200,9 +200,9 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 ;; ido directory selector ------------------------------------------------------
 
 (defun insert/sorted (lst item &rest args)
-  "Insert `item` into sorted list `lst`.
+  "Insert ITEM into sorted list LST.
 Key and comparison functions can optionally be specified as
-quasi-keyword arguments (`key` and `cmp` respectively)."
+quasi-keyword arguments (`:key` and `:cmp` respectively)."
   (let* ((key (or (getf args :key) #'identity))
          (cmp (or (getf args :cmp) #'<))
          (ins? #'(lambda (x y)
@@ -216,17 +216,28 @@ quasi-keyword arguments (`key` and `cmp` respectively)."
     (funcall ins lst)))
 
 (defmacro push/sorted (place item &rest args)
-  "Insert `item` into the sorted list stored at `place`.
+  "Insert ITEM into the sorted list stored at PLACE.
 Equivalent to (setq place (insert/sorted place item))."
   `(setq ,place (funcall #'insert/sorted ,place ,item ,@args)))
 
-(defmacro basis/ido-in-dir-for (dir)
-  "Return a `lambda` form calling `ido-find-file-in-dir`."
-  `#'(lambda () (ido-find-file-in-dir ,dir)))
+(defun basis/ido-in-dir-for (dir)
+  "Return a closure calling `ido-find-file-in-dir` on DIR."
+  (lexical-let ((dir dir))
+    #'(lambda () (ido-find-file-in-dir dir))))
 
-(defmacro basis/dired-in-dir-for (dir)
-  "Return a `lambda` form calling `dired`."
-  `#'(lambda () (dired ,dir)))
+(defun basis/dired-in-dir-for (dir)
+  "Return a closure calling `dired` on DIR."
+  (lexical-let ((dir dir))
+    #'(lambda () (dired dir))))
+
+(defun basis/ido-tramp-for (host)
+  "Return a closure for openning a file on HOST via ido."
+  (lexical-let ((host host))
+    #'(lambda () (find-file (ido-read-file-name "Find file: "
+                                                (concat "/" host ":~/"))))))
+
+(defun basis/selector-quit ()
+  #'(lambda () (throw 'quit t)))
 
 ;; TODO: abstract out the creation of these tables
 (defvar basis/ido-dir-methods
@@ -236,7 +247,7 @@ Equivalent to (setq place (insert/sorted place item))."
     ("D" ,(basis/ido-in-dir-for "~/Dropbox/"))
     ("e" ,(basis/ido-in-dir-for "~/.emacs.d/"))
     ("h" ,(basis/ido-in-dir-for "~/"))
-    ("q" (lambda () (throw 'quit t))))
+    ("q" ,(basis/selector-quit)))
   "Directories to make available via `basis/ido-dir-selector`.")
 
 (defvar basis/dired-dir-methods
@@ -246,8 +257,21 @@ Equivalent to (setq place (insert/sorted place item))."
     ("D" ,(basis/dired-in-dir-for "~/Dropbox/"))
     ("e" ,(basis/dired-in-dir-for "~/.emacs.d/"))
     ("h" ,(basis/dired-in-dir-for "~/"))
-    ("q" (lambda () (throw 'quit t))))
+    ("q" ,(basis/selector-quit)))
   "Directories to make available via `basis/dired-dir-selector`.")
+
+(defvar basis/ido-tramp-methods
+  ;; This is mainly beneficial on Windows, where  there's no
+  ;; completion for hostnames. However, it can save a few keystrokes
+  ;; on Unix-likes too.
+  `((" " ido-find-file)
+    ("a" ,(basis/ido-tramp-for "akira"))
+    ("s" ,(basis/ido-tramp-for "sierra"))
+    ("h" ,(basis/ido-tramp-for "hera"))
+    ("m" ,(basis/ido-tramp-for "mira"))
+    ("n" ,(basis/ido-tramp-for "nova"))
+    ("q" ,(basis/selector-quit)))
+  "Hosts to make available via `basis/ido-tramp-selector`.")
 
 (defun basis/selector (method-table)
   "A simple selector, heavily inspired by `slime-selector`.
@@ -276,6 +300,11 @@ single-character strings to functions."
   "Open `dired` in a specified directory."
   (interactive)
   (basis/selector basis/dired-dir-methods))
+
+(defun basis/ido-tramp-selector ()
+  "Use ido to find a file on a specified host."
+  (interactive)
+  (basis/selector basis/ido-tramp-methods))
 
 ;; buffer cleanup --------------------------------------------------------------
 
