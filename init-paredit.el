@@ -13,6 +13,19 @@
 
 (add-hook 'paredit-mode-hook 'basis/maybe-map-paredit-newline)
 
+(defun basis/paredit-doublequote-space-p (endp delimiter)
+  "Don't insert an extraneous space when entering a CL pathname."
+  ;; If any of `paredit-space-for-delimiter-predicates` returns nil
+  ;; a space isn't inserted.
+  (let ((pathname-opening-p
+         (and (not endp)
+              (eql delimiter ?\")
+              (memq major-mode '(lisp-mode common-lisp-mode))
+              (save-excursion
+                (backward-char 2)
+                (looking-at "#p")))))
+    (not pathname-opening-p)))
+
 (defun paredit-kill-region-or-backward-word ()
   (interactive)
   (if (region-active-p)
@@ -21,22 +34,19 @@
 
 (eval-after-load 'paredit
   '(progn
-     (define-key paredit-mode-map (kbd "[") 'paredit-open-round)
-     (define-key paredit-mode-map (kbd "M-[") 'paredit-open-square)
-     (define-key paredit-mode-map (kbd "M-e") 'paredit-forward)
-     (define-key paredit-mode-map (kbd "<M-right>") 'paredit-forward)
-     (define-key paredit-mode-map (kbd "M-a") 'paredit-backward)
-     (define-key paredit-mode-map (kbd "<M-left>") 'paredit-backward)
-     (define-key paredit-mode-map [remap kill-sentence] 'paredit-kill)
-     (define-key paredit-mode-map
-       (kbd "C-w")
-       'paredit-kill-region-or-backward-word)
-     (define-key paredit-mode-map
-       (kbd "M-<backspace>")
-       'paredit-kill-region-or-backward-word)
-     (define-key paredit-mode-map
-       [remap backward-kill-sentence]
-       'backward-kill-sexp)))
+     (basis/define-keys paredit-mode-map
+       ((kbd "[") 'paredit-open-round)
+       ((kbd "M-[") 'paredit-open-square)
+       ((kbd "M-e") 'paredit-forward)
+       ((kbd "<M-right>") 'paredit-forward)
+       ((kbd "M-a") 'paredit-backward)
+       ((kbd "<M-left>") 'paredit-backward)
+       ([remap kill-sentence] 'paredit-kill)
+       ((kbd "C-w") 'paredit-kill-region-or-backward-word)
+       ((kbd "M-<backspace>") 'paredit-kill-region-or-backward-word)
+       ([remap backward-kill-sentence] 'backward-kill-sexp))
+     (add-to-list 'paredit-space-for-delimiter-predicates
+             'basis/paredit-doublequote-space-p)))
 
 (defun basis/maybe-enable-paredit-mode ()
   "Enable Paredit during Lisp-related minibuffer commands."
