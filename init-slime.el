@@ -19,12 +19,6 @@
 
 (add-hook 'slime-mode-hook 'basis/start-slime)
 
-(defun basis/slime-repl-paredit-backspace ()
-  (define-key slime-repl-mode-map
-    (read-kbd-macro paredit-backward-delete-key) nil))
-
-(add-hook 'slime-repl-mode-hook 'basis/slime-repl-paredit-backspace)
-
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
@@ -62,6 +56,11 @@ Use `slime-expand-1` to produce the expansion."
        (kbd "<f7>") 'slime-expand-1)
      (define-key slime-mode-map
        (kbd "<f8>") 'slime-compile-and-load-file)))
+
+(eval-after-load 'slime-repl-mode
+  '(progn
+     (define-key slime-repl-mode-map
+       (read-kbd-macro paredit-backward-delete-key) nil)))
 
 ;; auto-complete setup ---------------------------------------------------------
 

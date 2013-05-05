@@ -2,10 +2,9 @@
 ;; init-python.el
 ;; -----------------------------------------------------------------------------
 
-(defun basis/python-setup ()
-  (define-key python-mode-map "\C-m" 'newline-and-indent))
-
-(add-hook 'python-mode-hook 'basis/python-setup)
+(eval-after-load 'python-mode
+  '(progn
+     (define-key python-mode-map (kbd "C-m") 'newline-and-indent)))
 
 (defun basis/insert-python-header (&optional arg)
   "Insert a Python coding cookie and modeline.
