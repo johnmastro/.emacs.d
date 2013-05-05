@@ -21,6 +21,7 @@
       imenu-auto-rescan t
       custom-file basis/custom-file)
 
+;; Tabs
 (setq-default indent-tabs-mode nil
               fill-column 80)
 
@@ -28,14 +29,21 @@
       (loop for n from 4 to 120 by 4
             collect n))
 
-(whitespace-mode 1)
+;; Whitespace mode in programming modes except REPL/shell-style modes
+(defun maybe-turn-on-whitespace-mode ()
+  (interactive)
+  (unless (or (derived-mode-p major-mode 'comint-mode)
+              (eq major-mode 'eshell-mode))
+    (whitespace-mode 1)))
+
+(add-hook 'prog-mode-hook 'maybe-turn-on-whitespace-mode)
+
+;; Enable some miscellaneous helpful modes
 (size-indication-mode 1)
 (global-hl-line-mode 1)
 (show-paren-mode 1)
-(blink-cursor-mode -1)
 (cua-selection-mode 1)
 (auto-compression-mode 1)
-
 (global-undo-tree-mode 1)
 
 ;; TRAMP
@@ -88,6 +96,9 @@
 (setq kill-buffer-query-functions
       (remq 'process-kill-buffer-query-function
             kill-buffer-query-functions))
+
+;; No blinking please
+(blink-cursor-mode -1)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
