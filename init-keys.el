@@ -12,6 +12,16 @@ On OS X, instead define a binding with <kp-enter> as prefix."
              (concat "H-" key)))
      ,def))
 
+(defmacro basis/define-keys (keymap &rest keydefs)
+  "Define multiple key bindings for KEYMAP."
+  (declare (indent defun))
+  `(progn
+     ,@(mapcar #'(lambda (keydef)
+                   (let ((key (car keydef))
+                         (def (cadr keydef)))
+                     `(define-key ,keymap ,key ,def)))
+               keydefs)))
+
 (defun init-modifiers/linux ()
   (define-key key-translation-map
     (kbd "<menu>")
