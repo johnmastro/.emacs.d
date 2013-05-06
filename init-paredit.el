@@ -35,15 +35,15 @@
 (eval-after-load 'paredit
   '(progn
      (basis/define-keys paredit-mode-map
-       ((kbd "[") 'paredit-open-round)
-       ((kbd "M-[") 'paredit-open-square)
-       ((kbd "M-e") 'paredit-forward)
-       ((kbd "<M-right>") 'paredit-forward)
-       ((kbd "M-a") 'paredit-backward)
-       ((kbd "<M-left>") 'paredit-backward)
-       ([remap kill-sentence] 'paredit-kill)
-       ((kbd "C-w") 'paredit-kill-region-or-backward-word)
-       ((kbd "M-<backspace>") 'paredit-kill-region-or-backward-word)
+       ((kbd "[")                      'paredit-open-round)
+       ((kbd "M-[")                    'paredit-open-square)
+       ((kbd "M-e")                    'paredit-forward)
+       ((kbd "<M-right>")              'paredit-forward)
+       ((kbd "M-a")                    'paredit-backward)
+       ((kbd "<M-left>")               'paredit-backward)
+       ([remap kill-sentence]          'paredit-kill)
+       ((kbd "C-w")                    'paredit-kill-region-or-backward-word)
+       ((kbd "M-<backspace>")          'paredit-kill-region-or-backward-word)
        ([remap backward-kill-sentence] 'backward-kill-sexp))
      (add-to-list 'paredit-space-for-delimiter-predicates
              'basis/paredit-doublequote-space-p)))

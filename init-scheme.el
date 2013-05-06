@@ -29,15 +29,11 @@
 
 (eval-after-load 'scheme
   '(progn
-     (define-key scheme-mode-map (kbd "<f5>")
-       'scheme-send-last-sexp)
-     (define-key scheme-mode-map (kbd "<f6>")
-       'basis/scheme-send-something)
-     (define-key scheme-mode-map (kbd "<M-f6>")
-       'scheme-compile-definition-and-go)
-     (define-key scheme-mode-map (kbd "<f8>")
-       'scheme-compile-file)
-     (define-key scheme-mode-map (kbd "<M-f8>")
-       'scheme-load-file)))
+     (basis/define-keys scheme-mode-map
+       ((kbd "<f5>")   'scheme-send-last-sexp)
+       ((kbd "<f6>")   'basis/scheme-send-something)
+       ((kbd "<M-f6>") 'scheme-compile-definition-and-go)
+       ((kbd "<f8>")   'scheme-compile-file)
+       ((kbd "<M-f8>") 'scheme-load-file))))
 
 (provide 'init-scheme)

@@ -62,10 +62,11 @@
     (eval-defun nil)))
 
 (dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (define-key mode (kbd "<f5>") 'pp-eval-last-sexp)
-  (define-key mode (kbd "<f6>") 'basis/eval-something)
-  (define-key mode (kbd "<f7>") 'macroexpand-point)
-  (define-key mode (kbd "<f8>") 'eval-buffer))
+  (basis/define-keys mode
+    ((kbd "<f5>") 'pp-eval-last-sexp)
+    ((kbd "<f6>") 'basis/eval-something)
+    ((kbd "<f7>") 'macroexpand-point)
+    ((kbd "<f8>") 'eval-buffer)))
 
 
 (provide 'init-lisp)
