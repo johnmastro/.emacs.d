@@ -43,6 +43,7 @@
 (require 'init-ace-jump)
 (require 'init-ibuffer)
 (require 'init-dired)
+(require 'init-eshell)
 (require 'init-ido)
 (require 'init-hippie-expand)
 (require 'init-auto-complete)
