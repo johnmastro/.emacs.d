@@ -43,9 +43,11 @@
          "DONE(d!)" "DEFERRED(f@)" "CANCELLED(c@)")))
 
 ;; Keys
-(define-key global-map (kbd "C-c a") 'org-agenda)
-(define-key global-map (kbd "C-c c") 'org-capture)
-(define-key global-map (kbd "C-c l") 'org-store-link)
+(basis/define-keys global-map
+  ((kbd "C-c a") 'org-agenda)
+  ((kbd "C-c b") 'org-iswitchb)
+  ((kbd "C-c c") 'org-capture)
+  ((kbd "C-c l") 'org-store-link))
 
 
 (provide 'init-org)
