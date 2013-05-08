@@ -70,6 +70,9 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (windmove-default-keybindings)
 (global-set-key (kbd "M-o") 'other-window)
 
+;; Less tab
+(global-set-key (kbd "C-m") 'newline-and-indent)
+
 ;; Clever C-a
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 
@@ -86,6 +89,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 ;; Join lines
 (global-set-key (kbd "C-c j") 'join-line)
+
+;; Moves lines or regions
+(global-set-key (kbd "<M-s-up>") 'move-text-up)
+(global-set-key (kbd "<M-s-down>") 'move-text-down)
 
 ;; Transpose stuff with M-t
 ;; from github.com/magnars/.emacs.d/
