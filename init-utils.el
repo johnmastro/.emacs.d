@@ -48,6 +48,30 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
        (if reg-p (region-beginning) (line-beginning-position))
        (if reg-p (region-end) (line-end-position))))))
 
+(defun basis/goto-line-with-numbers ()
+  "Invoke `goto-line` with `linum-mode` temporarily enabled.
+If `linum-mode` was already enabled just call `goto-line`."
+  (interactive)
+  (let ((linum-enabled-p linum-mode))
+    (unwind-protect
+        (progn
+          (unless linum-enabled-p (linum-mode 1))
+          (call-interactively #'goto-line))
+      (unless linum-enabled-p (linum-mode -1)))))
+
+(defun kill-line-backward ()
+  "Kill everything before point. Respect indentation."
+  (interactive)
+  (kill-line 0)
+  (indent-according-to-mode))
+
+(defun smart-kill-whole-line (&optional arg)
+  "A simple wrapper around `kill-whole-line` that respects indentation."
+  ;; from emacsredux.com
+  (interactive "P")
+  (kill-whole-line arg)
+  (back-to-indentation))
+
 ;; files -----------------------------------------------------------------------
 
 (defun rename-current-buffer-file ()
@@ -90,19 +114,6 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
          (file (ido-completing-read "Choose recent file: " recent nil t)))
     (when file
       (find-file file))))
-
-(defun kill-line-backward ()
-  "Kill everything before point. Respect indentation."
-  (interactive)
-  (kill-line 0)
-  (indent-according-to-mode))
-
-(defun smart-kill-whole-line (&optional arg)
-  "A simple wrapper around `kill-whole-line` that respects indentation."
-  ;; from emacsredux.com
-  (interactive "P")
-  (kill-whole-line arg)
-  (back-to-indentation))
 
 ;; miscellaneous ---------------------------------------------------------------
 

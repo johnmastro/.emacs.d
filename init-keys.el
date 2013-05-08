@@ -132,6 +132,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "M-m") 'jump-char-forward)
 (global-set-key (kbd "M-M") 'jump-char-backward)
 
+;; goto-line, with line numbers
+(global-set-key (kbd "M-g g") 'basis/goto-line-with-numbers)
+(global-set-key (kbd "M-g M-g") 'basis/goto-line-with-numbers)
+
 ;; Movement by sexp
 (global-set-key (kbd "<M-right>") 'forward-sexp)
 (global-set-key (kbd "<M-left>") 'backward-sexp)
@@ -147,7 +151,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "C-c x") 'execute-extended-command)
 
 ;; Expand-region
-(global-set-key (kbd "M-+") 'er/expand-region)
+(global-set-key (kbd "C-:") 'er/expand-region)
 
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including, the ARGth occurrence of CHAR.")
