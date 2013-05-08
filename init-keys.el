@@ -87,6 +87,9 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key [remap kill-whole-line] 'smart-kill-whole-line)
 (global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
 
+;; ... and then browse it with M-y
+(browse-kill-ring-default-keybindings)
+
 ;; Join lines
 (global-set-key (kbd "C-c j") 'join-line)
 
@@ -116,7 +119,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 
 ;; Comment/uncomment stuff
-(global-set-key (kbd "C-c ;") 'comment-or-uncomment-region)
+(global-set-key (kbd "C-c ;") 'basis/comment-or-uncomment)
 
 ;; Eval
 (global-set-key (kbd "C-x C-e") 'pp-eval-last-sexp)

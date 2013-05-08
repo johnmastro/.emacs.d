@@ -39,6 +39,15 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
       (kill-region (region-beginning) (region-end))
     (backward-kill-word 1)))
 
+(defun basis/comment-or-uncomment ()
+  "Comment or uncomment the active region or current line."
+  (interactive)
+  (let ((reg-p (region-active-p)))
+    (save-excursion
+      (comment-or-uncomment-region
+       (if reg-p (region-beginning) (line-beginning-position))
+       (if reg-p (region-end) (line-end-position))))))
+
 ;; files -----------------------------------------------------------------------
 
 (defun rename-current-buffer-file ()
