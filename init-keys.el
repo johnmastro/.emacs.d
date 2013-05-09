@@ -39,12 +39,11 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (defun init-modifiers/windows ()
   (setq w32-pass-apps-to-system nil
         w32-pass-lwindow-to-system nil
-        w32-pass-rwindow-to-system nil
-        w32-lwindow-modifier 'super
-        w32-rwindow-modifier 'super)
-  (define-key key-translation-map
-    (kbd "<apps>")
-    'event-apply-hyper-modifier))
+        w32-pass-rwindow-to-system nil)
+  (basis/define-keys key-translation-map
+   ((kbd "<apps>")    'event-apply-hyper-modifier)
+   ((kbd "<lwindow>") 'event-apply-super-modifier)
+   ((kbd "<rwindow>") 'event-apply-super-modifier)))
 
 (case system-type
   (gnu/linux  (init-modifiers/linux))
