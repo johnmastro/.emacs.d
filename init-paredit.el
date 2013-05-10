@@ -20,7 +20,7 @@
   (let ((pathname-opening-p
          (and (not endp)
               (eql delimiter ?\")
-              (memq major-mode '(lisp-mode common-lisp-mode))
+              (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
               (save-excursion
                 (backward-char 2)
                 (looking-at "#p")))))
