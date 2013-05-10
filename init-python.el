@@ -6,6 +6,8 @@
   '(progn
      (define-key python-mode-map (kbd "C-m") 'newline-and-indent)))
 
+(add-hook 'python-mode-hook #'(lambda () (smartparens-mode -1)))
+
 (defun basis/insert-python-header (&optional arg)
   "Insert a Python coding cookie and modeline.
 By default insert at the beginning of the buffer. With
