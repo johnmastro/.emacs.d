@@ -32,7 +32,7 @@
 ;; Whitespace mode in programming modes except REPL/shell-style modes
 (defun maybe-turn-on-whitespace-mode ()
   (interactive)
-  (unless (or (derived-mode-p major-mode 'comint-mode)
+  (unless (or (derived-mode-p 'comint-mode)
               (eq major-mode 'eshell-mode))
     (whitespace-mode 1)))
 
