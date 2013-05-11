@@ -41,6 +41,7 @@
 (require 'init-utils)
 (require 'init-keys)
 (require 'init-ace-jump)
+(require 'init-magit)
 (require 'init-ibuffer)
 (require 'init-dired)
 (require 'init-eshell)
