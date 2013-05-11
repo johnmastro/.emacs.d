@@ -83,7 +83,8 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
 (global-set-key (kbd "<M-backspace>") 'kill-region-or-backward-word)
 (global-set-key (kbd "<C-backspace>") 'kill-line-backward)
-(global-set-key [remap kill-whole-line] 'smart-kill-whole-line)
+(global-set-key [remap kill-whole-line] 'smart-kill-whole-line) ; C-S-backspace
+(global-set-key (kbd "<S-backspace>") 'smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
 
 ;; ... and then browse it with M-y

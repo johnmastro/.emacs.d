@@ -72,6 +72,12 @@ If `linum-mode` was already enabled just call `goto-line`."
   (kill-whole-line arg)
   (back-to-indentation))
 
+(defun smart-kill-almost-whole-line ()
+  "Like `smart-kill-whole-line` but doesn't kill the newline."
+  (interactive)
+  (beginning-of-line-or-indentation)
+  (kill-line nil))
+
 ;; files -----------------------------------------------------------------------
 
 (defun rename-current-buffer-file ()
