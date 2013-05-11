@@ -2,23 +2,20 @@
 ;; init-python.el
 ;; -----------------------------------------------------------------------------
 
+(defun basis/python-send-something ()
+  (interactive)
+  (if (region-active-p)
+      (python-shell-send-region (region-beginning)
+                                (region-end))
+    (python-shell-send-defun nil)))
+
 (eval-after-load 'python-mode
   '(progn
-     (define-key python-mode-map (kbd "C-m") 'newline-and-indent)))
+     (basis/define-keys
+       ((kbd "<f6>") 'python-shell-send-something)
+       ((kbd "<f8>") 'python-shell-send-buffer)
+       ((kbd "<M-f8>") 'python-shell-send-file))))
 
 (add-hook 'python-mode-hook #'(lambda () (smartparens-mode -1)))
-
-(defun basis/insert-python-header (&optional arg)
-  "Insert a Python coding cookie and modeline.
-By default insert at the beginning of the buffer. With
-a prefix arg insert wherever point is."
-  (interactive "P")
-  (save-excursion
-    (unless arg
-      (goto-char (point-min)))
-    (insert (concatenate 'string
-                         "# -*- coding: utf-8 -*-\n"
-                         "#!/usr/bin/env python\n"
-                         "\n"))))
 
 (provide 'init-python)
