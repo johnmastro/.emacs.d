@@ -16,6 +16,14 @@
        ((kbd "<f8>") 'python-shell-send-buffer)
        ((kbd "<M-f8>") 'python-shell-send-file))))
 
-(add-hook 'python-mode-hook #'(lambda () (smartparens-mode -1)))
+(defun disable-smartparens-mode ()
+  (smartparens-mode -1))
+
+(add-hook 'python-mode-hook 'disable-smartparens-mode)
+
+(setq jedi:setup-keys t
+      jedi:tooltip-method nil) ; show function signatures in the minibuffer
+
+(add-hook 'python-mode-hook 'jedi:setup)
 
 (provide 'init-python)
