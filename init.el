@@ -54,6 +54,7 @@
 (require 'init-scheme)
 (require 'init-autopair)
 (require 'init-python)
+(require 'init-sql)
 (require 'init-c)
 (require 'init-yaml-mode)
 (require 'init-org)
