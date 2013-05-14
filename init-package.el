@@ -70,7 +70,6 @@ optionally, the name of the archive to use in its cdr."
          (helm . melpa)
          (auto-complete . melpa)
          (ac-slime . melpa)
-         (smartparens . melpa)
          (redshank . melpa)
          (yaml-mode . melpa)
          (s . melpa)

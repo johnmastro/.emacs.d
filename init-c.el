@@ -6,8 +6,7 @@
   (c-set-style "python")
   (setq indent-tabs-mode nil
         c-basic-offset 4)
-  (c-toggle-auto-newline 1)
-  (smartparens-mode -1))
+  (c-toggle-auto-newline 1))
 
 (add-hook 'c-mode-hook 'basis/init-c)
 

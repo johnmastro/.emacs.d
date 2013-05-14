@@ -52,7 +52,6 @@
 (require 'init-paredit)
 (require 'init-slime)
 (require 'init-scheme)
-(require 'init-smartparens)
 (require 'init-python)
 (require 'init-c)
 (require 'init-yaml-mode)
