@@ -5,22 +5,24 @@
 (defmacro basis/define-hyper (keymap key def)
   "Define a Hyper- modified key binding.
 On OS X, instead define a binding with <kp-enter> as prefix."
-  (declare (indent defun))
   `(define-key ,keymap
      (kbd ,(if (eq system-type 'darwin)
                (concat "<kp-enter> " key)
              (concat "H-" key)))
      ,def))
 
+(put 'basis/define-hyper 'lisp-indent-function 'defun)
+
 (defmacro basis/define-keys (keymap &rest keydefs)
   "Define multiple key bindings for KEYMAP."
-  (declare (indent defun))
   `(progn
      ,@(mapcar #'(lambda (keydef)
                    (let ((key (car keydef))
                          (def (cadr keydef)))
                      `(define-key ,keymap ,key ,def)))
                keydefs)))
+
+(put 'basis/define-keys 'lisp-indent-function 'defun)
 
 (defun init-modifiers/linux ()
   (define-key key-translation-map

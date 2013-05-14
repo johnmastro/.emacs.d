@@ -18,11 +18,12 @@ Print the result to a temp buffer."
 (defmacro with-unique-names (names &rest body)
   "Create unique names for use in a macro definition.
 This idea also goes by the name `with-gensyms` in Common Lisp."
-  (declare (indent 1))
   `(let ,(mapcar (lambda (sym)
                    `(,sym (make-symbol (symbol-name ',sym))))
                  names)
      ,@body))
+
+(put 'with-unique-names 'lisp-indent-function 1)
 
 ;; editing ---------------------------------------------------------------------
 
