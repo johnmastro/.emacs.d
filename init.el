@@ -52,6 +52,7 @@
 (require 'init-paredit)
 (require 'init-slime)
 (require 'init-scheme)
+(require 'init-autopair)
 (require 'init-python)
 (require 'init-c)
 (require 'init-yaml-mode)
