@@ -4,6 +4,6 @@
 
 (setq autopair-blink nil)
 
-(autopair-global-mode)
+(autopair-global-mode) ; disabled for lisps in init-lisp.el
 
 (provide 'init-autopair)

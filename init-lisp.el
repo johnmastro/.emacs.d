@@ -8,11 +8,8 @@
 
 (defun basis/lisp-setup ()
   "Enable features useful in any Lisp mode."
-  (paredit-mode +1))
-
-(defun basis/lisp-repl-setup ()
-  "Enable features useful in interactive Lisp modes."
-  (whitespace-mode -1))
+  (paredit-mode +1)
+  (autopair-mode -1))
 
 (defun set-up-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in Hippie Expand."
@@ -23,7 +20,6 @@
 
 (defun basis/emacs-lisp-setup ()
   "Enable features useful when working with Emacs Lisp."
-  (paredit-mode +1)
   (elisp-slime-nav-mode t)
   (set-up-hippie-expand-for-elisp)
   (turn-on-eldoc-mode))
@@ -36,16 +32,11 @@
                               slime-repl-mode-hook
                               inferior-lisp-mode-hook
                               scheme-mode-hook
-                              inferior-scheme-mode-hook)))
-       (lispy-repl-hooks '(ielm-mode-hook
-                           inferior-lisp-mode-hook
-                           inferior-scheme-mode-hook)))
+                              inferior-scheme-mode-hook))))
   (dolist (hook lispy-hooks)
     (add-hook hook 'basis/lisp-setup))
   (dolist (hook elispy-hooks)
-    (add-hook hook 'basis/emacs-lisp-setup))
-  (dolist (hook lispy-repl-hooks)
-    (add-hook hook 'basis/lisp-repl-setup)))
+    (add-hook hook 'basis/emacs-lisp-setup)))
 
 (setq lisp-lambda-list-keyword-alignment t
       lisp-lambda-list-keyword-parameter-alignment t
