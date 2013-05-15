@@ -122,6 +122,9 @@ If `linum-mode` was already enabled just call `goto-line`."
     (when file
       (find-file file))))
 
+(defun buffer-file-basename-sans-extension ()
+  (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))
+
 ;; miscellaneous ---------------------------------------------------------------
 
 (defun basis/google ()
