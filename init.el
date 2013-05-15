@@ -48,6 +48,7 @@
 (require 'init-ido)
 (require 'init-hippie-expand)
 (require 'init-auto-complete)
+(require 'init-yasnippet)
 (require 'init-lisp)
 (require 'init-paredit)
 (require 'init-slime)

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: provide
+# key: provide
+# --
+(provide '`(buffer-file-basename-sans-extension)`)$0

@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: function
+# key: fn
+# expand-env: ((yas-indent-line 'fixed))
+# --
+create or replace function ${1:NAME}(${2:PARAMETERS})
+    returns ${3:TYPE}
+as $$
+$0
+$$ language ${4:LANGUAGE};

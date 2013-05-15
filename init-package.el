@@ -77,6 +77,7 @@ optionally, the name of the archive to use in its cdr."
          (browse-kill-ring . melpa)
          (jedi . melpa)
          (autopair . melpa)
+         (yasnippet . melpa)
          )))
   (basis/install-packages basis/required-packages))
 
