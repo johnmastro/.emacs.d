@@ -7,14 +7,8 @@
 If point is after what might be a snippet key, call `yas-expand`,
 otherwise call `yas-insert-snippet`."
   (interactive)
-  (let ((point-before-word-p
-         (save-excursion
-           (backward-char 1)
-           (looking-at "\\w"))))
-    (call-interactively
-     (if point-before-word-p
-         #'yas-expand
-       #'yas-insert-snippet))))
+  (call-interactively
+   (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
 
 (eval-after-load 'yasnippet
   '(progn
