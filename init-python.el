@@ -11,9 +11,9 @@
                                 (region-end))
     (python-shell-send-defun nil)))
 
-(eval-after-load 'python-mode
+(eval-after-load 'python
   '(progn
-     (basis/define-keys
+     (basis/define-keys python-mode-map
        ((kbd "<f6>")   'python-shell-send-something)
        ((kbd "<f8>")   'python-shell-send-buffer)
        ((kbd "<M-f8>") 'python-shell-send-file))))
