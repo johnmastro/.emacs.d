@@ -2,8 +2,6 @@
 ;; init-paredit.el
 ;; -----------------------------------------------------------------------------
 
-(autoload 'enable-paredit-mode "paredit")
-
 (defun basis/maybe-map-paredit-newline ()
   "Map `paredit-newline` except in some interactive modes."
   (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
@@ -26,7 +24,7 @@
                 (looking-at "#p")))))
     (not pathname-opening-p)))
 
-(defun paredit-kill-region-or-backward-word ()
+(defun basis/paredit-kill-something ()
   (interactive)
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
@@ -41,9 +39,10 @@
        ((kbd "<M-right>")              'paredit-forward)
        ((kbd "M-a")                    'paredit-backward)
        ((kbd "<M-left>")               'paredit-backward)
-       ([remap kill-sentence]          'paredit-kill)
-       ((kbd "C-w")                    'paredit-kill-region-or-backward-word)
-       ((kbd "M-<backspace>")          'paredit-kill-region-or-backward-word)
+       ((kbd "s-u")                    'paredit-backward-up)
+       ((kbd "M-k")                    'kill-sexp)
+       ((kbd "C-w")                    'basis/paredit-kill-something)
+       ((kbd "M-<backspace>")          'basis/paredit-kill-something)
        ([remap backward-kill-sentence] 'backward-kill-sexp))
      (add-to-list 'paredit-space-for-delimiter-predicates
              'basis/paredit-doublequote-space-p)))
