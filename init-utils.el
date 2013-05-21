@@ -79,6 +79,33 @@ If `linum-mode` was already enabled just call `goto-line`."
   (beginning-of-line-or-indentation)
   (kill-line nil))
 
+(defun basis/upcase-something (&optional arg)
+  "Upcase either the region or word(s).
+This will call `upcase-region` or `upcase-word` depending on
+whether the region is active."
+  (interactive "p")
+  (if (region-active-p)
+      (upcase-region (region-beginning) (region-end))
+    (upcase-word arg)))
+
+(defun basis/downcase-something (&optional arg)
+  "Downcase either the region or word(s).
+This will call `downcase-region` or `downcase-word` depending on
+whether the region is active."
+  (interactive "p")
+  (if (region-active-p)
+      (downcase-region (region-beginning) (region-end))
+    (downcase-word arg)))
+
+(defun basis/capitalize-something (&optional arg)
+  "Capitalize either the region or word(s).
+This will call `capitalize-region` or `capitalize-word` depending
+on whether the region is active."
+  (interactive "p")
+  (if (region-active-p)
+      (capitalize-region (region-beginning) (region-end))
+    (capitalize-word arg)))
+
 ;; files -----------------------------------------------------------------------
 
 (defun rename-current-buffer-file ()
@@ -122,8 +149,11 @@ If `linum-mode` was already enabled just call `goto-line`."
     (when file
       (find-file file))))
 
+(defun file-basename-sans-extension (filename)
+  (file-name-sans-extension (file-name-nondirectory filename)))
+
 (defun buffer-file-basename-sans-extension ()
-  (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))
+  (file-basename-sans-extension (buffer-file-name)))
 
 ;; miscellaneous ---------------------------------------------------------------
 
