@@ -70,12 +70,6 @@
 (add-to-list 'safe-local-variable-values '(lexical-binding . t))
 (add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
 
-(when (display-graphic-p)
-  (setq frame-title-format
-        '((:eval (if (buffer-file-name)
-                     (abbreviate-file-name (buffer-file-name))
-                   "%b")))))
-
 ;; UTF-8 everywhere
 (prefer-coding-system 'utf-8-unix)
 (set-default-coding-systems 'utf-8-unix)

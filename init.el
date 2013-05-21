@@ -37,6 +37,7 @@
 
 (require 'init-package)
 (require 'init-settings)
+(require 'init-interface)
 (require 'init-uniquify)
 (require 'init-utils)
 (require 'init-keys)
@@ -61,4 +62,3 @@
 (require 'init-org)
 (require 'init-markdown)
 (require 'init-deft)
-(require 'init-interface)

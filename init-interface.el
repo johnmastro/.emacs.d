@@ -14,8 +14,13 @@
     (darwin     "Andale Mono-12")
     (windows-nt "Consolas-10")))
 
-(when (and (display-graphic-p) basis/default-font)
-  (set-face-attribute 'default nil :font basis/default-font))
+(when (display-graphic-p)
+  (setq frame-title-format
+        '((:eval (if (buffer-file-name)
+                     (abbreviate-file-name (buffer-file-name))
+                   "%b"))))
+  (when basis/default-font
+    (set-face-attribute 'default nil :font basis/default-font)))
 
 (eval-after-load 'paredit
   '(diminish 'paredit-mode " π"))            ; pi
