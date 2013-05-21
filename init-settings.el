@@ -21,9 +21,12 @@
       imenu-auto-rescan t
       custom-file basis/custom-file)
 
+(when (file-exists-p custom-file)
+  (load custom-file))
+
 ;; Tabs
 (setq-default indent-tabs-mode nil
-              fill-column 80)
+              fill-column 79)
 
 (setq tab-stop-list
       (loop for n from 4 to 120 by 4
