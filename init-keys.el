@@ -116,16 +116,22 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (define-key occur-mode-map (kbd "n") 'occur-next)
 (define-key occur-mode-map (kbd "p") 'occur-prev)
 
+;; Expand-region
+(global-set-key (kbd "C-:") 'er/expand-region)
+
 ;; Multiple cursors
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "s->") 'mc/mark-more-like-this-extended)
 
 ;; Comment/uncomment stuff
+(global-set-key (kbd "s-;") 'basis/comment-or-uncomment)
 (global-set-key (kbd "C-c ;") 'basis/comment-or-uncomment)
 
 ;; Eval
 (global-set-key (kbd "C-x C-e") 'pp-eval-last-sexp)
 (global-set-key (kbd "C-c C-e") 'basis/eval-and-replace)
+(global-set-key (kbd "<s-return>") 'eval-expression)
 
 ;; I use Meta-space for ace-jump-mode
 (global-set-key (kbd "C-c SPC") 'just-one-space)
@@ -152,13 +158,15 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "C-c m") 'smex)
 (global-set-key (kbd "C-c x") 'execute-extended-command)
 
-;; Expand-region
-(global-set-key (kbd "C-:") 'er/expand-region)
-
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including, the ARGth occurrence of CHAR.")
 (global-set-key (kbd "M-z") 'zap-up-to-char)
 (global-set-key (kbd "M-Z") 'zap-to-char)
+
+;; Change word case
+(global-set-key (kbd "M-u") 'basis/upcase-something)
+(global-set-key (kbd "M-l") 'basis/downcase-something)
+(global-set-key (kbd "M-c") 'basis/capitalize-something)
 
 ;; Kill frames with C-x C-c
 (global-set-key (kbd "C-x C-c") 'delete-frame)
