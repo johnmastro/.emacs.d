@@ -24,6 +24,24 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 (put 'basis/define-keys 'lisp-indent-function 'defun)
 
+(defmacro create-simple-keybinding-command (name key)
+  ;; Based on code from
+  ;; github.com/magnars/.emacs.d/blob/master/defuns/misc-defuns.el
+  `(defun ,name (def &optional keymap)
+     (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
+
+(create-simple-keybinding-command f2 "<f2>")
+(create-simple-keybinding-command f3 "<f3>")
+(create-simple-keybinding-command f4 "<f4>")
+(create-simple-keybinding-command f5 "<f5>")
+(create-simple-keybinding-command f6 "<f6>")
+(create-simple-keybinding-command f7 "<f7>")
+(create-simple-keybinding-command f8 "<f8>")
+(create-simple-keybinding-command f9 "<f9>")
+(create-simple-keybinding-command f10 "<f10>")
+(create-simple-keybinding-command f11 "<f11>")
+(create-simple-keybinding-command f12 "<f12>")
+
 (defun init-modifiers/linux ()
   (define-key key-translation-map
     (kbd "<menu>")
@@ -41,11 +59,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (defun init-modifiers/windows ()
   (setq w32-pass-apps-to-system nil
         w32-pass-lwindow-to-system nil
-        w32-pass-rwindow-to-system nil)
-  (basis/define-keys key-translation-map
-   ((kbd "<apps>")    'event-apply-hyper-modifier)
-   ((kbd "<lwindow>") 'event-apply-super-modifier)
-   ((kbd "<rwindow>") 'event-apply-super-modifier)))
+        w32-pass-rwindow-to-system nil
+        w32-lwindow-modifier 'super
+        w32-rwindow-modifier 'super)
+  (define-key key-translation-map (kbd "<apps>") 'event-apply-hyper-modifier))
 
 (case system-type
   (gnu/linux  (init-modifiers/linux))
