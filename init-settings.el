@@ -71,11 +71,11 @@
 (add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
 
 ;; UTF-8 everywhere
-(prefer-coding-system 'utf-8-unix)
-(set-default-coding-systems 'utf-8-unix)
-(set-terminal-coding-system 'utf-8-unix)
-(set-keyboard-coding-system 'utf-8-unix)
-(set-selection-coding-system 'utf-8-unix)
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
 
 ;; Backups, autosaves, and temporary files
 (setq backup-by-copying t
