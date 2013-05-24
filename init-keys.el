@@ -2,34 +2,6 @@
 ;; init-keys.el
 ;; -----------------------------------------------------------------------------
 
-(defmacro basis/define-hyper (keymap key def)
-  "Define a Hyper- modified key binding.
-On OS X, instead define a binding with <kp-enter> as prefix."
-  `(define-key ,keymap
-     (kbd ,(if (eq system-type 'darwin)
-               (concat "<kp-enter> " key)
-             (concat "H-" key)))
-     ,def))
-
-(put 'basis/define-hyper 'lisp-indent-function 'defun)
-
-(defmacro basis/define-keys (keymap &rest keydefs)
-  "Define multiple key bindings for KEYMAP."
-  `(progn
-     ,@(mapcar #'(lambda (keydef)
-                   (let ((key (car keydef))
-                         (def (cadr keydef)))
-                     `(define-key ,keymap ,key ,def)))
-               keydefs)))
-
-(put 'basis/define-keys 'lisp-indent-function 'defun)
-
-(defmacro create-simple-keybinding-command (name key)
-  ;; Based on code from
-  ;; github.com/magnars/.emacs.d/blob/master/defuns/misc-defuns.el
-  `(defun ,name (def &optional keymap)
-     (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
-
 (create-simple-keybinding-command f2 "<f2>")
 (create-simple-keybinding-command f3 "<f3>")
 (create-simple-keybinding-command f4 "<f4>")
@@ -135,6 +107,12 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 ;; Occur
 (define-key occur-mode-map (kbd "n") 'occur-next)
 (define-key occur-mode-map (kbd "p") 'occur-prev)
+
+;; Mark commands
+(global-set-key (kbd "C-`") 'push-mark-no-activate)
+(global-set-key (kbd "M-`") 'jump-to-mark)
+(define-key global-map
+  [remap exchange-point-and-mark] 'exchange-point-and-mark-no-activate)
 
 ;; Expand-region
 (global-set-key (kbd "C-:") 'er/expand-region)
