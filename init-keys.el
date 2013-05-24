@@ -103,6 +103,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "<M-backspace>") 'kill-region-or-backward-word)
 (global-set-key (kbd "<C-backspace>") 'kill-line-backward)
 (global-set-key [remap kill-whole-line] 'smart-kill-whole-line) ; C-S-backspace
+(global-set-key (kbd "<s-backspace>") 'smart-kill-whole-line)
 (global-set-key (kbd "<S-backspace>") 'smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
 
@@ -123,11 +124,13 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (global-set-key (kbd "M-t w") 'transpose-words)
 (global-set-key (kbd "M-t s") 'transpose-sexps)
 (global-set-key (kbd "M-t c") 'transpose-chars)
-(global-set-key (kbd "M-t W") 'transpose-windows)
+(global-set-key (kbd "M-t M-w") 'transpose-windows)
 
 ;; Move between errors
 (global-set-key (kbd "s-.") 'next-error)
 (global-set-key (kbd "s-,") 'previous-error)
+
+(global-set-key (kbd "s-i") 'imenu)
 
 ;; Occur
 (define-key occur-mode-map (kbd "n") 'occur-next)
@@ -135,11 +138,14 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 ;; Expand-region
 (global-set-key (kbd "C-:") 'er/expand-region)
+(global-set-key (kbd "s-'") 'er/expand-region)
 
 ;; Multiple cursors
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "s->") 'mc/mark-more-like-this-extended)
+(global-set-key (kbd "s-]") 'mc/mark-next-like-this)
+(global-set-key (kbd "s-[") 'mc/mark-previous-like-this)
+(global-set-key (kbd "s-\\") 'mc/mark-more-like-this-extended)
 
 ;; Comment/uncomment stuff
 (global-set-key (kbd "s-;") 'basis/comment-or-uncomment)
