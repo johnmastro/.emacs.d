@@ -53,7 +53,7 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
   "Invoke `goto-line` with `linum-mode` temporarily enabled.
 If `linum-mode` was already enabled just call `goto-line`."
   (interactive)
-  (let ((linum-enabled-p linum-mode))
+  (let ((linum-enabled-p (and (boundp 'linum-mode) linum-mode)))
     (unwind-protect
         (progn
           (unless linum-enabled-p (linum-mode 1))
