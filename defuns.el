@@ -8,6 +8,9 @@
 ;; misc. editing utilities -----------------------------------------------------
 
 (defun beginning-of-line-or-indentation ()
+  "Smarter `move-beginning-of-line`.
+Go back to the first non-whitespace character or, if already
+there, to the beginning of the line."
   (interactive)
   (if (= (point) (save-excursion (back-to-indentation) (point)))
       (move-beginning-of-line nil)
@@ -22,17 +25,20 @@
        (if reg-p (region-beginning) (line-beginning-position))
        (if reg-p (region-end) (line-end-position))))))
 
-(defun copy-whole-buffer nil
+(defun basis/kill-ring-save-buffer ()
+  "Save the entire buffer's content to the kill ring."
   (interactive)
   (kill-ring-save (point-min) (point-max)))
 
-(defun insert-enough-dashes ()
+(defun basis/insert-enough-dashes ()
+  "Insert as many dashes as necessary to end at the 80th column."
   (interactive)
   (let* ((pos (- (point) (line-beginning-position)))
          (enough (- 80 pos)))
     (insert (concat (-repeat enough ?-)))))
 
-(defun join-line-up ()
+(defun basis/join-next-line ()
+  "Join the next line up to the current one."
   (interactive)
   (join-line -1))
 
@@ -180,7 +186,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
         (kill-buffer buffer)
         (message "File '%s' successfully deleted" filename)))))
 
-(defun recentf-ido-find-file ()
+(defun basis/recentf-ido-find-file ()
   "Find recently open files using ido and recentf."
   (interactive)
   (let* ((recent (mapcar #'abbreviate-file-name recentf-list))
@@ -223,6 +229,18 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   ;; github.com/magnars/.emacs.d/blob/master/defuns/misc-defuns.el
   `(defun ,name (def &optional keymap)
      (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
+
+(create-simple-keybinding-command f2 "<f2>")
+(create-simple-keybinding-command f3 "<f3>")
+(create-simple-keybinding-command f4 "<f4>")
+(create-simple-keybinding-command f5 "<f5>")
+(create-simple-keybinding-command f6 "<f6>")
+(create-simple-keybinding-command f7 "<f7>")
+(create-simple-keybinding-command f8 "<f8>")
+(create-simple-keybinding-command f9 "<f9>")
+(create-simple-keybinding-command f10 "<f10>")
+(create-simple-keybinding-command f11 "<f11>")
+(create-simple-keybinding-command f12 "<f12>")
 
 ;; macro utilities -------------------------------------------------------------
 
@@ -354,19 +372,16 @@ Equivalent to (setq place (insert/sorted place item))."
 
 (defun basis/ido-in-dir-for (dir)
   "Return a closure calling `ido-find-file-in-dir` on DIR."
-  (let ((dir dir))
-    #'(lambda () (ido-find-file-in-dir dir))))
+  #'(lambda () (ido-find-file-in-dir dir)))
 
 (defun basis/dired-in-dir-for (dir)
   "Return a closure calling `dired` on DIR."
-  (let ((dir dir))
-    #'(lambda () (dired dir))))
+  #'(lambda () (dired dir)))
 
 (defun basis/ido-tramp-for (host)
   "Return a closure for openning a file on HOST via ido."
-  (let ((host host))
-    #'(lambda () (find-file (ido-read-file-name "Find file: "
-                                                (concat "/" host ":~/"))))))
+  #'(lambda ()
+      (find-file (ido-read-file-name "Find file: " (concat "/" host ":~/")))))
 
 (defun basis/selector-quit ()
   #'(lambda () (throw 'quit t)))

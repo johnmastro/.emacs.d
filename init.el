@@ -202,18 +202,6 @@
 
 ;; key bindings ----------------------------------------------------------------
 
-(create-simple-keybinding-command f2 "<f2>")
-(create-simple-keybinding-command f3 "<f3>")
-(create-simple-keybinding-command f4 "<f4>")
-(create-simple-keybinding-command f5 "<f5>")
-(create-simple-keybinding-command f6 "<f6>")
-(create-simple-keybinding-command f7 "<f7>")
-(create-simple-keybinding-command f8 "<f8>")
-(create-simple-keybinding-command f9 "<f9>")
-(create-simple-keybinding-command f10 "<f10>")
-(create-simple-keybinding-command f11 "<f11>")
-(create-simple-keybinding-command f12 "<f12>")
-
 (defun init-modifiers/linux ()
   (define-key key-translation-map
     (kbd "<menu>")
@@ -242,6 +230,8 @@
   (windows-nt (init-modifiers/windows)))
 
 ;; Hyper- mappings
+(basis/define-hyper global-map "a" 'beginning-of-defun)
+(basis/define-hyper global-map "e" 'end-of-defun)
 (basis/define-hyper global-map "f" 'ido-find-file)
 (basis/define-hyper global-map "b" 'ido-switch-buffer)
 (basis/define-hyper global-map "d" 'basis/ido-dir-selector)
@@ -278,12 +268,14 @@
 (global-set-key (kbd "<s-backspace>") 'smart-kill-whole-line)
 (global-set-key (kbd "<S-backspace>") 'smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
+(global-set-key (kbd "<f2>") 'basis/kill-ring-save-buffer)
 
 ;; ... and then browse it with M-y
 (browse-kill-ring-default-keybindings)
 
 ;; Join lines
-(global-set-key (kbd "C-c j") 'join-line)
+(global-set-key (kbd "s-j") 'basis/join-next-line)
+(global-set-key (kbd "s-J") 'join-line)
 
 ;; Moves lines or regions
 (global-set-key (kbd "<M-s-up>") 'move-text-up)
@@ -360,6 +352,9 @@
 (global-set-key (kbd "C-c m") 'smex)
 (global-set-key (kbd "C-c x") 'execute-extended-command)
 
+;; recetf+ido
+(global-set-key (kbd "C-x C-r") 'basis/recentf-ido-find-file)
+
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including, the ARGth occurrence of CHAR.")
 (global-set-key (kbd "M-z") 'zap-up-to-char)
@@ -378,6 +373,12 @@
 
 ;; Proced
 (global-set-key (kbd "C-x p") 'proced)
+
+;; C-v et al. are uncomfortable on my MBP
+(global-set-key (kbd "<s-up>") 'cua-scroll-down)
+(global-set-key (kbd "<s-down>") 'cua-scroll-up)
+(global-set-key (kbd "<M-s-up>") 'scroll-other-window-down)
+(global-set-key (kbd "<M-s-down>") 'scroll-other-window)
 
 ;; Help map (largely from github.com/jwiegley/dot-emacs)
 (define-prefix-command 'lisp-find-map)
