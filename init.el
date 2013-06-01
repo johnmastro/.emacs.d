@@ -250,8 +250,10 @@
 (windmove-default-keybindings)
 (global-set-key (kbd "M-o") 'other-window)
 
-;; Less tab
+;; Newlines
 (global-set-key (kbd "C-m") 'newline-and-indent)
+(global-set-key (kbd "<S-return>") 'basis/open-line-below)
+(global-set-key (kbd "<C-S-return>") 'basis/open-line-above)
 
 ;; Clever C-a
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
@@ -353,7 +355,7 @@
 (global-set-key (kbd "C-c x") 'execute-extended-command)
 
 ;; recetf+ido
-(global-set-key (kbd "C-x C-r") 'basis/recentf-ido-find-file)
+(global-set-key (kbd "C-c r") 'basis/recentf-ido-find-file)
 
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including, the ARGth occurrence of CHAR.")
@@ -469,24 +471,21 @@
 (eval-after-load 'dired
   '(progn
      (require 'dired+)
-     (define-key dired-mode-map (kbd "M-o") 'other-window)
-     (define-key dired-mode-map (kbd "C-c o") 'dired-omit-mode)
+     (basis/define-keys dired-mode-map
+       ((kbd "M-o")                 'other-window)
+       ((kbd "C-c o")               'dired-omit-mode)
+       ((kbd "M-n")                 'dired-next-subdir)
+       ((kbd "M-p")                 'dired-prev-subdir)
+       ((kbd "M-e")                 'dired-next-dirline)
+       ((kbd "M-a")                 'dired-prev-dirline)
+       ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
+       ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
+     (basis/define-hyper dired-mode-map "a" 'basis/dired-jump-to-top)
+     (basis/define-hyper dired-mode-map "e" 'basis/dired-jump-to-bottom)
      (setq dired-recursive-deletes 'top)
      (put 'dired-find-alternate-file 'disabled nil)))
 
 ;; eshell ----------------------------------------------------------------------
-
-(defun basis/eshell-kill-line-backward ()
-  "Kill the current line backward, respecting Eshell's prompt."
-  (interactive)
-  (kill-region (save-excursion (eshell-bol) (point))
-               (point)))
-
-(defun basis/eshell-kill-whole-line ()
-  "Kill the current line, respecting Eshell's prompt."
-  (interactive)
-  (kill-region (save-excursion (eshell-bol) (point))
-               (save-excursion (move-end-of-line 1) (point))))
 
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map

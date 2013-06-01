@@ -42,6 +42,21 @@ there, to the beginning of the line."
   (interactive)
   (join-line -1))
 
+(defun basis/open-line-below ()
+  "Open a new line below the current one."
+  ;; from whattheemacsd.com
+  (interactive)
+  (end-of-line)
+  (newline-and-indent))
+
+(defun basis/open-line-above ()
+  "Open a new line above the current one."
+  (interactive)
+  (beginning-of-line)
+  (newline)
+  (forward-line -1)
+  (indent-according-to-mode))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word ()
@@ -224,12 +239,23 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 (put 'basis/define-keys 'lisp-indent-function 'defun)
 
+(defmacro basis/define-hyper-keys (keymap &rest keydefs)
+  "Define multiple hyper-modified key bindings for KEYMAP."
+  `(progn
+     ,@(mapcar #'(lambda (keydef)
+                   (let ((key (car keydef))
+                         (def (cadr keydef)))
+                     `(basis/define-hyper ,keymap ,key ,def)))
+               keydefs)))
+
+(put 'basis/define-hyper-keys 'lisp-indent-function 'defun)
+
 (defmacro create-simple-keybinding-command (name key)
-  ;; Based on code from
-  ;; github.com/magnars/.emacs.d/blob/master/defuns/misc-defuns.el
+  ;; Based on code from github.com/magnars/.emacs.d/
   `(defun ,name (def &optional keymap)
      (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
 
+(create-simple-keybinding-command f1 "<f1>")
 (create-simple-keybinding-command f2 "<f2>")
 (create-simple-keybinding-command f3 "<f3>")
 (create-simple-keybinding-command f4 "<f4>")
@@ -241,6 +267,35 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (create-simple-keybinding-command f10 "<f10>")
 (create-simple-keybinding-command f11 "<f11>")
 (create-simple-keybinding-command f12 "<f12>")
+
+;; eshell ----------------------------------------------------------------------
+
+(defun basis/eshell-kill-line-backward ()
+  "Kill the current line backward, respecting Eshell's prompt."
+  (interactive)
+  (kill-region (save-excursion (eshell-bol) (point))
+               (point)))
+
+(defun basis/eshell-kill-whole-line ()
+  "Kill the current line, respecting Eshell's prompt."
+  (interactive)
+  (kill-region (save-excursion (eshell-bol) (point))
+               (save-excursion (move-end-of-line 1) (point))))
+
+;; dired -----------------------------------------------------------------------
+
+(defun basis/dired-jump-to-top ()
+  "Move point to the first line representing a file."
+  ;; From whattheemacs.d. Magnar moves forward 4 lines rather than 2 but that
+  ;; doesn't do what I want when the buffer is sorted by mtime.
+  (interactive)
+  (beginning-of-buffer)
+  (dired-next-line 2))
+
+(defun basis/dired-jump-to-bottom ()
+  (interactive)
+  (end-of-buffer)
+  (dired-next-line -1))
 
 ;; macro utilities -------------------------------------------------------------
 
