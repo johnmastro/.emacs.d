@@ -402,6 +402,54 @@ If `linum-mode` was already enabled just call `goto-line`."
           (call-interactively #'goto-line))
       (unless linum-enabled-p (linum-mode -1)))))
 
+(defun basis/delete-buffer-file-elc ()
+  "Delete the .elc corresponding to the current buffer, if any."
+  (interactive)
+  (when buffer-file-name
+    (let ((elc (concat buffer-file-name "c")))
+      (when (file-exists-p elc)
+        (delete-file elc)))))
+
+;; paredit ---------------------------------------------------------------------
+
+(defun basis/paredit-doublequote-space-p (endp delimiter)
+  "Don't insert an extraneous space when entering a CL pathname."
+  ;; If any of `paredit-space-for-delimiter-predicates` returns nil
+  ;; a space isn't inserted.
+  (let ((pathname-opening-p
+         (and (not endp)
+              (eql delimiter ?\")
+              (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
+              (save-excursion
+                (backward-char 2)
+                (looking-at "#p")))))
+    (not pathname-opening-p)))
+
+(defun basis/paredit-kill-something ()
+  (interactive)
+  (if (region-active-p)
+      (kill-region (region-beginning) (region-end))
+    (paredit-backward-kill-word)))
+
+(defun basis/paredit-wrap-from-behind (wrapper &optional spacep)
+  (paredit-backward)
+  (funcall wrapper)
+  (when spacep
+    (insert " ")
+    (forward-char -1)))
+
+(defun basis/paredit-wrap-round-from-behind ()
+  (interactive)
+  (basis/paredit-wrap-from-behind #'paredit-wrap-round t))
+
+(defun basis/paredit-wrap-square-from-behind ()
+  (interactive)
+  (basis/paredit-wrap-from-behind #'paredit-wrap-square nil))
+
+(defun basis/paredit-wrap-curly-from-behind ()
+  (interactive)
+  (basis/paredit-wrap-from-behind #'paredit-wrap-curly nil))
+
 ;; selector stuff --------------------------------------------------------------
 
 (defun insert/sorted (lst item &rest args)

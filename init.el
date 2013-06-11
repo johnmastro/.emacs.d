@@ -642,30 +642,23 @@ otherwise call `yas-insert-snippet`."
 
 (add-hook 'paredit-mode-hook 'basis/maybe-map-paredit-newline)
 
-(defun basis/paredit-doublequote-space-p (endp delimiter)
-  "Don't insert an extraneous space when entering a CL pathname."
-  ;; If any of `paredit-space-for-delimiter-predicates` returns nil
-  ;; a space isn't inserted.
-  (let ((pathname-opening-p
-         (and (not endp)
-              (eql delimiter ?\")
-              (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
-              (save-excursion
-                (backward-char 2)
-                (looking-at "#p")))))
-    (not pathname-opening-p)))
+(defun basis/maybe-enable-paredit-mode ()
+  "Enable Paredit during Lisp-related minibuffer commands."
+  (let ((paredit-minibuffer-commands '(eval-expression
+                                       pp-eval-expression
+                                       eval-expression-with-eldoc
+                                       slime-interactive-eval)))
+    (when (memq this-command paredit-minibuffer-commands)
+      (enable-paredit-mode))))
 
-(defun basis/paredit-kill-something ()
-  (interactive)
-  (if (region-active-p)
-      (kill-region (region-beginning) (region-end))
-    (paredit-backward-kill-word)))
+(add-hook 'minibuffer-setup-hook 'basis/maybe-enable-paredit-mode)
 
 (eval-after-load 'paredit
   '(progn
      (basis/define-keys paredit-mode-map
        ((kbd "[")                      'paredit-open-round)
        ((kbd "M-[")                    'paredit-open-square)
+       ((kbd "M-)")                    'basis/paredit-wrap-round-from-behind)
        ((kbd "M-e")                    'paredit-forward)
        ((kbd "<M-right>")              'paredit-forward)
        ((kbd "M-a")                    'paredit-backward)
@@ -677,17 +670,6 @@ otherwise call `yas-insert-snippet`."
        ([remap backward-kill-sentence] 'backward-kill-sexp))
      (add-to-list 'paredit-space-for-delimiter-predicates
              'basis/paredit-doublequote-space-p)))
-
-(defun basis/maybe-enable-paredit-mode ()
-  "Enable Paredit during Lisp-related minibuffer commands."
-  (let ((paredit-minibuffer-commands '(eval-expression
-                                       pp-eval-expression
-                                       eval-expression-with-eldoc
-                                       slime-interactive-eval)))
-    (when (memq this-command paredit-minibuffer-commands)
-      (enable-paredit-mode))))
-
-(add-hook 'minibuffer-setup-hook 'basis/maybe-enable-paredit-mode)
 
 ;; slime -----------------------------------------------------------------------
 
@@ -901,6 +883,46 @@ Use `slime-expand-1` to produce the expansion."
   ((kbd "C-c c") 'org-capture)
   ((kbd "C-c l") 'org-store-link))
 
+;; html ------------------------------------------------------------------------
+
+(defun basis/move-to-next-blank-line ()
+  (interactive)
+  (let ((inhibit-changing-match-data t))
+    (skip-syntax-forward " >")
+    (unless (search-forward-regexp "^\\s *$" nil t)
+      (goto-char (point-max)))))
+
+(defun basis/move-to-previous-blank-line ()
+  (interactive)
+  (let ((inhibit-changing-match-data t))
+    (skip-syntax-backward " >")
+    (unless (search-backward-regexp "^\\s *$" nil t)
+      (goto-char (point-min)))))
+
+(defun basis/init-simplezen ()
+  (set (make-local-variable 'yas-fallback-behavior)
+       '(apply simplezen-expand-or-indent-for-tab)))
+
+(defun basis/init-html-mode ()
+  (tagedit-mode 1))
+
+(add-hook 'sgml-mode-hook 'basis/init-simplezen)
+(add-hook 'html-mode-hook 'basis/init-html-mode)
+
+(eval-after-load "sgml-mode"
+  '(progn
+     (require 'tagedit)
+     (require 'simplezen)
+     (basis/define-keys html-mode-map
+       ([remap forward-paragraph]  'basis/move-to-next-blank-line)
+       ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
+       ((kbd "TAB")                'simplezen-expand-or-indent-for-tab))
+     (tagedit-add-paredit-like-keybindings)
+     (tagedit-add-experimental-features)))
+
+(defadvice sgml-delete-tag (after reindent activate)
+  (indent-region (point-min) (point-max)))
+
 ;; markdown --------------------------------------------------------------------
 
 (mapc #'(lambda (ext)
@@ -922,9 +944,9 @@ Use `slime-expand-1` to produce the expansion."
 
 ;; deft ------------------------------------------------------------------------
 
-(setq deft-extension "md")
-(setq deft-directory "~/Dropbox/deft")
-(setq deft-text-mode  'gfm-mode)
+(setq deft-extension "md"
+      deft-directory "~/Dropbox/deft"
+      deft-text-mode  'gfm-mode)
 
 
 ;;; init.el ends here

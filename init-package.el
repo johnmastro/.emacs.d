@@ -1,6 +1,4 @@
-;; -----------------------------------------------------------------------------
-;; init-package.el
-;; -----------------------------------------------------------------------------
+;;; init-package.el    -*- lexical-binding: t; -*-
 
 (require 'package)
 
@@ -78,6 +76,8 @@ optionally, the name of the archive to use in its cdr."
          (jedi . melpa)
          (autopair . melpa)
          (yasnippet . melpa)
+         (tagedit . melpa)
+         (simplezen . melpa)
          )))
   (basis/install-packages basis/required-packages))
 
