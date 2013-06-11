@@ -371,7 +371,12 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
   `(eval-after-load ,feature
      '(progn ,@body)))
 
-(put 'after-load 'lisp-indent-function 'defun)
+(put 'after-load 'lisp-indent-function 1)
+
+(defun basis/set-mode-name (mode name)
+  "Set MODE's modeline string to NAME."
+  (let ((hook (intern (s-concat (symbol-name mode) "-hook"))))
+    (add-hook hook #'(lambda () (setq mode-name name)))))
 
 (defun basis/google ()
   "Run a Google search.
