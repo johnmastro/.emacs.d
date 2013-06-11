@@ -366,6 +366,13 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 ;; misc. defuns ----------------------------------------------------------------
 
+(defmacro after-load (feature &rest body)
+  "Evaluate BODY after FEATURE is loaded."
+  `(eval-after-load ,feature
+     '(progn ,@body)))
+
+(put 'after-load 'lisp-indent-function 'defun)
+
 (defun basis/google ()
   "Run a Google search.
 Use the selected region as the search string if any, otherwise

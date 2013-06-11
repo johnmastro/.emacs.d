@@ -172,24 +172,24 @@
   (when basis/default-font
     (set-face-attribute 'default nil :font basis/default-font)))
 
-(eval-after-load 'paredit
-  '(diminish 'paredit-mode " π"))            ; pi
-(eval-after-load 'auto-complete
-  '(diminish 'auto-complete-mode " α"))      ; alpha
-(eval-after-load 'yasnippet
-  '(diminish 'yas-minor-mode " υ"))          ; upsilon
-(eval-after-load 'redshank
-  '(diminish 'redshank-mode " ρ"))           ; rho
-(eval-after-load 'autopair
-  '(diminish 'autopair-mode " φ"))           ; psi
-(eval-after-load 'whitespace
-  '(diminish 'whitespace-mode " ϝ"))         ; digamma
-(eval-after-load 'elisp-slime-nav
-  '(diminish 'elisp-slime-nav-mode " ε"))    ; epsilon
-(eval-after-load 'eldoc
-  '(diminish 'eldoc-mode " δ"))              ; delta
-(eval-after-load 'undo-tree
-  '(diminish 'undo-tree-mode " τ"))          ; tau
+(after-load 'paredit
+  (diminish 'paredit-mode " π"))            ; pi
+(after-load 'auto-complete
+  (diminish 'auto-complete-mode " α"))      ; alpha
+(after-load 'yasnippet
+  (diminish 'yas-minor-mode " υ"))          ; upsilon
+(after-load 'redshank
+  (diminish 'redshank-mode " ρ"))           ; rho
+(after-load 'autopair
+  (diminish 'autopair-mode " φ"))           ; psi
+(after-load 'whitespace
+  (diminish 'whitespace-mode " ϝ"))         ; digamma
+(after-load 'elisp-slime-nav
+  (diminish 'elisp-slime-nav-mode " ε"))    ; epsilon
+(after-load 'eldoc
+  (diminish 'eldoc-mode " δ"))              ; delta
+(after-load 'undo-tree
+  (diminish 'undo-tree-mode " τ"))          ; tau
 
 ;; uniquify --------------------------------------------------------------------
 
@@ -415,8 +415,8 @@
 
 ;; ace-jump-mode ---------------------------------------------------------------
 
-(eval-after-load "ace-jump-mode"
-  '(ace-jump-mode-enable-mark-sync))
+(after-load "ace-jump-mode"
+  (ace-jump-mode-enable-mark-sync))
 
 (global-set-key (kbd "M-SPC") 'ace-jump-mode)
 (global-set-key (kbd "s-SPC") 'ace-jump-mode)
@@ -436,23 +436,22 @@
   (kill-buffer)
   (jump-to-register :magit-fullscreen))
 
-(eval-after-load 'magit
-  '(define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+(after-load 'magit
+  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
 
 ;; ibuffer ---------------------------------------------------------------------
 
-(eval-after-load 'ibuffer
-  '(progn
-     (define-ibuffer-column size-h
-       ;; a more readable size column
-       ;; from github.com/purcell/emacs.d/blob/master/init-ibuffer.el
-       (:name "Size" :inline t)
-       (cond ((> (buffer-size) 1000000)
-              (format "%7.1fM" (/ (buffer-size) 1000000.0)))
-             ((> (buffer-size) 1000)
-              (format "%7.1fk" (/ (buffer-size) 1000.0)))
-             (t
-              (format "%8d" (buffer-size)))))))
+(after-load 'ibuffer
+  (define-ibuffer-column size-h
+    ;; a more readable size column
+    ;; from github.com/purcell/emacs.d/blob/master/init-ibuffer.el
+    (:name "Size" :inline t)
+    (cond ((> (buffer-size) 1000000)
+           (format "%7.1fM" (/ (buffer-size) 1000000.0)))
+          ((> (buffer-size) 1000)
+           (format "%7.1fk" (/ (buffer-size) 1000.0)))
+          (t
+           (format "%8d" (buffer-size))))))
 
 (setq ibuffer-formats
       '((mark modified read-only " "
@@ -468,22 +467,21 @@
 
 ;; dired -----------------------------------------------------------------------
 
-(eval-after-load 'dired
-  '(progn
-     (require 'dired+)
-     (basis/define-keys dired-mode-map
-       ((kbd "M-o")                 'other-window)
-       ((kbd "C-c o")               'dired-omit-mode)
-       ((kbd "M-n")                 'dired-next-subdir)
-       ((kbd "M-p")                 'dired-prev-subdir)
-       ((kbd "M-e")                 'dired-next-dirline)
-       ((kbd "M-a")                 'dired-prev-dirline)
-       ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
-       ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
-     (basis/define-hyper dired-mode-map "a" 'basis/dired-jump-to-top)
-     (basis/define-hyper dired-mode-map "e" 'basis/dired-jump-to-bottom)
-     (setq dired-recursive-deletes 'top)
-     (put 'dired-find-alternate-file 'disabled nil)))
+(after-load 'dired
+  (require 'dired+)
+  (basis/define-keys dired-mode-map
+    ((kbd "M-o")                 'other-window)
+    ((kbd "C-c o")               'dired-omit-mode)
+    ((kbd "M-n")                 'dired-next-subdir)
+    ((kbd "M-p")                 'dired-prev-subdir)
+    ((kbd "M-e")                 'dired-next-dirline)
+    ((kbd "M-a")                 'dired-prev-dirline)
+    ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
+    ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
+  (basis/define-hyper dired-mode-map "a" 'basis/dired-jump-to-top)
+  (basis/define-hyper dired-mode-map "e" 'basis/dired-jump-to-bottom)
+  (setq dired-recursive-deletes 'top)
+  (put 'dired-find-alternate-file 'disabled nil))
 
 ;; eshell ----------------------------------------------------------------------
 
@@ -560,10 +558,9 @@ otherwise call `yas-insert-snippet`."
   (call-interactively
    (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
 
-(eval-after-load 'yasnippet
-  '(progn
-     (basis/define-hyper global-map "<tab>" 'basis/yas-expand-or-insert)
-     (define-key yas-keymap (kbd "<return>") 'yas-exit-all-snippets)))
+(after-load 'yasnippet
+  (basis/define-hyper global-map "<tab>" 'basis/yas-expand-or-insert)
+  (define-key yas-keymap (kbd "<return>") 'yas-exit-all-snippets))
 
 (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
       yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
@@ -653,23 +650,22 @@ otherwise call `yas-insert-snippet`."
 
 (add-hook 'minibuffer-setup-hook 'basis/maybe-enable-paredit-mode)
 
-(eval-after-load 'paredit
-  '(progn
-     (basis/define-keys paredit-mode-map
-       ((kbd "[")                      'paredit-open-round)
-       ((kbd "M-[")                    'paredit-open-square)
-       ((kbd "M-)")                    'basis/paredit-wrap-round-from-behind)
-       ((kbd "M-e")                    'paredit-forward)
-       ((kbd "<M-right>")              'paredit-forward)
-       ((kbd "M-a")                    'paredit-backward)
-       ((kbd "<M-left>")               'paredit-backward)
-       ((kbd "s-u")                    'paredit-backward-up)
-       ((kbd "M-k")                    'kill-sexp)
-       ((kbd "C-w")                    'basis/paredit-kill-something)
-       ((kbd "M-<backspace>")          'basis/paredit-kill-something)
-       ([remap backward-kill-sentence] 'backward-kill-sexp))
-     (add-to-list 'paredit-space-for-delimiter-predicates
-             'basis/paredit-doublequote-space-p)))
+(after-load 'paredit
+  (basis/define-keys paredit-mode-map
+    ((kbd "[")                      'paredit-open-round)
+    ((kbd "M-[")                    'paredit-open-square)
+    ((kbd "M-)")                    'basis/paredit-wrap-round-from-behind)
+    ((kbd "M-e")                    'paredit-forward)
+    ((kbd "<M-right>")              'paredit-forward)
+    ((kbd "M-a")                    'paredit-backward)
+    ((kbd "<M-left>")               'paredit-backward)
+    ((kbd "s-u")                    'paredit-backward-up)
+    ((kbd "M-k")                    'kill-sexp)
+    ((kbd "C-w")                    'basis/paredit-kill-something)
+    ((kbd "M-<backspace>")          'basis/paredit-kill-something)
+    ([remap backward-kill-sentence] 'backward-kill-sexp))
+  (add-to-list 'paredit-space-for-delimiter-predicates
+               'basis/paredit-doublequote-space-p))
 
 ;; slime -----------------------------------------------------------------------
 
@@ -707,24 +703,22 @@ Use `slime-expand-1` to produce the expansion."
     (beginning-of-defun)
     (slime-expand-1 repeatedly)))
 
-(eval-after-load 'slime
-  '(progn
-     (basis/define-keys slime-mode-map
-       ((kbd "<f5>")   'slime-eval-last-expression)
-       ((kbd "<M-f5>") 'slime-eval-last-expression-in-repl)
-       ((kbd "<C-f5>") 'slime-pprint-eval-last-expression)
-       ((kbd "<f6>")   'basis/slime-eval-something)
-       ((kbd "<M-f6>") 'slime-compile-defun)
-       ((kbd "<C-f6>") 'slime-pprint-region)
-       ((kbd "<f7>")   'slime-expand-1)
-       ((kbd "<f8>")   'slime-compile-and-load-file))
-     (global-set-key (kbd "<f9>") 'slime-selector)
-     (setq slime-autodoc-use-multiline-p t)))
+(after-load 'slime
+  (basis/define-keys slime-mode-map
+    ((kbd "<f5>")   'slime-eval-last-expression)
+    ((kbd "<M-f5>") 'slime-eval-last-expression-in-repl)
+    ((kbd "<C-f5>") 'slime-pprint-eval-last-expression)
+    ((kbd "<f6>")   'basis/slime-eval-something)
+    ((kbd "<M-f6>") 'slime-compile-defun)
+    ((kbd "<C-f6>") 'slime-pprint-region)
+    ((kbd "<f7>")   'slime-expand-1)
+    ((kbd "<f8>")   'slime-compile-and-load-file))
+  (global-set-key (kbd "<f9>") 'slime-selector)
+  (setq slime-autodoc-use-multiline-p t))
 
-(eval-after-load 'slime-repl-mode
-  '(progn
-     (define-key slime-repl-mode-map
-       (read-kbd-macro paredit-backward-delete-key) nil)))
+(after-load 'slime-repl-mode
+  (define-key slime-repl-mode-map
+    (read-kbd-macro paredit-backward-delete-key) nil))
 
 ;; slime auto-complete support
 (defun basis/set-up-slime-fuzzy-ac ()
@@ -735,15 +729,15 @@ Use `slime-expand-1` to produce the expansion."
 (add-hook 'slime-mode-hook 'basis/set-up-slime-fuzzy-ac)
 (add-hook 'slime-repl-mode-hook 'basis/set-up-slime-fuzzy-ac)
 
-(eval-after-load "auto-complete"
-  `(add-to-list 'ac-modes 'slime-repl-mode))
+(after-load "auto-complete"
+  (add-to-list 'ac-modes 'slime-repl-mode))
 
 ;; redshank --------------------------------------------------------------------
 
 (require 'redshank-loader)
 
-(eval-after-load "redshank-loader"
-  '(redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t))
+(after-load "redshank-loader"
+  (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t))
 
 ;; scheme ----------------------------------------------------------------------
 
@@ -772,14 +766,13 @@ Use `slime-expand-1` to produce the expansion."
                           (region-end))
     (scheme-send-definition)))
 
-(eval-after-load 'scheme
-  '(progn
-     (basis/define-keys scheme-mode-map
-       ((kbd "<f5>")   'scheme-send-last-sexp)
-       ((kbd "<f6>")   'basis/scheme-send-something)
-       ((kbd "<M-f6>") 'scheme-compile-definition-and-go)
-       ((kbd "<f8>")   'scheme-compile-file)
-       ((kbd "<M-f8>") 'scheme-load-file))))
+(after-load 'scheme
+  (basis/define-keys scheme-mode-map
+    ((kbd "<f5>")   'scheme-send-last-sexp)
+    ((kbd "<f6>")   'basis/scheme-send-something)
+    ((kbd "<M-f6>") 'scheme-compile-definition-and-go)
+    ((kbd "<f8>")   'scheme-compile-file)
+    ((kbd "<M-f8>") 'scheme-load-file)))
 
 ;; autopair --------------------------------------------------------------------
 
@@ -796,12 +789,11 @@ Use `slime-expand-1` to produce the expansion."
                                 (region-end))
     (python-shell-send-defun nil)))
 
-(eval-after-load 'python
-  '(progn
-     (basis/define-keys python-mode-map
-       ((kbd "<f6>")   'python-shell-send-something)
-       ((kbd "<f8>")   'python-shell-send-buffer)
-       ((kbd "<M-f8>") 'python-shell-send-file))))
+(after-load 'python
+  (basis/define-keys python-mode-map
+    ((kbd "<f6>")   'python-shell-send-something)
+    ((kbd "<f8>")   'python-shell-send-buffer)
+    ((kbd "<M-f8>") 'python-shell-send-file)))
 
 ;; Jedi
 (setq jedi:setup-keys t
@@ -895,19 +887,18 @@ Use `slime-expand-1` to produce the expansion."
 (add-hook 'sgml-mode-hook 'basis/init-simplezen)
 (add-hook 'html-mode-hook 'basis/init-html-mode)
 
-(eval-after-load "sgml-mode"
-  '(progn
-     (require 'tagedit)
-     (require 'simplezen)
-     (basis/define-keys html-mode-map
-       ([remap forward-paragraph]  'basis/move-to-next-blank-line)
-       ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
-       ((kbd "TAB")                'simplezen-expand-or-indent-for-tab)
-       ((kbd "C-c C-w")            'basis/html-wrap-in-tag)
-       ((kbd "C-c w")              'basis/html-wrap-in-tag)
-       ((kbd "<f8>")               'browse-url-of-buffer))
-     (tagedit-add-paredit-like-keybindings)
-     (tagedit-add-experimental-features)))
+(after-load "sgml-mode"
+  (require 'tagedit)
+  (require 'simplezen)
+  (basis/define-keys html-mode-map
+    ([remap forward-paragraph]  'basis/move-to-next-blank-line)
+    ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
+    ((kbd "TAB")                'simplezen-expand-or-indent-for-tab)
+    ((kbd "C-c C-w")            'basis/html-wrap-in-tag)
+    ((kbd "C-c w")              'basis/html-wrap-in-tag)
+    ((kbd "<f8>")               'browse-url-of-buffer))
+  (tagedit-add-paredit-like-keybindings)
+  (tagedit-add-experimental-features))
 
 (defadvice sgml-delete-tag (after reindent activate)
   (indent-region (point-min) (point-max)))
@@ -924,12 +915,11 @@ Use `slime-expand-1` to produce the expansion."
 
 (add-hook 'markdown-mode-hook 'basis/init-markdown-mode)
 
-(eval-after-load 'markdown-mode
-  '(progn
-     (define-key markdown-mode-map
-       (kbd "C-c r") 'markdown-insert-reference-link-dwim)
-     (define-key gfm-mode-map
-       (kbd "C-c r") 'markdown-insert-reference-link-dwim)))
+(after-load 'markdown-mode
+  (define-key markdown-mode-map
+    (kbd "C-c r") 'markdown-insert-reference-link-dwim)
+  (define-key gfm-mode-map
+    (kbd "C-c r") 'markdown-insert-reference-link-dwim))
 
 ;; deft ------------------------------------------------------------------------
 
