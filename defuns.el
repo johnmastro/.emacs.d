@@ -450,6 +450,40 @@ If `linum-mode` was already enabled just call `goto-line`."
   (interactive)
   (basis/paredit-wrap-from-behind #'paredit-wrap-curly nil))
 
+;; html utilities --------------------------------------------------------------
+
+;; These are all from github.com/magnars/.emacs.d/
+
+(defun basis/move-to-next-blank-line ()
+  "Move point to the next blank line."
+  (interactive)
+  (let ((inhibit-changing-match-data t))
+    (skip-syntax-forward " >")
+    (unless (search-forward-regexp "^\\s *$" nil t)
+      (goto-char (point-max)))))
+
+(defun basis/move-to-previous-blank-line ()
+  "Move point to the previous blank line."
+  (interactive)
+  (let ((inhibit-changing-match-data t))
+    (skip-syntax-backward " >")
+    (unless (search-backward-regexp "^\\s *$" nil t)
+      (goto-char (point-min)))))
+
+(defun basis/html-wrap-in-tag (beg end)
+  "Wrap the selected region in a tag."
+  (interactive "r")
+  (let ((oneline? (= (line-number-at-pos beg) (line-number-at-pos end))))
+    (deactivate-mark)
+    (goto-char end)
+    (unless oneline? (newline-and-indent))
+    (insert "</div>")
+    (goto-char beg)
+    (insert "<div>")
+    (unless oneline? (newline-and-indent))
+    (indent-region beg (+ end 11))
+    (goto-char (+ beg 4))))
+
 ;; selector stuff --------------------------------------------------------------
 
 (defun insert/sorted (lst item &rest args)

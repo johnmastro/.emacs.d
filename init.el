@@ -885,20 +885,6 @@ Use `slime-expand-1` to produce the expansion."
 
 ;; html ------------------------------------------------------------------------
 
-(defun basis/move-to-next-blank-line ()
-  (interactive)
-  (let ((inhibit-changing-match-data t))
-    (skip-syntax-forward " >")
-    (unless (search-forward-regexp "^\\s *$" nil t)
-      (goto-char (point-max)))))
-
-(defun basis/move-to-previous-blank-line ()
-  (interactive)
-  (let ((inhibit-changing-match-data t))
-    (skip-syntax-backward " >")
-    (unless (search-backward-regexp "^\\s *$" nil t)
-      (goto-char (point-min)))))
-
 (defun basis/init-simplezen ()
   (set (make-local-variable 'yas-fallback-behavior)
        '(apply simplezen-expand-or-indent-for-tab)))
@@ -916,7 +902,10 @@ Use `slime-expand-1` to produce the expansion."
      (basis/define-keys html-mode-map
        ([remap forward-paragraph]  'basis/move-to-next-blank-line)
        ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
-       ((kbd "TAB")                'simplezen-expand-or-indent-for-tab))
+       ((kbd "TAB")                'simplezen-expand-or-indent-for-tab)
+       ((kbd "C-c C-w")            'basis/html-wrap-in-tag)
+       ((kbd "C-c w")              'basis/html-wrap-in-tag)
+       ((kbd "<f8>")               'browse-url-of-buffer))
      (tagedit-add-paredit-like-keybindings)
      (tagedit-add-experimental-features)))
 
