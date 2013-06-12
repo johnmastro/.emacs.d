@@ -809,6 +809,15 @@ Use `slime-expand-1` to produce the expansion."
 
 (add-hook 'python-mode-hook 'basis/setup-autopair-for-python)
 
+;; javascript ------------------------------------------------------------------
+
+(add-to-list 'auto-mode-alist (cons "\\.js\\'" 'js2-mode))
+
+(setq js2-basic-offset 2)
+
+(after-load 'js2-mode
+  (js2-imenu-extras-setup))
+
 ;; sql -------------------------------------------------------------------------
 
 (defun sql-product-is-probably-postgres ()

@@ -78,6 +78,10 @@ optionally, the name of the archive to use in its cdr."
          (yasnippet . melpa)
          (tagedit . melpa)
          (simplezen . melpa)
+         (js2-mode . melpa)
+         (ac-js2 . melpa)
+         (js-comint . melpa)
+         (skewer-mode . melpa)
          )))
   (basis/install-packages basis/required-packages))
 
