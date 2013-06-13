@@ -178,18 +178,27 @@
   (diminish 'auto-complete-mode " α"))      ; alpha
 (after-load 'yasnippet
   (diminish 'yas-minor-mode " υ"))          ; upsilon
-(after-load 'redshank
-  (diminish 'redshank-mode " ρ"))           ; rho
 (after-load 'autopair
   (diminish 'autopair-mode " φ"))           ; psi
-(after-load 'whitespace
-  (diminish 'whitespace-mode " ϝ"))         ; digamma
+(after-load 'tagedit
+  (diminish 'tagedit-mode " τ"))            ; tau
+(after-load 'skewer-mode
+  (diminish 'skewer-mode " σ"))             ; sigma
+(after-load 'skewer-html
+  (diminish 'skewer-html-mode " σ/html"))
+(after-load 'skewer-css
+  (diminish 'skewer-css-mode " σ/css"))
+
 (after-load 'elisp-slime-nav
-  (diminish 'elisp-slime-nav-mode " ε"))    ; epsilon
+  (diminish 'elisp-slime-nav-mode))
 (after-load 'eldoc
-  (diminish 'eldoc-mode " δ"))              ; delta
+  (diminish 'eldoc-mode))
 (after-load 'undo-tree
-  (diminish 'undo-tree-mode " τ"))          ; tau
+  (diminish 'undo-tree-mode))
+(after-load 'redshank
+  (diminish 'redshank-mode))
+(after-load 'whitespace
+  (diminish 'whitespace-mode))
 
 ;; uniquify --------------------------------------------------------------------
 
