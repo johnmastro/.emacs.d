@@ -818,6 +818,25 @@ Use `slime-expand-1` to produce the expansion."
 (after-load 'js2-mode
   (js2-imenu-extras-setup))
 
+;; skewer ----------------------------------------------------------------------
+
+(skewer-setup) ; hook into js2, html, and css modes
+
+(after-load 'skewer-mode
+  (basis/define-keys skewer-mode-map
+    ((kbd "<f5>") 'skewer-eval-last-expression)
+    ((kbd "<f6>") 'skewer-eval-defun)
+    ((kbd "<f8>") 'skewer-load-buffer)))
+
+(after-load 'skewer-html-mode
+  (define-key skewer-html-mode-map (kbd "<f6>") 'skewer-html-eval-tag))
+
+(after-load 'skewer-css-mode
+  (basis/define-keys skewer-css-mode-map
+    ((kbd "<f5>") 'skewer-css-eval-current-declaration)
+    ((kbd "<f6>") 'skewer-css-eval-current-rule)
+    ((kbd "<f8>") 'skewer-css-eval-buffer)))
+
 ;; sql -------------------------------------------------------------------------
 
 (defun sql-product-is-probably-postgres ()

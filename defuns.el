@@ -496,6 +496,20 @@ If `linum-mode` was already enabled just call `goto-line`."
     (indent-region beg (+ end 11))
     (goto-char (+ beg 4))))
 
+;; skewer ----------------------------------------------------------------------
+
+(defun basis/run-skewer ()
+  (interactive)
+  (httpd-start)
+  ;; The default `run-skewer` uses 127.0.0.1 but that seems to perturb
+  ;; the proxy at the office.
+  (browse-url (format "http://localhost:%d/skewer/demo" httpd-port)))
+
+(defun basis/run-skewer-repl ()
+  (interactive)
+  (basis/run-skewer)
+  (skewer-repl))
+
 ;; selector stuff --------------------------------------------------------------
 
 (defun insert/sorted (lst item &rest args)
