@@ -336,7 +336,13 @@
 ;; Eval
 (global-set-key (kbd "C-x C-e") 'pp-eval-last-sexp)
 (global-set-key (kbd "C-c C-e") 'basis/eval-and-replace)
-(global-set-key (kbd "<s-return>") 'eval-expression)
+
+;; Eval expression on Meta-Hyper
+(-when-let (key (case system-type
+                  (gnu/linux  (kbd "<M-menu>"))
+                  (darwin     (kbd "<M-kp-enter>"))
+                  (windows-nt (kbd "<M-apps>"))))
+  (global-set-key key 'eval-expression))
 
 ;; I use Meta-space for ace-jump-mode
 (global-set-key (kbd "C-c SPC") 'just-one-space)
