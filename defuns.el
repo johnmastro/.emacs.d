@@ -464,7 +464,7 @@ If `linum-mode` was already enabled just call `goto-line`."
 
 ;; html utilities --------------------------------------------------------------
 
-;; These are all from github.com/magnars/.emacs.d/
+;; These are mostly from github.com/magnars/.emacs.d/
 
 (defun basis/move-to-next-blank-line ()
   "Move point to the next blank line."
@@ -495,6 +495,12 @@ If `linum-mode` was already enabled just call `goto-line`."
     (unless oneline? (newline-and-indent))
     (indent-region beg (+ end 11))
     (goto-char (+ beg 4))))
+
+(defun basis/html-newline-and-indent ()
+  (interactive)
+  (if (and (looking-at "<") (looking-back ">"))
+      (tagedit-toggle-multiline-tag)
+    (newline-and-indent)))
 
 ;; skewer ----------------------------------------------------------------------
 

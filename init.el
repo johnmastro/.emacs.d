@@ -937,6 +937,7 @@ Use `slime-expand-1` to produce the expansion."
     ([remap forward-paragraph]  'basis/move-to-next-blank-line)
     ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
     ((kbd "TAB")                'simplezen-expand-or-indent-for-tab)
+    ((kbd "RET")                'basis/html-newline-and-indent)
     ((kbd "C-c C-w")            'basis/html-wrap-in-tag)
     ((kbd "C-c w")              'basis/html-wrap-in-tag)
     ((kbd "<f8>")               'browse-url-of-buffer))
@@ -946,11 +947,19 @@ Use `slime-expand-1` to produce the expansion."
 (defadvice sgml-delete-tag (after reindent activate)
   (indent-region (point-min) (point-max)))
 
+(defadvice tagedit-toggle-multiline-tag (around maybe-forward activate)
+  "Move forward by a line and indent if invoked directly between
+two tags."
+  (let ((move-forward-p (and (looking-at "<") (looking-back ">"))))
+    ad-do-it
+    (when move-forward-p
+      (forward-line 1)
+      (indent-according-to-mode))))
+
 ;; markdown --------------------------------------------------------------------
 
-(mapc #'(lambda (ext)
-          (add-to-list 'auto-mode-alist (cons ext 'markdown-mode)))
-      (list "\\.markdown" "\\.mkd" "\\.md"))
+(dolist (ext (list "\\.markdown" "\\.mkd" "\\.md"))
+  (add-to-list 'auto-mode-alist (cons ext 'markdown-mode)))
 
 (defun basis/init-markdown-mode ()
   (unless (eq major-mode 'gfm-mode)
