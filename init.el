@@ -271,6 +271,9 @@
 (global-set-key (kbd "M-n") 'forward-paragraph)
 (global-set-key (kbd "M-p") 'backward-paragraph)
 
+;; Move to matching delimiters
+(global-set-key (kbd "s-o") 'basis/other-sexp-delimiter)
+
 ;; Kill stuff
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
 (global-set-key (kbd "<M-backspace>") 'kill-region-or-backward-word)

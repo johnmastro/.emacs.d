@@ -57,6 +57,17 @@ there, to the beginning of the line."
   (forward-line -1)
   (indent-according-to-mode))
 
+(defun basis/other-sexp-delimiter ()
+  "Move to a matching delimiter.
+Uses either `forward-sexp` or `backward-sexp` depending on the
+context at point."
+  ;; TODO: can this be made to work with quotes?
+  (interactive)
+  (cond ((looking-at (rx (syntax open-parenthesis)))  ; includes other brackets
+         (forward-sexp))
+        ((looking-back (rx (syntax close-parenthesis)))
+         (backward-sexp))))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word ()
