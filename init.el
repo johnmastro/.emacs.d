@@ -246,13 +246,14 @@
 (basis/define-hyper global-map "b" 'ido-switch-buffer)
 (basis/define-hyper global-map "d" 'basis/ido-dir-selector)
 (basis/define-hyper global-map "D" 'basis/dired-dir-selector)
+(basis/define-hyper global-map "t" 'basis/ido-tramp-selector)
 (basis/define-hyper global-map "s" 'save-buffer)
+(basis/define-hyper global-map "g" 'magit-status)
 (basis/define-hyper global-map "i" 'imenu)
 (basis/define-hyper global-map "0" 'delete-window)
 (basis/define-hyper global-map "1" 'delete-other-windows)
 (basis/define-hyper global-map "2" 'split-window-below)
 (basis/define-hyper global-map "3" 'split-window-right)
-(basis/define-hyper global-map "g" 'basis/ido-tramp-selector)
 (basis/define-hyper global-map "r" ctl-x-r-map)
 
 ;; Easier window management
