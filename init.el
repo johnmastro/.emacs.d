@@ -64,6 +64,7 @@
       whitespace-line-column 80
       truncate-lines t
       ediff-window-setup-function 'ediff-setup-windows-plain
+      ediff-split-window-function 'split-window-horizontally
       line-number-mode t
       column-number-mode t
       global-font-lock-mode 1
