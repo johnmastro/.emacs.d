@@ -850,10 +850,10 @@ Use `slime-expand-1` to produce the expansion."
     ((kbd "<f6>") 'skewer-eval-defun)
     ((kbd "<f8>") 'skewer-load-buffer)))
 
-(after-load 'skewer-html-mode
+(after-load 'skewer-html
   (define-key skewer-html-mode-map (kbd "<f6>") 'skewer-html-eval-tag))
 
-(after-load 'skewer-css-mode
+(after-load 'skewer-css
   (basis/define-keys skewer-css-mode-map
     ((kbd "<f5>") 'skewer-css-eval-current-declaration)
     ((kbd "<f6>") 'skewer-css-eval-current-rule)
