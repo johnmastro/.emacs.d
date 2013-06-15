@@ -497,6 +497,11 @@ If `linum-mode` was already enabled just call `goto-line`."
       (tagedit-toggle-multiline-tag)
     (newline-and-indent)))
 
+(defun basis/html-multiline-expand ()
+  (interactive)
+  (simplezen-expand)
+  (basis/html-newline-and-indent))
+
 ;; skewer ----------------------------------------------------------------------
 
 (defun basis/run-skewer ()
