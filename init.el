@@ -97,6 +97,7 @@
 (cua-selection-mode 1)
 (auto-compression-mode 1)
 (global-undo-tree-mode 1)
+(delete-selection-mode 1)
 
 ;; TRAMP
 (setq tramp-default-method
@@ -687,6 +688,10 @@ otherwise call `yas-insert-snippet`."
     ([remap backward-kill-sentence] 'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
                'basis/paredit-doublequote-space-p))
+
+(put 'paredit-forward-delete 'delete-selection 'supersede)
+(put 'paredit-backward-delete 'delete-selection 'supersede)
+(put 'paredit-newline 'delete-selection t)
 
 ;; slime -----------------------------------------------------------------------
 
