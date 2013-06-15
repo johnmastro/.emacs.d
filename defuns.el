@@ -506,15 +506,16 @@ If `linum-mode` was already enabled just call `goto-line`."
 
 (defun basis/run-skewer ()
   (interactive)
-  (httpd-start)
-  ;; The default `run-skewer` uses 127.0.0.1 but that seems to perturb
-  ;; the proxy at the office.
-  (browse-url (format "http://localhost:%d/skewer/demo" httpd-port)))
+  (let ((httpd-port 8042))
+    (httpd-start)
+    (message "HTTP server started. Jack in with the bookmarklet.")))
 
-(defun basis/run-skewer-repl ()
+(defun basis/run-skewer-demo ()
   (interactive)
-  (basis/run-skewer)
-  (skewer-repl))
+  (let ((httpd-port 8043))
+    (httpd-start)
+    (browse-url (format "http://localhost:%d/skewer/demo" httpd-port))
+    (skewer-repl)))
 
 ;; selector stuff --------------------------------------------------------------
 
