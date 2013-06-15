@@ -44,7 +44,6 @@ there, to the beginning of the line."
 
 (defun basis/open-line-below ()
   "Open a new line below the current one."
-  ;; from whattheemacsd.com
   (interactive)
   (end-of-line)
   (newline-and-indent))
@@ -71,7 +70,6 @@ context at point."
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word ()
-  ;; from github.com/magnars/.emacs.d
   (interactive)
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
@@ -85,7 +83,6 @@ context at point."
 
 (defun smart-kill-whole-line (&optional arg)
   "A simple wrapper around `kill-whole-line` that respects indentation."
-  ;; from emacsredux.com
   (interactive "P")
   (kill-whole-line arg)
   (back-to-indentation))
@@ -130,7 +127,6 @@ on whether the region is active."
 (defun push-mark-no-activate ()
   "Pushes `point` to `mark-ring` without activating the region.
 Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled."
-  ;; from masteringemacs.com
   (interactive)
   (push-mark (point) t nil)
   (message "Pushed mark to ring"))
@@ -138,13 +134,11 @@ Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled."
 (defun jump-to-mark ()
   "Jumps to the local mark, respecting the `mark-ring` order.
 This is the same as using \\[set-mark-command] with the prefix argument."
-  ;; from masteringemacs.com
   (interactive)
   (set-mark-command 1))
 
 (defun exchange-point-and-mark-no-activate ()
   "Identical to \\[exchange-point-and-mark] but will not activate the region."
-  ;; from masteringemacs.com
   (interactive)
   (exchange-point-and-mark)
   (deactivate-mark nil))
@@ -172,7 +166,6 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 (defun cleanup-buffer ()
   "Clean up and indent the current buffer."
-  ;; From https://gist.github.com/3048595
   (interactive)
   (cleanup-buffer-save)
   (indent-buffer))
@@ -181,7 +174,6 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 (defun rename-current-buffer-file ()
   "Rename the current buffer and the file it's visiting."
-  ;; from github.com/magnars/.emacs.d
   (interactive)
   (let ((name (buffer-name))
         (filename (buffer-file-name)))
@@ -200,7 +192,6 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 (defun delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
-  ;; from github.com/magnars/.emacs.d
   (interactive)
   (let ((name (buffer-name))
         (buffer (current-buffer))
@@ -262,7 +253,6 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (put 'basis/define-hyper-keys 'lisp-indent-function 'defun)
 
 (defmacro create-simple-keybinding-command (name key)
-  ;; Based on code from github.com/magnars/.emacs.d/
   `(defun ,name (def &optional keymap)
      (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
 
@@ -335,7 +325,6 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 (defun transpose-windows  (arg)
   "Transpose the relative positions of two or more windows."
-  ;; From whattheemacsd.com
   (interactive "p")
   (let ((selector (if (>= arg 0) 'next-window 'previous-window)))
     (while (/= arg 0)
@@ -348,7 +337,6 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 (defun toggle-window-split ()
   "Toggle between horizontal and vertical window split (for two windows)."
-  ;; From whattheemacsd.com
   (interactive)
   (when (= (count-windows) 2)
     (let* ((this-win-buffer (window-buffer))
@@ -393,7 +381,6 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
   "Run a Google search.
 Use the selected region as the search string if any, otherwise
 display a prompt."
-  ;; from emacsredux.com/blog/2013/03/28/google/
   (interactive)
   (browse-url
    (concat
@@ -405,7 +392,6 @@ display a prompt."
 
 (defun basis/eval-and-replace ()
   "Replace the preceding sexp with its value."
-  ;; from github.com/magnars/.emacs.d
   (interactive)
   (backward-kill-sexp)
   (condition-case nil
@@ -474,8 +460,6 @@ If `linum-mode` was already enabled just call `goto-line`."
   (basis/paredit-wrap-from-behind #'paredit-wrap-curly nil))
 
 ;; html utilities --------------------------------------------------------------
-
-;; These are mostly from github.com/magnars/.emacs.d/
 
 (defun basis/move-to-next-blank-line ()
   "Move point to the next blank line."

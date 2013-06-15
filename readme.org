@@ -1,0 +1,11 @@
+* My Emacs configuration
+
+Some excellent sources of Emacs knowledge and ideas:
+- [[https://github.com/magnars/.emacs.d][Magnar Sveen's configuration]]
+- [[https://github.com/purcell/emacs.d][Steve Purcell's configuration]]
+- [[https://github.com/jwiegley/dot-emacs][John Wiegley's configuration]]
+- [[http://www.masteringemacs.org/][Mastering Emacs]]
+- [[http://emacsredux.com/][Emacs Redux]]
+- [[http://whattheemacsd.com/][What the .emacs.d!?]]
+- [[http://emacsrocks.com/][Emacs Rocks!]]
+

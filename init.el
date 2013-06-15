@@ -297,7 +297,6 @@
 (global-set-key (kbd "<M-s-down>") 'move-text-down)
 
 ;; Transpose stuff with M-t
-;; from github.com/magnars/.emacs.d/
 (global-unset-key (kbd "M-t"))
 (global-set-key (kbd "M-t l") 'transpose-lines)
 (global-set-key (kbd "M-t w") 'transpose-words)
@@ -404,7 +403,6 @@
 (global-set-key (kbd "<M-s-up>") 'scroll-other-window-down)
 (global-set-key (kbd "<M-s-down>") 'scroll-other-window)
 
-;; Help map (largely from github.com/jwiegley/dot-emacs)
 (define-prefix-command 'lisp-find-map)
 
 (global-set-key (kbd "C-h e") 'lisp-find-map)
@@ -447,7 +445,6 @@
 ;; magit -----------------------------------------------------------------------
 
 (defadvice magit-status (around magit-fullscreen activate)
-  ;; from http://whattheemacsd.com/setup-magit.el-01.html
   (window-configuration-to-register :magit-fullscreen)
   ad-do-it
   (delete-other-windows))
@@ -466,7 +463,6 @@
 (after-load 'ibuffer
   (define-ibuffer-column size-h
     ;; a more readable size column
-    ;; from github.com/purcell/emacs.d/blob/master/init-ibuffer.el
     (:name "Size" :inline t)
     (cond ((> (buffer-size) 1000000)
            (format "%7.1fM" (/ (buffer-size) 1000000.0)))
