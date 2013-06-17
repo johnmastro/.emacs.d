@@ -150,8 +150,6 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-(defalias 'list-buffers 'ibuffer)
-
 ;; interface -------------------------------------------------------------------
 
 (add-to-list 'custom-theme-load-path
@@ -160,19 +158,17 @@
 (setq solarized-termcolors 256)
 (load-theme 'solarized-dark t)
 
-(defvar basis/default-font
-  (case system-type
-    (gnu/linux  "Inconsolata-11")
-    (darwin     "Andale Mono-12")
-    (windows-nt "Consolas-10")))
-
 (when (display-graphic-p)
   (setq frame-title-format
         '((:eval (if (buffer-file-name)
                      (abbreviate-file-name (buffer-file-name))
                    "%b"))))
-  (when basis/default-font
-    (set-face-attribute 'default nil :font basis/default-font)))
+  (-when-let (default-font
+               (case system-type
+                 (gnu/linux  "Inconsolata-11")
+                 (darwin     "Andale Mono-12")
+                 (windows-nt "Consolas-10")))
+    (set-face-attribute 'default nil :font default-font)))
 
 (after-load 'paredit
   (diminish 'paredit-mode " π"))            ; pi
@@ -261,6 +257,9 @@
 (winner-mode 1)
 (windmove-default-keybindings)
 (global-set-key (kbd "M-o") 'other-window)
+
+;; Better buffer management
+(global-set-key [remap list-buffers] 'ibuffer)
 
 ;; Newlines
 (global-set-key (kbd "C-m") 'newline-and-indent)
