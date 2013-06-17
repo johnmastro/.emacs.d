@@ -456,6 +456,12 @@
   (kill-buffer)
   (jump-to-register :magit-fullscreen))
 
+(defun basis/init-magit-log-edit ()
+  (turn-on-auto-fill)
+  (setq fill-column 72))
+
+(add-hook 'magit-log-edit-mode-hook 'basis/init-magit-log-edit)
+
 (after-load 'magit
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
 
