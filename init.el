@@ -404,6 +404,10 @@
 (global-set-key (kbd "<M-s-up>") 'scroll-other-window-down)
 (global-set-key (kbd "<M-s-down>") 'scroll-other-window)
 
+;; I want to like smartparens but haven't gotten there yet
+(global-set-key (kbd "C-c p") 'basis/toggle-between-autopair-and-smartparens)
+
+;; Map for finding elisp stuff
 (define-prefix-command 'lisp-find-map)
 
 (global-set-key (kbd "C-h e") 'lisp-find-map)

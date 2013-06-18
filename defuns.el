@@ -419,6 +419,18 @@ If `linum-mode` was already enabled just call `goto-line`."
       (when (file-exists-p elc)
         (delete-file elc)))))
 
+(defun basis/toggle-between-autopair-and-smartparens ()
+  "Toggle between autopair and smartparens.
+If neither mode is active, do nothing."
+  (interactive)
+  (cond ((and (boundp 'autopair-mode) autopair-mode)
+         (autopair-mode -1)
+         (smartparens-mode +1)
+         (sp-use-paredit-bindings))
+        ((and (boundp 'smartparens-mode) smartparens-mode)
+         (smartparens-mode -1)
+         (autopair-mode +1))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
