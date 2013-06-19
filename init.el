@@ -959,7 +959,6 @@ Use `slime-expand-1` to produce the expansion."
   (basis/define-keys html-mode-map
     ([remap forward-paragraph]  'basis/move-to-next-blank-line)
     ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
-    ((kbd "TAB")                'simplezen-expand-or-indent-for-tab)
     ((kbd "RET")                'basis/html-newline-and-indent)
     ((kbd "<M-return>")         'basis/html-multiline-expand)
     ((kbd "C-c C-w")            'basis/html-wrap-in-tag)
