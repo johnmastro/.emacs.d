@@ -813,6 +813,11 @@ Use `slime-expand-1` to produce the expansion."
 
 (autopair-global-mode) ; disabled for lisps in init-lisp.el
 
+;; smartparens -----------------------------------------------------------------
+
+(after-load 'smartparens
+  (define-key smartparens-mode-map (kbd "RET") 'basis/electric-return))
+
 ;; python ----------------------------------------------------------------------
 
 (defun basis/python-send-something ()

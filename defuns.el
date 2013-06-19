@@ -67,6 +67,13 @@ context at point."
         ((looking-back (rx (syntax close-parenthesis)))
          (backward-sexp))))
 
+(defun basis/electric-return ()
+  "Typical \"electric\" return, similar to that in CC Mode."
+  (interactive)
+  (when (memql (char-after) '(?\) ?\] ?}))
+    (save-excursion (newline-and-indent)))
+  (newline-and-indent))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word ()
