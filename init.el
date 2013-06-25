@@ -892,6 +892,15 @@ Use `slime-expand-1` to produce the expansion."
 
 (add-hook 'c-mode-hook 'basis/init-c)
 
+;; ack and a half --------------------------------------------------------------
+
+(after-load 'ack-and-a-half
+  (basis/define-keys ack-and-a-half-mode-map
+    ((kbd "n") 'compilation-next-error)
+    ((kbd "p") 'compilation-previous-error)
+    ((kbd "]") 'compilation-next-file)
+    ((kbd "[") 'compilation-previous-file)))
+
 ;; org -------------------------------------------------------------------------
 
 ;; Paths
