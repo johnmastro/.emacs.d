@@ -818,6 +818,25 @@ Use `slime-expand-1` to produce the expansion."
 (after-load 'smartparens
   (define-key smartparens-mode-map (kbd "RET") 'basis/electric-return))
 
+;; flycheck --------------------------------------------------------------------
+
+(defun basis/adjust-flycheck-idle-change-delay ()
+  (setq flycheck-idle-change-delay
+        (if flycheck-current-errors 0.5 5.0)))
+
+(after-load 'flycheck
+  (when (eq system-type 'windows-nt)
+    (setq flycheck-xml-parser 'flycheck-parse-xml-region))
+
+  ;; Check buffers with errors more frequently than ones without
+  (make-variable-buffer-local 'flycheck-idle-change-delay)
+  (add-hook 'flycheck-after-syntax-check-hook
+            'basis/adjust-flycheck-idle-change-delay)
+
+  ;; Don't trigger a check on newline
+  (setq flycheck-check-syntax-automatically
+        (remq 'new-line flycheck-check-syntax-automatically)))
+
 ;; python ----------------------------------------------------------------------
 
 (defun basis/python-send-something ()
@@ -838,6 +857,9 @@ Use `slime-expand-1` to produce the expansion."
       jedi:tooltip-method nil) ; show function signatures in the minibuffer
 
 (add-hook 'python-mode-hook 'jedi:setup)
+
+;; Flycheck
+(add-hook 'python-mode-hook #'(lambda () (flycheck-mode 1)))
 
 ;; autopair
 (defun basis/setup-autopair-for-python ()
@@ -862,6 +884,8 @@ Use `slime-expand-1` to produce the expansion."
 
 (after-load 'js2-mode
   (js2-imenu-extras-setup))
+
+(add-hook 'js2-mode-hook #'(lambda () (flycheck-mode 1)))
 
 ;; skewer ----------------------------------------------------------------------
 

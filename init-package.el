@@ -82,6 +82,7 @@ optionally, the name of the archive to use in its cdr."
          (ac-js2 . melpa)
          (js-comint . melpa)
          (skewer-mode . melpa)
+         (flycheck . melpa)
          )))
   (basis/install-packages basis/required-packages))
 
