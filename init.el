@@ -883,6 +883,9 @@ Use `slime-expand-1` to produce the expansion."
   (setq flycheck-idle-change-delay
         (if flycheck-current-errors 0.5 5.0)))
 
+(defvar basis/flycheck-keymap nil
+  "Custom keybindings for Flycheck.")
+
 (after-load 'flycheck
   (when (eq system-type 'windows-nt)
     (setq flycheck-xml-parser 'flycheck-parse-xml-region))
@@ -894,7 +897,21 @@ Use `slime-expand-1` to produce the expansion."
 
   ;; Don't trigger a check on newline
   (setq flycheck-check-syntax-automatically
-        (remq 'new-line flycheck-check-syntax-automatically)))
+        (remq 'new-line flycheck-check-syntax-automatically))
+
+  ;; Initialize the keymap
+  (setq basis/flycheck-keymap
+        (let ((map (make-sparse-keymap)))
+          (basis/define-keys map
+            ((kbd "c") 'flycheck-buffer)
+            ((kbd "i") 'flycheck-info)
+            ((kbd "n") 'flycheck-next-error)
+            ((kbd "p") 'flycheck-previous-error)
+            ((kbd "l") 'flycheck-list-errors)
+            ((kbd "s") 'flycheck-select-checker)
+            ((kbd "C") 'flycheck-clear))
+          map))
+  (global-set-key (kbd "s-k") basis/flycheck-keymap))
 
 ;; python ----------------------------------------------------------------------
 
