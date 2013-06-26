@@ -38,8 +38,67 @@
 (when (file-exists-p "~/.emacs.d/doc/info")
   (add-to-list 'Info-default-directory-list "~/.emacs.d/doc/info"))
 
-;; Get the package infrastructure going
-(require 'init-package)
+;; package ---------------------------------------------------------------------
+
+(require 'package)
+
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+(package-initialize)
+
+;; Make sure every archive is present in the elpa/archives/ folder
+(let* ((archive-folder "~/.emacs.d/elpa/archives/")
+       (archive-folders (mapcar #'(lambda (archive)
+                                    (concat archive-folder (car archive)))
+                                package-archives)))
+  (unless (every #'file-exists-p archive-folders)
+    (package-refresh-contents)))
+
+;; Ensure that everything specified here is installed
+(let* ((basis/required-packages
+        '(paredit
+          elisp-slime-nav
+          expand-region
+          smex
+          dired+
+          diminish
+          ido-ubiquitous
+          undo-tree
+          ack-and-a-half
+          markdown-mode
+          deft
+          ace-jump-mode
+          jump-char
+          magit
+          multiple-cursors
+          helm
+          auto-complete
+          ac-slime
+          redshank
+          yaml-mode
+          dash
+          s
+          move-text
+          browse-kill-ring
+          jedi
+          autopair
+          yasnippet
+          tagedit
+          simplezen
+          js2-mode
+          ac-js2
+          js-comint
+          skewer-mode
+          flycheck
+          ))
+       (basis/uninstalled-packages
+        (remove-if #'package-installed-p basis/required-packages)))
+  (when basis/uninstalled-packages
+    (package-refresh-contents)
+    (mapc #'package-install basis/uninstalled-packages)))
+
+;; load defuns -----------------------------------------------------------------
 
 ;; Make dash and s available for use in defuns
 (require 'dash)
