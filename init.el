@@ -917,16 +917,16 @@ Use `slime-expand-1` to produce the expansion."
 
 (add-hook 'python-mode-hook 'jedi:setup)
 
-;; Flycheck
-(add-hook 'python-mode-hook #'(lambda () (flycheck-mode 1)))
-
-;; autopair
 (defun basis/setup-autopair-for-python ()
   (setq autopair-handle-action-fns
         (list #'autopair-default-handle-action
               #'autopair-python-triple-quote-action)))
 
-(add-hook 'python-mode-hook 'basis/setup-autopair-for-python)
+(defun basis/init-python-mode ()
+  (basis/setup-autopair-for-python)
+  (flycheck-mode 1))
+
+(add-hook 'python-mode-hook 'basis/init-python-mode)
 
 ;; javascript ------------------------------------------------------------------
 
@@ -944,7 +944,11 @@ Use `slime-expand-1` to produce the expansion."
 (after-load 'js2-mode
   (js2-imenu-extras-setup))
 
-(add-hook 'js2-mode-hook #'(lambda () (flycheck-mode 1)))
+(defun basis/init-js2-mode ()
+  (flycheck-mode 1)
+  (subword-mode 1))
+
+(add-hook 'js2-mode-hook 'basis/init-js2-mode)
 
 ;; skewer ----------------------------------------------------------------------
 
