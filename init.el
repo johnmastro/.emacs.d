@@ -851,6 +851,13 @@ Use `slime-expand-1` to produce the expansion."
 
 (add-to-list 'auto-mode-alist (cons "\\.js\\'" 'js2-mode))
 
+(setq-default
+ js2-show-parse-errors nil
+ js2-allow-rhino-new-expr-initializer nil
+ js2-strict-inconsistent-return-warning nil
+ js2-strict-missing-semi-warning nil
+ js2-strict-trailing-comma-warning t)
+
 (setq js2-basic-offset 2)
 
 (after-load 'js2-mode
