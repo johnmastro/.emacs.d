@@ -875,7 +875,13 @@ Use `slime-expand-1` to produce the expansion."
 ;; smartparens -----------------------------------------------------------------
 
 (after-load 'smartparens
-  (define-key smartparens-mode-map (kbd "RET") 'basis/electric-return))
+  (sp-use-paredit-bindings)
+  (basis/define-keys smartparens-mode-map
+    ((kbd "RET")                  'basis/electric-return)
+    ([remap delete-char]          'sp-delete-char)
+    ([remap backward-delete-char] 'sp-backward-delete-char)
+    ([remap kill-word]            'sp-kill-word)
+    ((kbd "<M-backspace>")        'basis/sp-backward-kill-something)))
 
 ;; flycheck --------------------------------------------------------------------
 

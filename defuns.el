@@ -432,8 +432,7 @@ If neither mode is active, do nothing."
   (interactive)
   (cond ((and (boundp 'autopair-mode) autopair-mode)
          (autopair-mode -1)
-         (smartparens-mode +1)
-         (sp-use-paredit-bindings))
+         (smartparens-mode +1))
         ((and (boundp 'smartparens-mode) smartparens-mode)
          (smartparens-mode -1)
          (autopair-mode +1))))
@@ -477,6 +476,14 @@ If neither mode is active, do nothing."
 (defun basis/paredit-wrap-curly-from-behind ()
   (interactive)
   (basis/paredit-wrap-from-behind #'paredit-wrap-curly nil))
+
+;; smartparens -----------------------------------------------------------------
+
+(defun basis/sp-backward-kill-something (&optional arg)
+  (interactive "p")
+  (if (region-active-p)
+      (kill-region (region-beginning) (region-end))
+    (sp-backward-kill-word arg)))
 
 ;; html utilities --------------------------------------------------------------
 
