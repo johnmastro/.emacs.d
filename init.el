@@ -947,7 +947,8 @@ Use `slime-expand-1` to produce the expansion."
 
 (defun basis/init-python-mode ()
   (basis/setup-autopair-for-python)
-  (flycheck-mode 1))
+  (unless (and buffer-file-name (tramp-tramp-file-p buffer-file-name))
+    (flycheck-mode 1)))
 
 (add-hook 'python-mode-hook 'basis/init-python-mode)
 
@@ -968,8 +969,9 @@ Use `slime-expand-1` to produce the expansion."
   (js2-imenu-extras-setup))
 
 (defun basis/init-js2-mode ()
-  (flycheck-mode 1)
-  (subword-mode 1))
+  (subword-mode 1)
+  (unless (and buffer-file-name (tramp-tramp-file-p buffer-file-name))
+    (flycheck-mode 1)))
 
 (add-hook 'js2-mode-hook 'basis/init-js2-mode)
 
