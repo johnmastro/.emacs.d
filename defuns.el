@@ -100,6 +100,13 @@ context at point."
   (beginning-of-line-or-indentation)
   (kill-line nil))
 
+(defun basis/kill-ring-save-something ()
+  "Save the contents of the active region or the current line."
+  (interactive)
+  (if (region-active-p)
+      (kill-ring-save (region-beginning) (region-end))
+    (kill-ring-save (line-beginning-position) (line-end-position))))
+
 ;; case changing ---------------------------------------------------------------
 
 (defun basis/upcase-something (&optional arg)
@@ -128,6 +135,44 @@ on whether the region is active."
   (if (region-active-p)
       (capitalize-region (region-beginning) (region-end))
     (capitalize-word arg)))
+
+(defun basis/bounds-of-something (thing)
+  ;; Helper for `basis/toggle-case`
+  (if (region-active-p)
+      (cons (region-beginning) (region-end))
+    (bounds-of-thing-at-point thing)))
+
+(defun basis/toggle-case ()
+  "Toggle the case of the region or the word at point."
+  (interactive)
+  (-when-let (bounds (basis/bounds-of-something 'word))
+    (let ((beg (car bounds))
+          (end (cdr bounds))
+          (deactivate-mark nil)
+          (case-fold-search nil))
+      (unless (eq this-command last-command)
+        (save-excursion
+          (goto-char beg)
+          (cond ((looking-at (rx lower lower))
+                 (put this-command 'state :downcased))
+                ((looking-at (rx upper upper))
+                 (put this-command 'state :upcased))
+                ((looking-at (rx upper lower))
+                 (put this-command 'state :capitalized))
+                ((looking-at (rx upper))
+                 (put this-command 'state :upcased))
+                (t
+                 (put this-command 'state :downcased)))))
+      (case (get this-command 'state)
+        (:downcased
+         (capitalize-region beg end)
+         (put this-command 'state :capitalized))
+        (:capitalized
+         (upcase-region beg end)
+         (put this-command 'state :upcased))
+        (:upcased
+         (downcase-region beg end)
+         (put this-command 'state :downcased))))))
 
 ;; mark commands ---------------------------------------------------------------
 

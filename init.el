@@ -311,6 +311,7 @@
 (basis/define-hyper global-map "2" 'split-window-below)
 (basis/define-hyper global-map "3" 'split-window-right)
 (basis/define-hyper global-map "r" ctl-x-r-map)
+(basis/define-hyper global-map "c" 'basis/toggle-case)
 
 ;; Easier window management
 (winner-mode 1)
@@ -344,6 +345,7 @@
 (global-set-key (kbd "<S-backspace>") 'smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
 (global-set-key (kbd "<f2>") 'basis/kill-ring-save-buffer)
+(global-set-key (kbd "M-w") 'basis/kill-ring-save-something)
 
 ;; ... and then browse it with M-y
 (browse-kill-ring-default-keybindings)
@@ -984,6 +986,9 @@ Use `slime-expand-1` to produce the expansion."
     ((kbd "<f5>") 'skewer-eval-last-expression)
     ((kbd "<f6>") 'skewer-eval-defun)
     ((kbd "<f8>") 'skewer-load-buffer)))
+
+(after-load 'skewer-repl
+  (define-key skewer-repl-mode-map (kbd "TAB") 'hippie-expand))
 
 (after-load 'skewer-html
   (define-key skewer-html-mode-map (kbd "<f6>") 'skewer-html-eval-tag))
