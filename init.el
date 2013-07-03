@@ -88,6 +88,7 @@
           simplezen
           js2-mode
           ac-js2
+          js2-refactor
           js-comint
           skewer-mode
           flycheck
@@ -968,6 +969,8 @@ Use `slime-expand-1` to produce the expansion."
 (setq js2-basic-offset 2)
 
 (after-load 'js2-mode
+  (require 'js2-refactor)
+  (js2r-add-keybindings-with-prefix "s-n")
   (js2-imenu-extras-setup))
 
 (defun basis/init-js2-mode ()
