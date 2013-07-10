@@ -345,8 +345,9 @@
 (global-set-key (kbd "<s-backspace>") 'smart-kill-whole-line)
 (global-set-key (kbd "<S-backspace>") 'smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
-(global-set-key (kbd "<f2>") 'basis/kill-ring-save-buffer)
 (global-set-key (kbd "M-w") 'basis/kill-ring-save-something)
+(global-set-key (kbd "<f2>") 'basis/clipboard-save-buffer)
+(global-set-key (kbd "<M-f2>") 'basis/kill-ring-save-buffer)
 
 ;; ... and then browse it with M-y
 (browse-kill-ring-default-keybindings)
@@ -425,6 +426,8 @@
 (global-set-key (kbd "M-g M-g") 'basis/goto-line-with-numbers)
 
 ;; Movement by sexp
+(global-set-key (kbd "M-e") 'forward-sexp)
+(global-set-key (kbd "M-a") 'backward-sexp)
 (global-set-key (kbd "<M-right>") 'forward-sexp)
 (global-set-key (kbd "<M-left>") 'backward-sexp)
 
@@ -924,15 +927,10 @@ Use `slime-expand-1` to produce the expansion."
 
 ;; python ----------------------------------------------------------------------
 
-(defun basis/python-send-something ()
-  (interactive)
-  (if (region-active-p)
-      (python-shell-send-region (region-beginning)
-                                (region-end))
-    (python-shell-send-defun nil)))
-
 (after-load 'python
   (basis/define-keys python-mode-map
+    ((kbd "M-e")    'python-nav-forward-sexp)
+    ((kbd "M-a")    'basis/python-nav-backward-sexp)
     ((kbd "<f6>")   'python-shell-send-something)
     ((kbd "<f8>")   'python-shell-send-buffer)
     ((kbd "<M-f8>") 'python-shell-send-file)))
@@ -970,7 +968,7 @@ Use `slime-expand-1` to produce the expansion."
 
 (after-load 'js2-mode
   (require 'js2-refactor)
-  (js2r-add-keybindings-with-prefix "s-n")
+  (js2r-add-keybindings-with-prefix "M-r")
   (js2-imenu-extras-setup))
 
 (defun basis/init-js2-mode ()
@@ -1004,10 +1002,11 @@ Use `slime-expand-1` to produce the expansion."
 
 ;; sql -------------------------------------------------------------------------
 
-(defun sql-product-is-probably-postgres ()
+(defun basis/init-sql-mode ()
+  (auto-complete-mode 1)
   (sql-set-product "postgres"))
 
-(add-hook 'sql-mode-hook 'sql-product-is-probably-postgres)
+(add-hook 'sql-mode-hook 'basis/init-sql-mode)
 
 ;; c ---------------------------------------------------------------------------
 

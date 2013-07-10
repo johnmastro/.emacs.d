@@ -25,11 +25,6 @@ there, to the beginning of the line."
        (if reg-p (region-beginning) (line-beginning-position))
        (if reg-p (region-end) (line-end-position))))))
 
-(defun basis/kill-ring-save-buffer ()
-  "Save the entire buffer's content to the kill ring."
-  (interactive)
-  (kill-ring-save (point-min) (point-max)))
-
 (defun basis/insert-enough-dashes ()
   "Insert as many dashes as necessary to end at the 80th column."
   (interactive)
@@ -106,6 +101,45 @@ context at point."
   (if (region-active-p)
       (kill-ring-save (region-beginning) (region-end))
     (kill-ring-save (line-beginning-position) (line-end-position))))
+
+(defun basis/kill-ring-save-buffer ()
+  "Save the buffer's content to the kill ring."
+  (interactive)
+  (kill-ring-save (point-min) (point-max)))
+
+(defun basis/kill-ring-save-whole-damn-buffer ()
+  "Save the buffer's content to the kill ring.
+Ignore narrowing but restore it when complete."
+  (save-restriction
+    (widen)
+    (kill-ring-save (point-min) (point-max))))
+
+(defun basis/clipboard-save-string (str)
+  "Save STR directly to the system clipboard.
+Do not save the string to the the kill ring."
+  (funcall interprogram-cut-function str))
+
+(defun basis/clipboard-save-region (beg end)
+  "Save the region from BEG to END to the system clipboard.
+Do not save the region to the kill ring."
+  (interactive "r")
+  (basis/clipboard-save-string
+   (buffer-substring-no-properties beg end))
+  (setq deactivate-mark t))
+
+(defun basis/clipboard-save-buffer ()
+  "Save the buffer's content directly to the system clipboard.
+Do not save the content to the kill ring."
+  (interactive)
+  (basis/clipboard-save-region (point-min) (point-max)))
+
+(defun basis/clipboard-save-whole-damn-buffer ()
+  "Save the entire buffer's content directly to the clipboard.
+Ignore narrowing but restore it when complete."
+  (interactive)
+  (save-restriction
+    (widen)
+    (basis/clipboard-save-buffer)))
 
 ;; case changing ---------------------------------------------------------------
 
@@ -373,6 +407,15 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 (put 'with-unique-names 'lisp-indent-function 1)
 
+(defmacro looking-at-case (&rest clauses)
+  (let ((trues '(t :else otherwise)))
+    `(cond
+      ,@(mapcar #'(lambda (clause)
+                    (let ((expr (car clause)))
+                      `(,(if (memq expr trues) t `(looking-at ,expr))
+                        ,@(cdr clause))))
+                clauses))))
+
 ;; window utilities ------------------------------------------------------------
 
 (defun transpose-windows  (arg)
@@ -529,6 +572,21 @@ If neither mode is active, do nothing."
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
     (sp-backward-kill-word arg)))
+
+;; python ----------------------------------------------------------------------
+
+(defun basis/python-send-something ()
+  "Send the active region or the current defun."
+  (interactive)
+  (if (region-active-p)
+      (python-shell-send-region (region-beginning)
+                                (region-end))
+    (python-shell-send-defun nil)))
+
+(defun basis/python-nav-backward-sexp (&optional arg)
+  "Move backward by one sexp."
+  (interactive "^p")
+  (python-nav-forward-sexp (- arg)))
 
 ;; html utilities --------------------------------------------------------------
 
