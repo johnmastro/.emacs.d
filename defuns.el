@@ -25,11 +25,14 @@ there, to the beginning of the line."
        (if reg-p (region-beginning) (line-beginning-position))
        (if reg-p (region-end) (line-end-position))))))
 
-(defun basis/insert-enough-dashes ()
-  "Insert as many dashes as necessary to end at the 80th column."
-  (interactive)
-  (let* ((pos (- (point) (line-beginning-position)))
-         (enough (- 80 pos)))
+(defun basis/insert-enough-dashes (&optional arg)
+  "Insert enough dashes to reach a specific column.
+With a prefix arg, prompt for the target column. Otherwise use a
+default of 80."
+  (interactive "P")
+  (let* ((goal (if arg (read-number "Target column: " 80) 80))
+         (pos (- (point) (line-beginning-position)))
+         (enough (- goal pos)))
     (insert (concat (-repeat enough ?-)))))
 
 (defun basis/join-next-line ()
@@ -302,6 +305,14 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 (defun buffer-file-basename-sans-extension ()
   (file-basename-sans-extension (buffer-file-name)))
+
+(defun basis/kill-all-buffers ()
+  "Kill all buffers except *scratch*."
+  (interactive)
+  (dolist (buffer (buffer-list))
+    (unless (string= (buffer-name buffer) "*scratch*")
+      (kill-buffer buffer)))
+  (delete-other-windows))
 
 ;; key binding utilities -------------------------------------------------------
 

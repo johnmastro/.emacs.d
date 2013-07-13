@@ -8,13 +8,13 @@
 
 ;; Define directories for various purposes and ensure they exist
 (defvar basis/emacs-dir (file-name-directory load-file-name))
-(defvar basis/site-lisp-dir (concat basis/emacs-dir "site-lisp/"))
-(defvar basis/defuns-file (concat basis/emacs-dir "defuns.el"))
-(defvar basis/backups-dir (concat basis/emacs-dir "backups/"))
-(defvar basis/autosaves-dir (concat basis/emacs-dir "autosaves/"))
-(defvar basis/tmp-dir (concat basis/emacs-dir "tmp/"))
-(defvar basis/custom-file (concat basis/emacs-dir "custom.el"))
-(defvar basis/themes-dir (concat basis/emacs-dir "themes/"))
+(defvar basis/site-lisp-dir (expand-file-name "site-lisp/" basis/emacs-dir))
+(defvar basis/defuns-file (expand-file-name "defuns.el" basis/emacs-dir))
+(defvar basis/backups-dir (expand-file-name "backups/" basis/emacs-dir))
+(defvar basis/autosaves-dir (expand-file-name "autosaves/" basis/emacs-dir))
+(defvar basis/tmp-dir (expand-file-name "tmp/" basis/emacs-dir))
+(defvar basis/custom-file (expand-file-name "custom.el" basis/emacs-dir))
+(defvar basis/themes-dir (expand-file-name "themes/" basis/emacs-dir))
 
 (dolist (dir (list basis/backups-dir basis/autosaves-dir basis/tmp-dir))
   (unless (file-exists-p dir)
@@ -32,7 +32,7 @@
 ;; Set up the load path
 (add-to-list 'load-path basis/emacs-dir)
 (add-to-list 'load-path basis/site-lisp-dir)
-(add-to-list 'load-path (concat basis/site-lisp-dir "tramp-2.2.7/"))
+(add-to-list 'load-path (expand-file-name "tramp-2.2.7/" basis/site-lisp-dir))
 
 ;; Info is awesome
 (when (file-exists-p "~/.emacs.d/doc/info")
@@ -50,7 +50,8 @@
 ;; Make sure every archive is present in the elpa/archives/ folder
 (let* ((archive-folder "~/.emacs.d/elpa/archives/")
        (archive-folders (mapcar #'(lambda (archive)
-                                    (concat archive-folder (car archive)))
+                                    (let ((name (car archive)))
+                                      (expand-file-name name archive-folder)))
                                 package-archives)))
   (unless (every #'file-exists-p archive-folders)
     (package-refresh-contents)))
@@ -138,9 +139,7 @@
 (setq-default indent-tabs-mode nil
               fill-column 79)
 
-(setq tab-stop-list
-      (loop for n from 4 to 120 by 4
-            collect n))
+(setq tab-stop-list (number-sequence 4 120 4))
 
 ;; Whitespace mode in programming modes except REPL/shell-style modes
 (defun maybe-turn-on-whitespace-mode ()
@@ -176,7 +175,7 @@
 ;; recentf
 (recentf-mode 1)
 (setq recentf-max-saved-items 50)
-(setq recentf-save-file (concat basis/emacs-dir ".recentf"))
+(setq recentf-save-file (expand-file-name ".recentf" basis/emacs-dir))
 
 (add-to-list 'safe-local-variable-values '(lexical-binding . t))
 (add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
@@ -192,7 +191,7 @@
 (setq backup-by-copying t
       backup-directory-alist `((".*" . ,basis/backups-dir))
       auto-save-file-name-transforms `((".*" ,basis/autosaves-dir t))
-      save-place-file (concat basis/emacs-dir "places")
+      save-place-file (expand-file-name "places" basis/emacs-dir)
       temporary-file-directory basis/tmp-dir)
 
 ;; Automatically refresh buffers
@@ -213,7 +212,7 @@
 ;; interface -------------------------------------------------------------------
 
 (add-to-list 'custom-theme-load-path
-             (concat basis/themes-dir "solarized/"))
+             (expand-file-name  "solarized/" basis/themes-dir))
 
 (setq solarized-termcolors 256)
 (load-theme 'solarized-dark t)
@@ -610,7 +609,7 @@
 
 ;; smex ------------------------------------------------------------------------
 
-(setq smex-save-file (concat basis/emacs-dir ".smex-items"))
+(setq smex-save-file (expand-file-name ".smex-items" basis/emacs-dir))
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
@@ -1030,12 +1029,11 @@ Use `slime-expand-1` to produce the expansion."
 ;; org -------------------------------------------------------------------------
 
 ;; Paths
-(setq org-directory (expand-file-name "~/Dropbox/org/"))
-(setq org-default-notes-file (concat org-directory "refile.org"))
-(setq org-agenda-files
-      (loop for name in '("todo.org" "work.org")
-            collect (concat org-directory name)))
-(setq org-archive-location "%s.archive::")
+(setq org-directory (expand-file-name "~/Dropbox/org/")
+      org-default-notes-file (expand-file-name "refile.org" org-directory)
+      org-archive-location "%s.archive::"
+      org-agenda-files (--map (expand-file-name it org-directory)
+                              '("todo.org" "work.org")))
 
 ;; Misc. options
 (setq org-completion-use-ido t
