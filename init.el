@@ -187,6 +187,15 @@
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 
+;; Don't use CRLF on remote Unix machines
+(defun basis/maybe-set-coding ()
+  (when (and buffer-file-name
+             (s-starts-with? "/plinkx:" buffer-file-name))
+    (set-buffer-file-coding-system 'utf-8-unix)))
+
+(when (eq system-type 'windows-nt)
+  (add-hook 'before-save-hook 'basis/maybe-set-coding))
+
 ;; Backups, autosaves, and temporary files
 (setq backup-by-copying t
       backup-directory-alist `((".*" . ,basis/backups-dir))
@@ -644,9 +653,9 @@
 ;; yasnippet -------------------------------------------------------------------
 
 (defun basis/yas-expand-or-insert ()
-  "Call `yas-expand` or `yas-insert-snippet` depending on context.
-If point is after what might be a snippet key, call `yas-expand`,
-otherwise call `yas-insert-snippet`."
+  "Call `yas-expand' or `yas-insert-snippet' depending on context.
+If point is after what might be a snippet key, call `yas-expand',
+otherwise call `yas-insert-snippet'."
   (interactive)
   (call-interactively
    (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
@@ -718,13 +727,13 @@ otherwise call `yas-insert-snippet`."
   (basis/define-keys mode
     ((kbd "<f5>") 'pp-eval-last-sexp)
     ((kbd "<f6>") 'basis/eval-something)
-    ((kbd "<f7>") 'macroexpand-point)
+    ((kbd "<f7>") 'basis/expand-sexp-at-point)
     ((kbd "<f8>") 'eval-buffer)))
 
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/maybe-map-paredit-newline ()
-  "Map `paredit-newline` except in some interactive modes."
+  "Map `paredit-newline' except in some interactive modes."
   (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
                                                inferior-lisp-mode
                                                inferior-scheme-mode)))
@@ -793,7 +802,7 @@ otherwise call `yas-insert-snippet`."
 
 (defun basis/slime-expand-defun (&optional repeatedly)
   "Display the macro expansion of the form surrounding point.
-Use `slime-expand-1` to produce the expansion."
+Use `slime-expand-1' to produce the expansion."
   (interactive "P")
   (save-excursion
     (end-of-defun)
@@ -930,7 +939,7 @@ Use `slime-expand-1` to produce the expansion."
   (basis/define-keys python-mode-map
     ((kbd "M-e")    'python-nav-forward-sexp)
     ((kbd "M-a")    'basis/python-nav-backward-sexp)
-    ((kbd "<f6>")   'python-shell-send-something)
+    ((kbd "<f6>")   'basis/python-send-something)
     ((kbd "<f8>")   'python-shell-send-buffer)
     ((kbd "<M-f8>") 'python-shell-send-file)))
 
@@ -946,9 +955,7 @@ Use `slime-expand-1` to produce the expansion."
               #'autopair-python-triple-quote-action)))
 
 (defun basis/init-python-mode ()
-  (basis/setup-autopair-for-python)
-  (unless (and buffer-file-name (tramp-tramp-file-p buffer-file-name))
-    (flycheck-mode 1)))
+  (basis/setup-autopair-for-python))
 
 (add-hook 'python-mode-hook 'basis/init-python-mode)
 
@@ -971,9 +978,7 @@ Use `slime-expand-1` to produce the expansion."
   (js2-imenu-extras-setup))
 
 (defun basis/init-js2-mode ()
-  (subword-mode 1)
-  (unless (and buffer-file-name (tramp-tramp-file-p buffer-file-name))
-    (flycheck-mode 1)))
+  (subword-mode 1))
 
 (add-hook 'js2-mode-hook 'basis/init-js2-mode)
 
@@ -1006,6 +1011,10 @@ Use `slime-expand-1` to produce the expansion."
   (sql-set-product "postgres"))
 
 (add-hook 'sql-mode-hook 'basis/init-sql-mode)
+
+(after-load 'sql
+  (push (sql-font-lock-keywords-builder 'font-lock-builtin-face nil "elsif")
+        sql-mode-postgres-font-lock-keywords))
 
 ;; c ---------------------------------------------------------------------------
 

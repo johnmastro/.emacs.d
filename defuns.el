@@ -8,7 +8,7 @@
 ;; misc. editing utilities -----------------------------------------------------
 
 (defun beginning-of-line-or-indentation ()
-  "Smarter `move-beginning-of-line`.
+  "Smarter `move-beginning-of-line'.
 Go back to the first non-whitespace character or, if already
 there, to the beginning of the line."
   (interactive)
@@ -56,7 +56,7 @@ default of 80."
 
 (defun basis/other-sexp-delimiter ()
   "Move to a matching delimiter.
-Uses either `forward-sexp` or `backward-sexp` depending on the
+Uses either `forward-sexp' or `backward-sexp' depending on the
 context at point."
   ;; TODO: can this be made to work with quotes?
   (interactive)
@@ -87,13 +87,13 @@ context at point."
   (indent-according-to-mode))
 
 (defun smart-kill-whole-line (&optional arg)
-  "A simple wrapper around `kill-whole-line` that respects indentation."
+  "A simple wrapper around `kill-whole-line' that respects indentation."
   (interactive "P")
   (kill-whole-line arg)
   (back-to-indentation))
 
 (defun smart-kill-almost-whole-line ()
-  "Like `smart-kill-whole-line` but doesn't kill the newline."
+  "Like `smart-kill-whole-line' but doesn't kill the newline."
   (interactive)
   (beginning-of-line-or-indentation)
   (kill-line nil))
@@ -148,7 +148,7 @@ Ignore narrowing but restore it when complete."
 
 (defun basis/upcase-something (&optional arg)
   "Upcase either the region or word(s).
-This will call `upcase-region` or `upcase-word` depending on
+This will call `upcase-region' or `upcase-word' depending on
 whether the region is active."
   (interactive "p")
   (if (region-active-p)
@@ -157,7 +157,7 @@ whether the region is active."
 
 (defun basis/downcase-something (&optional arg)
   "Downcase either the region or word(s).
-This will call `downcase-region` or `downcase-word` depending on
+This will call `downcase-region' or `downcase-word' depending on
 whether the region is active."
   (interactive "p")
   (if (region-active-p)
@@ -166,7 +166,7 @@ whether the region is active."
 
 (defun basis/capitalize-something (&optional arg)
   "Capitalize either the region or word(s).
-This will call `capitalize-region` or `capitalize-word` depending
+This will call `capitalize-region' or `capitalize-word' depending
 on whether the region is active."
   (interactive "p")
   (if (region-active-p)
@@ -174,7 +174,7 @@ on whether the region is active."
     (capitalize-word arg)))
 
 (defun basis/bounds-of-something (thing)
-  ;; Helper for `basis/toggle-case`
+  ;; Helper for `basis/toggle-case'
   (if (region-active-p)
       (cons (region-beginning) (region-end))
     (bounds-of-thing-at-point thing)))
@@ -384,29 +384,52 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 (defun basis/dired-jump-to-top ()
   "Move point to the first line representing a file."
-  ;; From whattheemacs.d. Magnar moves forward 4 lines rather than 2 but that
-  ;; doesn't do what I want when the buffer is sorted by mtime.
   (interactive)
   (beginning-of-buffer)
   (dired-next-line 2))
 
 (defun basis/dired-jump-to-bottom ()
+  "Move point to the last line representing a file."
   (interactive)
   (end-of-buffer)
   (dired-next-line -1))
 
 ;; macro utilities -------------------------------------------------------------
 
-(defun macroexpand-sexp-at-point ()
-  "Macroexpand the s-expression at point."
-  (macroexpand (sexp-at-point)))
+(define-minor-mode basis/el-macroexpansion-mode
+  "Display Emacs Lisp macro expansions."
+  :lighter nil
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "q") 'quit-window)
+            map))
 
-(defun macroexpand-point (sexp)
-  "Macroexpand the s-expression at point.
-Print the result to a temp buffer."
-  (interactive (list (sexp-at-point)))
-  (with-output-to-temp-buffer "*el-macroexpansion*"
-    (pp (macroexpand sexp))))
+(defun basis/expand-form (form)
+  "Macroexpand FORM and display the result."
+  (let ((expansion (macroexpand form))
+        (buffer (get-buffer-create "*el-macroexpansion*")))
+    (with-current-buffer buffer
+      (setq buffer-read-only nil)
+      (erase-buffer)
+      (insert (with-output-to-string (pp expansion)))
+      (emacs-lisp-mode)
+      (basis/el-macroexpansion-mode 1)
+      (setq buffer-read-only t)
+      (goto-char (point-min))
+      (pop-to-buffer (current-buffer)))))
+
+(defun basis/expand-something (thing)
+  "Macroexpand the form designated by THING."
+  (basis/expand-form (form-at-point thing)))
+
+(defun basis/expand-sexp-at-point ()
+  "Display the expansion of the sexp at point."
+  (interactive)
+  (basis/expand-something 'sexp))
+
+(defun basis/expand-defun ()
+  "Display the expansion of the current toplevel form."
+  (interactive)
+  (basis/expand-something 'defun))
 
 (defmacro with-unique-names (names &rest body)
   "Create unique names for use in a macro definition.
@@ -507,8 +530,8 @@ display a prompt."
            (insert (current-kill 0)))))
 
 (defun basis/goto-line-with-numbers ()
-  "Invoke `goto-line` with `linum-mode` temporarily enabled.
-If `linum-mode` was already enabled just call `goto-line`."
+  "Invoke `goto-line' with `linum-mode' temporarily enabled.
+If `linum-mode' was already enabled just call `goto-line'."
   (interactive)
   (let ((linum-enabled-p (and (boundp 'linum-mode) linum-mode)))
     (unwind-protect
@@ -540,7 +563,7 @@ If neither mode is active, do nothing."
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
   "Don't insert an extraneous space when entering a CL pathname."
-  ;; If any of `paredit-space-for-delimiter-predicates` returns nil
+  ;; If any of `paredit-space-for-delimiter-predicates' returns nil
   ;; a space isn't inserted.
   (let ((pathname-opening-p
          (and (not endp)
@@ -681,11 +704,11 @@ Equivalent to (setq place (insert/sorted place item))."
   `(setq ,place (funcall #'insert/sorted ,place ,item ,@args)))
 
 (defun basis/ido-in-dir-for (dir)
-  "Return a closure calling `ido-find-file-in-dir` on DIR."
+  "Return a closure calling `ido-find-file-in-dir' on DIR."
   #'(lambda () (ido-find-file-in-dir dir)))
 
 (defun basis/dired-in-dir-for (dir)
-  "Return a closure calling `dired` on DIR."
+  "Return a closure calling `dired' on DIR."
   #'(lambda () (dired dir)))
 
 (defun basis/ido-tramp-for (host)
@@ -705,7 +728,7 @@ Equivalent to (setq place (insert/sorted place item))."
     ("e" ,(basis/ido-in-dir-for "~/.emacs.d/"))
     ("h" ,(basis/ido-in-dir-for "~/"))
     ("q" ,(basis/selector-quit)))
-  "Directories to make available via `basis/ido-dir-selector`.")
+  "Directories to make available via `basis/ido-dir-selector'.")
 
 (defvar basis/dired-dir-methods
   `((" " dired)
@@ -715,7 +738,7 @@ Equivalent to (setq place (insert/sorted place item))."
     ("e" ,(basis/dired-in-dir-for "~/.emacs.d/"))
     ("h" ,(basis/dired-in-dir-for "~/"))
     ("q" ,(basis/selector-quit)))
-  "Directories to make available via `basis/dired-dir-selector`.")
+  "Directories to make available via `basis/dired-dir-selector'.")
 
 (defvar basis/ido-tramp-methods
   ;; This is mainly beneficial on Windows, where  there's no
@@ -728,12 +751,12 @@ Equivalent to (setq place (insert/sorted place item))."
     ("m" ,(basis/ido-tramp-for "mira"))
     ("n" ,(basis/ido-tramp-for "nova"))
     ("q" ,(basis/selector-quit)))
-  "Hosts to make available via `basis/ido-tramp-selector`.")
+  "Hosts to make available via `basis/ido-tramp-selector'.")
 
 (defun basis/selector (method-table)
-  "A simple selector, heavily inspired by `slime-selector`.
-Parameter `method-table` should be an alist mapping
-single-character strings to functions."
+  "A simple selector, heavily inspired by `slime-selector'.
+METHOD-TABLE should be an alist mapping single-character strings
+to functions."
   (message "Select [%s]: "
            (apply #'concat
                   (remove " " (mapcar #'car method-table))))
@@ -741,20 +764,20 @@ single-character strings to functions."
                 (select-window (minibuffer-window))
                 (string (read-char))))
          (record (assoc str method-table)))
-    (cond (record (catch 'quit
-                    (funcall (cadr record))))
-          (t (message "No entry for '%s'" str)
-             (sleep-for 1)
-             (discard-input)
-             (funcall #'basis/selector method-table)))))
+    (if record
+        (catch 'quit (funcall (cadr record)))
+      (message "No entry for '%s'" str)
+      (speep-for 1)
+      (discard-input)
+      (funcall #'basis/selector method-table))))
 
 (defun basis/ido-dir-selector ()
-  "Open `ido-find-file-in-dir` in a specified directory."
+  "Open `ido-find-file-in-dir' in a specified directory."
   (interactive)
   (basis/selector basis/ido-dir-methods))
 
 (defun basis/dired-dir-selector ()
-  "Open `dired` in a specified directory."
+  "Open `dired' in a specified directory."
   (interactive)
   (basis/selector basis/dired-dir-methods))
 
