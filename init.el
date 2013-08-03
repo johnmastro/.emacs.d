@@ -93,6 +93,9 @@
           js-comint
           skewer-mode
           flycheck
+          clojure-mode
+          nrepl
+          ac-nrepl
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -145,7 +148,8 @@
 (defun maybe-turn-on-whitespace-mode ()
   (interactive)
   (unless (or (derived-mode-p 'comint-mode)
-              (eq major-mode 'eshell-mode))
+              (eq major-mode 'eshell-mode)
+              (eq major-mode 'nrepl-mode))
     (whitespace-mode 1)))
 
 (add-hook 'prog-mode-hook 'maybe-turn-on-whitespace-mode)
@@ -736,7 +740,8 @@ otherwise call `yas-insert-snippet'."
   "Map `paredit-newline' except in some interactive modes."
   (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
                                                inferior-lisp-mode
-                                               inferior-scheme-mode)))
+                                               inferior-scheme-mode
+                                               nrepl-mode)))
     (local-set-key (kbd "<return>") 'paredit-newline)))
 
 (add-hook 'paredit-mode-hook 'basis/maybe-map-paredit-newline)
@@ -844,6 +849,60 @@ Use `slime-expand-1' to produce the expansion."
 
 (after-load "redshank-loader"
   (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t))
+
+;; clojure ---------------------------------------------------------------------
+
+(defun basis/init-clojure-mode ()
+  (basis/lisp-setup)
+  (subword-mode))
+
+(defun basis/init-nrepl-mode ()
+  (basis/lisp-setup)
+  (subword-mode)
+  (ac-nrepl-setup))
+
+(defun basis/init-nrepl-interaction-mode ()
+  (basis/lisp-setup)
+  (subword-mode)
+  (ac-nrepl-setup)
+  (nrepl-turn-on-eldoc-mode))
+
+(defun basis/nrepl-eval-something (&optional prefix)
+  (interactive "P")
+  (if (region-active-p)
+      (nrepl-eval-region (region-beginning) (region-end))
+    (nrepl-eval-expression-at-point prefix)))
+
+(defvar basis/clojure-indent-specs
+  '((match 1)
+    (symbol-macrolet 1)
+    (defsymbolmacro defun)
+    (with-symbol-macros defun))
+  "Additional form indentation settings for `clojure-mode'.")
+
+(after-load 'clojure-mode
+  (add-hook 'clojure-mode-hook 'basis/init-clojure-mode)
+
+  ;; Indentation tweaks
+  (dolist (spec basis/clojure-indent-specs)
+    (put-clojure-indent (car spec) (cadr spec)))
+  (put 'macrolet 'clojure-backtracking-indent '((2) 2)))
+
+(after-load 'nrepl
+  (add-hook 'nrepl-mode-hook 'basis/init-nrepl-mode)
+  (add-hook 'nrepl-interaction-mode-hook 'basis/init-nrepl-interaction-mode)
+
+  (after-load 'auto-complete
+    (add-to-list 'ac-modes 'nrepl-mode))
+
+  (basis/define-keys nrepl-interaction-mode-map
+    ((kbd "<f5>")    'nrepl-eval-last-expression)
+    ((kbd "<f6>")    'basis/nrepl-eval-something)
+    ((kbd "<f7>")    'nrepl-macroexpand-1)
+    ((kbd "<M-f7>")  'nrepl-macroexpand-all)
+    ((kbd "<f8>")    'nrepl-eval-buffer)
+    ((kbd "<M-f8>")  'nrepl-load-current-buffer)
+    ((kbd "C-c C-d") 'ac-nrepl-popup-doc)))
 
 ;; scheme ----------------------------------------------------------------------
 
