@@ -759,7 +759,7 @@ otherwise call `yas-insert-snippet'."
 
 (after-load 'paredit
   (basis/define-keys paredit-mode-map
-    ((kbd "[")                      'paredit-open-round)
+    ((kbd "[")                      'basis/paredit-open-something)
     ((kbd "M-[")                    'paredit-open-square)
     ((kbd "M-)")                    'basis/paredit-wrap-round-from-behind)
     ((kbd "M-e")                    'paredit-forward)
@@ -894,6 +894,8 @@ Use `slime-expand-1' to produce the expansion."
 
   (after-load 'auto-complete
     (add-to-list 'ac-modes 'nrepl-mode))
+
+  (define-key nrepl-mode-map (kbd "<return>") 'nrepl-return)
 
   (basis/define-keys nrepl-interaction-mode-map
     ((kbd "<f5>")    'nrepl-eval-last-expression)

@@ -574,6 +574,13 @@ If neither mode is active, do nothing."
                 (looking-at "#p")))))
     (not pathname-opening-p)))
 
+(defun basis/paredit-open-something ()
+  (interactive)
+  (call-interactively
+   (if (memq major-mode '(clojure-mode nrepl-mode))
+       #'paredit-open-square
+     #'paredit-open-round)))
+
 (defun basis/paredit-kill-something ()
   (interactive)
   (if (region-active-p)
