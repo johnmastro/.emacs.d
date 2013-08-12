@@ -334,9 +334,6 @@
 (windmove-default-keybindings)
 (global-set-key (kbd "M-o") 'other-window)
 
-;; Better buffer management
-(global-set-key [remap list-buffers] 'ibuffer)
-
 ;; Newlines
 (global-set-key (kbd "C-m") 'newline-and-indent)
 (global-set-key (kbd "<S-return>") 'basis/open-line-below)
@@ -510,7 +507,6 @@
 (global-set-key (kbd "C-h e a") 'helm-apropos)
 
 ;; aliases
-(defalias 'ls 'ibuffer)
 (defalias 'qrr 'query-replace-regexp)
 (defalias 'ack 'ack-and-a-half)
 (defalias 'ack-same 'ack-and-a-half-same)
@@ -551,7 +547,15 @@
 
 ;; ibuffer ---------------------------------------------------------------------
 
+(defalias 'ls 'ibuffer)
+
+(global-set-key [remap list-buffers] 'ibuffer)
+
 (after-load 'ibuffer
+  (basis/define-keys ibuffer-mode-map
+    ((kbd "M-o") 'other-window)
+    ((kbd "s-o") 'ibuffer-visit-buffer-1-window))
+
   (define-ibuffer-column size-h
     ;; a more readable size column
     (:name "Size" :inline t)
@@ -596,7 +600,8 @@
 
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map
-    ((kbd "<C-backspace>") 'basis/eshell-kill-line-backward)
+    ((kbd "<C-backspace>")   'basis/eshell-kill-line-backward)
+    ((kbd "<S-backspace>")   'basis/eshell-kill-line-backward)
     ((kbd "<C-S-backspace>") 'basis/eshell-kill-whole-line)))
 
 (add-hook 'eshell-mode-hook 'basis/init-eshell)
