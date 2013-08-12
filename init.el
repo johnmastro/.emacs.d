@@ -242,8 +242,11 @@
                  (windows-nt "Consolas-10")))
     (set-face-attribute 'default nil :font default-font)))
 
+
 (after-load 'paredit
   (diminish 'paredit-mode " π"))            ; pi
+(after-load 'nrepl
+  (diminish 'nrepl-interaction-mode " ν"))  ; nu
 (after-load 'auto-complete
   (diminish 'auto-complete-mode " α"))      ; alpha
 (after-load 'yasnippet
