@@ -894,7 +894,10 @@ Use `slime-expand-1' to produce the expansion."
   ;; Indentation tweaks
   (dolist (spec basis/clojure-indent-specs)
     (put-clojure-indent (car spec) (cadr spec)))
-  (put 'macrolet 'clojure-backtracking-indent '((2) 2)))
+  (put 'macrolet 'clojure-backtracking-indent '((2) 2))
+
+  ;; Command completion for lein in eshell
+  (require 'pcmpl-lein))
 
 (after-load 'nrepl
   (add-hook 'nrepl-mode-hook 'basis/init-nrepl-mode)
