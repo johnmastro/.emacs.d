@@ -875,6 +875,13 @@ Use `slime-expand-1' to produce the expansion."
   (ac-nrepl-setup)
   (nrepl-turn-on-eldoc-mode))
 
+(defun basis/setup-lein-path-for-mac ()
+  (-when-let (lein (executable-find "lein"))
+    (setq nrepl-lein-command lein)
+    (when (s-starts-with? "lein" nrepl-server-command)
+      (setq nrepl-server-command
+            (s-replace "lein" nrepl-lein-command nrepl-server-command)))))
+
 (defun basis/nrepl-eval-something (&optional prefix)
   (interactive "P")
   (if (region-active-p)
@@ -900,6 +907,9 @@ Use `slime-expand-1' to produce the expansion."
   (require 'pcmpl-lein))
 
 (after-load 'nrepl
+  (when (eq system-type 'darwin)
+    (basis/setup-lein-path-for-mac))
+
   (add-hook 'nrepl-mode-hook 'basis/init-nrepl-mode)
   (add-hook 'nrepl-interaction-mode-hook 'basis/init-nrepl-interaction-mode)
 
