@@ -181,6 +181,7 @@
 (setq recentf-max-saved-items 50)
 (setq recentf-save-file (expand-file-name ".recentf" basis/emacs-dir))
 
+;; safe local variables
 (add-to-list 'safe-local-variable-values '(lexical-binding . t))
 (add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
 
@@ -204,7 +205,6 @@
 (setq backup-by-copying t
       backup-directory-alist `((".*" . ,basis/backups-dir))
       auto-save-file-name-transforms `((".*" ,basis/autosaves-dir t))
-      save-place-file (expand-file-name "places" basis/emacs-dir)
       temporary-file-directory basis/tmp-dir)
 
 ;; Automatically refresh buffers
@@ -513,6 +513,14 @@
 (defalias 'ack-find-file 'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 (defalias 'sayonara 'save-buffers-kill-terminal)
+
+;; saveplace -------------------------------------------------------------------
+
+(require 'saveplace)
+
+(setq-default save-place t)
+
+(setq save-place-file (expand-file-name "places" basis/emacs-dir))
 
 ;; ace-jump-mode ---------------------------------------------------------------
 
