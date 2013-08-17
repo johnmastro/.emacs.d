@@ -443,6 +443,12 @@
 (global-set-key (kbd "<M-right>") 'forward-sexp)
 (global-set-key (kbd "<M-left>") 'backward-sexp)
 
+;; Regexp search by default
+(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "C-r") 'isearch-backward-regexp)
+(global-set-key (kbd "C-M-s") 'isearch-forward)
+(global-set-key (kbd "C-M-r") 'isearch-backward)
+
 ;; Start eshell or switch to it if it's active
 (global-set-key (kbd "C-x m") 'eshell)
 
