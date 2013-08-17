@@ -74,11 +74,14 @@ context at point."
 
 ;; kill commands ---------------------------------------------------------------
 
-(defun kill-region-or-backward-word ()
-  (interactive)
-  (if (region-active-p)
-      (kill-region (region-beginning) (region-end))
-    (backward-kill-word 1)))
+(defun kill-region-or-backward-word (arg)
+  (interactive "p")
+  (cond ((region-active-p)
+         (kill-region (region-beginning) (region-end)))
+        ((bound-and-true-p subword-mode)
+         (subword-backward-kill arg))
+        (t
+         (backward-kill-word arg))))
 
 (defun kill-line-backward ()
   "Kill everything before point. Respect indentation."
