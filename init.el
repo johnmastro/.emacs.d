@@ -96,6 +96,8 @@
           clojure-mode
           nrepl
           ac-nrepl
+          key-chord
+          writegood-mode
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -521,6 +523,15 @@
 (defalias 'ack-find-file 'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 (defalias 'sayonara 'save-buffers-kill-terminal)
+
+;; key-chord -------------------------------------------------------------------
+
+(require 'key-chord)
+
+(key-chord-mode 1)
+
+(key-chord-define-global ",." 'ido-switch-buffer)
+(key-chord-define-global "`1" 'delete-other-windows)
 
 ;; saveplace -------------------------------------------------------------------
 
