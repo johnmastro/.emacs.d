@@ -133,6 +133,8 @@
       column-number-mode t
       global-font-lock-mode 1
       imenu-auto-rescan t
+      apropos-do-all t
+      save-interprogram-paste-before-kill t
       custom-file basis/custom-file)
 
 (when (file-exists-p custom-file)
