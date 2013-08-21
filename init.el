@@ -96,6 +96,7 @@
           clojure-mode
           nrepl
           ac-nrepl
+          clojure-cheatsheet
           key-chord
           writegood-mode
           ))
@@ -354,6 +355,7 @@
 (global-set-key (kbd "s-o") 'basis/other-sexp-delimiter)
 
 ;; Kill stuff
+(global-set-key (kbd "M-k") 'kill-sexp)
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
 (global-set-key (kbd "<M-backspace>") 'kill-region-or-backward-word)
 (global-set-key (kbd "<C-backspace>") 'kill-line-backward)
@@ -530,8 +532,11 @@
 
 (key-chord-mode 1)
 
+(key-chord-define-global "jk" 'ace-jump-word-mode)
 (key-chord-define-global ",." 'ido-switch-buffer)
+(key-chord-define-global ",," 'ibuffer)
 (key-chord-define-global "`1" 'delete-other-windows)
+(key-chord-define-global "0-" 'delete-window)
 
 ;; saveplace -------------------------------------------------------------------
 
