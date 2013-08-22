@@ -137,8 +137,9 @@
       global-font-lock-mode 1
       imenu-auto-rescan t
       apropos-do-all t
-      save-interprogram-paste-before-kill t
-      custom-file basis/custom-file)
+      custom-file basis/custom-file
+      ;; This causes errors on OS X
+      save-interprogram-paste-before-kill (not (eq system-type 'darwin)))
 
 (when (file-exists-p custom-file)
   (load custom-file))
