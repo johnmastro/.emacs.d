@@ -690,6 +690,25 @@ If neither mode is active, do nothing."
     (browse-url (format "http://localhost:%d/skewer/demo" httpd-port))
     (skewer-repl)))
 
+;; flycheck --------------------------------------------------------------------
+
+(defun basis/flycheck-enable-automatic-checking ()
+  "Enable automatic syntax checking by Flycheck."
+  (interactive)
+  (setq flycheck-check-syntax-automatically
+        '(save idle-change mode-enabled)))
+
+(defun basis/flycheck-disable-automatic-checking ()
+  "Disable automatic syntax checking by Flycheck."
+  (interactive)
+  (setq flycheck-check-syntax-automatically nil))
+
+(defun basis/adjust-flycheck-idle-change-delay ()
+  "Adjust Flycheck's idle change delay.
+If the last check found errors, set it to 0.5 or 5.0 otherwise."
+  (setq flycheck-idle-change-delay
+        (if flycheck-current-errors 0.5 5.0)))
+
 ;; selector stuff --------------------------------------------------------------
 
 (defun insert/sorted (lst item &rest args)

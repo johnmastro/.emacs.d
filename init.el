@@ -1014,14 +1014,12 @@ Use `slime-expand-1' to produce the expansion."
 
 ;; flycheck --------------------------------------------------------------------
 
-(defun basis/adjust-flycheck-idle-change-delay ()
-  (setq flycheck-idle-change-delay
-        (if flycheck-current-errors 0.5 5.0)))
-
 (defvar basis/flycheck-keymap nil
   "Custom keybindings for Flycheck.")
 
 (after-load 'flycheck
+  (setq flycheck-check-syntax-automatically nil)
+
   (when (eq system-type 'windows-nt)
     (setq flycheck-xml-parser 'flycheck-parse-xml-region))
 
@@ -1029,10 +1027,6 @@ Use `slime-expand-1' to produce the expansion."
   (make-variable-buffer-local 'flycheck-idle-change-delay)
   (add-hook 'flycheck-after-syntax-check-hook
             'basis/adjust-flycheck-idle-change-delay)
-
-  ;; Don't trigger a check on newline
-  (setq flycheck-check-syntax-automatically
-        (remq 'new-line flycheck-check-syntax-automatically))
 
   ;; Initialize the keymap
   (setq basis/flycheck-keymap
@@ -1070,7 +1064,10 @@ Use `slime-expand-1' to produce the expansion."
               #'autopair-python-triple-quote-action)))
 
 (defun basis/init-python-mode ()
-  (basis/setup-autopair-for-python))
+  (basis/setup-autopair-for-python)
+  (unless (and buffer-file-name
+               (file-remote-p buffer-file-name))
+    (flycheck-mode 1)))
 
 (add-hook 'python-mode-hook 'basis/init-python-mode)
 
