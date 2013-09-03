@@ -22,7 +22,18 @@
 
 (when (eq system-type 'windows-nt)
   (ignore-errors
-    (cd "c:\\Local")))
+    (cd "c:\\Local"))
+
+  ;; Cygwin
+  (let ((zsh (executable-find "zsh")))
+    (when zsh
+      (setq shell-file-name zsh
+            explicit-shell-file-name zsh
+            ediff-shell zsh
+            null-device "/dev/null")
+      (setenv "SHELL" zsh)
+      (setenv "PATH" (concat "/bin" ":" (getenv "PATH")))
+      (add-to-list 'exec-path "/bin"))))
 
 ;; Emacs doesn't seem to respect $PATH on OS X
 (when (eq system-type 'darwin)
