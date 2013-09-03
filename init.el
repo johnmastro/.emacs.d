@@ -149,6 +149,7 @@
       imenu-auto-rescan t
       apropos-do-all t
       custom-file basis/custom-file
+      dirtrack-list '("^(~?[a-zA-Z0-9/ _-]+)>" 1)
       ;; This causes errors on OS X
       save-interprogram-paste-before-kill (not (eq system-type 'darwin)))
 
