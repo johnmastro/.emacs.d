@@ -639,6 +639,15 @@
 
 (add-hook 'eshell-mode-hook 'basis/init-eshell)
 
+;; sh-mode ---------------------------------------------------------------------
+
+(defun basis/maybe-set-shell-to-zsh ()
+  (when (and buffer-file-name
+             (string= (file-name-nondirectory buffer-file-name) ".zshrc"))
+    (sh-set-shell "zsh")))
+
+(add-hook 'sh-mode-hook 'basis/maybe-set-shell-to-zsh)
+
 ;; ido -------------------------------------------------------------------------
 
 (ido-mode 1)
