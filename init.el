@@ -943,6 +943,7 @@ Use `slime-expand-1' to produce the expansion."
 
 (defvar basis/clojure-indent-specs
   '((match 1)
+    (query 1)
     (symbol-macrolet 1)
     (defsymbolmacro defun)
     (with-symbol-macros defun))
@@ -968,6 +969,8 @@ Use `slime-expand-1' to produce the expansion."
 
   (after-load 'auto-complete
     (add-to-list 'ac-modes 'nrepl-mode))
+
+  (setq nrepl-use-pretty-printing t)
 
   (define-key nrepl-mode-map (kbd "<return>") 'nrepl-return)
 
