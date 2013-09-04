@@ -509,6 +509,10 @@
 ;; I want to like smartparens but haven't gotten there yet
 (global-set-key (kbd "C-c p") 'basis/toggle-between-autopair-and-smartparens)
 
+;; help mode
+(define-key help-mode-map (kbd "b") 'help-go-back)
+(define-key help-mode-map (kbd "f") 'help-go-forward)
+
 ;; Map for finding elisp stuff
 (define-prefix-command 'lisp-find-map)
 
