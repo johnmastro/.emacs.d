@@ -110,6 +110,8 @@
           clojure-cheatsheet
           key-chord
           writegood-mode
+          projectile
+          flx-ido
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -509,10 +511,6 @@
 ;; I want to like smartparens but haven't gotten there yet
 (global-set-key (kbd "C-c p") 'basis/toggle-between-autopair-and-smartparens)
 
-;; help mode
-(define-key help-mode-map (kbd "b") 'help-go-back)
-(define-key help-mode-map (kbd "f") 'help-go-forward)
-
 ;; Map for finding elisp stuff
 (define-prefix-command 'lisp-find-map)
 
@@ -542,6 +540,12 @@
 (defalias 'ack-find-file 'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 (defalias 'sayonara 'save-buffers-kill-terminal)
+
+;; help-mode -------------------------------------------------------------------
+
+(after-load 'help-mode
+  (define-key help-mode-map (kbd "b") 'help-go-back)
+  (define-key help-mode-map (kbd "f") 'help-go-forward))
 
 ;; key-chord -------------------------------------------------------------------
 
@@ -666,9 +670,12 @@
 
 ;; ido -------------------------------------------------------------------------
 
+(require 'flx-ido)
+
 (ido-mode 1)
 (ido-everywhere t)
 (ido-ubiquitous-mode t)
+(flx-ido-mode 1)
 
 (setq ido-enable-prefix nil
       ido-enable-flex-matching t
@@ -676,6 +683,7 @@
       ido-create-new-buffer 'always
       ido-use-filename-at-point 'guess
       ido-use-virtual-buffers t
+      ido-use-faces nil
       ido-max-prospects 10
       ido-ignore-extensions t
       ido-save-directory-list-file "~/.emacs.d/.ido.last")
