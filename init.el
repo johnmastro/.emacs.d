@@ -190,11 +190,12 @@
         "sshx"))
 
 ;; ispell
-(setq ispell-program-name
-      (if (eq system-type 'windows-nt)
-          "c:\\Program Files (x86)\\Aspell\\bin\\aspell.exe"
-        "aspell"))
-(setq ispell-personal-dictionary "~/.aspell.en.pws")
+(let ((aspell (case system-type
+                (windows-nt "c:\\Program Files (x86)\\Aspell\\bin\\aspell.exe")
+                (otherwise "aspell"))))
+  (setq ispell-program-name aspell
+        ispell-personal-dictionary "~/.aspell.en.pws"
+        aspell-installed-p (executable-find aspell)))
 
 ;; recentf
 (recentf-mode 1)
@@ -1276,7 +1277,9 @@ two tags."
 
 (defun basis/init-markdown-mode ()
   (unless (eq major-mode 'gfm-mode)
-    (turn-on-auto-fill)))
+    (turn-on-auto-fill))
+  (when aspell-installed-p
+    (flyspell-mode 1)))
 
 (add-hook 'markdown-mode-hook 'basis/init-markdown-mode)
 
