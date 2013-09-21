@@ -20,21 +20,6 @@
   (unless (file-exists-p dir)
     (make-directory dir)))
 
-(when (eq system-type 'windows-nt)
-  (ignore-errors
-    (cd "c:\\Local"))
-
-  ;; Cygwin
-  (let ((zsh (executable-find "zsh")))
-    (when zsh
-      (setq shell-file-name zsh
-            explicit-shell-file-name zsh
-            ediff-shell zsh
-            null-device "/dev/null")
-      (setenv "SHELL" zsh)
-      (setenv "PATH" (concat "/bin" ":" (getenv "PATH")))
-      (add-to-list 'exec-path "/bin"))))
-
 ;; Emacs doesn't seem to respect $PATH on OS X
 (when (eq system-type 'darwin)
   (add-to-list 'exec-path "/usr/local/bin/")
@@ -129,6 +114,28 @@
 (when (file-exists-p basis/defuns-file)
   (load basis/defuns-file))
 
+;; cygwin ----------------------------------------------------------------------
+
+(defvar basis/cygwin-p (and (eq system-type 'windows-nt)
+                            (directory-files "c:/" nil "Cygwin")
+                            (file-directory-p "c:/bin"))
+  "True if this is a Windows system with Cygwin installed.")
+
+(when basis/cygwin-p
+  (-when-let (home (getenv "HOME"))
+    (cd home))
+  (unless (string= (substring (getenv "PATH") 0 7) "c:\\bin;")
+    (setenv "PATH" (concat "c:\\bin;" (getenv "PATH"))))
+  (unless (member "c:/bin" exec-path)
+    (add-to-list 'exec-path "c:/bin"))
+  (-when-let (shell (or (executable-find "zsh")
+                        (executable-find "bash")))
+    (setq shell-file-name shell
+          explicit-shell-file-name shell
+          ediff-shell shell
+          null-device "/dev/null")
+    (setenv "SHELL" shell)))
+
 ;; various settings ------------------------------------------------------------
 
 (setq visible-bell t
@@ -185,14 +192,16 @@
 
 ;; TRAMP
 (setq tramp-default-method
-      (if (eq system-type 'windows-nt)
+      (if (and (eq system-type 'windows-nt)
+               (not basis/cygwin-p))
           "plinkx"
         "sshx"))
 
 ;; ispell
-(let ((aspell (case system-type
-                (windows-nt "c:\\Program Files (x86)\\Aspell\\bin\\aspell.exe")
-                (otherwise "aspell"))))
+(let ((aspell (if (and (eq system-type 'windows-nt)
+                       (not basis/cygwin-p))
+                  "c:\\Program Files (x86)\\Aspell\\bin\\aspell.exe"
+                "aspell")))
   (setq ispell-program-name aspell
         ispell-personal-dictionary "~/.aspell.en.pws"
         aspell-installed-p (executable-find aspell)))
