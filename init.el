@@ -865,10 +865,13 @@ otherwise call `yas-insert-snippet'."
 
 ;; slime -----------------------------------------------------------------------
 
-(let ((quicklisp-slime-helper (expand-file-name "~/quicklisp/slime-helper.el")))
-  (if (file-exists-p quicklisp-slime-helper)
-      (load quicklisp-slime-helper)
-    (message "%s" "SLIME is not installed. Use Quicklisp to install it.")))
+(-if-let (quicklisp-slime-helper
+          (-first #'file-exists-p
+                  (mapcar #'expand-file-name
+                          '("~/code/lisp/quicklisp/slime-helper.el"
+                            "~/quicklisp/slime-helper.el"))))
+    (load quicklisp-slime-helper)
+  (message "%s" "SLIME is not installed. Use Quicklisp to install it."))
 
 (setq slime-lisp-implementations
       '((sbcl ("sbcl" "--noinform") :coding-system utf-8-unix)
