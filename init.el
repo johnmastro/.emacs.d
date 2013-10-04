@@ -737,6 +737,7 @@
                 ac-source-words-in-same-mode-buffers))
 
 (define-key ac-completing-map (kbd "ESC") 'ac-stop)
+(define-key ac-completing-map (kbd "<return>") nil)
 
 ;; yasnippet -------------------------------------------------------------------
 
