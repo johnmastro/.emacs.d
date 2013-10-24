@@ -90,7 +90,7 @@
           skewer-mode
           flycheck
           clojure-mode
-          nrepl
+          cider
           ac-nrepl
           clojure-cheatsheet
           key-chord
@@ -176,7 +176,7 @@
   (interactive)
   (unless (or (derived-mode-p 'comint-mode)
               (eq major-mode 'eshell-mode)
-              (eq major-mode 'nrepl-mode))
+              (eq major-mode 'cider-repl-mode))
     (whitespace-mode 1)))
 
 (add-hook 'prog-mode-hook 'maybe-turn-on-whitespace-mode)
@@ -275,8 +275,8 @@
 
 (after-load 'paredit
   (diminish 'paredit-mode " π"))            ; pi
-(after-load 'nrepl
-  (diminish 'nrepl-interaction-mode " ν"))  ; nu
+(after-load 'cider
+  (diminish 'cider-mode " ν"))              ; nu
 (after-load 'auto-complete
   (diminish 'auto-complete-mode " α"))      ; alpha
 (after-load 'yasnippet
@@ -826,7 +826,7 @@ otherwise call `yas-insert-snippet'."
   (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
                                                inferior-lisp-mode
                                                inferior-scheme-mode
-                                               nrepl-mode)))
+                                               cider-repl-mode)))
     (local-set-key (kbd "<return>") 'paredit-newline)))
 
 (add-hook 'paredit-mode-hook 'basis/maybe-map-paredit-newline)
@@ -944,31 +944,31 @@ Use `slime-expand-1' to produce the expansion."
   (basis/lisp-setup)
   (subword-mode))
 
-(defun basis/init-nrepl-repl-mode ()
+(defun basis/init-cider-repl-mode ()
   (basis/lisp-setup)
   (subword-mode)
   (ac-nrepl-setup)
-  (nrepl-turn-on-eldoc-mode)
-  (local-set-key (kbd "<return>") 'nrepl-return))
+  (cider-turn-on-eldoc-mode)
+  (local-set-key (kbd "<return>") 'cider-return))
 
-(defun basis/init-nrepl-interaction-mode ()
+(defun basis/init-cider-mode ()
   (basis/lisp-setup)
   (subword-mode)
   (ac-nrepl-setup)
-  (nrepl-turn-on-eldoc-mode))
+  (cider-turn-on-eldoc-mode))
 
 (defun basis/setup-lein-path-for-mac ()
   (-when-let (lein (executable-find "lein"))
-    (setq nrepl-lein-command lein)
-    (when (s-starts-with? "lein" nrepl-server-command)
-      (setq nrepl-server-command
-            (s-replace "lein" nrepl-lein-command nrepl-server-command)))))
+    (setq cider-lein-command lein)
+    (when (s-starts-with? "lein" cider-server-command)
+      (setq cider-server-command
+            (s-replace "lein" cider-lein-command cider-server-command)))))
 
-(defun basis/nrepl-eval-something (&optional prefix)
+(defun basis/cider-eval-something (&optional prefix)
   (interactive "P")
   (if (region-active-p)
-      (nrepl-eval-region (region-beginning) (region-end))
-    (nrepl-eval-expression-at-point prefix)))
+      (cider-eval-region (region-beginning) (region-end))
+    (cider-eval-expression-at-point prefix)))
 
 (defvar basis/clojure-indent-specs
   '((match 1)
@@ -989,27 +989,27 @@ Use `slime-expand-1' to produce the expansion."
   ;; Command completion for lein in eshell
   (require 'pcmpl-lein))
 
-(after-load 'nrepl
+(after-load 'cider
   (when (eq system-type 'darwin)
     (basis/setup-lein-path-for-mac))
 
-  (add-hook 'nrepl-repl-mode-hook 'basis/init-nrepl-repl-mode)
-  (add-hook 'nrepl-interaction-mode-hook 'basis/init-nrepl-interaction-mode)
+  (add-hook 'cider-repl-mode-hook 'basis/init-cider-repl-mode)
+  (add-hook 'cider-mode-hook 'basis/init-cider-mode)
 
   (after-load 'auto-complete
-    (add-to-list 'ac-modes 'nrepl-repl-mode))
+    (add-to-list 'ac-modes 'cider-repl-mode))
 
-  (setq nrepl-use-pretty-printing t)
+  (setq cider-repl-use-pretty-printing t)
 
-  (define-key nrepl-repl-mode-map (kbd "<return>") 'nrepl-return)
+  (define-key cider-repl-mode-map (kbd "<return>") 'cider-return)
 
-  (basis/define-keys nrepl-interaction-mode-map
-    ((kbd "<f5>")    'nrepl-eval-last-expression)
-    ((kbd "<f6>")    'basis/nrepl-eval-something)
-    ((kbd "<f7>")    'nrepl-macroexpand-1)
-    ((kbd "<M-f7>")  'nrepl-macroexpand-all)
-    ((kbd "<f8>")    'nrepl-eval-buffer)
-    ((kbd "<M-f8>")  'nrepl-load-current-buffer)
+  (basis/define-keys cider-mode-map
+    ((kbd "<f5>")    'cider-eval-last-expression)
+    ((kbd "<f6>")    'basis/cider-eval-something)
+    ((kbd "<f7>")    'cider-macroexpand-1)
+    ((kbd "<M-f7>")  'cider-macroexpand-all)
+    ((kbd "<f8>")    'cider-eval-buffer)
+    ((kbd "<M-f8>")  'cider-load-current-buffer)
     ((kbd "C-c C-d") 'ac-nrepl-popup-doc)))
 
 ;; scheme ----------------------------------------------------------------------
