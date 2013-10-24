@@ -944,10 +944,12 @@ Use `slime-expand-1' to produce the expansion."
   (basis/lisp-setup)
   (subword-mode))
 
-(defun basis/init-nrepl-mode ()
+(defun basis/init-nrepl-repl-mode ()
   (basis/lisp-setup)
   (subword-mode)
-  (ac-nrepl-setup))
+  (ac-nrepl-setup)
+  (nrepl-turn-on-eldoc-mode)
+  (local-set-key (kbd "<return>") 'nrepl-return))
 
 (defun basis/init-nrepl-interaction-mode ()
   (basis/lisp-setup)
@@ -991,15 +993,15 @@ Use `slime-expand-1' to produce the expansion."
   (when (eq system-type 'darwin)
     (basis/setup-lein-path-for-mac))
 
-  (add-hook 'nrepl-mode-hook 'basis/init-nrepl-mode)
+  (add-hook 'nrepl-repl-mode-hook 'basis/init-nrepl-repl-mode)
   (add-hook 'nrepl-interaction-mode-hook 'basis/init-nrepl-interaction-mode)
 
   (after-load 'auto-complete
-    (add-to-list 'ac-modes 'nrepl-mode))
+    (add-to-list 'ac-modes 'nrepl-repl-mode))
 
   (setq nrepl-use-pretty-printing t)
 
-  (define-key nrepl-mode-map (kbd "<return>") 'nrepl-return)
+  (define-key nrepl-repl-mode-map (kbd "<return>") 'nrepl-return)
 
   (basis/define-keys nrepl-interaction-mode-map
     ((kbd "<f5>")    'nrepl-eval-last-expression)
@@ -1055,6 +1057,7 @@ Use `slime-expand-1' to produce the expansion."
 
 (after-load 'smartparens
   (sp-use-paredit-bindings)
+  (smartparens-strict-mode)
   (basis/define-keys smartparens-mode-map
     ((kbd "RET")                  'basis/electric-return)
     ([remap delete-char]          'sp-delete-char)

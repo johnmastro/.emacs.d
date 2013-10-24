@@ -580,7 +580,7 @@ If neither mode is active, do nothing."
 (defun basis/paredit-open-something ()
   (interactive)
   (call-interactively
-   (if (memq major-mode '(clojure-mode nrepl-mode))
+   (if (memq major-mode '(clojure-mode nrepl-repl-mode))
        #'paredit-open-square
      #'paredit-open-round)))
 
