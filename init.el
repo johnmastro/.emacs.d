@@ -97,6 +97,8 @@
           writegood-mode
           projectile
           flx-ido
+          ido-vertical-mode
+          guide-key
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -557,6 +559,11 @@
   (define-key help-mode-map (kbd "b") 'help-go-back)
   (define-key help-mode-map (kbd "f") 'help-go-forward))
 
+;; guide-key -------------------------------------------------------------------
+
+(guide-key-mode 1)
+(setq guide-key/guide-key-sequence '("C-x r" "C-x 4"))
+
 ;; key-chord -------------------------------------------------------------------
 
 (require 'key-chord)
@@ -683,9 +690,10 @@
 (require 'flx-ido)
 
 (ido-mode 1)
-(ido-everywhere t)
-(ido-ubiquitous-mode t)
+(ido-everywhere 1)
+(ido-ubiquitous-mode 1)
 (flx-ido-mode 1)
+(ido-vertical-mode 1)
 
 (setq ido-enable-prefix nil
       ido-enable-flex-matching t
