@@ -126,26 +126,36 @@ Do not save the string to the the kill ring."
   (funcall interprogram-cut-function str))
 
 (defun basis/clipboard-save-region (beg end)
-  "Save the region from BEG to END to the system clipboard.
-Do not save the region to the kill ring."
+  "Save the region from BEG to END to the system clipboard."
   (interactive "r")
   (basis/clipboard-save-string
    (buffer-substring-no-properties beg end))
   (setq deactivate-mark t))
 
 (defun basis/clipboard-save-buffer ()
-  "Save the buffer's content directly to the system clipboard.
-Do not save the content to the kill ring."
+  "Save the current buffer's content to the system clipboard."
   (interactive)
   (basis/clipboard-save-region (point-min) (point-max)))
 
 (defun basis/clipboard-save-whole-damn-buffer ()
-  "Save the entire buffer's content directly to the clipboard.
+  "Save the current buffer's content to the system clipboard.
 Ignore narrowing but restore it when complete."
   (interactive)
   (save-restriction
     (widen)
     (basis/clipboard-save-buffer)))
+
+(defun basis/clipboard-save-buffer-file-name ()
+  "Save the current buffer's filename to the system clipboard."
+  (interactive)
+  (-when-let (str buffer-file-name)
+    (basis/clipboard-save-string str)))
+
+(defun basis/clipboard-save-buffer-base-name ()
+  "Save the current buffer's basename to the system clipboard."
+  (interactive)
+  (-when-let (str buffer-file-name)
+    (basis/clipboard-save-string (file-name-nondirectory str))))
 
 ;; case changing ---------------------------------------------------------------
 

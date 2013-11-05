@@ -1105,7 +1105,7 @@ Use `slime-expand-1' to produce the expansion."
     ((kbd "<f8>")   'python-shell-send-buffer)
     ((kbd "<M-f8>") 'python-shell-send-file)))
 
-;; Jedi
+;; Jedi (has 2 Python dependencies: jedi and epc)
 (setq jedi:setup-keys t
       jedi:tooltip-method nil) ; show function signatures in the minibuffer
 
