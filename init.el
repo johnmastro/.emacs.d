@@ -412,6 +412,7 @@
 (global-set-key (kbd "M-t s") 'transpose-sexps)
 (global-set-key (kbd "M-t c") 'transpose-chars)
 (global-set-key (kbd "M-t M-w") 'transpose-windows)
+(global-set-key (kbd "M-t M-s") 'toggle-window-split) ;; hmmm
 
 ;; Move between errors
 (global-set-key (kbd "s-.") 'next-error)
@@ -562,7 +563,7 @@
 ;; guide-key -------------------------------------------------------------------
 
 (guide-key-mode 1)
-(setq guide-key/guide-key-sequence '("C-x r" "C-x 4"))
+(setq guide-key/guide-key-sequence '("C-x r" "C-x 4" "C-x v" "C-x 8"))
 
 ;; key-chord -------------------------------------------------------------------
 
@@ -690,10 +691,6 @@
 (require 'flx-ido)
 
 (ido-mode 1)
-(ido-everywhere 1)
-(ido-ubiquitous-mode 1)
-(flx-ido-mode 1)
-(ido-vertical-mode 1)
 
 (setq ido-enable-prefix nil
       ido-enable-flex-matching t
@@ -705,6 +702,11 @@
       ido-max-prospects 10
       ido-ignore-extensions t
       ido-save-directory-list-file "~/.emacs.d/.ido.last")
+
+(ido-everywhere 1)
+(ido-ubiquitous-mode 1)
+(flx-ido-mode 1)
+(ido-vertical-mode 1)
 
 (defun basis/setup-ido ()
   (define-key ido-file-completion-map (kbd "C-w") 'ido-delete-backward-updir)
@@ -956,8 +958,7 @@ Use `slime-expand-1' to produce the expansion."
   (basis/lisp-setup)
   (subword-mode)
   (ac-nrepl-setup)
-  (cider-turn-on-eldoc-mode)
-  (local-set-key (kbd "<return>") 'cider-return))
+  (cider-turn-on-eldoc-mode))
 
 (defun basis/init-cider-mode ()
   (basis/lisp-setup)
@@ -1009,7 +1010,7 @@ Use `slime-expand-1' to produce the expansion."
 
   (setq cider-repl-use-pretty-printing t)
 
-  (define-key cider-repl-mode-map (kbd "<return>") 'cider-return)
+  (define-key cider-repl-mode-map (kbd "<return>") 'cider-repl-return)
 
   (basis/define-keys cider-mode-map
     ((kbd "<f5>")    'cider-eval-last-expression)
