@@ -79,7 +79,6 @@
           move-text
           browse-kill-ring
           jedi
-          autopair
           yasnippet
           tagedit
           simplezen
@@ -99,6 +98,8 @@
           flx-ido
           ido-vertical-mode
           guide-key
+          geiser
+          ac-geiser
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -283,8 +284,8 @@
   (diminish 'auto-complete-mode " α"))      ; alpha
 (after-load 'yasnippet
   (diminish 'yas-minor-mode " υ"))          ; upsilon
-(after-load 'autopair
-  (diminish 'autopair-mode " φ"))           ; psi
+(after-load 'smartparens
+  (diminish 'smartparens-mode " φ"))        ; psi
 (after-load 'tagedit
   (diminish 'tagedit-mode " τ"))            ; tau
 (after-load 'skewer-mode
@@ -304,6 +305,8 @@
   (diminish 'redshank-mode))
 (after-load 'whitespace
   (diminish 'whitespace-mode))
+(after-load 'guide-key
+  (diminish 'guide-key-mode))
 
 ;; uniquify --------------------------------------------------------------------
 
@@ -381,7 +384,7 @@
 ;; Move to matching delimiters
 (global-set-key (kbd "s-o") 'basis/other-sexp-delimiter)
 
-;; Kill stuff
+;; Kill/save stuff
 (global-set-key (kbd "M-k") 'kill-sexp)
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
 (global-set-key (kbd "<M-backspace>") 'kill-region-or-backward-word)
@@ -390,9 +393,11 @@
 (global-set-key (kbd "<s-backspace>") 'smart-kill-whole-line)
 (global-set-key (kbd "<S-backspace>") 'smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
+(global-set-key (kbd "ESC M-DEL") 'backward-kill-sexp)
 (global-set-key (kbd "M-w") 'basis/kill-ring-save-something)
-(global-set-key (kbd "<f2>") 'basis/clipboard-save-buffer)
+(global-set-key (kbd "<f2>") 'basis/clipboard-save-something)
 (global-set-key (kbd "<M-f2>") 'basis/kill-ring-save-buffer)
+(global-set-key (kbd "s-w") 'basis/kill-ring-save-indented)
 
 ;; ... and then browse it with M-y
 (browse-kill-ring-default-keybindings)
@@ -520,9 +525,6 @@
 (global-set-key (kbd "<s-down>") 'cua-scroll-up)
 (global-set-key (kbd "<M-s-up>") 'scroll-other-window-down)
 (global-set-key (kbd "<M-s-down>") 'scroll-other-window)
-
-;; I want to like smartparens but haven't gotten there yet
-(global-set-key (kbd "C-c p") 'basis/toggle-between-autopair-and-smartparens)
 
 ;; Map for finding elisp stuff
 (define-prefix-command 'lisp-find-map)
@@ -748,6 +750,7 @@
 
 (define-key ac-completing-map (kbd "ESC") 'ac-stop)
 (define-key ac-completing-map (kbd "<return>") nil)
+(define-key ac-completing-map (kbd "RET") nil)
 
 ;; yasnippet -------------------------------------------------------------------
 
@@ -772,14 +775,28 @@ otherwise call `yas-insert-snippet'."
 
 ;; lisp ------------------------------------------------------------------------
 
+(defvar basis/lisp-modes
+  '(emacs-lisp-mode
+    lisp-interaction-mode
+    ielm
+    clojure-mode
+    cider-repl-mode
+    lisp-mode
+    slime-repl-mode
+    inferior-lisp-mode
+    scheme-mode
+    inferior-scheme-mode
+    geiser-repl-mode)
+  "List of all Lisp modes used. Useful for e.g. setting Paredit
+  as opposed to Smartparens.")
+
 (setq inferior-lisp-program "/usr/bin/sbcl")
 
 (add-to-list 'auto-mode-alist '("\\.sbclrc$" . lisp-mode))
 
 (defun basis/lisp-setup ()
   "Enable features useful in any Lisp mode."
-  (paredit-mode +1)
-  (autopair-mode -1))
+  (paredit-mode +1))
 
 (defun set-up-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in Hippie Expand."
@@ -1056,23 +1073,36 @@ Use `slime-expand-1' to produce the expansion."
     ((kbd "<f8>")   'scheme-compile-file)
     ((kbd "<M-f8>") 'scheme-load-file)))
 
-;; autopair --------------------------------------------------------------------
-
-(setq autopair-blink nil)
-
-(autopair-global-mode) ; disabled for lisps in init-lisp.el
-
 ;; smartparens -----------------------------------------------------------------
 
+(defadvice sp--cleanup-after-kill (around restrict-python-cleanup activate)
+  "Smartparens sometimes kills too much whitespace in
+`python-mode' but I haven't looked into the root cause yet."
+  (unless (and (eq major-mode 'python-mode)
+               (looking-back " "))
+    ad-do-it))
+
 (after-load 'smartparens
+  ;; I still prefer Paredit with lisps
+  (dolist (mode basis/lisp-modes)
+    (add-to-list 'sp-ignore-modes-list mode))
+
+  (smartparens-global-strict-mode)
   (sp-use-paredit-bindings)
-  (smartparens-strict-mode)
-  (basis/define-keys smartparens-mode-map
-    ((kbd "RET")                  'basis/electric-return)
-    ([remap delete-char]          'sp-delete-char)
-    ([remap backward-delete-char] 'sp-backward-delete-char)
-    ([remap kill-word]            'sp-kill-word)
-    ((kbd "<M-backspace>")        'basis/sp-backward-kill-something)))
+
+  ;; Don't insert closing single-quotes in text/writing-oriented modes. They're
+  ;; apostrophes too often.
+  (sp-local-pair '(org-mode markdown-mode gfm-mode text-mode)
+                 "'" nil :actions '(:rem insert))
+
+  (basis/define-keys sp-keymap
+    ((kbd "<return>")       'basis/electric-return)
+    ((kbd "<M-backspace>")  'basis/sp-backward-kill-something)
+    ((kbd "M-k")            'sp-kill-sexp)
+    ((kbd "M-e")            'sp-forward-sexp)
+    ((kbd "M-a")            'sp-backward-sexp)
+    ((kbd "]")              'sp-up-sexp)
+    ((kbd "M-]")            'basis/insert-right-bracket)))
 
 ;; flycheck --------------------------------------------------------------------
 
@@ -1108,11 +1138,12 @@ Use `slime-expand-1' to produce the expansion."
 
 (after-load 'python
   (basis/define-keys python-mode-map
-    ((kbd "M-e")    'python-nav-forward-sexp)
-    ((kbd "M-a")    'basis/python-nav-backward-sexp)
-    ((kbd "<f6>")   'basis/python-send-something)
-    ((kbd "<f8>")   'python-shell-send-buffer)
-    ((kbd "<M-f8>") 'python-shell-send-file)))
+    ((kbd "M-e")         'python-nav-forward-sexp)
+    ((kbd "M-a")         'basis/python-nav-backward-sexp)
+    ((kbd "<f6>")        'basis/python-send-something)
+    ((kbd "<f8>")        'python-shell-send-buffer)
+    ((kbd "<M-f8>")      'python-shell-send-file)
+    ((kbd "<backspace>") 'basis/sp-python-backspace)))
 
 ;; Jedi (has 2 Python dependencies: jedi and epc)
 (setq jedi:setup-keys t
@@ -1120,18 +1151,20 @@ Use `slime-expand-1' to produce the expansion."
 
 (add-hook 'python-mode-hook 'jedi:setup)
 
-(defun basis/setup-autopair-for-python ()
-  (setq autopair-handle-action-fns
-        (list #'autopair-default-handle-action
-              #'autopair-python-triple-quote-action)))
-
 (defun basis/init-python-mode ()
-  (basis/setup-autopair-for-python)
+  (local-set-key (kbd "M-e") 'python-nav-forward-sexp)
+  (local-set-key (kbd "M-a") 'basis/python-nav-backward-sexp)
   (unless (and buffer-file-name
                (file-remote-p buffer-file-name))
     (flycheck-mode 1)))
 
+(defun basis/init-inferior-python-mode ()
+  (local-set-key (kbd "M-e") 'python-nav-forward-sexp)
+  (local-set-key (kbd "M-a") 'basis/python-nav-backward-sexp)
+  (local-set-key (kbd "RET") 'comint-send-input))
+
 (add-hook 'python-mode-hook 'basis/init-python-mode)
+(add-hook 'inferior-python-mode-hook 'basis/init-inferior-python-mode)
 
 ;; javascript ------------------------------------------------------------------
 

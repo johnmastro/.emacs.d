@@ -113,37 +113,21 @@ context at point."
   (interactive)
   (kill-ring-save (point-min) (point-max)))
 
-(defun basis/kill-ring-save-whole-damn-buffer ()
-  "Save the buffer's content to the kill ring.
-Ignore narrowing but restore it when complete."
-  (save-restriction
-    (widen)
-    (kill-ring-save (point-min) (point-max))))
-
 (defun basis/clipboard-save-string (str)
   "Save STR directly to the system clipboard.
 Do not save the string to the the kill ring."
   (funcall interprogram-cut-function str))
 
-(defun basis/clipboard-save-region (beg end)
+(defun basis/clipboard-save-something ()
   "Save the region from BEG to END to the system clipboard."
-  (interactive "r")
-  (basis/clipboard-save-string
-   (buffer-substring-no-properties beg end))
-  (setq deactivate-mark t))
-
-(defun basis/clipboard-save-buffer ()
-  "Save the current buffer's content to the system clipboard."
   (interactive)
-  (basis/clipboard-save-region (point-min) (point-max)))
-
-(defun basis/clipboard-save-whole-damn-buffer ()
-  "Save the current buffer's content to the system clipboard.
-Ignore narrowing but restore it when complete."
-  (interactive)
-  (save-restriction
-    (widen)
-    (basis/clipboard-save-buffer)))
+  (if (region-active-p)
+      (let ((s (buffer-substring-no-properties (region-beginning)
+                                               (region-end))))
+        (basis/clipboard-save-string s)
+        (setq deactivate-mark t))
+    (let ((s (buffer-substring-no-properties (point-min) (point-max))))
+      (basis/clipboard-save-string s))))
 
 (defun basis/clipboard-save-buffer-file-name ()
   "Save the current buffer's filename to the system clipboard."
@@ -156,6 +140,31 @@ Ignore narrowing but restore it when complete."
   (interactive)
   (-when-let (str buffer-file-name)
     (basis/clipboard-save-string (file-name-nondirectory str))))
+
+(defun basis/s-add-indent (s &optional spaces pattern)
+  (let ((spaces (or spaces 4))
+        (pattern (or pattern "\\S-")))
+    (s-join "\n"
+            (mapcar #'(lambda (line)
+                        (if (string-match-p pattern line)
+                            (concat (s-repeat spaces " ") line)
+                          line))
+                    (s-split "\n" s)))))
+
+(defun basis/buffer-substring-indented (beg end)
+  (basis/s-add-indent (buffer-substring-no-properties beg end)))
+
+(defun basis/kill-ring-save-indented ()
+  "Save text to the kill ring with four spaces of indentation added.
+Save the region if one is currently active, otherwise save the
+whole buffer."
+  (interactive)
+  (if (region-active-p)
+      (let ((s (basis/buffer-substring-indented (region-beginning)
+                                                (region-end))))
+        (kill-new s)
+        (setq deactivate-mark t))
+    (kill-new (basis/buffer-substring-indented (point-min) (point-max)))))
 
 ;; case changing ---------------------------------------------------------------
 
@@ -561,17 +570,6 @@ If `linum-mode' was already enabled just call `goto-line'."
       (when (file-exists-p elc)
         (delete-file elc)))))
 
-(defun basis/toggle-between-autopair-and-smartparens ()
-  "Toggle between autopair and smartparens.
-If neither mode is active, do nothing."
-  (interactive)
-  (cond ((and (boundp 'autopair-mode) autopair-mode)
-         (autopair-mode -1)
-         (smartparens-mode +1))
-        ((and (boundp 'smartparens-mode) smartparens-mode)
-         (smartparens-mode -1)
-         (autopair-mode +1))))
-
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
@@ -626,6 +624,21 @@ If neither mode is active, do nothing."
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
     (sp-backward-kill-word arg)))
+
+(defun basis/sp-python-backspace (arg)
+  "De-indent the current line or delete a char backward.
+This is copied from `python-indent-dedent-line-backspace' but
+with `sp-backward-delete' used in place of
+`backward-delete-char-untabify'. "
+  (interactive "*p")
+  (when (not (python-indent-dedent-line))
+    (sp-backward-delete-char arg)))
+
+(put 'basis/sp-python-backspace 'delete-selection 'supersede)
+
+(defun basis/insert-right-bracket ()
+  (interactive)
+  (insert "]"))
 
 ;; python ----------------------------------------------------------------------
 
