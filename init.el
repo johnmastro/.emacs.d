@@ -616,7 +616,10 @@
 (add-hook 'magit-log-edit-mode-hook 'basis/init-magit-log-edit)
 
 (after-load 'magit
-  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
+
+  (-when-let (home (getenv "HOME"))
+    (setq magit-repo-dirs (list (expand-file-name "code" home)))))
 
 ;; ibuffer ---------------------------------------------------------------------
 
