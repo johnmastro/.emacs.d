@@ -1342,10 +1342,12 @@ two tags."
 (add-hook 'markdown-mode-hook 'basis/init-markdown-mode)
 
 (after-load 'markdown-mode
-  (define-key markdown-mode-map
-    (kbd "C-c r") 'markdown-insert-reference-link-dwim)
-  (define-key gfm-mode-map
-    (kbd "C-c r") 'markdown-insert-reference-link-dwim))
+  (basis/define-keys markdown-mode-map
+    ((kbd "<backspace>") 'basis/sp-markdown-backspace)
+    ((kbd "M-n")         'forward-paragraph)
+    ((kbd "M-p")         'backward-paragraph)
+    ((kbd "C-c r")       'markdown-insert-reference-link-dwim)
+    ((kbd "C-c C-r")     'markdown-insert-reference-link-dwim)))
 
 ;; deft ------------------------------------------------------------------------
 

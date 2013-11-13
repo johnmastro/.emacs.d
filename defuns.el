@@ -625,16 +625,29 @@ If `linum-mode' was already enabled just call `goto-line'."
       (kill-region (region-beginning) (region-end))
     (sp-backward-kill-word arg)))
 
+(defmacro basis/with-sp-backward-delete (&rest body)
+  (let ((arg (make-symbol "arg")))
+    ;; Use Nic Ferrier's noflet instead? flet is deprecated and cl-flet doesn't
+    ;; do the trick here.
+    `(flet ((backward-delete-char (,arg)
+             (sp-backward-delete-char ,arg))
+            (backward-delete-char-untabify (,arg)
+             (sp-backward-delete-char ,arg)))
+       ,@body)))
+
 (defun basis/sp-python-backspace (arg)
-  "De-indent the current line or delete a char backward.
-This is copied from `python-indent-dedent-line-backspace' but
-with `sp-backward-delete' used in place of
-`backward-delete-char-untabify'. "
+  "Delete a char backward or dedent the current line."
   (interactive "*p")
-  (when (not (python-indent-dedent-line))
-    (sp-backward-delete-char arg)))
+  (basis/with-sp-backward-delete (python-indent-dedent-line-backspace arg)))
 
 (put 'basis/sp-python-backspace 'delete-selection 'supersede)
+
+(defun basis/sp-markdown-backspace (arg)
+  "Delete a char backward or dedent the current line."
+  (interactive "*p")
+  (basis/with-sp-backward-delete (markdown-exdent-or-delete arg)))
+
+(put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
 
 (defun basis/insert-right-bracket ()
   (interactive)
