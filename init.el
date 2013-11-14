@@ -100,6 +100,7 @@
           guide-key
           geiser
           ac-geiser
+          smartparens
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -371,8 +372,8 @@
 
 ;; Newlines
 (global-set-key (kbd "C-m") 'newline-and-indent)
-(global-set-key (kbd "<S-return>") 'basis/open-line-below)
-(global-set-key (kbd "<C-S-return>") 'basis/open-line-above)
+(global-set-key (kbd "S-RET") 'basis/open-line-below)
+(global-set-key (kbd "C-S-RET") 'basis/open-line-above)
 
 ;; Clever C-a
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
@@ -381,18 +382,14 @@
 (global-set-key (kbd "M-n") 'forward-paragraph)
 (global-set-key (kbd "M-p") 'backward-paragraph)
 
-;; Move to matching delimiters
-(global-set-key (kbd "s-o") 'basis/other-sexp-delimiter)
-
 ;; Kill/save stuff
 (global-set-key (kbd "M-k") 'kill-sexp)
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
-(global-set-key (kbd "<M-backspace>") 'kill-region-or-backward-word)
-(global-set-key (kbd "<C-backspace>") 'kill-line-backward)
+(global-set-key (kbd "M-DEL") 'kill-region-or-backward-word)
+(global-set-key (kbd "C-DEL") 'kill-line-backward)
 (global-set-key [remap kill-whole-line] 'smart-kill-whole-line) ; C-S-backspace
-(global-set-key (kbd "<s-backspace>") 'smart-kill-whole-line)
-(global-set-key (kbd "<S-backspace>") 'smart-kill-almost-whole-line)
-(global-set-key (kbd "ESC <M-backspace>") 'backward-kill-sexp)
+(global-set-key (kbd "s-DEL") 'smart-kill-whole-line)
+(global-set-key (kbd "S-DEL") 'smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC M-DEL") 'backward-kill-sexp)
 (global-set-key (kbd "M-w") 'basis/kill-ring-save-something)
 (global-set-key (kbd "<f2>") 'basis/clipboard-save-something)
@@ -419,10 +416,6 @@
 (global-set-key (kbd "M-t M-w") 'transpose-windows)
 (global-set-key (kbd "M-t M-s") 'toggle-window-split) ;; hmmm
 
-;; Move between errors
-(global-set-key (kbd "s-.") 'next-error)
-(global-set-key (kbd "s-,") 'previous-error)
-
 ;; Imenu is great
 (global-set-key (kbd "s-i") 'imenu)
 
@@ -437,15 +430,12 @@
   [remap exchange-point-and-mark] 'exchange-point-and-mark-no-activate)
 
 ;; Expand-region
-(global-set-key (kbd "C-:") 'er/expand-region)
-(global-set-key (kbd "s-'") 'er/expand-region)
+(global-set-key (kbd "M-=") 'er/expand-region)
 
 ;; Multiple cursors
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "s-]") 'mc/mark-next-like-this)
-(global-set-key (kbd "s-[") 'mc/mark-previous-like-this)
-(global-set-key (kbd "s-\\") 'mc/mark-more-like-this-extended)
+(global-set-key (kbd "<f9>") 'mc/mark-more-like-this-extended)
 
 ;; Comment/uncomment stuff
 (global-set-key (kbd "s-;") 'basis/comment-or-uncomment)
@@ -556,6 +546,67 @@
 (defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 (defalias 'sayonara 'save-buffers-kill-terminal)
 
+;; tmux ------------------------------------------------------------------------
+
+;; A number of non-alphanumeric keys don't work by default when Emacs is
+;; running in tmux. This attempts to fix that by adding entries to the
+;; `key-translation-map'.
+
+;; `setw -g xterm-keys on` must be set in ~/.tmux.conf for this to work.
+
+;; The code below is based on that in the ArchWiki page on Emacs but refactored
+;; a bit.
+
+;; TODO: <home> and <end> still don't work
+(when (getenv "TMUX")
+  (let ((specs '((2 . "S-")
+                 (3 . "M-")
+                 (4 . "M-S-")
+                 (5 . "C-")
+                 (6 . "C-S-")
+                 (7 . "C-M-")
+                 (8 . "C-M-S-"))))
+    (dolist (spec specs)
+      (let ((n (car spec))
+            (k (cdr spec)))
+        (basis/define-key-translations
+          ((format "M-[ 1 ; %d A" n)  (format "%s<up>" k))      ;; left arrow
+          ((format "M-[ 1 ; %d B" n)  (format "%s<down>" k))    ;; down arrow
+          ((format "M-[ 1 ; %d C" n)  (format "%s<right>" k))   ;; right arrow
+          ((format "M-[ 1 ; %d D" n)  (format "%s<left>" k))    ;; left arrow
+          ((format "M-[ 1 ; %d H" n)  (format "%s<home>" k))    ;; home
+          ((format "M-[ 1 ; %d F" n)  (format "%s<end>" k))     ;; end
+          ((format "M-[ 5 ; %d ~" n)  (format "%s<prior>" k))   ;; page up
+          ((format "M-[ 6 ; %d ~" n)  (format "%s<next>" k))    ;; page down
+          ((format "M-[ 2 ; %d ~" n)  (format "%s<delete>" k))  ;; insert
+          ((format "M-[ 3 ; %d ~" n)  (format "%s<delete>" k))  ;; delete
+          ((format "M-[ 1 ; %d P" n)  (format "%s<f1>" k))      ;; f1
+          ((format "M-[ 1 ; %d Q" n)  (format "%s<f2>" k))      ;; f2
+          ((format "M-[ 1 ; %d R" n)  (format "%s<f3>" k))      ;; f3
+          ((format "M-[ 1 ; %d S" n)  (format "%s<f4>" k))      ;; f4
+          ((format "M-[ 15 ; %d ~" n) (format "%s<f5>" k))      ;; f5
+          ((format "M-[ 17 ; %d ~" n) (format "%s<f6>" k))      ;; f6
+          ((format "M-[ 18 ; %d ~" n) (format "%s<f7>" k))      ;; f7
+          ((format "M-[ 19 ; %d ~" n) (format "%s<f8>" k))      ;; f8
+          ((format "M-[ 20 ; %d ~" n) (format "%s<f9>" k))      ;; f9
+          ((format "M-[ 21 ; %d ~" n) (format "%s<f10>" k))     ;; f10
+          ((format "M-[ 23 ; %d ~" n) (format "%s<f11>" k))     ;; f11
+          ((format "M-[ 24 ; %d ~" n) (format "%s<f12>" k))     ;; f12
+          ((format "M-[ 25 ; %d ~" n) (format "%s<f13>" k))     ;; f13
+          ((format "M-[ 26 ; %d ~" n) (format "%s<f14>" k))     ;; f14
+          ((format "M-[ 28 ; %d ~" n) (format "%s<f15>" k))     ;; f15
+          ((format "M-[ 29 ; %d ~" n) (format "%s<f16>" k))     ;; f16
+          ((format "M-[ 31 ; %d ~" n) (format "%s<f17>" k))     ;; f17
+          ((format "M-[ 32 ; %d ~" n) (format "%s<f18>" k))     ;; f18
+          ((format "M-[ 33 ; %d ~" n) (format "%s<f19>" k))     ;; f19
+          ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k)))))) ;; f20
+
+  (basis/define-key-translations
+    ("M-[ 1 ; 6 l" "C-<")
+    ("M-[ 1 ; 6 n" "C->")
+    ("M-[ 1 ; 6 y" "C-(")
+    ("M-[ 1 ; 6 k" "C-+")))
+
 ;; help-mode -------------------------------------------------------------------
 
 (after-load 'help-mode
@@ -630,7 +681,7 @@
 (after-load 'ibuffer
   (basis/define-keys ibuffer-mode-map
     ((kbd "M-o") 'other-window)
-    ((kbd "s-o") 'ibuffer-visit-buffer-1-window))
+    ((kbd "C-M-o") 'ibuffer-visit-buffer-1-window))
 
   (define-ibuffer-column size-h
     ;; a more readable size column
@@ -676,9 +727,9 @@
 
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map
-    ((kbd "<C-backspace>")   'basis/eshell-kill-line-backward)
-    ((kbd "<S-backspace>")   'basis/eshell-kill-line-backward)
-    ((kbd "<C-S-backspace>") 'basis/eshell-kill-whole-line)))
+    ((kbd "C-DEL")   'basis/eshell-kill-line-backward)
+    ((kbd "S-DEL")   'basis/eshell-kill-line-backward)
+    ((kbd "C-S-DEL") 'basis/eshell-kill-whole-line)))
 
 (add-hook 'eshell-mode-hook 'basis/init-eshell)
 
@@ -752,7 +803,6 @@
                 ac-source-words-in-same-mode-buffers))
 
 (define-key ac-completing-map (kbd "ESC") 'ac-stop)
-(define-key ac-completing-map (kbd "<return>") nil)
 (define-key ac-completing-map (kbd "RET") nil)
 
 ;; yasnippet -------------------------------------------------------------------
@@ -766,8 +816,8 @@ otherwise call `yas-insert-snippet'."
    (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
 
 (after-load 'yasnippet
-  (basis/define-hyper global-map "<tab>" 'basis/yas-expand-or-insert)
-  (define-key yas-keymap (kbd "<return>") 'yas-exit-all-snippets))
+  (basis/define-hyper global-map "TAB" 'basis/yas-expand-or-insert)
+  (define-key yas-keymap (kbd "RET") 'yas-exit-all-snippets))
 
 (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
       yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
@@ -857,7 +907,7 @@ otherwise call `yas-insert-snippet'."
                                                inferior-lisp-mode
                                                inferior-scheme-mode
                                                cider-repl-mode)))
-    (local-set-key (kbd "<return>") 'paredit-newline)))
+    (local-set-key (kbd "RET") 'paredit-newline)))
 
 (add-hook 'paredit-mode-hook 'basis/maybe-map-paredit-newline)
 
@@ -875,16 +925,15 @@ otherwise call `yas-insert-snippet'."
 (after-load 'paredit
   (basis/define-keys paredit-mode-map
     ((kbd "[")                      'basis/paredit-open-something)
-    ((kbd "M-[")                    'paredit-open-square)
+    ((kbd "C-c [")                  'paredit-open-square)
     ((kbd "M-)")                    'basis/paredit-wrap-round-from-behind)
     ((kbd "M-e")                    'paredit-forward)
     ((kbd "<M-right>")              'paredit-forward)
     ((kbd "M-a")                    'paredit-backward)
     ((kbd "<M-left>")               'paredit-backward)
-    ((kbd "s-u")                    'paredit-backward-up)
     ((kbd "M-k")                    'kill-sexp)
     ((kbd "C-w")                    'basis/paredit-kill-something)
-    ((kbd "M-<backspace>")          'basis/paredit-kill-something)
+    ((kbd "M-DEL")                  'basis/paredit-kill-something)
     ([remap backward-kill-sentence] 'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
                'basis/paredit-doublequote-space-p))
@@ -1030,7 +1079,7 @@ Use `slime-expand-1' to produce the expansion."
 
   (setq cider-repl-use-pretty-printing t)
 
-  (define-key cider-repl-mode-map (kbd "<return>") 'cider-repl-return)
+  (define-key cider-repl-mode-map (kbd "RET") 'cider-repl-return)
 
   (basis/define-keys cider-mode-map
     ((kbd "<f5>")    'cider-eval-last-expression)
@@ -1099,13 +1148,13 @@ Use `slime-expand-1' to produce the expansion."
                  "'" nil :actions '(:rem insert))
 
   (basis/define-keys sp-keymap
-    ((kbd "<return>")       'basis/electric-return)
-    ((kbd "<M-backspace>")  'basis/sp-backward-kill-something)
-    ((kbd "M-k")            'sp-kill-sexp)
-    ((kbd "M-e")            'sp-forward-sexp)
-    ((kbd "M-a")            'sp-backward-sexp)
-    ((kbd "]")              'sp-up-sexp)
-    ((kbd "M-]")            'basis/insert-right-bracket)))
+    ((kbd "RET")    'basis/electric-return)
+    ((kbd "M-DEL")  'basis/sp-backward-kill-something)
+    ((kbd "M-k")    'sp-kill-sexp)
+    ((kbd "M-e")    'sp-forward-sexp)
+    ((kbd "M-a")    'sp-backward-sexp)
+    ((kbd "]")      'sp-up-sexp)
+    ((kbd "M-]")    'basis/insert-right-bracket)))
 
 ;; flycheck --------------------------------------------------------------------
 
@@ -1146,7 +1195,7 @@ Use `slime-expand-1' to produce the expansion."
     ((kbd "<f6>")        'basis/python-send-something)
     ((kbd "<f8>")        'python-shell-send-buffer)
     ((kbd "<M-f8>")      'python-shell-send-file)
-    ((kbd "<backspace>") 'basis/sp-python-backspace)))
+    ((kbd "DEL") 'basis/sp-python-backspace)))
 
 ;; Jedi (has 2 Python dependencies: jedi and epc)
 (setq jedi:setup-keys t
@@ -1312,7 +1361,7 @@ Use `slime-expand-1' to produce the expansion."
     ([remap forward-paragraph]  'basis/move-to-next-blank-line)
     ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
     ((kbd "RET")                'basis/html-newline-and-indent)
-    ((kbd "<M-return>")         'basis/html-multiline-expand)
+    ((kbd "M-RET")              'basis/html-multiline-expand)
     ((kbd "C-c C-w")            'basis/html-wrap-in-tag)
     ((kbd "C-c w")              'basis/html-wrap-in-tag)
     ((kbd "<f8>")               'browse-url-of-buffer))
@@ -1346,7 +1395,7 @@ two tags."
 
 (after-load 'markdown-mode
   (basis/define-keys markdown-mode-map
-    ((kbd "<backspace>") 'basis/sp-markdown-backspace)
+    ((kbd "DEL")         'basis/sp-markdown-backspace)
     ((kbd "M-n")         'forward-paragraph)
     ((kbd "M-p")         'backward-paragraph)
     ((kbd "C-c r")       'markdown-insert-reference-link-dwim)

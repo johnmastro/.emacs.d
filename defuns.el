@@ -371,6 +371,17 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 (put 'basis/define-hyper-keys 'lisp-indent-function 'defun)
 
+(defmacro basis/define-key-translations (&rest keydefs)
+  "Define multiple bindings in `key-translation-map'."
+  `(progn
+     ,@(mapcar #'(lambda (keydef)
+                   (let ((key (car keydef))
+                         (def (cadr keydef)))
+                     `(define-key key-translation-map (kbd ,key) (kbd ,def))))
+               keydefs)))
+
+(put 'basis/define-key-translations 'lisp-indent-function 'defun)
+
 (defmacro create-simple-keybinding-command (name key)
   `(defun ,name (def &optional keymap)
      (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
