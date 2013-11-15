@@ -126,10 +126,13 @@
   "True if this is a Windows system with Cygwin installed.")
 
 (when basis/cygwin-p
+  (require 'cygwin-mount)
   (-when-let (home (getenv "HOME"))
     (cd home))
-  (unless (string= (substring (getenv "PATH") 0 7) "c:\\bin;")
-    (setenv "PATH" (concat "c:\\bin;" (getenv "PATH"))))
+  (let* ((path (getenv "PATH"))
+         (entries (s-split ";" path)))
+    (unless (member "c:\\bin" entries)
+      (setenv "PATH" (concat "c:\\bin;" path))))
   (unless (member "c:/bin" exec-path)
     (add-to-list 'exec-path "c:/bin"))
   (-when-let (shell (or (executable-find "zsh")
@@ -347,24 +350,6 @@
   (darwin     (init-modifiers/os-x))
   (windows-nt (init-modifiers/windows)))
 
-;; Hyper- mappings
-(basis/define-hyper global-map "a" 'beginning-of-defun)
-(basis/define-hyper global-map "e" 'end-of-defun)
-(basis/define-hyper global-map "f" 'ido-find-file)
-(basis/define-hyper global-map "b" 'ido-switch-buffer)
-(basis/define-hyper global-map "d" 'basis/ido-dir-selector)
-(basis/define-hyper global-map "D" 'basis/dired-dir-selector)
-(basis/define-hyper global-map "t" 'basis/ido-tramp-selector)
-(basis/define-hyper global-map "s" 'save-buffer)
-(basis/define-hyper global-map "g" 'magit-status)
-(basis/define-hyper global-map "i" 'imenu)
-(basis/define-hyper global-map "0" 'delete-window)
-(basis/define-hyper global-map "1" 'delete-other-windows)
-(basis/define-hyper global-map "2" 'split-window-below)
-(basis/define-hyper global-map "3" 'split-window-right)
-(basis/define-hyper global-map "r" ctl-x-r-map)
-(basis/define-hyper global-map "c" 'basis/toggle-case)
-
 ;; Easier window management
 (winner-mode 1)
 (windmove-default-keybindings)
@@ -416,9 +401,6 @@
 (global-set-key (kbd "M-t M-w") 'transpose-windows)
 (global-set-key (kbd "M-t M-s") 'toggle-window-split) ;; hmmm
 
-;; Imenu is great
-(global-set-key (kbd "s-i") 'imenu)
-
 ;; Occur
 (define-key occur-mode-map (kbd "n") 'occur-next)
 (define-key occur-mode-map (kbd "p") 'occur-prev)
@@ -426,8 +408,8 @@
 ;; Mark commands
 (global-set-key (kbd "C-`") 'push-mark-no-activate)
 (global-set-key (kbd "M-`") 'jump-to-mark)
-(define-key global-map
-  [remap exchange-point-and-mark] 'exchange-point-and-mark-no-activate)
+(global-set-key
+ [remap exchange-point-and-mark] 'exchange-point-and-mark-no-activate)
 
 ;; Expand-region
 (global-set-key (kbd "M-=") 'er/expand-region)
@@ -436,6 +418,9 @@
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "<f9>") 'mc/mark-more-like-this-extended)
+
+(after-load 'multiple-cursors
+  (define-key mc/keymap (kbd "RET") 'multiple-cursors-mode))
 
 ;; Comment/uncomment stuff
 (global-set-key (kbd "s-;") 'basis/comment-or-uncomment)
@@ -516,29 +501,57 @@
 (global-set-key (kbd "<M-s-up>") 'scroll-other-window-down)
 (global-set-key (kbd "<M-s-down>") 'scroll-other-window)
 
-;; Map for finding elisp stuff
+;; h-map -----------------------------------------------------------------------
+
+(define-prefix-command 'basis/h-map)
+
+;; Note sure which will be better
+(global-set-key (kbd "C-h") 'basis/h-map)
+(global-set-key (kbd "M-h") 'basis/h-map)
+
+(basis/define-keys global-map
+  ((kbd "C-h a") 'beginning-of-defun)
+  ((kbd "C-h e") 'end-of-defun)
+  ((kbd "C-h f") 'ido-find-file)
+  ((kbd "C-h b") 'ido-switch-buffer)
+  ((kbd "C-h d") 'basis/ido-dir-selector)
+  ((kbd "C-h D") 'basis/dired-dir-selector)
+  ((kbd "C-h t") 'basis/ido-tramp-selector)
+  ((kbd "C-h s") 'save-buffer)
+  ((kbd "C-h g") 'magit-status)
+  ((kbd "C-h i") 'imenu)
+  ((kbd "C-h 0") 'delete-window)
+  ((kbd "C-h 1") 'delete-other-windows)
+  ((kbd "C-h 2") 'split-window-below)
+  ((kbd "C-h 3") 'split-window-right)
+  ((kbd "C-h r") ctl-x-r-map)
+  ((kbd "C-h c") 'basis/toggle-case))
+
+;; find elisp map --------------------------------------------------------------
+
 (define-prefix-command 'lisp-find-map)
 
-(global-set-key (kbd "C-h e") 'lisp-find-map)
+(global-set-key (kbd "<f1> e") 'lisp-find-map)
 
 (defun scratch! ()
   "Switch to the scratch buffer, creating it if necessary."
   (interactive)
   (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
 
-(global-set-key (kbd "C-h e c") 'finder-commentary)
-(global-set-key (kbd "C-h e e") 'view-echo-area-messages)
-(global-set-key (kbd "C-h e f") 'find-function)
-(global-set-key (kbd "C-h e F") 'find-face-definition)
-(global-set-key (kbd "C-h e i") 'info-apropos)
-(global-set-key (kbd "C-h e k") 'find-function-on-key)
-(global-set-key (kbd "C-h e l") 'find-library)
-(global-set-key (kbd "C-h e s") 'scratch!)
-(global-set-key (kbd "C-h e v") 'find-variable)
-(global-set-key (kbd "C-h e V") 'apropos-value)
-(global-set-key (kbd "C-h e a") 'helm-apropos)
+(global-set-key (kbd "<f1> e c") 'finder-commentary)
+(global-set-key (kbd "<f1> e e") 'view-echo-area-messages)
+(global-set-key (kbd "<f1> e f") 'find-function)
+(global-set-key (kbd "<f1> e F") 'find-face-definition)
+(global-set-key (kbd "<f1> e i") 'info-apropos)
+(global-set-key (kbd "<f1> e k") 'find-function-on-key)
+(global-set-key (kbd "<f1> e l") 'find-library)
+(global-set-key (kbd "<f1> e s") 'scratch!)
+(global-set-key (kbd "<f1> e v") 'find-variable)
+(global-set-key (kbd "<f1> e V") 'apropos-value)
+(global-set-key (kbd "<f1> e a") 'helm-apropos)
 
-;; aliases
+;; aliases ---------------------------------------------------------------------
+
 (defalias 'qrr 'query-replace-regexp)
 (defalias 'ack 'ack-and-a-half)
 (defalias 'ack-same 'ack-and-a-half-same)
@@ -629,6 +642,8 @@
 (key-chord-define-global ",," 'ibuffer)
 (key-chord-define-global "`1" 'delete-other-windows)
 (key-chord-define-global "0-" 'delete-window)
+(key-chord-define-global "j2" 'split-window-below)
+(key-chord-define-global "j3" 'split-window-right)
 
 ;; saveplace -------------------------------------------------------------------
 
@@ -718,8 +733,6 @@
     ((kbd "M-a")                 'dired-prev-dirline)
     ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
     ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
-  (basis/define-hyper dired-mode-map "a" 'basis/dired-jump-to-top)
-  (basis/define-hyper dired-mode-map "e" 'basis/dired-jump-to-bottom)
   (setq dired-recursive-deletes 'top)
   (put 'dired-find-alternate-file 'disabled nil))
 
@@ -804,6 +817,7 @@
 
 (define-key ac-completing-map (kbd "ESC") 'ac-stop)
 (define-key ac-completing-map (kbd "RET") nil)
+(define-key ac-completing-map (kbd "<return>") nil) ;; necessary even w/ above
 
 ;; yasnippet -------------------------------------------------------------------
 
@@ -1128,18 +1142,19 @@ Use `slime-expand-1' to produce the expansion."
 ;; smartparens -----------------------------------------------------------------
 
 (defadvice sp--cleanup-after-kill (around restrict-python-cleanup activate)
-  "Smartparens sometimes kills too much whitespace in
-`python-mode' but I haven't looked into the root cause yet."
-  (unless (and (eq major-mode 'python-mode)
-               (looking-back " "))
+  "Smartparens sometimes kills too much whitespace in but I
+haven't looked into the root cause yet."
+  (unless (and (memq major-mode '(python-mode sql-mode))
+               (looking-back "^[[:space:]]*"))
     ad-do-it))
+
+(smartparens-global-strict-mode)
 
 (after-load 'smartparens
   ;; I still prefer Paredit with lisps
   (dolist (mode basis/lisp-modes)
     (add-to-list 'sp-ignore-modes-list mode))
 
-  (smartparens-global-strict-mode)
   (sp-use-paredit-bindings)
 
   ;; Don't insert closing single-quotes in text/writing-oriented modes. They're
@@ -1195,7 +1210,10 @@ Use `slime-expand-1' to produce the expansion."
     ((kbd "<f6>")        'basis/python-send-something)
     ((kbd "<f8>")        'python-shell-send-buffer)
     ((kbd "<M-f8>")      'python-shell-send-file)
-    ((kbd "DEL") 'basis/sp-python-backspace)))
+    ((kbd "DEL")         'basis/sp-python-backspace))
+  (basis/define-keys inferior-python-mode-map
+    ((kbd "RET")         'comint-send-input)
+    ((kbd "<return>")    'comint-send-input)))
 
 ;; Jedi (has 2 Python dependencies: jedi and epc)
 (setq jedi:setup-keys t
@@ -1212,8 +1230,7 @@ Use `slime-expand-1' to produce the expansion."
 
 (defun basis/init-inferior-python-mode ()
   (local-set-key (kbd "M-e") 'python-nav-forward-sexp)
-  (local-set-key (kbd "M-a") 'basis/python-nav-backward-sexp)
-  (local-set-key (kbd "RET") 'comint-send-input))
+  (local-set-key (kbd "M-a") 'basis/python-nav-backward-sexp))
 
 (add-hook 'python-mode-hook 'basis/init-python-mode)
 (add-hook 'inferior-python-mode-hook 'basis/init-inferior-python-mode)
