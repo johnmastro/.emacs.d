@@ -581,6 +581,12 @@ If `linum-mode' was already enabled just call `goto-line'."
       (when (file-exists-p elc)
         (delete-file elc)))))
 
+(defun basis/maybe-enable-flyspell ()
+  "Enable `flyspell-mode' if aspell is installed."
+  (when (and (boundp 'aspell-installed-p)
+             aspell-installed-p)
+    (flyspell-mode 1)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)

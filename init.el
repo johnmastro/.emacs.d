@@ -228,6 +228,7 @@
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
+(set-language-environment 'utf-8)
 
 ;; Don't use CRLF on remote Unix machines
 (defun basis/maybe-set-coding ()
@@ -661,6 +662,67 @@
 (global-set-key (kbd "M-SPC") 'ace-jump-mode)
 (global-set-key (kbd "s-SPC") 'ace-jump-mode)
 (global-set-key (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
+
+;; mu4e ------------------------------------------------------------------------
+
+(let ((mu4e-path "/usr/local/share/emacs/site-lisp/mu4e/"))
+  (when (and (not (eq system-type 'windows-nt))
+             (file-directory-p  mu4e-path)
+             (executable-find "mu"))
+    (add-to-list 'load-path mu4e-path)
+    (require 'mu4e)
+    (require 'smtpmail)))
+
+;; Mail
+(setq mu4e-get-mail-command "offlineimap"
+      mu4e-maildir "/home/jbm/.maildir/fastmail"
+      mu4e-sent-folder "/sent"
+      mu4e-drafts-folder "/drafts"
+      mu4e-trash-folder "/trash")
+
+;; Shortcuts. Available as jX
+(setq mu4e-maildir-shortcuts '(("/archive" . ?a)
+                               ("/inbox"   . ?i)
+                               ("/sent"    . ?s)))
+
+;; Addresses to consider "me" when searching
+(setq mu4e-user-mail-address-list '("jbm@deft.li"
+                                    "jbm@fastmail.fm"
+                                    "jbm@mailforce.net"))
+
+;; Convert HTML->text if no text version is available
+(setq mu4e-html2text-command (if (executable-find "html2text")
+                                 "html2text -utf8 -width 72"
+                               #'html2text))
+
+;; Where to save attachments
+(setq mu4e-attachment-dir (-first #'file-directory-p
+                                  (mapcar #'expand-file-name
+                                          '("~/downloads"
+                                            "~/Downloads"
+                                            "~/"))))
+
+;; Composing messages
+(setq mu4e-reply-to-address "jbm@deft.li"
+      user-mail-address "jbm@deft.li"
+      user-full-name "John Mastro"
+      message-signature "- John"
+      mu4e-sent-messages-behavior 'delete ;; they're saved on the server
+      message-kill-buffer-on-exit t)
+
+;; SMTP
+(setq send-mail-function 'smtpmail-send-it
+      message-send-mail-function 'smtpmail-send-it
+      smtp-default-smtp-server "mail.messagingengine.com"
+      smtpmail-smtp-server "mail.messagingengine.com"
+      smtpmail-smtp-user "jbm@fastmail.fm"
+      smtpmail-smtp-service 465
+      smtpmail-stream-type 'ssl)
+
+(setq mu4e-use-fancy-chars t)
+
+(after-load 'mu4e
+  (add-hook 'mu4e-compose-mode-hook 'basis/maybe-enable-flyspell))
 
 ;; magit -----------------------------------------------------------------------
 
@@ -1157,9 +1219,9 @@ haven't looked into the root cause yet."
 
   (sp-use-paredit-bindings)
 
-  ;; Don't insert closing single-quotes in text/writing-oriented modes. They're
-  ;; apostrophes too often.
-  (sp-local-pair '(org-mode markdown-mode gfm-mode text-mode)
+  ;; Don't insert single quotes as pairs in natural language-oriented modes.
+  ;; They're apostrophes too often for it to be useful.
+  (sp-local-pair '(org-mode markdown-mode gfm-mode text-mode mu4e-compose-mode)
                  "'" nil :actions '(:rem insert))
 
   (basis/define-keys sp-keymap
@@ -1405,8 +1467,7 @@ two tags."
 (defun basis/init-markdown-mode ()
   (unless (eq major-mode 'gfm-mode)
     (turn-on-auto-fill))
-  (when aspell-installed-p
-    (flyspell-mode 1)))
+  (basis/maybe-enable-flyspell))
 
 (add-hook 'markdown-mode-hook 'basis/init-markdown-mode)
 
