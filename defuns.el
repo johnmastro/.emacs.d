@@ -715,6 +715,12 @@ If `linum-mode' was already enabled just call `goto-line'."
   (interactive "^p")
   (python-nav-forward-sexp (- arg)))
 
+(defun basis/jedi-installed-p ()
+  "Return t if Jedi and EPC are installed, otherwise nil."
+  (let* ((cmd "python -c \"import jedi; import epc; exit()\"")
+         (out (shell-command-to-string cmd)))
+    (zerop (length out))))
+
 ;; emacs lisp ------------------------------------------------------------------
 
 (defun basis/eval-something ()

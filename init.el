@@ -1251,11 +1251,11 @@ haven't looked into the root cause yet."
     ((kbd "RET")         'comint-send-input)
     ((kbd "<return>")    'comint-send-input)))
 
-;; Jedi (has 2 Python dependencies: jedi and epc)
-(setq jedi:setup-keys t
-      jedi:tooltip-method nil) ; show function signatures in the minibuffer
-
-(add-hook 'python-mode-hook 'jedi:setup)
+(when (basis/jedi-installed-p)
+  ;; Jedi has 2 Python dependencies: jedi and epc
+  (setq jedi:setup-keys t
+        jedi:tooltip-method nil)
+  (add-hook 'python-mode-hook 'jedi:setup))
 
 (defun basis/init-python-mode ()
   (local-set-key (kbd "M-e") 'python-nav-forward-sexp)
