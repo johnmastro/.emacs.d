@@ -670,6 +670,36 @@ If `linum-mode' was already enabled just call `goto-line'."
   (interactive)
   (insert "]"))
 
+;; scheme/geiser ---------------------------------------------------------------
+
+(defun basis/scheme-send-something ()
+  (interactive)
+  (if (region-active-p)
+      (scheme-send-region (region-beginning)
+                          (region-end))
+    (scheme-send-definition)))
+
+(defun basis/geiser-eval-something ()
+  (interactive)
+  (if (region-active-p)
+      (geiser-eval-region (region-beginning)
+                          (region-end))
+    (geiser-eval-definition)))
+
+(defun basis/geiser-eval-something-and-go ()
+  (interactive)
+  (if (region-active-p)
+      (geiser-eval-region-and-go (region-beginning)
+                                 (region-end))
+    (geiser-eval-definition-and-go)))
+
+(defun basis/geiser-expand-something ()
+  (interactive)
+  (if (region-active-p)
+      (geiser-expand-region (region-beginning)
+                            (region-end))
+    (geiser-expand-last-sexp)))
+
 ;; python ----------------------------------------------------------------------
 
 (defun basis/python-send-something ()
@@ -684,6 +714,43 @@ If `linum-mode' was already enabled just call `goto-line'."
   "Move backward by one sexp."
   (interactive "^p")
   (python-nav-forward-sexp (- arg)))
+
+;; emacs lisp ------------------------------------------------------------------
+
+(defun basis/eval-something ()
+  "Eval the active region, if any; otherwise eval the toplevel form."
+  (interactive)
+  (if (region-active-p)
+      (eval-region (region-beginning)
+                   (region-end))
+    (eval-defun nil)))
+
+;; slime -----------------------------------------------------------------------
+
+(defun basis/slime-eval-something ()
+  "Eval the active region, if any; otherwise eval the toplevel form."
+  (interactive)
+  (if (region-active-p)
+      (slime-eval-region (region-beginning)
+                         (region-end))
+    (slime-eval-defun)))
+
+(defun basis/slime-expand-defun (&optional repeatedly)
+  "Display the macro expansion of the form surrounding point.
+Use `slime-expand-1' to produce the expansion."
+  (interactive "P")
+  (save-excursion
+    (end-of-defun)
+    (beginning-of-defun)
+    (slime-expand-1 repeatedly)))
+
+;; cider -----------------------------------------------------------------------
+
+(defun basis/cider-eval-something (&optional prefix)
+  (interactive "P")
+  (if (region-active-p)
+      (cider-eval-region (region-beginning) (region-end))
+    (cider-eval-expression-at-point prefix)))
 
 ;; html utilities --------------------------------------------------------------
 

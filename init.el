@@ -656,7 +656,7 @@
 
 ;; ace-jump-mode ---------------------------------------------------------------
 
-(after-load "ace-jump-mode"
+(after-load 'ace-jump-mode
   (ace-jump-mode-enable-mark-sync))
 
 (global-set-key (kbd "M-SPC") 'ace-jump-mode)
@@ -670,8 +670,7 @@
              (file-directory-p  mu4e-path)
              (executable-find "mu"))
     (add-to-list 'load-path mu4e-path)
-    (require 'mu4e)
-    (require 'smtpmail)))
+    (require 'mu4e)))
 
 ;; Mail
 (setq mu4e-get-mail-command "offlineimap"
@@ -718,8 +717,6 @@
       smtpmail-smtp-user "jbm@fastmail.fm"
       smtpmail-smtp-service 465
       smtpmail-stream-type 'ssl)
-
-(setq mu4e-use-fancy-chars t)
 
 (after-load 'mu4e
   (add-hook 'mu4e-compose-mode-hook 'basis/maybe-enable-flyspell))
@@ -866,7 +863,7 @@
 (require 'auto-complete)
 (require 'auto-complete-config)
 
-(global-auto-complete-mode t)  ;; SLIME integration is in init-slime.el
+(global-auto-complete-mode t)
 (ac-config-default)
 
 (setq ac-comphist-file "~/.emacs.d/.ac-comphist.dat")
@@ -880,6 +877,10 @@
 (define-key ac-completing-map (kbd "ESC") 'ac-stop)
 (define-key ac-completing-map (kbd "RET") nil)
 (define-key ac-completing-map (kbd "<return>") nil) ;; necessary even w/ above
+
+(dolist (mode '(slime-repl cider-repl geiser-repl inferior-python sql))
+  (let ((mode (intern (concat (symbol-name mode) "-mode"))))
+    (add-to-list 'ac-modes mode)))
 
 ;; yasnippet -------------------------------------------------------------------
 
@@ -919,7 +920,8 @@ otherwise call `yas-insert-snippet'."
   "List of all Lisp modes used. Useful for e.g. setting Paredit
   as opposed to Smartparens.")
 
-(setq inferior-lisp-program "/usr/bin/sbcl")
+(-when-let (sbcl (executable-find "sbcl"))
+  (setq inferior-lisp-program sbcl))
 
 (add-to-list 'auto-mode-alist '("\\.sbclrc$" . lisp-mode))
 
@@ -946,9 +948,12 @@ otherwise call `yas-insert-snippet'."
        (lispy-hooks (append elispy-hooks
                             '(lisp-mode-hook
                               slime-repl-mode-hook
+                              clojure-mode-hook
+                              cider-repl-mode-hook
                               inferior-lisp-mode-hook
                               scheme-mode-hook
-                              inferior-scheme-mode-hook))))
+                              inferior-scheme-mode-hook
+                              geiser-repl-mode-hook))))
   (dolist (hook lispy-hooks)
     (add-hook hook 'basis/lisp-setup))
   (dolist (hook elispy-hooks)
@@ -959,14 +964,6 @@ otherwise call `yas-insert-snippet'."
       lisp-loop-forms-indentation 6)
 
 ;; emacs lisp ------------------------------------------------------------------
-
-(defun basis/eval-something ()
-  "Eval the active region, if any; otherwise eval the toplevel form."
-  (interactive)
-  (if (region-active-p)
-      (eval-region (region-beginning)
-                   (region-end))
-    (eval-defun nil)))
 
 (dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (basis/define-keys mode
@@ -982,6 +979,7 @@ otherwise call `yas-insert-snippet'."
   (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
                                                inferior-lisp-mode
                                                inferior-scheme-mode
+                                               geiser-repl-mode
                                                cider-repl-mode)))
     (local-set-key (kbd "RET") 'paredit-newline)))
 
@@ -1040,23 +1038,6 @@ otherwise call `yas-insert-snippet'."
 
 (add-hook 'slime-mode-hook 'basis/start-slime)
 
-(defun basis/slime-eval-something ()
-  "Eval the active region, if any; otherwise eval the toplevel form."
-  (interactive)
-  (if (region-active-p)
-      (slime-eval-region (region-beginning)
-                         (region-end))
-    (slime-eval-defun)))
-
-(defun basis/slime-expand-defun (&optional repeatedly)
-  "Display the macro expansion of the form surrounding point.
-Use `slime-expand-1' to produce the expansion."
-  (interactive "P")
-  (save-excursion
-    (end-of-defun)
-    (beginning-of-defun)
-    (slime-expand-1 repeatedly)))
-
 (after-load 'slime
   (basis/define-keys slime-mode-map
     ((kbd "<f5>")   'slime-eval-last-expression)
@@ -1083,31 +1064,24 @@ Use `slime-expand-1' to produce the expansion."
 (add-hook 'slime-mode-hook 'basis/set-up-slime-fuzzy-ac)
 (add-hook 'slime-repl-mode-hook 'basis/set-up-slime-fuzzy-ac)
 
-(after-load "auto-complete"
-  (add-to-list 'ac-modes 'slime-repl-mode))
-
 ;; redshank --------------------------------------------------------------------
 
 (require 'redshank-loader)
 
-(after-load "redshank-loader"
+(after-load 'redshank-loader
   (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t))
 
 ;; clojure ---------------------------------------------------------------------
 
 (defun basis/init-clojure-mode ()
-  (basis/lisp-setup)
   (subword-mode))
 
 (defun basis/init-cider-repl-mode ()
-  (basis/lisp-setup)
   (subword-mode)
   (ac-nrepl-setup)
   (cider-turn-on-eldoc-mode))
 
 (defun basis/init-cider-mode ()
-  (basis/lisp-setup)
-  (subword-mode)
   (ac-nrepl-setup)
   (cider-turn-on-eldoc-mode))
 
@@ -1117,12 +1091,6 @@ Use `slime-expand-1' to produce the expansion."
     (when (s-starts-with? "lein" cider-server-command)
       (setq cider-server-command
             (s-replace "lein" cider-lein-command cider-server-command)))))
-
-(defun basis/cider-eval-something (&optional prefix)
-  (interactive "P")
-  (if (region-active-p)
-      (cider-eval-region (region-beginning) (region-end))
-    (cider-eval-expression-at-point prefix)))
 
 (defvar basis/clojure-indent-specs
   '((match 1)
@@ -1150,9 +1118,6 @@ Use `slime-expand-1' to produce the expansion."
   (add-hook 'cider-repl-mode-hook 'basis/init-cider-repl-mode)
   (add-hook 'cider-mode-hook 'basis/init-cider-mode)
 
-  (after-load 'auto-complete
-    (add-to-list 'ac-modes 'cider-repl-mode))
-
   (setq cider-repl-use-pretty-printing t)
 
   (define-key cider-repl-mode-map (kbd "RET") 'cider-repl-return)
@@ -1171,7 +1136,7 @@ Use `slime-expand-1' to produce the expansion."
 (setq quack-default-program
       (if (eq system-type 'windows-nt)
           "larceny"
-        "scheme"))
+        "guile"))
 
 (require 'quack)
 
@@ -1180,26 +1145,35 @@ Use `slime-expand-1' to produce the expansion."
 
 (defun basis/enable-scheme-eldoc ()
   "Enable ElDoc in Scheme mode, via scheme-complete."
-  (make-local-variable 'eldoc-documentation-function)
-  (setq eldoc-documentation-function 'scheme-get-current-symbol-info)
+  (set (make-local-variable 'eldoc-documentation-function)
+       'scheme-get-current-symbol-info)
   (eldoc-mode))
 
 (add-hook 'scheme-mode-hook 'basis/enable-scheme-eldoc)
-
-(defun basis/scheme-send-something ()
-  (interactive)
-  (if (region-active-p)
-      (scheme-send-region (region-beginning)
-                          (region-end))
-    (scheme-send-definition)))
 
 (after-load 'scheme
   (basis/define-keys scheme-mode-map
     ((kbd "<f5>")   'scheme-send-last-sexp)
     ((kbd "<f6>")   'basis/scheme-send-something)
-    ((kbd "<M-f6>") 'scheme-compile-definition-and-go)
+    ((kbd "<C-f6>") 'scheme-compile-definition-and-go)
     ((kbd "<f8>")   'scheme-compile-file)
-    ((kbd "<M-f8>") 'scheme-load-file)))
+    ((kbd "<C-f8>") 'scheme-load-file)))
+
+(defun basis/geiser-map-keys ()
+  ;; Can't do this until the REPL is started because otherwise
+  ;; `geiser-mode-map' is null.
+  (basis/define-keys geiser-mode-map
+    ((kbd "<f5>")   'geiser-eval-last-sexp)
+    ((kbd "<f6>")   'basis/geiser-eval-something)
+    ((kbd "<C-f6>") 'basis/geiser-eval-something-and-go)
+    ((kbd "<f7>")   'basis/geiser-expand-something)
+    ((kbd "<C-f7>") 'geiser-expand-definition)
+    ((kbd "<f8>")   'geiser-eval-buffer)
+    ((kbd "<C-f8>") 'geiser-eval-buffer-and-go)))
+
+(add-hook 'geiser-mode-hook 'ac-geiser-setup)
+(add-hook 'geiser-repl-mode-hook 'ac-geiser-setup)
+(add-hook 'geiser-repl-mode-hook 'basis/geiser-map-keys)
 
 ;; smartparens -----------------------------------------------------------------
 
@@ -1345,7 +1319,6 @@ haven't looked into the root cause yet."
 ;; sql -------------------------------------------------------------------------
 
 (defun basis/init-sql-mode ()
-  (auto-complete-mode 1)
   (sql-set-product "postgres"))
 
 (add-hook 'sql-mode-hook 'basis/init-sql-mode)
@@ -1433,7 +1406,7 @@ haven't looked into the root cause yet."
 (add-hook 'sgml-mode-hook 'basis/init-simplezen)
 (add-hook 'html-mode-hook 'basis/init-html-mode)
 
-(after-load "sgml-mode"
+(after-load 'sgml-mode
   (require 'tagedit)
   (require 'simplezen)
   (basis/define-keys html-mode-map
