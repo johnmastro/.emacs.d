@@ -1136,21 +1136,10 @@ otherwise call `yas-insert-snippet'."
 
 (setq quack-default-program
       (if (eq system-type 'windows-nt)
-          "larceny"
+          "racket"
         "guile"))
 
 (require 'quack)
-
-(autoload 'scheme-smart-complete "scheme-complete" nil t)
-(autoload 'scheme-get-current-symbol-info "scheme-complete" nil t)
-
-(defun basis/enable-scheme-eldoc ()
-  "Enable ElDoc in Scheme mode, via scheme-complete."
-  (set (make-local-variable 'eldoc-documentation-function)
-       'scheme-get-current-symbol-info)
-  (eldoc-mode))
-
-(add-hook 'scheme-mode-hook 'basis/enable-scheme-eldoc)
 
 (after-load 'scheme
   (basis/define-keys scheme-mode-map
