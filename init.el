@@ -101,6 +101,7 @@
           geiser
           ac-geiser
           smartparens
+          color-theme-solarized
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
