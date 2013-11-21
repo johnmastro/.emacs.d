@@ -1185,8 +1185,14 @@ haven't looked into the root cause yet."
 
   ;; Don't insert single quotes as pairs in natural language-oriented modes.
   ;; They're apostrophes too often for it to be useful.
-  (sp-local-pair '(org-mode markdown-mode gfm-mode text-mode mu4e-compose-mode)
-                 "'" nil :actions '(:rem insert))
+  (let ((natural-language-modes '(org-mode
+                                  markdown-mode
+                                  gfm-mode
+                                  text-mode
+                                  mu4e-compose-mode
+                                  git-commit-mode)))
+    (sp-local-pair natural-language-modes
+                   "'" nil :actions '(:rem insert)))
 
   (basis/define-keys sp-keymap
     ((kbd "RET")    'basis/electric-return)
