@@ -114,6 +114,8 @@
 (require 'dash)
 (require 's)
 
+(dash-enable-font-lock)
+
 ;; Load custom functions
 (when (file-exists-p basis/defuns-file)
   (load basis/defuns-file))
@@ -262,10 +264,8 @@
 
 ;; interface -------------------------------------------------------------------
 
-(add-to-list 'custom-theme-load-path
-             (expand-file-name  "solarized/" basis/themes-dir))
-
 (setq solarized-termcolors 256)
+
 (load-theme 'solarized-dark t)
 
 (when (display-graphic-p)
@@ -908,7 +908,7 @@ otherwise call `yas-insert-snippet'."
 (defvar basis/lisp-modes
   '(emacs-lisp-mode
     lisp-interaction-mode
-    ielm
+    inferior-emacs-lisp-mode
     clojure-mode
     cider-repl-mode
     lisp-mode

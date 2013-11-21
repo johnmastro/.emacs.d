@@ -54,23 +54,28 @@ default of 80."
   (forward-line -1)
   (indent-according-to-mode))
 
-(defun basis/other-sexp-delimiter ()
-  "Move to a matching delimiter.
-Uses either `forward-sexp' or `backward-sexp' depending on the
-context at point."
-  ;; TODO: can this be made to work with quotes?
-  (interactive)
-  (cond ((looking-at (rx (syntax open-parenthesis)))  ; includes other brackets
-         (forward-sexp))
-        ((looking-back (rx (syntax close-parenthesis)))
-         (backward-sexp))))
-
 (defun basis/electric-return ()
   "Typical \"electric\" return, similar to that in CC Mode."
   (interactive)
   (when (memql (char-after) '(?\) ?\] ?}))
     (save-excursion (newline-and-indent)))
   (newline-and-indent))
+
+(defun basis/maybe-electric-return ()
+  "Conditionally call `basis/electric-return'.
+If the major mode active in the buffer is derived from
+`comint-mode', try to find and invoke that mode's binding for RET
+or <return>. If such a command can't be found, or the active
+major mode isn't derived from `comint-mode', call
+`basis/electric-return'."
+  (interactive)
+  (if (derived-mode-p 'comint-mode)
+      (-if-let* ((map (basis/find-mode-keymap major-mode))
+                 (cmd (or (lookup-key map "") ; "RET"
+                          (lookup-key map [return]))))
+          (call-interactively cmd)
+        (basis/electric-return))
+    (basis/electric-return)))
 
 ;; kill commands ---------------------------------------------------------------
 
@@ -119,7 +124,7 @@ Do not save the string to the the kill ring."
   (funcall interprogram-cut-function str))
 
 (defun basis/clipboard-save-something ()
-  "Save the region from BEG to END to the system clipboard."
+  "Save the region or buffer to the system clipboard."
   (interactive)
   (if (region-active-p)
       (let ((s (buffer-substring-no-properties (region-beginning)
@@ -587,6 +592,13 @@ If `linum-mode' was already enabled just call `goto-line'."
              aspell-installed-p)
     (flyspell-mode 1)))
 
+(defun basis/find-mode-keymap (mode)
+  "Find (by name) and return the keymap for MODE.
+If no keymap is found, return nil."
+  (let ((name (intern (concat (symbol-name mode) "-map"))))
+    (when (boundp name)
+      (symbol-value name))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
@@ -669,6 +681,18 @@ If `linum-mode' was already enabled just call `goto-line'."
 (defun basis/insert-right-bracket ()
   (interactive)
   (insert "]"))
+
+(defun basis/maybe-sp-forward-sexp ()
+  (interactive)
+  (if (memq major-mode '(python-mode inferior-python-mode))
+      (python-nav-forward-sexp)
+    (sp-forward-sexp)))
+
+(defun basis/maybe-sp-backward-sexp ()
+  (interactive)
+  (if (memq major-mode '(python-mode inferior-python-mode))
+      (basis/python-nav-backward-sexp)
+    (sp-backward-sexp)))
 
 ;; scheme/geiser ---------------------------------------------------------------
 
