@@ -69,17 +69,22 @@ or <return>. If such a command can't be found, or the active
 major mode isn't derived from `comint-mode', call
 `basis/electric-return'."
   (interactive)
-  (if (derived-mode-p 'comint-mode)
-      (-if-let* ((map (basis/find-mode-keymap major-mode))
-                 (cmd (or (lookup-key map "") ; "RET"
-                          (lookup-key map [return]))))
-          (call-interactively cmd)
-        (basis/electric-return))
-    (basis/electric-return)))
+  (cond ((derived-mode-p 'comint-mode)
+         (-if-let* ((map (basis/find-mode-keymap major-mode))
+                    (cmd (or (lookup-key map (kbd "RET"))
+                             (lookup-key map (kbd "<return>")))))
+             (call-interactively cmd)
+           (basis/electric-return)))
+        ((eq major-mode 'html-mode)
+         (basis/html-newline-and-indent))
+        (t
+         (basis/electric-return))))
 
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word (arg)
+  "Kill the region, or one or more words backward.
+If `subword-mode' is active, use `subword-backward-kill'."
   (interactive "p")
   (cond ((region-active-p)
          (kill-region (region-beginning) (region-end)))
@@ -201,6 +206,7 @@ on whether the region is active."
     (capitalize-word arg)))
 
 (defun basis/bounds-of-something (thing)
+  "Return the bounds of the active region, or THING."
   ;; Helper for `basis/toggle-case'
   (if (region-active-p)
       (cons (region-beginning) (region-end))
@@ -328,9 +334,11 @@ This is the same as using \\[set-mark-command] with the prefix argument."
       (find-file file))))
 
 (defun file-basename-sans-extension (filename)
+  "Return FILENAME's basename without its extension."
   (file-name-sans-extension (file-name-nondirectory filename)))
 
 (defun buffer-file-basename-sans-extension ()
+  "Return the buffer's file's basename without its extension."
   (file-basename-sans-extension (buffer-file-name)))
 
 (defun basis/kill-all-buffers ()
@@ -490,7 +498,7 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 ;; window utilities ------------------------------------------------------------
 
-(defun transpose-windows  (arg)
+(defun transpose-windows (arg)
   "Transpose the relative positions of two or more windows."
   (interactive "p")
   (let ((selector (if (>= arg 0) 'next-window 'previous-window)))
@@ -649,12 +657,15 @@ If no keymap is found, return nil."
 ;; smartparens -----------------------------------------------------------------
 
 (defun basis/sp-backward-kill-something (&optional arg)
+  "Call `sp-backward-kill-word' or `kill-region'. "
   (interactive "p")
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
     (sp-backward-kill-word arg)))
 
 (defmacro basis/with-sp-backward-delete (&rest body)
+  "Execute BODY with `sp-backward-delete-char' overriding
+`backward-delete-char' and `backward-delete-char-untabify'."
   (let ((arg (make-symbol "arg")))
     ;; Use Nic Ferrier's noflet instead? flet is deprecated and cl-flet doesn't
     ;; do the trick here.
@@ -682,17 +693,19 @@ If no keymap is found, return nil."
   (interactive)
   (insert "]"))
 
-(defun basis/maybe-sp-forward-sexp ()
-  (interactive)
-  (if (memq major-mode '(python-mode inferior-python-mode))
-      (python-nav-forward-sexp)
-    (sp-forward-sexp)))
+(defun basis/maybe-sp-forward-sexp (&optional arg)
+  (interactive "p")
+  (let ((arg (or arg 1)))
+    (if (memq major-mode '(python-mode inferior-python-mode))
+        (python-nav-forward-sexp arg)
+      (sp-forward-sexp arg))))
 
-(defun basis/maybe-sp-backward-sexp ()
-  (interactive)
-  (if (memq major-mode '(python-mode inferior-python-mode))
-      (basis/python-nav-backward-sexp)
-    (sp-backward-sexp)))
+(defun basis/maybe-sp-backward-sexp (&optional arg)
+  (interactive "p")
+  (let ((arg (or arg 1)))
+    (if (memq major-mode '(python-mode inferior-python-mode))
+        (basis/python-nav-backward-sexp arg)
+      (sp-backward-sexp arg))))
 
 ;; scheme/geiser ---------------------------------------------------------------
 
@@ -858,6 +871,30 @@ Use `slime-expand-1' to produce the expansion."
 If the last check found errors, set it to 0.5 or 5.0 otherwise."
   (setq flycheck-idle-change-delay
         (if flycheck-current-errors 0.5 5.0)))
+
+;; lorem ipsum -----------------------------------------------------------------
+
+(defvar basis/lorem-ipsum-file
+  (let ((filename (expand-file-name "~/.emacs.d/lorem-ipsum.txt")))
+    (when (file-exists-p filename)
+      filename)))
+
+(defvar basis/lorem-ipsum nil)
+
+(defun basis/insert-lorem-ipsum (&optional arg)
+  (interactive "P")
+  (if (not basis/lorem-ipsum-file)
+      (message "No lorem ipsum text found.")
+    (when (null basis/lorem-ipsum)
+      (setq basis/lorem-ipsum
+            (with-temp-buffer
+              (insert-file-contents basis/lorem-ipsum-file)
+              (s-split "\n\n"
+                       (buffer-substring-no-properties 1 (point-max))))))
+    (let ((arg (cond ((null arg) 1)
+                     ((consp arg) (car arg))
+                     (t arg))))
+      (insert (s-join "\n\n" (-take arg basis/lorem-ipsum))))))
 
 ;; selector stuff --------------------------------------------------------------
 

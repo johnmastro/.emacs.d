@@ -416,14 +416,6 @@
 ;; Expand-region
 (global-set-key (kbd "M-=") 'er/expand-region)
 
-;; Multiple cursors
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "<f9>") 'mc/mark-more-like-this-extended)
-
-(after-load 'multiple-cursors
-  (define-key mc/keymap (kbd "RET") 'multiple-cursors-mode))
-
 ;; Comment/uncomment stuff
 (global-set-key (kbd "s-;") 'basis/comment-or-uncomment)
 (global-set-key (kbd "C-c ;") 'basis/comment-or-uncomment)
@@ -585,37 +577,44 @@
       (let ((n (car spec))
             (k (cdr spec)))
         (basis/define-key-translations
-          ((format "M-[ 1 ; %d A" n)  (format "%s<up>" k))      ;; left arrow
-          ((format "M-[ 1 ; %d B" n)  (format "%s<down>" k))    ;; down arrow
-          ((format "M-[ 1 ; %d C" n)  (format "%s<right>" k))   ;; right arrow
-          ((format "M-[ 1 ; %d D" n)  (format "%s<left>" k))    ;; left arrow
-          ((format "M-[ 1 ; %d H" n)  (format "%s<home>" k))    ;; home
-          ((format "M-[ 1 ; %d F" n)  (format "%s<end>" k))     ;; end
-          ((format "M-[ 5 ; %d ~" n)  (format "%s<prior>" k))   ;; page up
-          ((format "M-[ 6 ; %d ~" n)  (format "%s<next>" k))    ;; page down
-          ((format "M-[ 2 ; %d ~" n)  (format "%s<delete>" k))  ;; insert
-          ((format "M-[ 3 ; %d ~" n)  (format "%s<delete>" k))  ;; delete
-          ((format "M-[ 1 ; %d P" n)  (format "%s<f1>" k))      ;; f1
-          ((format "M-[ 1 ; %d Q" n)  (format "%s<f2>" k))      ;; f2
-          ((format "M-[ 1 ; %d R" n)  (format "%s<f3>" k))      ;; f3
-          ((format "M-[ 1 ; %d S" n)  (format "%s<f4>" k))      ;; f4
-          ((format "M-[ 15 ; %d ~" n) (format "%s<f5>" k))      ;; f5
-          ((format "M-[ 17 ; %d ~" n) (format "%s<f6>" k))      ;; f6
-          ((format "M-[ 18 ; %d ~" n) (format "%s<f7>" k))      ;; f7
-          ((format "M-[ 19 ; %d ~" n) (format "%s<f8>" k))      ;; f8
-          ((format "M-[ 20 ; %d ~" n) (format "%s<f9>" k))      ;; f9
-          ((format "M-[ 21 ; %d ~" n) (format "%s<f10>" k))     ;; f10
-          ((format "M-[ 23 ; %d ~" n) (format "%s<f11>" k))     ;; f11
-          ((format "M-[ 24 ; %d ~" n) (format "%s<f12>" k))     ;; f12
-          ((format "M-[ 25 ; %d ~" n) (format "%s<f13>" k))     ;; f13
-          ((format "M-[ 26 ; %d ~" n) (format "%s<f14>" k))     ;; f14
-          ((format "M-[ 28 ; %d ~" n) (format "%s<f15>" k))     ;; f15
-          ((format "M-[ 29 ; %d ~" n) (format "%s<f16>" k))     ;; f16
-          ((format "M-[ 31 ; %d ~" n) (format "%s<f17>" k))     ;; f17
-          ((format "M-[ 32 ; %d ~" n) (format "%s<f18>" k))     ;; f18
-          ((format "M-[ 33 ; %d ~" n) (format "%s<f19>" k))     ;; f19
-          ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k)))))) ;; f20
+          ((format "M-[ 1 ; %d A" n)  (format "%s<up>" k))       ;; left arrow
+          ((format "M-[ 1 ; %d B" n)  (format "%s<down>" k))     ;; down arrow
+          ((format "M-[ 1 ; %d C" n)  (format "%s<right>" k))    ;; right arrow
+          ((format "M-[ 1 ; %d D" n)  (format "%s<left>" k))     ;; left arrow
+          ((format "M-[ 1 ; %d H" n)  (format "%s<home>" k))     ;; home
+          ((format "M-[ 1 ; %d F" n)  (format "%s<end>" k))      ;; end
+          ((format "M-[ 5 ; %d ~" n)  (format "%s<prior>" k))    ;; page up
+          ((format "M-[ 6 ; %d ~" n)  (format "%s<next>" k))     ;; page down
+          ((format "M-[ 2 ; %d ~" n)  (format "%s<delete>" k))   ;; insert
+          ((format "M-[ 3 ; %d ~" n)  (format "%s<delete>" k))   ;; delete
+          ((format "M-[ 1 ; %d P" n)  (format "%s<f1>" k))       ;; f1
+          ((format "M-[ 1 ; %d Q" n)  (format "%s<f2>" k))       ;; f2
+          ((format "M-[ 1 ; %d R" n)  (format "%s<f3>" k))       ;; f3
+          ((format "M-[ 1 ; %d S" n)  (format "%s<f4>" k))       ;; f4
+          ((format "M-[ 15 ; %d ~" n) (format "%s<f5>" k))       ;; f5
+          ((format "M-[ 17 ; %d ~" n) (format "%s<f6>" k))       ;; f6
+          ((format "M-[ 18 ; %d ~" n) (format "%s<f7>" k))       ;; f7
+          ((format "M-[ 19 ; %d ~" n) (format "%s<f8>" k))       ;; f8
+          ((format "M-[ 20 ; %d ~" n) (format "%s<f9>" k))       ;; f9
+          ((format "M-[ 21 ; %d ~" n) (format "%s<f10>" k))      ;; f10
+          ((format "M-[ 23 ; %d ~" n) (format "%s<f11>" k))      ;; f11
+          ((format "M-[ 24 ; %d ~" n) (format "%s<f12>" k))      ;; f12
+          ((format "M-[ 25 ; %d ~" n) (format "%s<f13>" k))      ;; f13
+          ((format "M-[ 26 ; %d ~" n) (format "%s<f14>" k))      ;; f14
+          ((format "M-[ 28 ; %d ~" n) (format "%s<f15>" k))      ;; f15
+          ((format "M-[ 29 ; %d ~" n) (format "%s<f16>" k))      ;; f16
+          ((format "M-[ 31 ; %d ~" n) (format "%s<f17>" k))      ;; f17
+          ((format "M-[ 32 ; %d ~" n) (format "%s<f18>" k))      ;; f18
+          ((format "M-[ 33 ; %d ~" n) (format "%s<f19>" k))      ;; f19
+          ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k))))))) ;; f20
 
+;; mintty ----------------------------------------------------------------------
+
+(defun basis/define-mintty-translations ()
+  "Define key translations to better support mintty."
+  ;; TODO: is there a way to automatically detect whether Emacs is running in
+  ;; mintty?
+  (interactive)
   (basis/define-key-translations
     ("M-[ 1 ; 6 l" "C-<")
     ("M-[ 1 ; 6 n" "C->")
@@ -646,6 +645,17 @@
 (key-chord-define-global "0-" 'delete-window)
 (key-chord-define-global "j2" 'split-window-below)
 (key-chord-define-global "j3" 'split-window-right)
+
+;; multiple-cursors ------------------------------------------------------------
+
+(require 'multiple-cursors)
+
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "<f9>") 'mc/mark-more-like-this-extended)
+
+;; Make RET exit multiple-cursors-mode in the terminal too
+(define-key mc/keymap (kbd "RET") 'multiple-cursors-mode)
 
 ;; saveplace -------------------------------------------------------------------
 
@@ -1188,6 +1198,8 @@ haven't looked into the root cause yet."
   (let ((natural-language-modes '(org-mode
                                   markdown-mode
                                   gfm-mode
+                                  rst-mode
+                                  html-mode
                                   text-mode
                                   mu4e-compose-mode
                                   git-commit-mode)))
@@ -1195,11 +1207,11 @@ haven't looked into the root cause yet."
                    "'" nil :actions '(:rem insert)))
 
   (basis/define-keys sp-keymap
-    ((kbd "RET")    'basis/electric-return)
+    ((kbd "RET")    'basis/maybe-electric-return)
     ((kbd "M-DEL")  'basis/sp-backward-kill-something)
     ((kbd "M-k")    'sp-kill-sexp)
-    ((kbd "M-e")    'sp-forward-sexp)
-    ((kbd "M-a")    'sp-backward-sexp)
+    ((kbd "M-e")    'basis/maybe-sp-forward-sexp)
+    ((kbd "M-a")    'basis/maybe-sp-backward-sexp)
     ((kbd "]")      'sp-up-sexp)
     ((kbd "M-]")    'basis/insert-right-bracket)))
 
@@ -1237,15 +1249,10 @@ haven't looked into the root cause yet."
 
 (after-load 'python
   (basis/define-keys python-mode-map
-    ((kbd "M-e")         'python-nav-forward-sexp)
-    ((kbd "M-a")         'basis/python-nav-backward-sexp)
     ((kbd "<f6>")        'basis/python-send-something)
     ((kbd "<f8>")        'python-shell-send-buffer)
     ((kbd "<M-f8>")      'python-shell-send-file)
-    ((kbd "DEL")         'basis/sp-python-backspace))
-  (basis/define-keys inferior-python-mode-map
-    ((kbd "RET")         'comint-send-input)
-    ((kbd "<return>")    'comint-send-input)))
+    ((kbd "DEL")         'basis/sp-python-backspace)))
 
 (when (basis/jedi-installed-p)
   ;; Jedi has 2 Python dependencies: jedi and epc
@@ -1254,18 +1261,11 @@ haven't looked into the root cause yet."
   (add-hook 'python-mode-hook 'jedi:setup))
 
 (defun basis/init-python-mode ()
-  (local-set-key (kbd "M-e") 'python-nav-forward-sexp)
-  (local-set-key (kbd "M-a") 'basis/python-nav-backward-sexp)
   (unless (and buffer-file-name
                (file-remote-p buffer-file-name))
     (flycheck-mode 1)))
 
-(defun basis/init-inferior-python-mode ()
-  (local-set-key (kbd "M-e") 'python-nav-forward-sexp)
-  (local-set-key (kbd "M-a") 'basis/python-nav-backward-sexp))
-
 (add-hook 'python-mode-hook 'basis/init-python-mode)
-(add-hook 'inferior-python-mode-hook 'basis/init-inferior-python-mode)
 
 ;; javascript ------------------------------------------------------------------
 
@@ -1314,14 +1314,15 @@ haven't looked into the root cause yet."
 
 ;; sql -------------------------------------------------------------------------
 
-(defun basis/init-sql-mode ()
-  (sql-set-product "postgres"))
-
-(add-hook 'sql-mode-hook 'basis/init-sql-mode)
-
 (after-load 'sql
-  (push (sql-font-lock-keywords-builder 'font-lock-builtin-face nil "elsif")
-        sql-mode-postgres-font-lock-keywords))
+  (sql-set-product "postgres")
+  ;; But I also work with other products and it's often easier not to switch
+  ;; `sql-product' around.
+  (let ((more-builtins '("elsif" "endif")))
+    (add-to-list
+     'sql-mode-postgres-font-lock-keywords
+     (apply #'sql-font-lock-keywords-builder
+            'font-lock-builtin-face nil more-builtins))))
 
 ;; c ---------------------------------------------------------------------------
 
