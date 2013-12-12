@@ -1103,6 +1103,14 @@ otherwise call `yas-insert-snippet'."
       (setq cider-server-command
             (s-replace "lein" cider-lein-command cider-server-command)))))
 
+(defun basis/setup-lein-path-for-cygwin ()
+  (let ((lein "/home/jbm/bin/lein"))
+    (when (file-exists-p lein)
+      (setq cider-lein-command lein)
+      (when (s-starts-with? "lein" cider-server-command)
+        (setq cider-server-command
+              (s-replace "lein" cider-lein-command cider-server-command))))))
+
 (defvar basis/clojure-indent-specs
   '((match 1)
     (query 1)
@@ -1123,8 +1131,10 @@ otherwise call `yas-insert-snippet'."
   (require 'pcmpl-lein))
 
 (after-load 'cider
-  (when (eq system-type 'darwin)
-    (basis/setup-lein-path-for-mac))
+  (cond ((eq system-type 'darwin)
+         (basis/setup-lein-path-for-mac))
+        (basis/cygwin-p
+         (basis/setup-lein-path-for-cygwin)))
 
   (add-hook 'cider-repl-mode-hook 'basis/init-cider-repl-mode)
   (add-hook 'cider-mode-hook 'basis/init-cider-mode)
