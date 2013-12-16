@@ -349,6 +349,26 @@ This is the same as using \\[set-mark-command] with the prefix argument."
       (kill-buffer buffer)))
   (delete-other-windows))
 
+(defun basis/open-file-manager (dir)
+  "Open a system file manager at DIR."
+  (interactive (list (ido-read-directory-name "Dir: ")))
+  (if (eq system-type 'windows-nt)
+      (w32-shell-execute "explore" dir)
+    (shell-command
+     (format "%s %s"
+             (case system-type
+               (gnu/linux  "nautilus")
+               (darwin     "open")
+               (otherwise (error "No file manager known for: " system-type)))
+             dir))))
+
+(defun basis/open-file-manager-here ()
+  "Open a file manager in the current file's directory."
+  (interactive)
+  (-if-let (file buffer-file-name)
+      (basis/open-file-manager (file-name-directory file))
+    (message "Buffer is not visiting a file.")))
+
 ;; key binding utilities -------------------------------------------------------
 
 (defmacro basis/define-hyper (keymap key def)
