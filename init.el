@@ -1112,7 +1112,13 @@ otherwise call `yas-insert-snippet'."
               (s-replace "lein" cider-lein-command cider-server-command))))))
 
 (defvar basis/clojure-indent-specs
-  '((match 1)
+  '((-> 1)
+    (->> 1)
+    (cond-> 1)
+    (cond->> 1)
+    (some-> 1)
+    (some->> 1)
+    (match 1)
     (query 1)
     (symbol-macrolet 1)
     (defsymbolmacro defun)
