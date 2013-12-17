@@ -421,28 +421,72 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   (end-of-buffer)
   (dired-next-line -1))
 
-;; macro utilities -------------------------------------------------------------
+;; emacs lisp ------------------------------------------------------------------
 
-(define-minor-mode basis/el-macroexpansion-mode
-  "Display Emacs Lisp macro expansions."
+(define-minor-mode basis/elisp-display-mode
+  "Display pretty-printed output macro expansions."
   :lighter nil
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "q") 'quit-window)
             map))
 
-(defun basis/expand-form (form)
-  "Macroexpand FORM and display the result."
-  (let ((expansion (macroexpand form))
-        (buffer (get-buffer-create "*el-macroexpansion*")))
+(defun basis/eval-something ()
+  "Eval the active region, if any; otherwise eval the toplevel form."
+  (interactive)
+  (if (region-active-p)
+      (eval-region (region-beginning)
+                   (region-end))
+    (eval-defun nil)))
+
+(defun basis/display-elisp (string &optional buffer-or-name)
+  (let ((buffer-or-name (or buffer-or-name "*Elisp Display*"))
+        (buffer (get-buffer-create buffer-or-name)))
     (with-current-buffer buffer
       (setq buffer-read-only nil)
       (erase-buffer)
-      (insert (with-output-to-string (pp expansion)))
+      (insert string)
       (emacs-lisp-mode)
-      (basis/el-macroexpansion-mode 1)
+      (basis/elisp-display-mode 1)
       (setq buffer-read-only t)
       (goto-char (point-min))
       (pop-to-buffer (current-buffer)))))
+
+(defun basis/pp-eval-form (form &optional insert)
+  "Eval FORM and pretty-print the result.
+If INSERT is nil, display the result in a read-only buffer.
+Otherwise, insert it into the current buffer."
+  (let ((result (pp-to-string (eval form))))
+    (if insert
+        (insert result)
+      (basis/display-elisp result "*PP Eval Output*"))))
+
+(defun basis/pp-eval-last-sexp (arg)
+  "Eval the last sexp and pretty-print the result.
+If arg is nil, display the result is a read-only buffer.
+Otherwise, insert the result into the current buffer."
+  (interactive "P")
+  (message "Evaluating...")
+  (basis/pp-eval-form (pp-last-sexp) arg))
+
+(defun basis/read-expression ()
+  "Read an expression from the minibuffer and return it."
+  (read-from-minibuffer
+   "Eval: " nil read-expression-map t 'read-expression-history))
+
+(defun basis/pp-eval-expression (arg)
+  "Read an expression, eval it, and pretty-print the result.
+If arg is nil, display the result is a read-only buffer.
+Otherwise, insert the result into the current buffer."
+  (interactive "P")
+  (let ((expr (basis/read-expression)))
+    (message "Evaluating... ")
+    (basis/pp-eval-form expr arg)))
+
+(defun basis/expand-form (form)
+  "Macroexpand FORM and display the result."
+  (let* ((expansion (macroexpand form))
+         (string (with-output-to-string (pp expansion))))
+    (basis/display-elisp string "*Elisp Macroexpansion*")))
 
 (defun basis/expand-something (thing)
   "Macroexpand the form designated by THING."
@@ -738,16 +782,6 @@ If no keymap is found, return nil."
   (let* ((cmd "python -c \"import jedi; import epc; exit()\"")
          (out (shell-command-to-string cmd)))
     (zerop (length out))))
-
-;; emacs lisp ------------------------------------------------------------------
-
-(defun basis/eval-something ()
-  "Eval the active region, if any; otherwise eval the toplevel form."
-  (interactive)
-  (if (region-active-p)
-      (eval-region (region-beginning)
-                   (region-end))
-    (eval-defun nil)))
 
 ;; slime -----------------------------------------------------------------------
 

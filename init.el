@@ -977,7 +977,7 @@ otherwise call `yas-insert-snippet'."
 
 (dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (basis/define-keys mode
-    ((kbd "<f5>") 'pp-eval-last-sexp)
+    ((kbd "<f5>") 'basis/pp-eval-last-sexp)
     ((kbd "<f6>") 'basis/eval-something)
     ((kbd "<f7>") 'basis/expand-sexp-at-point)
     ((kbd "<f8>") 'eval-buffer)))
