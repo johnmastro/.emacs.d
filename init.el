@@ -518,8 +518,7 @@
   ((kbd "C-h 1") 'delete-other-windows)
   ((kbd "C-h 2") 'split-window-below)
   ((kbd "C-h 3") 'split-window-right)
-  ((kbd "C-h r") ctl-x-r-map)
-  ((kbd "C-h c") 'basis/toggle-case))
+  ((kbd "C-h r") ctl-x-r-map))
 
 ;; find elisp map --------------------------------------------------------------
 
