@@ -1143,6 +1143,8 @@ otherwise call `yas-insert-snippet'."
 
   (setq cider-repl-use-pretty-printing t)
 
+  (global-set-key (kbd "<f10>") 'cider-selector)
+
   (define-key cider-repl-mode-map (kbd "RET") 'cider-repl-return)
 
   (basis/define-keys cider-mode-map
