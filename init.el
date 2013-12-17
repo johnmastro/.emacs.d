@@ -1252,14 +1252,20 @@ haven't looked into the root cause yet."
         (let ((map (make-sparse-keymap)))
           (basis/define-keys map
             ((kbd "c") 'flycheck-buffer)
-            ((kbd "i") 'flycheck-info)
             ((kbd "n") 'flycheck-next-error)
             ((kbd "p") 'flycheck-previous-error)
             ((kbd "l") 'flycheck-list-errors)
             ((kbd "s") 'flycheck-select-checker)
             ((kbd "C") 'flycheck-clear))
           map))
-  (global-set-key (kbd "s-k") basis/flycheck-keymap))
+  (global-set-key (kbd "C-h l") basis/flycheck-keymap)
+
+  ;; Keys for the errors buffer
+  (basis/define-keys flycheck-error-list-mode-map
+    ((kbd "n")   'compilation-next-error)
+    ((kbd "p")   'compilation-previous-error)
+    ((kbd "M-n") 'next-error)
+    ((kbd "M-p") 'previous-error)))
 
 ;; python ----------------------------------------------------------------------
 
