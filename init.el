@@ -1334,8 +1334,12 @@ haven't looked into the root cause yet."
 
 ;; sql -------------------------------------------------------------------------
 
+(defun basis/sql-set-product ()
+  (sql-set-product "postgres"))
+
+(add-hook 'sql-mode-hook 'basis/sql-set-product)
+
 (after-load 'sql
-  (sql-set-product "postgres")
   ;; But I also work with other products and it's often easier not to switch
   ;; `sql-product' around.
   (let ((more-builtins '("elsif" "endif")))
