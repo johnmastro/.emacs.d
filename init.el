@@ -103,6 +103,7 @@
           smartparens
           color-theme-solarized
           gist
+          clj-refactor
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -1082,7 +1083,9 @@ otherwise call `yas-insert-snippet'."
 ;; clojure ---------------------------------------------------------------------
 
 (defun basis/init-clojure-mode ()
-  (subword-mode))
+  (subword-mode)
+  (clj-refactor-mode 1)
+  (cljr-add-keybindings-with-prefix "C-h m"))
 
 (defun basis/init-cider-repl-mode ()
   (subword-mode)
