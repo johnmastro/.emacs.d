@@ -75,6 +75,7 @@
           redshank
           yaml-mode
           dash
+          dash-functional
           s
           move-text
           browse-kill-ring
@@ -115,6 +116,7 @@
 
 ;; Make dash and s available for use in defuns
 (require 'dash)
+(require 'dash-functional)
 (require 's)
 
 (dash-enable-font-lock)
