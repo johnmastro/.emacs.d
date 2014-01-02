@@ -506,18 +506,19 @@
 (global-set-key (kbd "M-h") 'basis/h-map)
 
 (basis/define-keys global-map
-  ((kbd "C-h a") 'beginning-of-defun)
-  ((kbd "C-h e") 'end-of-defun)
-  ((kbd "C-h f") 'ido-find-file)
-  ((kbd "C-h b") 'ido-switch-buffer)
-  ((kbd "C-h s") 'save-buffer)
-  ((kbd "C-h g") 'magit-status)
-  ((kbd "C-h i") 'imenu)
-  ((kbd "C-h 0") 'delete-window)
-  ((kbd "C-h 1") 'delete-other-windows)
-  ((kbd "C-h 2") 'split-window-below)
-  ((kbd "C-h 3") 'split-window-right)
-  ((kbd "C-h r") ctl-x-r-map))
+  ((kbd "C-h a")   'beginning-of-defun)
+  ((kbd "C-h e")   'end-of-defun)
+  ((kbd "C-h f")   'ido-find-file)
+  ((kbd "C-h b")   'ido-switch-buffer)
+  ((kbd "C-h s")   'save-buffer)
+  ((kbd "C-h g")   'magit-status)
+  ((kbd "C-h i")   'imenu)
+  ((kbd "C-h 0")   'delete-window)
+  ((kbd "C-h 1")   'delete-other-windows)
+  ((kbd "C-h 2")   'split-window-below)
+  ((kbd "C-h 3")   'split-window-right)
+  ((kbd "C-h r")   ctl-x-r-map)
+  ((kbd "C-h C-h") 'mark-paragraph))
 
 ;; find elisp map --------------------------------------------------------------
 
