@@ -30,10 +30,6 @@
 (add-to-list 'load-path basis/site-lisp-dir)
 (add-to-list 'load-path (expand-file-name "tramp-2.2.7/" basis/site-lisp-dir))
 
-;; Info is awesome
-(when (file-exists-p "~/.emacs.d/doc/info")
-  (add-to-list 'Info-default-directory-list "~/.emacs.d/doc/info"))
-
 ;; package ---------------------------------------------------------------------
 
 (require 'package)
@@ -317,6 +313,13 @@
   (diminish 'whitespace-mode))
 (after-load 'guide-key
   (diminish 'guide-key-mode))
+
+;; info ------------------------------------------------------------------------
+
+(after-load 'info
+  (let ((info-path (expand-file-name "~/.emacs.d/doc/info")))
+    (when (file-exists-p info-path)
+      (add-to-list 'Info-additional-directory-list info-path))))
 
 ;; uniquify --------------------------------------------------------------------
 
