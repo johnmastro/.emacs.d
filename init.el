@@ -105,6 +105,7 @@
           color-theme-solarized
           gist
           clj-refactor
+          discover
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -201,7 +202,6 @@
 (show-paren-mode 1)
 (cua-selection-mode 1)
 (auto-compression-mode 1)
-(global-undo-tree-mode 1)
 (delete-selection-mode 1)
 
 ;; TRAMP
@@ -512,7 +512,6 @@
   ((kbd "C-h e")   'end-of-defun)
   ((kbd "C-h f")   'ido-find-file)
   ((kbd "C-h b")   'ido-switch-buffer)
-  ((kbd "C-h s")   'save-buffer)
   ((kbd "C-h g")   'magit-status)
   ((kbd "C-h i")   'imenu)
   ((kbd "C-h 0")   'delete-window)
@@ -628,10 +627,21 @@
   (define-key help-mode-map (kbd "b") 'help-go-back)
   (define-key help-mode-map (kbd "f") 'help-go-forward))
 
+;; discover-mode ---------------------------------------------------------------
+
+(require 'discover)
+(global-discover-mode 1)
+
+(discover-add-context-menu
+ :context-menu (assq 'isearch discover-context-menus)
+ :mode nil
+ :mode-hook nil
+ :bind "C-c s")
+
 ;; guide-key -------------------------------------------------------------------
 
 (guide-key-mode 1)
-(setq guide-key/guide-key-sequence '("C-x r" "C-x 4" "C-x v" "C-x 8"))
+(setq guide-key/guide-key-sequence '("C-x 4" "C-x v" "C-x 8"))
 
 ;; key-chord -------------------------------------------------------------------
 
@@ -646,6 +656,14 @@
 (key-chord-define-global "0-" 'delete-window)
 (key-chord-define-global "j2" 'split-window-below)
 (key-chord-define-global "j3" 'split-window-right)
+
+;; undo-tree -------------------------------------------------------------------
+
+(global-undo-tree-mode 1)
+
+;; The couple bindings undo-tree puts behind C-x r prevent discover.el's C-x r
+;; context menu from working
+(define-key undo-tree-map (kbd "C-x r") nil)
 
 ;; multiple-cursors ------------------------------------------------------------
 
