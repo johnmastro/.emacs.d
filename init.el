@@ -1146,7 +1146,10 @@ otherwise call `yas-insert-snippet'."
     (query 1)
     (symbol-macrolet 1)
     (defsymbolmacro defun)
-    (with-symbol-macros defun))
+    (with-symbol-macros defun)
+    (run 2)
+    (run* 1)
+    (fresh 1))
   "Additional form indentation settings for `clojure-mode'.")
 
 (after-load 'clojure-mode
