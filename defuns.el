@@ -434,8 +434,9 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
   (if (region-active-p)
-      (eval-region (region-beginning)
-                   (region-end))
+      (prog1 (eval-region (region-beginning)
+                          (region-end))
+        (setq deactivate-mark t))
     (eval-defun nil)))
 
 (defun basis/display-elisp (string &optional buffer-or-name)
