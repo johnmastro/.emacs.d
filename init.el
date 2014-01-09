@@ -690,6 +690,48 @@
 ;; Make RET exit multiple-cursors-mode in the terminal too
 (define-key mc/keymap (kbd "RET") 'multiple-cursors-mode)
 
+;; `multiple-cursors' automatically stores lists of for-all and just-once
+;; commands in ~/.emacs.d/.mc-lists.el. However, bouncing between machines
+;; means being prompted about some commands repeatedly; so, I pre-populate it
+;; with some of the more common ones that aren't covered by mc's defaults.
+(dolist (cmd '(backward-kill-sexp
+               backward-sexp
+               basis/paredit-kill-something
+               basis/paredit-wrap-round-from-behind
+               beginning-of-line-or-indentation
+               delete-horizontal-space
+               forward-sexp
+               kill-line-backward
+               kill-sexp
+               markdown-exdent-or-delete
+               org-delete-char
+               org-self-insert-command
+               paredit-backward
+               paredit-backward-kill-word
+               paredit-forward
+               paredit-forward-delete
+               paredit-forward-kill-word
+               paredit-splice-sexp
+               paredit-split-sexp
+               paredit-wrap-round
+               sp--self-insert-command
+               sp-backward-delete-char
+               sp-backward-delete-char
+               sp-backward-kill-sexp
+               sp-backward-kill-word
+               sp-backward-sexp
+               sp-delete-char
+               sp-forward-sexp
+               sp-kill-sexp
+               sp-kill-word))
+  (add-to-list 'mc/cmds-to-run-for-all cmd))
+
+(dolist (cmd '(eval-buffer
+               isearch-backward-regexp
+               isearch-forward-regexp
+               smex))
+  (add-to-list 'mc/cmds-to-run-once cmd))
+
 ;; saveplace -------------------------------------------------------------------
 
 (require 'saveplace)
