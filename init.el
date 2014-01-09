@@ -296,6 +296,8 @@
   (diminish 'smartparens-mode " φ"))        ; phi
 (after-load 'tagedit
   (diminish 'tagedit-mode " τ"))            ; tau
+(after-load 'flyspell
+  (diminish 'flyspell-mode " ι"))           ; iota
 (after-load 'skewer-mode
   (diminish 'skewer-mode " σ"))             ; sigma
 (after-load 'skewer-html
