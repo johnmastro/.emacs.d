@@ -630,6 +630,13 @@
   (define-key help-mode-map (kbd "b") 'help-go-back)
   (define-key help-mode-map (kbd "f") 'help-go-forward))
 
+;; diff-mode -------------------------------------------------------------------
+
+(after-load 'diff-mode
+  ;; Don't shadow my beloved `other-window' binding. `diff-goto-source' is
+  ;; still available on C-c C-c.
+  (define-key diff-mode-map (kbd "M-o") nil))
+
 ;; discover-mode ---------------------------------------------------------------
 
 (require 'discover)
