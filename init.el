@@ -153,6 +153,7 @@
       inhibit-startup-screen t
       inhibit-startup-message t
       initial-scratch-message nil
+      initial-major-mode 'emacs-lisp-mode
       confirm-nonexistent-file-or-buffer nil
       sentence-end-double-space nil
       indicate-empty-lines t
