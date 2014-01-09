@@ -315,6 +315,8 @@
   (diminish 'whitespace-mode))
 (after-load 'guide-key
   (diminish 'guide-key-mode))
+(after-load 'clj-refactor
+  (diminish 'clj-refactor-mode))
 
 ;; info ------------------------------------------------------------------------
 
