@@ -559,6 +559,10 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
                regexp
                nlines))
 
+(defun basis/multi-occur-this-mode (regexp &optional nlines)
+  (interactive (occur-read-primary-args))
+  (basis/multi-occur-by-mode major-mode regexp nlines))
+
 ;; window utilities ------------------------------------------------------------
 
 (defun transpose-windows (arg)
