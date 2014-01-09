@@ -652,13 +652,15 @@
 
 (key-chord-mode 1)
 
-(key-chord-define-global "jk" 'ace-jump-word-mode)
-(key-chord-define-global ",." 'ido-switch-buffer)
-(key-chord-define-global ",," 'ibuffer)
-(key-chord-define-global "`1" 'delete-other-windows)
-(key-chord-define-global "0-" 'delete-window)
-(key-chord-define-global "j2" 'split-window-below)
-(key-chord-define-global "j3" 'split-window-right)
+(dolist (entry '(("jk" . ace-jump-word-mode)
+                 (",." . ido-switch-buffer)
+                 (",," . ibuffer)
+                 ("`1" . delete-other-windows)
+                 ("0-" . delete-window)
+                 ("j2" . split-window-below)
+                 ("j3" . split-window-right)
+                 (" 9" . "(")))
+  (key-chord-define-global (car entry) (cdr entry)))
 
 ;; undo-tree -------------------------------------------------------------------
 
