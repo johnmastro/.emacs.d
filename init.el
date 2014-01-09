@@ -292,7 +292,7 @@
 (after-load 'yasnippet
   (diminish 'yas-minor-mode " υ"))          ; upsilon
 (after-load 'smartparens
-  (diminish 'smartparens-mode " φ"))        ; psi
+  (diminish 'smartparens-mode " φ"))        ; phi
 (after-load 'tagedit
   (diminish 'tagedit-mode " τ"))            ; tau
 (after-load 'skewer-mode
