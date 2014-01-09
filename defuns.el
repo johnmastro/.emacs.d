@@ -502,6 +502,12 @@ Otherwise, insert the result into the current buffer."
   (interactive)
   (basis/expand-something 'defun))
 
+(defun basis/eval-last-sexp (&optional arg)
+  (interactive "P")
+  (if arg
+      (basis/pp-eval-last-sexp nil)
+    (eval-last-sexp nil)))
+
 (defmacro with-unique-names (names &rest body)
   "Create unique names for use in a macro definition.
 This idea also goes by the name `with-gensyms` in Common Lisp."
