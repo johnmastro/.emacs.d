@@ -527,6 +527,38 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
                         ,@(cdr clause))))
                 clauses))))
 
+;; occur -----------------------------------------------------------------------
+
+(defun basis/active-major-modes ()
+  "Return a list of major modes for which a buffer is active."
+  (-distinct (mapcar #'(lambda (buffer)
+                         (with-current-buffer buffer
+                           major-mode))
+                     (buffer-list))))
+
+(defun basis/find-mode-buffers (mode)
+  "Return a list of the buffers whose major mode is MODE."
+  (-filter #'(lambda (buffer)
+               (with-current-buffer buffer
+                 (eq mode major-mode)))
+           (buffer-list)))
+
+(defun basis/ido-read-mode (prompt &optional choices)
+  "Read the name of a major mode.
+Optional argument CHOICES should, if provided, be a list of
+symbols naming major modes."
+  (let ((choices (or choices (basis/active-major-modes))))
+    (intern (ido-completing-read "Mode: " (mapcar #'symbol-name choices)))))
+
+(defun basis/multi-occur-by-mode (mode regexp &optional nlines)
+  "Run `multi-occur' on all buffers in MODE.
+REGEXP and NLINES are passed on to `multi-occur' unchanged."
+  (interactive (cons (basis/ido-read-mode "Mode: ")
+                     (occur-read-primary-args)))
+  (multi-occur (basis/find-mode-buffers mode)
+               regexp
+               nlines))
+
 ;; window utilities ------------------------------------------------------------
 
 (defun transpose-windows (arg)
