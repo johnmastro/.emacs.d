@@ -14,4 +14,5 @@
 /.mc-lists.el
 /bookmarks
 /.ac-comphist.dat
-projectile.cache
+.projectile.cache
+.projectile-bookmarks.eld

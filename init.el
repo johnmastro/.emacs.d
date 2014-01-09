@@ -991,6 +991,31 @@ otherwise call `yas-insert-snippet'."
 
 (yas-global-mode 1)
 
+;; projectile ------------------------------------------------------------------
+
+(setq projectile-keymap-prefix (kbd "C-h p")
+      projectile-completion-system 'ido
+      projectile-mode-line " ρ")  ; rho
+
+(setq projectile-known-projects-file
+      (expand-file-name "~/.emacs.d/.projectile-bookmarks.eld"))
+
+(setq projectile-cache-file
+      (expand-file-name "~/.emacs.d/.projectile.cache"))
+
+;; Projectile defaults to native indexing on Windows, but if we have Cygwin
+;; set up we can use "alien".
+(if (and (eq system-type 'windows-nt)
+         (not basis/cygwin-p))
+    (setq projectile-indexing-method 'native
+          projectile-enable-caching t)
+  (setq projectile-indexing-method 'alien
+        projectile-enable-caching nil))
+
+(projectile-global-mode)
+
+(setq projectile-mode-line-lighter " ρ")
+
 ;; lisp ------------------------------------------------------------------------
 
 (defvar basis/lisp-modes
