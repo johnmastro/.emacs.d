@@ -219,8 +219,9 @@
 
 ;; recentf
 (recentf-mode 1)
-(setq recentf-max-saved-items 50)
-(setq recentf-save-file (expand-file-name ".recentf" basis/emacs-dir))
+(setq recentf-max-saved-items 50
+      recentf-save-file (expand-file-name ".recentf" basis/emacs-dir)
+      recentf-exclude '(file-remote-p))
 
 ;; safe local variables
 (add-to-list 'safe-local-variable-values '(lexical-binding . t))
