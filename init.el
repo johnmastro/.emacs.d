@@ -1225,6 +1225,7 @@ otherwise call `yas-insert-snippet'."
     (cond->> 1)
     (some-> 1)
     (some->> 1)
+    (add-watch 2)
     (match 1)
     (query 1)
     (symbol-macrolet 1)
