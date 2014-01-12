@@ -882,7 +882,8 @@
     ((kbd "M-a")                 'dired-prev-dirline)
     ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
     ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
-  (setq dired-recursive-deletes 'top)
+  (setq dired-omit-files "^\\.?#" ; don't omit . and ..
+        dired-recursive-deletes 'top)
   (put 'dired-find-alternate-file 'disabled nil))
 
 ;; eshell ----------------------------------------------------------------------
