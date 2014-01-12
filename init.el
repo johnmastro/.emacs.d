@@ -975,6 +975,8 @@
 
 ;; yasnippet -------------------------------------------------------------------
 
+(add-to-list 'auto-mode-alist '("\\.yasnippet\\'" . snippet-mode))
+
 (defun basis/yas-expand-or-insert ()
   "Call `yas-expand' or `yas-insert-snippet' depending on context.
 If point is after what might be a snippet key, call `yas-expand',
