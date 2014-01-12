@@ -1417,12 +1417,12 @@ haven't looked into the root cause yet."
 (setq js2-basic-offset 2)
 
 (after-load 'js2-mode
-  (require 'js2-refactor)
-  (js2r-add-keybindings-with-prefix "M-r")
-  (js2-imenu-extras-setup))
+  (js2r-add-keybindings-with-prefix "C-h C-j"))
 
 (defun basis/init-js2-mode ()
-  (subword-mode 1))
+  (subword-mode 1)
+  (ac-js2-mode 1)
+  (js2-imenu-extras-setup))
 
 (add-hook 'js2-mode-hook 'basis/init-js2-mode)
 
