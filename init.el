@@ -1340,6 +1340,13 @@ haven't looked into the root cause yet."
     (sp-local-pair natural-language-modes
                    "'" nil :actions '(:rem insert)))
 
+  ;; Also ignore single quotes in strings and comments since these are, again,
+  ;; very likely apostrophes.
+  (sp-pair "'"
+           nil
+           :unless '(sp-in-comment-p sp-in-string-p)
+           :actions '(insert wrap autoskip))
+
   (basis/define-keys sp-keymap
     ((kbd "RET")    'basis/maybe-electric-return)
     ((kbd "M-DEL")  'basis/sp-backward-kill-something)
