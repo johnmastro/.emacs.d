@@ -633,8 +633,11 @@
 ;; help-mode -------------------------------------------------------------------
 
 (after-load 'help-mode
-  (define-key help-mode-map (kbd "b") 'help-go-back)
-  (define-key help-mode-map (kbd "f") 'help-go-forward))
+  (basis/define-keys help-mode-map
+    ((kbd "n") 'next-line)
+    ((kbd "p") 'previous-line)
+    ((kbd "b") 'help-go-back)
+    ((kbd "f") 'help-go-forward)))
 
 ;; diff-mode -------------------------------------------------------------------
 
