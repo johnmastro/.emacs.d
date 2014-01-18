@@ -183,16 +183,6 @@
 
 (setq tab-stop-list (number-sequence 4 120 4))
 
-;; Whitespace mode in programming modes except REPL/shell-style modes
-(defun maybe-turn-on-whitespace-mode ()
-  (interactive)
-  (unless (or (derived-mode-p 'comint-mode)
-              (eq major-mode 'eshell-mode)
-              (eq major-mode 'cider-repl-mode))
-    (whitespace-mode 1)))
-
-(add-hook 'prog-mode-hook 'maybe-turn-on-whitespace-mode)
-
 ;; Enable some miscellaneous helpful modes
 (size-indication-mode 1)
 (global-hl-line-mode 1)
@@ -638,6 +628,26 @@
     ((kbd "p") 'previous-line)
     ((kbd "b") 'help-go-back)
     ((kbd "f") 'help-go-forward)))
+
+;; prog-mode -------------------------------------------------------------------
+
+(defun basis/maybe-enable-whitespace-mode ()
+  "Enable `whitespace-mode' in programming modes (but not REPLs)."
+  (interactive)
+  (unless (or (derived-mode-p 'comint-mode)
+              (eq major-mode 'eshell-mode)
+              (eq major-mode 'cider-repl-mode))
+    (whitespace-mode 1)))
+
+(add-hook 'prog-mode-hook 'basis/maybe-enable-whitespace-mode)
+
+(defun basis/maybe-enable-flyspell-prog-mode ()
+  "Enable `flyspell-prog-mode' in programming modes for local files."
+  (when (and buffer-file-name
+             (not (file-remote-p buffer-file-name)))
+    (flyspell-prog-mode)))
+
+(add-hook 'prog-mode-hook 'basis/maybe-enable-flyspell-prog-mode)
 
 ;; diff-mode -------------------------------------------------------------------
 
