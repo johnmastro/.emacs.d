@@ -973,6 +973,8 @@
 
 ;; yasnippet -------------------------------------------------------------------
 
+(require 'yasnippet)
+
 (add-to-list 'auto-mode-alist '("\\.yasnippet\\'" . snippet-mode))
 
 (defun basis/yas-expand-or-insert ()
@@ -983,9 +985,10 @@ otherwise call `yas-insert-snippet'."
   (call-interactively
    (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
 
-(after-load 'yasnippet
-  (basis/define-hyper global-map "TAB" 'basis/yas-expand-or-insert)
-  (define-key yas-keymap (kbd "RET") 'yas-exit-all-snippets))
+;; Steal C-t for expanding snippets. `transpose-chars' is still available on
+;; M-t c
+(define-key yas-keymap (kbd "C-t") 'basis/yas-expand-or-insert)
+(define-key yas-keymap (kbd "RET") 'yas-exit-all-snippets)
 
 (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
       yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
