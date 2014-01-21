@@ -1427,7 +1427,8 @@ haven't looked into the root cause yet."
 (setq js2-basic-offset 2)
 
 (after-load 'js2-mode
-  (js2r-add-keybindings-with-prefix "C-h C-j"))
+  (js2r-add-keybindings-with-prefix "C-h C-j")
+  (define-key js2-mode-map (kbd "C-;") 'basis/eol-maybe-semicolon))
 
 (defun basis/init-js2-mode ()
   (subword-mode 1)

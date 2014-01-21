@@ -80,6 +80,12 @@ major mode isn't derived from `comint-mode', call
         (t
          (basis/electric-return))))
 
+(defun basis/eol-maybe-semicolon ()
+  (interactive)
+  (move-end-of-line)
+  (unless (looking-back ";")
+    (insert ";")))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word (arg)
