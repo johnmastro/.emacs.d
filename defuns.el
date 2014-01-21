@@ -668,6 +668,20 @@ If `linum-mode' was already enabled just call `goto-line'."
              aspell-installed-p)
     (flyspell-mode 1)))
 
+(defun basis/maybe-enable-flyspell-prog-mode ()
+  "Enable `flyspell-prog-mode' in programming modes for local files."
+  (when (and buffer-file-name
+             (not (file-remote-p buffer-file-name)))
+    (flyspell-prog-mode)))
+
+(defun basis/maybe-enable-whitespace-mode ()
+  "Enable `whitespace-mode' in programming modes (but not REPLs)."
+  (interactive)
+  (unless (or (derived-mode-p 'comint-mode)
+              (eq major-mode 'eshell-mode)
+              (eq major-mode 'cider-repl-mode))
+    (whitespace-mode 1)))
+
 (defun basis/find-mode-keymap (mode)
   "Find (by name) and return the keymap for MODE.
 If no keymap is found, return nil."

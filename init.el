@@ -631,22 +631,7 @@
 
 ;; prog-mode -------------------------------------------------------------------
 
-(defun basis/maybe-enable-whitespace-mode ()
-  "Enable `whitespace-mode' in programming modes (but not REPLs)."
-  (interactive)
-  (unless (or (derived-mode-p 'comint-mode)
-              (eq major-mode 'eshell-mode)
-              (eq major-mode 'cider-repl-mode))
-    (whitespace-mode 1)))
-
 (add-hook 'prog-mode-hook 'basis/maybe-enable-whitespace-mode)
-
-(defun basis/maybe-enable-flyspell-prog-mode ()
-  "Enable `flyspell-prog-mode' in programming modes for local files."
-  (when (and buffer-file-name
-             (not (file-remote-p buffer-file-name)))
-    (flyspell-prog-mode)))
-
 (add-hook 'prog-mode-hook 'basis/maybe-enable-flyspell-prog-mode)
 
 ;; diff-mode -------------------------------------------------------------------
