@@ -987,7 +987,7 @@ otherwise call `yas-insert-snippet'."
 
 ;; Steal C-t for expanding snippets. `transpose-chars' is still available on
 ;; M-t c
-(define-key yas-keymap (kbd "C-t") 'basis/yas-expand-or-insert)
+(define-key yas-minor-mode-map (kbd "C-t") 'basis/yas-expand-or-insert)
 (define-key yas-keymap (kbd "RET") 'yas-exit-all-snippets)
 
 (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
