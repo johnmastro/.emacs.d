@@ -1325,24 +1325,9 @@ haven't looked into the root cause yet."
 
   (sp-use-paredit-bindings)
 
-  ;; Don't insert single quotes as pairs in natural language-oriented modes.
-  ;; They're apostrophes too often for it to be useful.
-  (let ((natural-language-modes '(org-mode
-                                  markdown-mode
-                                  gfm-mode
-                                  rst-mode
-                                  html-mode
-                                  text-mode
-                                  mu4e-compose-mode
-                                  git-commit-mode)))
-    (sp-local-pair natural-language-modes
-                   "'" nil :actions '(:rem insert)))
-
-  ;; Also ignore single quotes in strings and comments since these are, again,
-  ;; very likely apostrophes.
   (sp-pair "'"
            nil
-           :unless '(sp-in-comment-p sp-in-string-p)
+           :unless '(sp-point-after-word-p)
            :actions '(insert wrap autoskip))
 
   (basis/define-keys sp-keymap
