@@ -846,6 +846,12 @@ If no keymap is found, return nil."
          (out (shell-command-to-string cmd)))
     (zerop (length out))))
 
+(defun basis/insert-python-docstring-quotes ()
+  "Insert the 6 double quotes for a Python docstring."
+  (interactive)
+  (insert (s-repeat 6 "\""))
+  (backward-char 3))
+
 ;; slime -----------------------------------------------------------------------
 
 (defun basis/slime-eval-something ()
