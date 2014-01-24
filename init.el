@@ -293,6 +293,8 @@
   (diminish 'smartparens-mode " φ"))        ; phi
 (after-load 'tagedit
   (diminish 'tagedit-mode " τ"))            ; tau
+(after-load 'flycheck
+  (diminish 'flycheck-mode " χ"))           ; chi
 (after-load 'flyspell
   (diminish 'flyspell-mode " ι"))           ; iota
 (after-load 'skewer-mode
