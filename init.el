@@ -262,14 +262,12 @@
 (load-theme 'solarized-dark t)
 
 (defun basis/get-frame-title ()
-  (let ((name (-if-let (file buffer-file-name)
-                  (abbreviate-file-name file)
-                "%b"))
-        (proj (when (bound-and-true-p projectile-mode)
-                (projectile-project-name))))
-    (if proj
-        (concat name (format " [%s]" (projectile-project-name)))
-      name)))
+  (-if-let (file buffer-file-name)
+      (concat (abbreviate-file-name file)
+              (when (and (bound-and-true-p projectile-mode)
+                         (projectile-project-p))
+                (format " [%s]" (projectile-project-name))))
+    "%b"))
 
 (when (display-graphic-p)
   (setq frame-title-format
