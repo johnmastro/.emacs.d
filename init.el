@@ -682,6 +682,12 @@
                  (" 9" . "(")))
   (key-chord-define-global (car entry) (cdr entry)))
 
+(defun basis/define-more-bracket-chords (&optional keymap)
+  (interactive)
+  (let ((keymap (or keymap global-map)))
+    (key-chord-define keymap " [" "{")
+    (key-chord-define keymap " ," "<")))
+
 ;; undo-tree -------------------------------------------------------------------
 
 (global-undo-tree-mode 1)
