@@ -261,18 +261,25 @@
 
 (load-theme 'solarized-dark t)
 
+(defun basis/get-frame-title ()
+  (let ((name (-if-let (file buffer-file-name)
+                  (abbreviate-file-name file)
+                "%b"))
+        (proj (when (bound-and-true-p projectile-mode)
+                (projectile-project-name))))
+    (if proj
+        (concat name (format " [%s]" (projectile-project-name)))
+      name)))
+
 (when (display-graphic-p)
   (setq frame-title-format
-        '((:eval (if (buffer-file-name)
-                     (abbreviate-file-name (buffer-file-name))
-                   "%b"))))
+        '((:eval (basis/get-frame-title))))
   (-when-let (default-font
                (case system-type
                  (gnu/linux  "Inconsolata-11")
                  (darwin     "Andale Mono-12")
                  (windows-nt "Consolas-10")))
     (set-face-attribute 'default nil :font default-font)))
-
 
 (after-load 'paredit
   (diminish 'paredit-mode " π"))            ; pi
@@ -309,6 +316,8 @@
   (diminish 'guide-key-mode))
 (after-load 'clj-refactor
   (diminish 'clj-refactor-mode))
+(after-load 'projectile
+  (diminish 'projectile-mode))
 
 ;; info ------------------------------------------------------------------------
 
@@ -1000,8 +1009,7 @@ otherwise call `yas-insert-snippet'."
 ;; projectile ------------------------------------------------------------------
 
 (setq projectile-keymap-prefix (kbd "C-h p")
-      projectile-completion-system 'ido
-      projectile-mode-line " ρ")  ; rho
+      projectile-completion-system 'ido)
 
 (setq projectile-known-projects-file
       (expand-file-name "~/.emacs.d/.projectile-bookmarks.eld"))
@@ -1019,8 +1027,6 @@ otherwise call `yas-insert-snippet'."
         projectile-enable-caching nil))
 
 (projectile-global-mode)
-
-(setq projectile-mode-line-lighter " ρ")
 
 ;; lisp ------------------------------------------------------------------------
 
