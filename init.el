@@ -1342,6 +1342,8 @@ haven't looked into the root cause yet."
            :unless '(sp-point-after-word-p)
            :actions '(insert wrap autoskip))
 
+  (sp-local-pair 'org-mode "=" "=" :actions '(wrap))
+
   (basis/define-keys sp-keymap
     ((kbd "RET")    'basis/maybe-electric-return)
     ((kbd "M-DEL")  'basis/sp-backward-kill-something)
