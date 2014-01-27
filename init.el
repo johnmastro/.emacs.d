@@ -1467,7 +1467,7 @@ haven't looked into the root cause yet."
 (after-load 'sql
   ;; But I also work with other products and it's often easier not to switch
   ;; `sql-product' around.
-  (let ((more-builtins '("elsif" "endif")))
+  (let ((more-builtins '("elsif" "endif" "while")))
     (add-to-list
      'sql-mode-postgres-font-lock-keywords
      (apply #'sql-font-lock-keywords-builder
