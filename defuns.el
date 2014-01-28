@@ -19,7 +19,7 @@ there, to the beginning of the line."
 (defun basis/comment-or-uncomment ()
   "Comment or uncomment the active region or current line."
   (interactive)
-  (let ((reg-p (region-active-p)))
+  (let ((reg-p (use-region-p)))
     (save-excursion
       (comment-or-uncomment-region
        (if reg-p (region-beginning) (line-beginning-position))
@@ -92,7 +92,7 @@ major mode isn't derived from `comint-mode', call
   "Kill the region, or one or more words backward.
 If `subword-mode' is active, use `subword-backward-kill'."
   (interactive "p")
-  (cond ((region-active-p)
+  (cond ((use-region-p)
          (kill-region (region-beginning) (region-end)))
         ((bound-and-true-p subword-mode)
          (subword-backward-kill arg))
@@ -120,7 +120,7 @@ If `subword-mode' is active, use `subword-backward-kill'."
 (defun basis/kill-ring-save-something ()
   "Save the contents of the active region or the current line."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (kill-ring-save (region-beginning) (region-end))
     (kill-ring-save (line-beginning-position) (line-end-position))))
 
@@ -137,7 +137,7 @@ Do not save the string to the the kill ring."
 (defun basis/clipboard-save-something ()
   "Save the region or buffer to the system clipboard."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (let ((s (buffer-substring-no-properties (region-beginning)
                                                (region-end))))
         (basis/clipboard-save-string s)
@@ -175,7 +175,7 @@ Do not save the string to the the kill ring."
 Save the region if one is currently active, otherwise save the
 whole buffer."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (let ((s (basis/buffer-substring-indented (region-beginning)
                                                 (region-end))))
         (kill-new s)
@@ -189,7 +189,7 @@ whole buffer."
 This will call `upcase-region' or `upcase-word' depending on
 whether the region is active."
   (interactive "p")
-  (if (region-active-p)
+  (if (use-region-p)
       (upcase-region (region-beginning) (region-end))
     (upcase-word arg)))
 
@@ -198,7 +198,7 @@ whether the region is active."
 This will call `downcase-region' or `downcase-word' depending on
 whether the region is active."
   (interactive "p")
-  (if (region-active-p)
+  (if (use-region-p)
       (downcase-region (region-beginning) (region-end))
     (downcase-word arg)))
 
@@ -207,7 +207,7 @@ whether the region is active."
 This will call `capitalize-region' or `capitalize-word' depending
 on whether the region is active."
   (interactive "p")
-  (if (region-active-p)
+  (if (use-region-p)
       (capitalize-region (region-beginning) (region-end))
     (capitalize-word arg)))
 
@@ -439,7 +439,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (defun basis/eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (prog1 (eval-region (region-beginning)
                           (region-end))
         (setq deactivate-mark t))
@@ -719,7 +719,7 @@ If no keymap is found, return nil."
 
 (defun basis/paredit-kill-something ()
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (kill-region (region-beginning) (region-end))
     (paredit-backward-kill-word)))
 
@@ -747,7 +747,7 @@ If no keymap is found, return nil."
 (defun basis/sp-backward-kill-something (&optional arg)
   "Call `sp-backward-kill-word' or `kill-region'. "
   (interactive "p")
-  (if (region-active-p)
+  (if (use-region-p)
       (kill-region (region-beginning) (region-end))
     (sp-backward-kill-word arg)))
 
@@ -799,28 +799,28 @@ If no keymap is found, return nil."
 
 (defun basis/scheme-send-something ()
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (scheme-send-region (region-beginning)
                           (region-end))
     (scheme-send-definition)))
 
 (defun basis/geiser-eval-something ()
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (geiser-eval-region (region-beginning)
                           (region-end))
     (geiser-eval-definition)))
 
 (defun basis/geiser-eval-something-and-go ()
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (geiser-eval-region-and-go (region-beginning)
                                  (region-end))
     (geiser-eval-definition-and-go)))
 
 (defun basis/geiser-expand-something ()
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (geiser-expand-region (region-beginning)
                             (region-end))
     (geiser-expand-last-sexp)))
@@ -830,7 +830,7 @@ If no keymap is found, return nil."
 (defun basis/python-send-something ()
   "Send the active region or the current defun."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (python-shell-send-region (region-beginning)
                                 (region-end))
     (python-shell-send-defun nil)))
@@ -857,7 +857,7 @@ If no keymap is found, return nil."
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (slime-eval-region (region-beginning)
                          (region-end))
     (slime-eval-defun)))
@@ -875,7 +875,7 @@ Use `slime-expand-1' to produce the expansion."
 
 (defun basis/cider-eval-something (&optional prefix)
   (interactive "P")
-  (if (region-active-p)
+  (if (use-region-p)
       (cider-eval-region (region-beginning) (region-end))
     (cider-eval-expression-at-point prefix)))
 
