@@ -436,6 +436,18 @@ On OS X, instead define a binding with <kp-enter> as prefix."
             (define-key map (kbd "q") 'quit-window)
             map))
 
+(defun basis/eval-region (beg end)
+  (interactive "r")
+  (let* ((chop '("\r" "\n"))
+         (result (->> (with-output-to-string
+                        (eval-region beg end standard-output))
+                   (s-chop-prefixes chop)
+                   (s-chop-suffixes chop)
+                   (read))))
+    (if (called-interactively-p)
+        (message "%s" result)
+      result)))
+
 (defun basis/eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
