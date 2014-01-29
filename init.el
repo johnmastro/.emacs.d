@@ -123,6 +123,10 @@
 (when (file-exists-p basis/defuns-file)
   (load basis/defuns-file))
 
+;; Load GNU Emacs 24.4's `cycle-spacing' if we don't already have it
+(unless (fboundp 'cycle-spacing)
+  (require 'cycle-spacing))
+
 ;; cygwin ----------------------------------------------------------------------
 
 (defvar basis/cygwin-p (and (eq system-type 'windows-nt)
@@ -374,6 +378,9 @@
 (global-set-key (kbd "C-m") 'newline-and-indent)
 (global-set-key (kbd "S-RET") 'basis/open-line-below)
 (global-set-key (kbd "C-S-RET") 'basis/open-line-above)
+
+;; Whitespace
+(global-set-key (kbd "M-\\") 'cycle-spacing)
 
 ;; Clever C-a
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
