@@ -1573,6 +1573,8 @@ haven't looked into the root cause yet."
    '((emacs-lisp . t)
      (clojure . t)))
 
+  ;; The `org-babel-execute:clojure' in `ob-clojure' is for SLIME so we replace
+  ;; it with one for Cider.
   (fset 'org-babel-execute:clojure 'basis/org-babel-execute:clojure))
 
 ;; html ------------------------------------------------------------------------

@@ -871,7 +871,7 @@ Use `slime-expand-1' to produce the expansion."
     (beginning-of-defun)
     (slime-expand-1 repeatedly)))
 
-;; cider -----------------------------------------------------------------------
+;; clojure ---------------------------------------------------------------------
 
 (defun basis/cider-eval-something (&optional prefix)
   (interactive "P")
@@ -879,31 +879,37 @@ Use `slime-expand-1' to produce the expansion."
       (cider-eval-region (region-beginning) (region-end))
     (cider-eval-expression-at-point prefix)))
 
+(defun basis/helm-clj-headlines ()
+  (interactive)
+  (helm :sources '(((name . "Clojure Headlines")
+                    (volatile)
+                    (headline "^[;(]")))))
+
+(defun basis/cider-refresh ()
+  (interactive)
+  (cider-interactive-eval
+   "(require 'clojure.tools.namespace.repl)
+    (clojure.tools.namespace.repl/refresh)"))
+
 ;; org-mode --------------------------------------------------------------------
 
-(defun basis/prepend-to-lines (prefix s)
-  (mapconcat (-partial #'concat prefix)
-             (split-string s "\n")
-             "\n"))
-
-(defun basis/chop-lines-suffix (suffix s)
-  (mapconcat (-partial #'s-chop-suffix suffix)
-             (split-string s "\n")
+(defun basis/process-clojure-output (s)
+  (mapconcat (lambda (line)
+               (->> line
+                 (s-chop-suffix "\r")
+                 (concat ";; ")))
+             (->> s
+               (s-chop-suffix "\n")
+               (s-split "\n"))
              "\n"))
 
 (defun basis/org-babel-execute:clojure (body params)
   (let* ((result (nrepl-send-string-sync body (cider-current-ns)))
          (value (plist-get result :value))
          (stdout (-when-let (s (plist-get result :stdout))
-                   (->> s
-                     (s-chop-suffix "\n")
-                     (basis/chop-lines-suffix "\r")
-                     (basis/prepend-to-lines ";; "))))
+                   (basis/process-clojure-output s)))
          (stderr (-when-let (s (plist-get result :stderr))
-                   (->> s
-                     (s-chop-suffix "\n")
-                     (basis/chop-lines-suffix "\r")
-                     (basis/prepend-to-lines ";; "))))
+                   (basis/process-clojure-output s)))
          (output (concat stdout
                          (when (and stdout (not (s-ends-with? "\n" stdout)))
                            "\n")
