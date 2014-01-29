@@ -1514,6 +1514,10 @@ haven't looked into the root cause yet."
       org-agenda-skip-scheduled-if-done t
       org-agenda-skip-deadline-if-done t)
 
+;; Code blocks & org-babel
+(setq org-src-fontify-natively t
+      org-confirm-babel-evaluate nil)
+
 ;; Capture
 (setq org-capture-templates
       `(("t" "Todo" entry (file+headline ,org-default-notes-file "Tasks")
