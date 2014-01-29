@@ -879,6 +879,47 @@ Use `slime-expand-1' to produce the expansion."
       (cider-eval-region (region-beginning) (region-end))
     (cider-eval-expression-at-point prefix)))
 
+;; org-mode --------------------------------------------------------------------
+
+(defun basis/prepend-to-lines (prefix s)
+  (mapconcat (-partial #'concat prefix)
+             (split-string s "\n")
+             "\n"))
+
+(defun basis/chop-lines-suffix (suffix s)
+  (mapconcat (-partial #'s-chop-suffix suffix)
+             (split-string s "\n")
+             "\n"))
+
+(defun basis/org-babel-execute:clojure (body params)
+  (let* ((result (nrepl-send-string-sync body (cider-current-ns)))
+         (value (plist-get result :value))
+         (stdout (-when-let (s (plist-get result :stdout))
+                   (->> s
+                     (s-chop-suffix "\n")
+                     (basis/chop-lines-suffix "\r")
+                     (basis/prepend-to-lines ";; "))))
+         (stderr (-when-let (s (plist-get result :stderr))
+                   (->> s
+                     (s-chop-suffix "\n")
+                     (basis/chop-lines-suffix "\r")
+                     (basis/prepend-to-lines ";; "))))
+         (output (concat stdout
+                         (when (and stdout (not (s-ends-with? "\n" stdout)))
+                           "\n")
+                         stderr)))
+    (concat output
+            (when (and output
+                       (not (string= output ""))
+                       (not (s-ends-with? "\n" output)))
+              "\n")
+            (when value (concat ";;=> " value)))))
+
+(defun basis/org-babel-execute-in-cider-repl ()
+  (interactive)
+  (let ((body (cadr (org-babel-get-src-block-info))))
+    (cider-eval-last-sexp-to-repl body)))
+
 ;; html utilities --------------------------------------------------------------
 
 (defun basis/move-to-next-blank-line ()

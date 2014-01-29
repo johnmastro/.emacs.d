@@ -1546,6 +1546,22 @@ haven't looked into the root cause yet."
   ((kbd "C-c c") 'org-capture)
   ((kbd "C-c l") 'org-store-link))
 
+;; org-babel + clojure ---------------------------------------------------------
+
+(after-load 'org
+  (require 'ob)
+  (require 'ob-tangle)
+  (require 'ob-clojure)
+
+  (add-to-list 'org-babel-tangle-lang-exts '("clojure" . "clj"))
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (clojure . t)))
+
+  (fset 'org-babel-execute:clojure 'basis/org-babel-execute:clojure))
+
 ;; html ------------------------------------------------------------------------
 
 (defun basis/init-simplezen ()
