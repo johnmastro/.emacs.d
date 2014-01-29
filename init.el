@@ -1406,9 +1406,12 @@ haven't looked into the root cause yet."
 
 (after-load 'python
   (basis/define-keys python-mode-map
+    ((kbd "C-c C-c")  'basis/python-send-something)
     ((kbd "<f6>")     'basis/python-send-something)
-    ((kbd "<f8>")     'python-shell-send-buffer)
-    ((kbd "<M-f8>")   'python-shell-send-file)
+    ((kbd "C-c C-k")  'python-shell-send-file)
+    ((kbd "<f8>")     'python-shell-send-file)
+    ((kbd "C-c M-k")  'python-shell-send-buffer)
+    ((kbd "<M-f8>")   'python-shell-send-buffer)
     ((kbd "DEL")      'basis/sp-python-backspace)
     ((kbd "C-h C-p")  'basis/insert-python-docstring-quotes)))
 
