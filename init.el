@@ -471,12 +471,6 @@
 (global-set-key (kbd "<M-right>") 'forward-sexp)
 (global-set-key (kbd "<M-left>") 'backward-sexp)
 
-;; Regexp search by default
-(global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-r") 'isearch-backward-regexp)
-(global-set-key (kbd "C-M-s") 'isearch-forward)
-(global-set-key (kbd "C-M-r") 'isearch-backward)
-
 ;; Start eshell or switch to it if it's active
 (global-set-key (kbd "C-x m") 'eshell)
 
@@ -645,6 +639,17 @@
     ((kbd "p") 'previous-line)
     ((kbd "b") 'help-go-back)
     ((kbd "f") 'help-go-forward)))
+
+;; isearch ---------------------------------------------------------------------
+
+;; Regexp search by default
+(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "C-r") 'isearch-backward-regexp)
+(global-set-key (kbd "C-M-s") 'isearch-forward)
+(global-set-key (kbd "C-M-r") 'isearch-backward)
+
+;; Like C-w but the whole sexp
+(define-key isearch-mode-map (kbd "C-e") 'basis/isearch-yank-sexp)
 
 ;; prog-mode -------------------------------------------------------------------
 

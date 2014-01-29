@@ -707,6 +707,11 @@ If no keymap is found, return nil."
     (when (boundp name)
       (symbol-value name))))
 
+(defun basis/isearch-yank-sexp ()
+  "Pull next sexp in buffer into search string."
+  (interactive)
+  (isearch-yank-internal (lambda () (forward-sexp 1) (point))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
