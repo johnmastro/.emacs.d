@@ -942,6 +942,10 @@
 (flx-ido-mode 1)
 (ido-vertical-mode 1)
 
+(unless (eq system-type 'darwin)
+  ;; No offense to OS X; my Mac is just old
+  (setq flx-ido-threshhold 10000))
+
 (defun basis/setup-ido ()
   (define-key ido-file-completion-map (kbd "C-w") 'ido-delete-backward-updir)
   (define-key ido-file-completion-map (kbd "M-w") 'ido-copy-current-file-name))
