@@ -102,6 +102,7 @@
           gist
           clj-refactor
           discover
+          idle-highlight-mode
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -642,6 +643,7 @@
 
 (add-hook 'prog-mode-hook 'basis/maybe-enable-whitespace-mode)
 (add-hook 'prog-mode-hook 'basis/maybe-enable-flyspell-prog-mode)
+(add-hook 'prog-mode-hook 'idle-highlight-mode)
 
 ;; diff-mode -------------------------------------------------------------------
 
