@@ -1482,10 +1482,13 @@ haven't looked into the root cause yet."
 
 ;; sql -------------------------------------------------------------------------
 
-(defun basis/sql-set-product ()
-  (sql-set-product "postgres"))
+(defun basis/init-sql-mode ()
+  (sql-set-product "postgres")
+  (let ((double-quote 34))
+    ;; Change double quote's syntax entry from punctuation to string delimiter.
+    (modify-syntax-entry double-quote "\"")))
 
-(add-hook 'sql-mode-hook 'basis/sql-set-product)
+(add-hook 'sql-mode-hook 'basis/init-sql-mode)
 
 (after-load 'sql
   ;; But I also work with other products and it's often easier not to switch
