@@ -1513,7 +1513,8 @@ haven't looked into the root cause yet."
 
 (defun basis/init-java-mode ()
   (setq c-basic-offset 2
-        tab-width 2))
+        tab-width 2)
+  (subword-mode 1))
 
 (add-hook 'java-mode-hook 'basis/init-java-mode)
 
