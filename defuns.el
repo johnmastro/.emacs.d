@@ -953,8 +953,7 @@ Use `slime-expand-1' to produce the expansion."
     (save-excursion
       (goto-char (point-min))
       (let ((last -1))
-        (while (and (not (eobp))
-                    (> (point) last))
+        (while (> (point) last)
           (let ((face (get-text-property (point) 'face)))
             (cond ((memq face '(font-lock-builtin-face
                                 font-lock-keyword-face
@@ -977,8 +976,7 @@ Use `slime-expand-1' to produce the expansion."
     (backward-word 1)
     (let ((last -1))
       (catch 'return
-        (while (and (not (eobp))
-                    (> (point) last))
+        (while (> (point) last)
           (let ((face (get-text-property (point) 'face))
                 (case-fold-search nil))
             (when (and (memq face '(font-lock-builtin-face
