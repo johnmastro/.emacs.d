@@ -1509,6 +1509,14 @@ haven't looked into the root cause yet."
 
 (add-hook 'c-mode-hook 'basis/init-c)
 
+;; java ------------------------------------------------------------------------
+
+(defun basis/init-java-mode ()
+  (setq c-basic-offset 2
+        tab-width 2))
+
+(add-hook 'java-mode-hook 'basis/init-java-mode)
+
 ;; ack and a half --------------------------------------------------------------
 
 (after-load 'ack-and-a-half
