@@ -165,7 +165,7 @@
       shift-select-mode nil
       mouse-yank-at-point t
       whitespace-style '(face trailing lines-tail tabs)
-      whitespace-line-column 80
+      whitespace-line-column 79
       truncate-lines t
       ediff-window-setup-function 'ediff-setup-windows-plain
       ediff-split-window-function 'split-window-horizontally
@@ -1427,7 +1427,6 @@ haven't looked into the root cause yet."
   (add-hook 'python-mode-hook 'jedi:setup))
 
 (defun basis/init-python-mode ()
-  (set (make-variable-buffer-local 'whitespace-line-column) 79)
   (unless (and buffer-file-name
                (file-remote-p buffer-file-name))
     (flycheck-mode 1)))
