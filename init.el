@@ -1431,9 +1431,14 @@ haven't looked into the root cause yet."
 (defun basis/init-python-mode ()
   (unless (and buffer-file-name
                (file-remote-p buffer-file-name))
-    (flycheck-mode 1)))
+    (flycheck-mode 1)
+    (subword-mode 1)))
+
+(defun basis/init-inferior-python-mode ()
+  (subword-mode 1))
 
 (add-hook 'python-mode-hook 'basis/init-python-mode)
+(add-hook 'inferior-python-mode-hook 'basis/init-inferior-python-mode)
 
 ;; javascript ------------------------------------------------------------------
 
