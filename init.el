@@ -1357,6 +1357,8 @@ haven't looked into the root cause yet."
 
   (sp-use-paredit-bindings)
 
+  (setq sp-cancel-autoskip-on-backward-movement nil)
+
   (sp-pair "'"
            nil
            :unless '(sp-point-after-word-p)
