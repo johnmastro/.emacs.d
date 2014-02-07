@@ -103,6 +103,8 @@
           clj-refactor
           discover
           idle-highlight-mode
+          ssh-config-mode
+          batch-mode
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -1661,6 +1663,15 @@ two tags."
 (setq deft-extension "md"
       deft-directory "~/Dropbox/deft"
       deft-text-mode  'gfm-mode)
+
+;; ssh-config-mode -------------------------------------------------------------
+
+(add-to-list 'auto-mode-alist '(".ssh/config\\'"  . ssh-config-mode))
+(add-to-list 'auto-mode-alist '("sshd?_config\\'" . ssh-config-mode))
+
+;; batch-mode ------------------------------------------------------------------
+
+(add-to-list 'auto-mode-alist '("\\.bat\\'" . batch-mode))
 
 
 ;;; init.el ends here
