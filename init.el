@@ -724,6 +724,8 @@
 ;; Make RET exit multiple-cursors-mode in the terminal too
 (define-key mc/keymap (kbd "RET") 'multiple-cursors-mode)
 
+(add-to-list 'mc/temporarily-disabled-minor-modes 'idle-highlight-mode)
+
 ;; `multiple-cursors' automatically stores lists of for-all and just-once
 ;; commands in ~/.emacs.d/.mc-lists.el. However, bouncing between machines
 ;; means being prompted about some commands repeatedly; so, I pre-populate it
