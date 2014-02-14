@@ -330,11 +330,16 @@ This is the same as using \\[set-mark-command] with the prefix argument."
              dir))))
 
 (defun basis/open-file-manager-here ()
-  "Open a file manager in the current file's directory."
+  "Open a file manager in the current buffer's directory.
+The buffer must be either visiting a file, or a `dired-mode'
+buffer visiting a directory."
   (interactive)
-  (-if-let (file buffer-file-name)
-      (basis/open-file-manager (file-name-directory file))
-    (message "Buffer is not visiting a file.")))
+  (-if-let (dir (cond ((eq major-mode 'dired-mode)
+                       (dired-current-directory))
+                      ((buffer-file-name)
+                       (file-name-directory (buffer-file-name)))))
+      (basis/open-file-manager dir)
+    (message "Buffer '%s' is not associated with a directory" (buffer-name))))
 
 ;; key binding utilities -------------------------------------------------------
 
