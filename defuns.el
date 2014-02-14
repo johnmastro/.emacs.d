@@ -86,6 +86,26 @@ major mode isn't derived from `comint-mode', call
   (unless (looking-back ";")
     (insert ";")))
 
+(defun basis/insert-file-basename ()
+  (interactive)
+  (-if-let (name (buffer-file-name))
+      (insert (file-name-sans-extension (file-name-base name)))
+    (message "Buffer not visiting a file")))
+
+(defun basis/wrap-in-curlies ()
+  (interactive)
+  (save-excursion
+    (previous-line)
+    (move-end-of-line 1)
+    (unless (looking-back " ")
+      (insert " "))
+    (insert "{")
+    (forward-line)
+    (move-end-of-line 1)
+    (newline-and-indent)
+    (insert "}")
+    (indent-for-tab-command)))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word (arg)
@@ -431,6 +451,13 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   (interactive)
   (end-of-buffer)
   (dired-next-line -1))
+
+(defun basis/dired-up-directory (&optional arg)
+  (interactive "p")
+  (case arg
+    (4         (diredp-up-directory nil))
+    (16        (diredp-up-directory t))
+    (otherwise (diredp-up-directory-reuse-dir-buffer nil))))
 
 ;; emacs lisp ------------------------------------------------------------------
 
