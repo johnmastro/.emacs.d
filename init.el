@@ -167,7 +167,7 @@
       shift-select-mode nil
       mouse-yank-at-point t
       whitespace-style '(face trailing lines-tail tabs)
-      whitespace-line-column 79
+      whitespace-line-column 80
       truncate-lines t
       ediff-window-setup-function 'ediff-setup-windows-plain
       ediff-split-window-function 'split-window-horizontally
@@ -186,7 +186,7 @@
 
 ;; Tabs
 (setq-default indent-tabs-mode nil
-              fill-column 79)
+              fill-column 80)
 
 (setq tab-stop-list (number-sequence 4 120 4))
 
@@ -1434,10 +1434,12 @@ haven't looked into the root cause yet."
   (add-hook 'python-mode-hook 'jedi:setup))
 
 (defun basis/init-python-mode ()
+  (setq fill-column 79)
+  (set (make-variable-buffer-local 'whitespace-line-column) 79)
+  (subword-mode 1)
   (unless (and buffer-file-name
                (file-remote-p buffer-file-name))
-    (flycheck-mode 1)
-    (subword-mode 1)))
+    (flycheck-mode 1)))
 
 (defun basis/init-inferior-python-mode ()
   (subword-mode 1))
