@@ -864,7 +864,7 @@
 
 (after-load 'magit
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
-
+  (setq magit-completing-read-function 'magit-ido-completing-read)
   (-when-let (home (getenv "HOME"))
     (setq magit-repo-dirs (list (expand-file-name "code" home)))))
 
