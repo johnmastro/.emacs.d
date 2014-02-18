@@ -658,7 +658,6 @@
 
 (add-hook 'prog-mode-hook 'basis/maybe-enable-whitespace-mode)
 (add-hook 'prog-mode-hook 'basis/maybe-enable-flyspell-prog-mode)
-(add-hook 'prog-mode-hook 'idle-highlight-mode)
 
 ;; diff-mode -------------------------------------------------------------------
 
