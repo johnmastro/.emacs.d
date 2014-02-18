@@ -75,6 +75,7 @@
           s
           move-text
           browse-kill-ring
+          pyvenv
           jedi
           yasnippet
           tagedit
