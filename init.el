@@ -1425,7 +1425,8 @@ haven't looked into the root cause yet."
     ((kbd "C-c M-k")  'python-shell-send-buffer)
     ((kbd "<M-f8>")   'python-shell-send-buffer)
     ((kbd "DEL")      'basis/sp-python-backspace)
-    ((kbd "C-h C-p")  'basis/insert-python-docstring-quotes)))
+    ((kbd "C-h C-p")  'basis/insert-python-docstring-quotes))
+  (setq python-fill-docstring-style 'pep-357-nn))
 
 (when (basis/jedi-installed-p)
   ;; Jedi has 2 Python dependencies: jedi and epc
