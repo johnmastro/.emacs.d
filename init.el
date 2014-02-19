@@ -195,7 +195,6 @@
 (size-indication-mode 1)
 (global-hl-line-mode 1)
 (show-paren-mode 1)
-(cua-selection-mode 1)
 (auto-compression-mode 1)
 (delete-selection-mode 1)
 
@@ -507,10 +506,10 @@
 (global-set-key (kbd "C-x p") 'proced)
 
 ;; C-v et al. are uncomfortable on my MBP
-(global-set-key (kbd "<s-up>") 'cua-scroll-down)
-(global-set-key (kbd "<s-down>") 'cua-scroll-up)
-(global-set-key (kbd "<M-s-up>") 'scroll-other-window-down)
-(global-set-key (kbd "<M-s-down>") 'scroll-other-window)
+(global-set-key (kbd "<s-up>") 'scroll-up-command)
+(global-set-key (kbd "<s-down>") 'scroll-down-command)
+(global-set-key (kbd "<M-s-up>") 'scroll-other-window)
+(global-set-key (kbd "<M-s-down>") 'scroll-other-window-down)
 
 ;; h-map -----------------------------------------------------------------------
 
