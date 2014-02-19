@@ -1376,7 +1376,7 @@ haven't looked into the root cause yet."
     ((kbd "M-e")    'basis/maybe-sp-forward-sexp)
     ((kbd "M-a")    'basis/maybe-sp-backward-sexp)
     ((kbd "]")      'sp-up-sexp)
-    ((kbd "M-]")    'basis/insert-right-bracket)))
+    ((kbd "C-c ]")  'basis/insert-right-bracket)))
 
 ;; flycheck --------------------------------------------------------------------
 
