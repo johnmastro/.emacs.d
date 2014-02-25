@@ -917,6 +917,13 @@
         dired-recursive-deletes 'top)
   (put 'dired-find-alternate-file 'disabled nil))
 
+;; shell-mode ------------------------------------------------------------------
+
+(defun basis/set-comint-process-echoes ()
+  (setq comint-process-echoes t))
+
+(add-hook 'shell-mode-hook 'basis/set-comint-process-echoes)
+
 ;; eshell ----------------------------------------------------------------------
 
 (defun basis/init-eshell ()
