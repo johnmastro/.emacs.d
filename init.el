@@ -840,7 +840,8 @@
       smtpmail-stream-type 'ssl)
 
 (after-load 'mu4e
-  (add-hook 'mu4e-compose-mode-hook 'basis/maybe-enable-flyspell))
+  (add-hook 'mu4e-compose-mode-hook 'basis/maybe-enable-flyspell)
+  (add-hook 'mu4e-compose-mode-hook 'turn-on-orgstruct))
 
 ;; magit -----------------------------------------------------------------------
 
