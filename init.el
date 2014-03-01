@@ -806,7 +806,8 @@
                                ("/sent"    . ?s)))
 
 ;; Addresses to consider "me" when searching
-(setq mu4e-user-mail-address-list '("jbm@deft.li"
+(setq mu4e-user-mail-address-list '("jbm@jbm.io"
+                                    "jbm@deft.li"
                                     "jbm@fastmail.fm"
                                     "jbm@mailforce.net"))
 
@@ -823,11 +824,12 @@
                                             "~/"))))
 
 ;; Composing messages
-(setq mu4e-reply-to-address "jbm@deft.li"
-      user-mail-address "jbm@deft.li"
+(setq mu4e-reply-to-address "jbm@jbm.io"
+      user-mail-address "jbm@jbm.io"
       user-full-name "John Mastro"
-      message-signature "- John"
-      mu4e-sent-messages-behavior 'delete ;; they're saved on the server
+      message-signature t                    ;; use signature file
+      message-signature-file "~/.signature"
+      mu4e-sent-messages-behavior 'delete    ;; they're saved on the server
       message-kill-buffer-on-exit t)
 
 ;; SMTP
