@@ -143,10 +143,15 @@
     (cd home))
   (let* ((path (getenv "PATH"))
          (entries (s-split ";" path)))
-    (unless (member "c:\\bin" entries)
-      (setenv "PATH" (concat "c:\\bin;" path))))
-  (unless (member "c:/bin" exec-path)
-    (add-to-list 'exec-path "c:/bin"))
+    ;; Add Cygwin's /bin and my ~/bin to $PATH
+    (dolist (dir '("c:\\bin" "c:\\home\\jbm\\bin"))
+      (unless (member dir entries)
+        (setenv "PATH" (concat dir ";" path)))))
+  ;; Add Cygwin's /bin and my ~/bin to `exec-path'
+  (dolist (dir '("c:/bin" "c:/home/jbm/bin"))
+    (unless (member dir exec-path)
+      (add-to-list 'exec-path dir)))
+  ;; Use zsh (or, if it's not installed, bash) as shell
   (-when-let (shell (or (executable-find "zsh")
                         (executable-find "bash")))
     (setq shell-file-name shell
