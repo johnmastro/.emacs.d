@@ -179,17 +179,17 @@
       apropos-do-all t
       custom-file basis/custom-file
       dirtrack-list '("^(~?[a-zA-Z0-9/ _-]+)>" 1)
+      scroll-preserve-screen-position t
+      tab-stop-list (number-sequence 4 120 4)
       ;; This causes errors on OS X
       save-interprogram-paste-before-kill (not (eq system-type 'darwin)))
 
+(setq-default indent-tabs-mode nil
+              fill-column 80
+              require-final-newline t)
+
 (when (file-exists-p custom-file)
   (load custom-file))
-
-;; Tabs
-(setq-default indent-tabs-mode nil
-              fill-column 80)
-
-(setq tab-stop-list (number-sequence 4 120 4))
 
 ;; Enable some miscellaneous helpful modes
 (size-indication-mode 1)
