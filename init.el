@@ -392,6 +392,11 @@
 ;; Clever C-a
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 
+;; Movement by sentence (I use the forward- and backward-sexp commands from
+;; Paredit and Smartparens on M-a and M-e).
+(global-set-key (kbd "C-M-f") 'forward-sentence)
+(global-set-key (kbd "C-M-b") 'backward-sentence)
+
 ;; Movement by paragraph
 (global-set-key (kbd "M-n") 'forward-paragraph)
 (global-set-key (kbd "M-p") 'backward-paragraph)
@@ -400,10 +405,9 @@
 (global-set-key (kbd "M-k") 'kill-sexp)
 (global-set-key (kbd "C-w") 'kill-region-or-backward-word)
 (global-set-key (kbd "M-DEL") 'kill-region-or-backward-word)
-(global-set-key (kbd "C-DEL") 'kill-line-backward)
-(global-set-key [remap kill-whole-line] 'smart-kill-whole-line) ; C-S-backspace
-(global-set-key (kbd "s-DEL") 'smart-kill-whole-line)
-(global-set-key (kbd "S-DEL") 'smart-kill-almost-whole-line)
+(global-set-key [remap kill-whole-line] 'kill-line-backward) ; C-S-backspace
+(global-set-key (kbd "<C-delete>") 'smart-kill-whole-line)
+(global-set-key (kbd "<M-delete>") 'smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC M-DEL") 'backward-kill-sexp)
 (global-set-key (kbd "M-w") 'basis/kill-ring-save-something)
 (global-set-key (kbd "<f2>") 'basis/clipboard-save-something)
@@ -412,6 +416,9 @@
 
 ;; ... and then browse it with M-y
 (browse-kill-ring-default-keybindings)
+
+;; Kill buffers without confirming
+(global-set-key (kbd "C-h C-k") 'basis/kill-this-buffer)
 
 ;; Join lines
 (global-set-key (kbd "s-j") 'basis/join-next-line)
@@ -428,11 +435,16 @@
 (global-set-key (kbd "M-t s") 'transpose-sexps)
 (global-set-key (kbd "M-t c") 'transpose-chars)
 (global-set-key (kbd "M-t M-w") 'transpose-windows)
-(global-set-key (kbd "M-t M-s") 'toggle-window-split) ;; hmmm
+(global-set-key (kbd "M-t M-s") 'toggle-window-split)
+
+;; Ack/grep
+(global-set-key (kbd "<f9>") (if (executable-find "ack")
+                                 'ack-and-a-half 'rgrep))
 
 ;; Occur
 (define-key occur-mode-map (kbd "n") 'occur-next)
 (define-key occur-mode-map (kbd "p") 'occur-prev)
+(global-set-key (kbd "<C-f2>") 'basis/multi-occur-this-mode)
 
 ;; Mark commands
 (global-set-key (kbd "C-`") 'push-mark-no-activate)
@@ -489,7 +501,7 @@
 (global-set-key (kbd "C-c x") 'execute-extended-command)
 
 ;; recetf+ido
-(global-set-key (kbd "C-c r") 'basis/recentf-ido-find-file)
+(global-set-key (kbd "C-x C-r") 'basis/recentf-ido-find-file)
 
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including, the ARGth occurrence of CHAR.")
@@ -530,6 +542,7 @@
   ((kbd "C-h f")   'ido-find-file)
   ((kbd "C-h b")   'ido-switch-buffer)
   ((kbd "C-h g")   'magit-status)
+  ((kbd "<f10>")   'magit-status)
   ((kbd "C-h i")   'imenu)
   ((kbd "C-h 0")   'delete-window)
   ((kbd "C-h 1")   'delete-other-windows)
@@ -914,7 +927,7 @@
   (require 'dired+)
   (basis/define-keys dired-mode-map
     ((kbd "M-o")                 'other-window)
-    ((kbd "C-c o")               'dired-omit-mode)
+    ((kbd "M-m")                 'dired-omit-mode)
     ((kbd "M-n")                 'dired-next-subdir)
     ((kbd "M-p")                 'dired-prev-subdir)
     ((kbd "M-e")                 'dired-next-dirline)
@@ -922,6 +935,7 @@
     ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
     ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
   (setq dired-omit-files "^\\.?#" ; don't omit . and ..
+        dired-omit-extensions (remove ".bak" dired-omit-extensions)
         dired-recursive-deletes 'top)
   (put 'dired-find-alternate-file 'disabled nil))
 
