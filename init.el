@@ -67,6 +67,7 @@
           multiple-cursors
           helm
           auto-complete
+          slime
           ac-slime
           redshank
           yaml-mode
@@ -1198,19 +1199,12 @@ otherwise call `yas-insert-snippet'."
 
 ;; slime -----------------------------------------------------------------------
 
-(-if-let (quicklisp-slime-helper
-          (-first #'file-exists-p
-                  (mapcar #'expand-file-name
-                          '("~/code/lisp/quicklisp/slime-helper.el"
-                            "~/quicklisp/slime-helper.el"))))
-    (load quicklisp-slime-helper)
-  (message "%s" "SLIME is not installed. Use Quicklisp to install it."))
-
 (setq slime-lisp-implementations
       '((sbcl ("sbcl" "--noinform") :coding-system utf-8-unix)
         (ccl ("ccl"))))
 
-(setq slime-default-lisp 'sbcl)
+(setq slime-default-lisp 'sbcl
+      slime-contribs '(slime-fancy))
 
 (defun basis/start-slime ()
   (unless (slime-connected-p)
