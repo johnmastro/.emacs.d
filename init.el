@@ -417,9 +417,6 @@
 ;; ... and then browse it with M-y
 (browse-kill-ring-default-keybindings)
 
-;; Kill buffers without confirming
-(global-set-key (kbd "C-h C-k") 'basis/kill-this-buffer)
-
 ;; Join lines
 (global-set-key (kbd "s-j") 'basis/join-next-line)
 (global-set-key (kbd "s-J") 'join-line)
@@ -542,6 +539,7 @@
   ((kbd "C-h f")   'ido-find-file)
   ((kbd "C-h b")   'ido-switch-buffer)
   ((kbd "C-h g")   'magit-status)
+  ((kbd "C-h C-k") 'basis/kill-this-buffer)
   ((kbd "<f10>")   'magit-status)
   ((kbd "C-h i")   'imenu)
   ((kbd "C-h 0")   'delete-window)
