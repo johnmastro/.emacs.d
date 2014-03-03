@@ -744,6 +744,11 @@ If no keymap is found, return nil."
   (interactive)
   (isearch-yank-internal (lambda () (forward-sexp 1) (point))))
 
+(defun basis/kill-this-buffer ()
+  "Kill the currently active buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
