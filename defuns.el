@@ -620,13 +620,12 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
   "Transpose the relative positions of two or more windows."
   (interactive "p")
   (let ((selector (if (>= arg 0) 'next-window 'previous-window)))
-    (while (/= arg 0)
+    (dotimes (_ (abs arg))
       (let ((this-win  (window-buffer))
             (next-win (window-buffer (funcall selector))))
         (set-window-buffer (selected-window) next-win)
         (set-window-buffer (funcall selector) this-win)
-        (select-window (funcall selector)))
-      (setq arg (if (plusp arg) (1- arg) (1+ arg))))))
+        (select-window (funcall selector))))))
 
 (defun toggle-window-split ()
   "Toggle between horizontal and vertical window split (for two windows)."
