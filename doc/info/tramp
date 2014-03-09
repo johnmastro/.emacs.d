@@ -1,7 +1,7 @@
 This is ../info/tramp, produced by makeinfo version 4.13 from
 tramp.texi.
 
-Copyright (C) 1999-2013 Free Software Foundation, Inc.
+Copyright (C) 1999-2014 Free Software Foundation, Inc.
 
      Permission is granted to copy, distribute and/or modify this
      document under the terms of the GNU Free Documentation License,
@@ -17,16 +17,16 @@ Copyright (C) 1999-2013 Free Software Foundation, Inc.
 INFO-DIR-SECTION Emacs network features
 START-INFO-DIR-ENTRY
 * TRAMP: (tramp).               Transparent Remote Access, Multiple Protocol
-                                Emacs remote file access via rsh and rcp.
+                                  Emacs remote file access via ssh and scp.
 END-INFO-DIR-ENTRY
 
 
 File: tramp,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
 
-TRAMP version 2.2.7 User Manual
+TRAMP version 2.2.9 User Manual
 *******************************
 
-This file documents TRAMP version 2.2.7, a remote file editing package
+This file documents TRAMP version 2.2.9, a remote file editing package
 for Emacs.
 
    TRAMP stands for `Transparent Remote (file) Access, Multiple
@@ -48,7 +48,7 @@ create them.
 <tramp-devel@gnu.org>, and archived at the TRAMP Mail Archive
 (http://lists.gnu.org/archive/html/tramp-devel/).
 
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2014 Free Software Foundation, Inc.
 
      Permission is granted to copy, distribute and/or modify this
      document under the terms of the GNU Free Documentation License,
@@ -97,7 +97,7 @@ Installing TRAMP with your Emacs
 
 Configuring TRAMP for use
 
-* Connection types::            Types of connections made to remote machines.
+* Connection types::            Types of connections made to remote hosts.
 * Inline methods::              Inline methods.
 * External methods::            External methods.
 
@@ -112,7 +112,9 @@ Configuring TRAMP for use
 * Customizing Completion::      Selecting config files for user/host name completion.
 * Password handling::           Reusing passwords for several connections.
 * Connection caching::          Reusing connection related information.
-* Remote Programs::             How TRAMP finds and uses programs on the remote machine.
+* Predefined connection information::
+                                Setting own connection related information.
+* Remote Programs::             How TRAMP finds and uses programs on the remote host.
 * Remote shell setup::          Remote shell setup hints.
 * Android shell setup::         Android shell setup hints.
 * Auto-save and Backup::        Auto-save and Backup.
@@ -120,9 +122,8 @@ Configuring TRAMP for use
 
 Using TRAMP
 
-* Filename Syntax::             TRAMP filename conventions.
-* Alternative Syntax::          URL-like filename syntax.
-* Filename completion::         Filename completion.
+* File name Syntax::            TRAMP file name conventions.
+* File name completion::        File name completion.
 * Ad-hoc multi-hops::           Declaring multiple hops in the file name.
 * Remote processes::            Integration with other Emacs packages.
 * Cleanup remote connections::  Cleanup remote connections.
@@ -140,18 +141,18 @@ File: tramp,  Node: Overview,  Next: Obtaining Tramp,  Prev: Top,  Up: Top
 **********************
 
 After the installation of TRAMP into your Emacs, you will be able to
-access files on remote machines as though they were local.  Access to
-the remote file system for editing files, version control, and `dired'
-are transparently enabled.
+access files on remote hosts as though they were local.  Access to the
+remote file system for editing files, version control, and `dired' are
+transparently enabled.
 
-   Your access to the remote machine can be with the `rsh', `rlogin',
+   Your access to the remote host can be with the `rsh', `rlogin',
 `telnet' programs or with any similar connection method.  This
 connection must pass ASCII successfully to be usable but need not be
 8-bit clean.
 
    The package provides support for `ssh' connections out of the box,
 one of the more common uses of the package.  This allows relatively
-secure access to machines, especially if `ftp' access is disabled.
+secure access to hosts, especially if `ftp' access is disabled.
 
    Under Windows, TRAMP is integrated with the PuTTY package, using the
 `plink' program.
@@ -159,11 +160,11 @@ secure access to machines, especially if `ftp' access is disabled.
    The majority of activity carried out by TRAMP requires only that the
 remote login is possible and is carried out at the terminal.  In order
 to access remote files TRAMP needs to transfer their content to the
-local machine temporarily.
+local host temporarily.
 
-   TRAMP can transfer files between the machines in a variety of ways.
-The details are easy to select, depending on your needs and the
-machines in question.
+   TRAMP can transfer files between the hosts in a variety of ways.
+The details are easy to select, depending on your needs and the hosts
+in question.
 
    The fastest transfer methods for large files rely on a remote file
 transfer package such as `rcp', `scp', `rsync' or (under Windows)
@@ -172,7 +173,7 @@ transfer package such as `rcp', `scp', `rsync' or (under Windows)
    If the remote copy methods are not suitable for you, TRAMP also
 supports the use of encoded transfers directly through the shell.  This
 requires that the `mimencode' or `uuencode' tools are available on the
-remote machine.  These methods are generally faster for small files.
+remote host.  These methods are generally faster for small files.
 
    TRAMP is still under active development and any problems you
 encounter, trivial or major, should be reported to the TRAMP developers.
@@ -228,7 +229,7 @@ happens:
 
    * Now the remote shell is up and it good working order.  Remember,
      what was supposed to happen is that TRAMP tries to find out what
-     files exist on the remote host so that it can do filename
+     files exist on the remote host so that it can do file name
      completion.
 
      So, TRAMP basically issues `cd' and `ls' commands and also
@@ -237,7 +238,7 @@ happens:
      directory or the like.  The output of each command is parsed for
      the necessary operation.
 
-   * Suppose you are finished with filename completion, have entered
+   * Suppose you are finished with file name completion, have entered
      `C-x C-f', a full file name and hit `<RET>'.  Now comes the time to
      transfer the file contents from the remote host to the local host
      so that you can edit them.
@@ -334,7 +335,7 @@ shell and for transferring the file contents were added.  Support for
 VC was added.
 
    After that, there were added the multi-hop methods in April 2000 and
-the unification of TRAMP and Ange-FTP filenames in July 2002.  In July
+the unification of TRAMP and Ange-FTP file names in July 2002.  In July
 2004, multi-hop methods have been replaced by proxy hosts.  Running
 commands on remote hosts was introduced in December 2005.  Support of
 gateways exists since April 2007.  GVFS integration started in February
@@ -365,11 +366,11 @@ The easiest way to proceed is as follows:
 
    * Choose a directory, say `~/emacs/'.  Change into that directory
      and unpack the tarball.  This will give you a directory
-     `~/emacs/tramp-2.2.7/' which contains subdirectories `lisp' for
+     `~/emacs/tramp-2.2.9/' which contains subdirectories `lisp' for
      the Lisp code and `texi' for the documentation.  Make a symbolic
      link:
 
-          ln -s tramp-2.2.7 tramp
+          ln -s tramp-2.2.9 tramp
 
    * `cd' to `~/emacs/tramp/' and type `./configure --with-contrib' to
      configure Tramp for your system.
@@ -401,10 +402,12 @@ The easiest way to proceed is as follows:
 * Menu:
 
 * Installation parameters::     Parameters in order to control installation.
+
+* Testing::                     A test suite for TRAMP.
 * Load paths::                  How to plug-in TRAMP into your environment.
 
 
-File: tramp,  Node: Installation parameters,  Next: Load paths,  Up: Installation
+File: tramp,  Node: Installation parameters,  Next: Testing,  Up: Installation
 
 4.1 Parameters in order to control installation.
 ================================================
@@ -416,8 +419,8 @@ by default yet.  In order to make a link for them into Tramp's
      ./configure --with-contrib
 
    By default, `make install' will install TRAMP's files in
-`/usr/local/share/emacs/site-lisp' and `/usr/local/info'.  You can
-specify an installation prefix other than `/usr/local' by giving
+`/usr/local/share/emacs/site-lisp' and `/usr/local/share/info'.  You
+can specify an installation prefix other than `/usr/local' by giving
 `configure' the option `--prefix=PATH'.  On GNU/Linux systems, it has
 been reported useful to apply
 
@@ -437,7 +440,7 @@ You can even pass the Emacs or XEmacs command to be called:
 
    If you specify the absolute path of the command, it must not contain
 whitespaces.  If you need it, the corresponding path shall be appended
-to the $PATH environment variable.
+to the `PATH' environment variable.
 
    The syntax of TRAMP file names is different for Emacs and
 XEmacs.  The Info manual will be generated for the Emacs flavor choosen
@@ -479,14 +482,37 @@ continue, but parts of Tramp aren't installed.  This can happen with
 missing or wrong versions of `texi2dvi' or `install-info'.  Here you
 can decide yourself whether you want to renounce on the related feature
 (`tramp.dvi' file for printed output, Tramp entry in Info's `dir'
-file), or whether you want to adapt your $PATH environment variable,
+file), or whether you want to adapt your `PATH' environment variable,
 and rerun `configure'.  An alternative is calling the missed parts
 manually later on.
 
 
-File: tramp,  Node: Load paths,  Prev: Installation parameters,  Up: Installation
+File: tramp,  Node: Testing,  Next: Load paths,  Prev: Installation parameters,  Up: Installation
 
-4.2 How to plug-in TRAMP into your environment.
+4.2 A test suite for TRAMP.
+===========================
+
+TRAMP comes with an own test suite.  This requires at least Emacs 24.4.
+In order to run this test suite, you call
+
+     make check
+
+   This test suite uses `/ssh::~/tmp' as default directory for tests
+assuming, that no password is required accessing this remote directory.
+You can change this default behaviour by tweaking the environment
+variables `REMOTE_TEMPORARY_FILE_DIRECTORY' and `REMOTE_ALLOW_PASSWORD':
+
+     env REMOTE_TEMPORARY_FILE_DIRECTORY=`/sudo::/tmp' \
+         REMOTE_ALLOW_PASSWORD=1 \
+       make check
+
+   If there are errors in that test suite you could not cover yourself,
+you might send a *note bug report: Bug Reports.
+
+
+File: tramp,  Node: Load paths,  Prev: Testing,  Up: Installation
+
+4.3 How to plug-in TRAMP into your environment.
 ===============================================
 
 If you don't install TRAMP into the intended directories, but prefer to
@@ -511,7 +537,7 @@ File: tramp,  Node: Configuration,  Next: Usage,  Prev: Installation,  Up: Top
 TRAMP is (normally) fully functional when it is initially installed.
 It is initially configured to use the `scp' program to connect to the
 remote host.  So in the easiest case, you just type `C-x C-f' and then
-enter the filename `/user@machine:/path/to.file'.
+enter the file name `/user@host:/path/to.file'.
 
    On some hosts, there are problems with opening a connection.  These
 are related to the behavior of the remote shell.  See *Note Remote
@@ -520,15 +546,14 @@ shell setup::, for details on this.
    If you do not wish to use these commands to connect to the remote
 host, you should change the default connection and transfer method that
 TRAMP uses.  There are several different methods that TRAMP can use to
-connect to remote machines and transfer files (*note Connection
-types::).
+connect to remote hosts and transfer files (*note Connection types::).
 
    If you don't know which method is right for you, see *Note Default
 Method::.
 
 * Menu:
 
-* Connection types::            Types of connections made to remote machines.
+* Connection types::            Types of connections made to remote hosts.
 * Inline methods::              Inline methods.
 * External methods::            External methods.
 
@@ -546,7 +571,9 @@ Method::.
 * Customizing Completion::      Selecting config files for user/host name completion.
 * Password handling::           Reusing passwords for several connections.
 * Connection caching::          Reusing connection related information.
-* Remote Programs::             How TRAMP finds and uses programs on the remote machine.
+* Predefined connection information::
+                                Setting own connection related information.
+* Remote Programs::             How TRAMP finds and uses programs on the remote host.
 * Remote shell setup::          Remote shell setup hints.
 * Android shell setup::         Android shell setup hints.
 * Auto-save and Backup::        Auto-save and Backup.
@@ -555,25 +582,24 @@ Method::.
 
 File: tramp,  Node: Connection types,  Next: Inline methods,  Up: Configuration
 
-5.1 Types of connections made to remote machines
-================================================
+5.1 Types of connections made to remote hosts
+=============================================
 
 There are two basic types of transfer methods, each with its own
 advantages and limitations.  Both types of connection make use of a
 remote shell access program such as `rsh', `ssh' or `telnet' to connect
-to the remote machine.
+to the remote host.
 
    This connection is used to perform many of the operations that TRAMP
 requires to make the remote file system transparently accessible from
-the local machine.  It is only when visiting files that the methods
-differ.
+the local host.  It is only when visiting files that the methods differ.
 
    Loading or saving a remote file requires that the content of the file
-be transferred between the two machines.  The content of the file can
-be transferred using one of two methods: the "inline method" over the
-same connection used to log in to the remote machine, or the "external
-method" through another connection using a remote copy program such as
-`rcp', `scp' or `rsync'.
+be transferred between the two hosts.  The content of the file can be
+transferred using one of two methods: the "inline method" over the same
+connection used to log in to the remote host, or the "external method"
+through another connection using a remote copy program such as `rcp',
+`scp' or `rsync'.
 
    The performance of the external methods is generally better than that
 of the inline methods, at least for large files.  This is caused by the
@@ -600,12 +626,12 @@ File: tramp,  Node: Inline methods,  Next: External methods,  Prev: Connection t
 The inline methods in TRAMP are quite powerful and can work in
 situations where you cannot use an external transfer program to connect.
 Inline methods are the only methods that work when connecting to the
-remote machine via telnet.  (There are also strange inline methods which
+remote host via telnet.  (There are also strange inline methods which
 allow you to transfer files between _user identities_ rather than
 hosts, see below.)
 
    These methods depend on the existence of a suitable encoding and
-decoding command on remote machine.  Locally, TRAMP may be able to use
+decoding command on remote host.  Locally, TRAMP may be able to use
 features of Emacs to decode and encode the files or it may require
 access to external commands to perform that task.
 
@@ -728,17 +754,17 @@ fair trade-off between both approaches.
 
 `rcp'--`rsh' and `rcp'
      This method uses the `rsh' and `rcp' commands to connect to the
-     remote machine and transfer files.  This is probably the fastest
+     remote host and transfer files.  This is probably the fastest
      connection method available.
 
      The alternative method `remcp' uses the `remsh' and `rcp'
-     commands.  It should be applied on machines where `remsh' is used
+     commands.  It should be applied on hosts where `remsh' is used
      instead of `rsh'.
 
 `scp'--`ssh' and `scp'
      Using `ssh' to connect to the remote host and `scp' to transfer
-     files between the machines is the best method for securely
-     connecting to a remote machine and accessing files.
+     files between the hosts is the best method for securely connecting
+     to a remote host and accessing files.
 
      The performance of this option is also quite good.  It may be
      slower than the inline methods when you often open and close small
@@ -763,9 +789,9 @@ fair trade-off between both approaches.
      This method supports the `-p' argument.
 
 `rsync'--`ssh' and `rsync'
-     Using the `ssh' command to connect securely to the remote machine
-     and the `rsync' command to transfer files is almost identical to
-     the `scp' method.
+     Using the `ssh' command to connect securely to the remote host and
+     the `rsync' command to transfer files is almost identical to the
+     `scp' method.
 
      While `rsync' performs much better than `scp' when transferring
      files that exist on both hosts, this advantage is lost if the file
@@ -854,17 +880,16 @@ fair trade-off between both approaches.
      name.  Because of this, the TRAMP syntax has been extended: you can
      specify a user name which looks like `user%domain' (the real user
      name, then a percent sign, then the domain name).  So, to connect
-     to the machine `melancholia' as user `daniel' of the domain
+     to the host `melancholia' as user `daniel' of the domain
      `BIZARRE', and edit `.emacs' in the home directory (share
-     `daniel$') I would specify the filename
+     `daniel$') I would specify the file name
      `/smb:daniel%BIZARRE@melancholia:/daniel$$/.emacs'.
 
      Depending on the Windows domain configuration, a Windows user
      might be considered as domain user per default.  In order to
-     connect as local user, the WINS name of that machine must be given
-     as domain name.  Usually, it is the machine name in capital
-     letters.  In the example above, the local user `daniel' would be
-     specified as
+     connect as local user, the WINS name of that host must be given as
+     domain name.  Usually, it is the host name in capital letters.  In
+     the example above, the local user `daniel' would be specified as
      `/smb:daniel%MELANCHOLIA@melancholia:/daniel$$/.emacs'.
 
      The domain name as well as the user name are optional.  If no user
@@ -884,8 +909,8 @@ fair trade-off between both approaches.
      Android devices.  The Android Debug Bridge must be installed
      locally.  Some GNU/Linux distributions offer it for installation,
      otherwise it can be installed as part of the Android SDK.  If the
-     `adb' program is not found via the `$PATH' environment variable,
-     the variable TRAMP-ADB-PROGRAM must point to its absolute path.
+     `adb' program is not found via the `PATH' environment variable, the
+     variable TRAMP-ADB-PROGRAM must point to its absolute path.
 
      Tramp does not connect Android devices to `adb'.  This must be
      performed outside Emacs.  If there is exactly one Android device
@@ -998,7 +1023,7 @@ combinations, via the variable `tramp-default-method-alist'.  For
 example, the following two lines specify to use the `ssh' method for
 all user names matching `john' and the `rsync' method for all host
 names matching `lily'.  The third line specifies to use the `su' method
-for the user `root' on the machine `localhost'.
+for the user `root' on the host `localhost'.
 
      (add-to-list 'tramp-default-method-alist '("" "john" "ssh"))
      (add-to-list 'tramp-default-method-alist '("lily" "" "rsync"))
@@ -1018,8 +1043,8 @@ environment you will use them in and, especially when used over the
 Internet, the security implications of your preferred method.
 
    The `rsh' and `telnet' methods send your password as plain text as
-you log in to the remote machine, as well as transferring the files in
-such a way that the content can easily be read from other machines.
+you log in to the remote host, as well as transferring the files in
+such a way that the content can easily be read from other hosts.
 
    If you need to connect to remote systems that are accessible from the
 Internet, you should give serious thought to using `ssh' based methods
@@ -1043,7 +1068,7 @@ to edit mostly small files.  And if you access large text files,
 compression (driven by TRAMP-INLINE-COMPRESS-START-SIZE) shall still
 result in good performance.
 
-   I guess that these days, most people can access a remote machine by
+   I guess that these days, most people can access a remote host by
 using `ssh'.  So I suggest that you use the `ssh' method.  So, type
 `C-x C-f /ssh:root@otherhost:/etc/motd <RET>' to edit the `/etc/motd'
 file on the other host.
@@ -1168,7 +1193,7 @@ Of course, the target host may also require a bastion host.
      USER are regular expressions or `nil', which is interpreted as a
      regular expression which always matches.
 
-     PROXY must be a Tramp filename which localname part is ignored.
+     PROXY must be a Tramp file name which localname part is ignored.
      Method and user name on PROXY are optional, which is interpreted
      with the default values.  The method must be an inline or gateway
      method (*note Inline methods::, *note Gateway methods::).  If
@@ -1285,7 +1310,7 @@ File: tramp,  Node: Customizing Completion,  Next: Password handling,  Prev: Cus
 
 The variable `tramp-completion-function-alist' is intended to customize
 which files are taken into account for user and host name completion
-(*note Filename completion::).  For every method, it keeps a set of
+(*note File name completion::).  For every method, it keeps a set of
 configuration files, accompanied by a Lisp function able to parse that
 file.  Entries in `tramp-completion-function-alist' have the form
 (METHOD PAIR1 PAIR2 ...).
@@ -1431,7 +1456,7 @@ don't use No Gnus, you can take `password.el' from the TRAMP `contrib'
 directory, see *note Installation parameters::.
 
 
-File: tramp,  Node: Connection caching,  Next: Remote Programs,  Prev: Password handling,  Up: Configuration
+File: tramp,  Node: Connection caching,  Next: Predefined connection information,  Prev: Password handling,  Up: Configuration
 
 5.13 Reusing connection related information
 ===========================================
@@ -1467,10 +1492,36 @@ host (via the command `uname -sr'), it flushes all connection related
 information for this host, and opens the connection again.
 
 
-File: tramp,  Node: Remote Programs,  Next: Remote shell setup,  Prev: Connection caching,  Up: Configuration
+File: tramp,  Node: Predefined connection information,  Next: Remote Programs,  Prev: Connection caching,  Up: Configuration
 
-5.14 How TRAMP finds and uses programs on the remote machine
-============================================================
+5.14 Setting own connection related information
+===============================================
+
+Sometimes, TRAMP is not able to detect correct connection related
+information.  In such cases, you could tell TRAMP which value it has to
+take.  Since this could result in errors, it has to be used with care.
+
+   Such settings can be performed via the list
+`tramp-connection-properties'.  An entry in this list has the form
+`(REGEXP PROPERTY VALUE)'.  REGEXP matches remote file names for which
+a property shall be predefined.  It can be `nil'.  PROPERTY is a
+string, and VALUE the corresponding value.  PROPERTY could be any
+property found in the file `tramp-persistency-file-name'.
+
+   A special property is `"busybox"'.  This must be set, if the remote
+host runs a very restricted busybox as shell, which closes the
+connection at will.  Since there is no reliable test for this, TRAMP
+must be indicated this way.  Example:
+
+     (add-to-list 'tramp-connection-properties
+                  (list (regexp-quote "/ssh:user@randomhost.your.domain:")
+                        "busybox" t))
+
+
+File: tramp,  Node: Remote Programs,  Next: Remote shell setup,  Prev: Predefined connection information,  Up: Configuration
+
+5.15 How TRAMP finds and uses programs on the remote host
+=========================================================
 
 TRAMP depends on a number of programs on the remote host in order to
 function, including `ls', `test', `find' and `cat'.
@@ -1484,16 +1535,16 @@ used if they can be found.  When they are available, they are used to
 improve the performance and accuracy of remote file access.
 
  -- User Option: tramp-remote-path
-     When TRAMP connects to the remote machine, it searches for the
+     When TRAMP connects to the remote host, it searches for the
      programs that it can use.  The variable `tramp-remote-path'
-     controls the directories searched on the remote machine.
+     controls the directories searched on the remote host.
 
      By default, this is set to a reasonable set of defaults for most
-     machines.  The symbol `tramp-default-remote-path' is a place
-     holder, it is replaced by the list of directories received via the
-     command `getconf PATH' on your remote machine.  For example, on
-     Debian GNU/Linux this is `/bin:/usr/bin', whereas on Solaris this
-     is `/usr/xpg4/bin:/usr/ccs/bin:/usr/bin:/opt/SUNWspro/bin'.  It is
+     hosts.  The symbol `tramp-default-remote-path' is a place holder,
+     it is replaced by the list of directories received via the command
+     `getconf PATH' on your remote host.  For example, on Debian
+     GNU/Linux this is `/bin:/usr/bin', whereas on Solaris this is
+     `/usr/xpg4/bin:/usr/ccs/bin:/usr/bin:/opt/SUNWspro/bin'.  It is
      recommended to apply this symbol on top of `tramp-remote-path'.
 
      It is possible, however, that your local (or remote ;) system
@@ -1530,7 +1581,7 @@ Emacs.
 
 File: tramp,  Node: Remote shell setup,  Next: Android shell setup,  Prev: Remote Programs,  Up: Configuration
 
-5.15 Remote shell setup hints
+5.16 Remote shell setup hints
 =============================
 
 As explained in the *note Overview:: section, TRAMP connects to the
@@ -1595,7 +1646,7 @@ TRAMP-PASSWORD-PROMPT-REGEXP
      TRAMP-PASSWORD-PROMPT-REGEXP handles the detection of such
      requests for English environments.  When you use another
      localization of your (local or remote) host, you might need to
-     adapt this. Example:
+     adapt this.  Example:
 
           (setq
             tramp-password-prompt-regexp
@@ -1607,7 +1658,7 @@ TRAMP-PASSWORD-PROMPT-REGEXP
                     "password" "Password"
                     ;; Deutsch
                     "passwort" "Passwort"
-                    ;; Franc,ais
+                    ;; Français
                     "mot de passe" "Mot de passe") t)
                 ".*:\0? *"))
 
@@ -1723,13 +1774,12 @@ Interactive shell prompt
 
 File: tramp,  Node: Android shell setup,  Next: Auto-save and Backup,  Prev: Remote shell setup,  Up: Configuration
 
-5.16 Android shell setup hints
+5.17 Android shell setup hints
 ==============================
 
 Android devices use a restricted shell.  They can be accessed via the
 `adb' method.  However, this restricts the access to a USB connection,
-and it requires the installation of the Android SDK on the local
-machine.
+and it requires the installation of the Android SDK on the local host.
 
    When an `sshd' process runs on the Android device, like provided by
 the `SSHDroid' app, any `ssh'-based method can be used.  This requires
@@ -1742,9 +1792,10 @@ instruct TRAMP by this form:
      (add-to-list 'tramp-connection-properties
      	     (list (regexp-quote "192.168.0.26") "remote-shell" "sh"))
 
-with `192.168.0.26' being the IP address of your Android device.
+with `192.168.0.26' being the IP address of your Android device (*note
+Predefined connection information::).
 
-   The user settings for the `$PATH' environment variable must be
+   The user settings for the `PATH' environment variable must be
 preserved.  It has also been reported, that the commands in
 `/system/xbin' are better suited than the ones in `/system/bin'.  Add
 these setting:
@@ -1778,7 +1829,7 @@ You would open the connection with `C-x C-f /ssh:android:' then.
 
 File: tramp,  Node: Auto-save and Backup,  Next: Windows setup hints,  Prev: Android shell setup,  Up: Configuration
 
-5.17 Auto-save and Backup configuration
+5.18 Auto-save and Backup configuration
 =======================================
 
 Normally, Emacs writes backup files to the same directory as the
@@ -1845,14 +1896,14 @@ files, `auto-save-file-name-transforms' should be set to `nil'.
 
 File: tramp,  Node: Windows setup hints,  Prev: Auto-save and Backup,  Up: Configuration
 
-5.18 Issues with Cygwin ssh
+5.19 Issues with Cygwin ssh
 ===========================
 
 This section needs a lot of work!  Please help.
 
    The recent Cygwin installation of `ssh' works only with a Cygwinized
 Emacs.  You can check it by typing `M-x eshell', and starting `ssh
-test.machine'.  The problem is evident if you see a message like this:
+test.host'.  The problem is evident if you see a message like this:
 
      Pseudo-terminal will not be allocated because stdin is not a terminal.
 
@@ -1861,12 +1912,12 @@ selecting `sshx' as the connection method.  You can find information
 about setting up Cygwin in their FAQ at `http://cygwin.com/faq/'.
 
    If you wish to use the `scpx' connection method, then you might have
-the problem that Emacs calls `scp' with a Windows filename such as
-`c:/foo'.  The Cygwin version of `scp' does not know about Windows
-filenames and interprets this as a remote filename on the host `c'.
+the problem that Emacs calls `scp' with a Windows file name such as
+`c:/foo'.  The Cygwin version of `scp' does not know about Windows file
+names and interprets this as a remote file name on the host `c'.
 
    One possible workaround is to write a wrapper script for `scp' which
-converts the Windows filename to a Cygwinized filename.
+converts the Windows file name to a Cygwinized file name.
 
    If you want to use either `ssh' based method on Windows, then you
 might encounter problems with `ssh-agent'.  Using this program, you can
@@ -1887,8 +1938,8 @@ File: tramp,  Node: Usage,  Next: Bug Reports,  Prev: Configuration,  Up: Top
 *************
 
 Once you have installed TRAMP it will operate fairly transparently.
-You will be able to access files on any remote machine that you can log
-in to as though they were local.
+You will be able to access files on any remote host that you can log in
+to as though they were local.
 
    Files are specified to TRAMP using a formalized syntax specifying the
 details of the system to connect to.  This is similar to the syntax used
@@ -1905,118 +1956,88 @@ minute you have already forgotten that you hit that key!
 
 * Menu:
 
-* Filename Syntax::             TRAMP filename conventions.
-* Alternative Syntax::          URL-like filename syntax.
-* Filename completion::         Filename completion.
+* File name Syntax::            TRAMP file name conventions.
+* File name completion::        File name completion.
 * Ad-hoc multi-hops::           Declaring multiple hops in the file name.
 * Remote processes::            Integration with other Emacs packages.
 * Cleanup remote connections::  Cleanup remote connections.
 
 
-File: tramp,  Node: Filename Syntax,  Next: Alternative Syntax,  Up: Usage
+File: tramp,  Node: File name Syntax,  Next: File name completion,  Up: Usage
 
-6.1 TRAMP filename conventions
-==============================
+6.1 TRAMP file name conventions
+===============================
 
-To access the file LOCALNAME on the remote machine MACHINE you would
-specify the filename `/machine:localname'.  This will connect to
-MACHINE and transfer the file using the default method.  *Note Default
-Method::.
+To access the file LOCALNAME on the remote host HOST you would specify
+the file name `/host:localname'.  This will connect to HOST and
+transfer the file using the default method.  *Note Default Method::.
 
-   Some examples of TRAMP filenames are shown below.
+   Some examples of TRAMP file names are shown below.
 
 `/melancholia:.emacs'
-     Edit the file `.emacs' in your home directory on the machine
+     Edit the file `.emacs' in your home directory on the host
      `melancholia'.
 
 `/melancholia.danann.net:.emacs'
      This edits the same file, using the fully qualified domain name of
-     the machine.
+     the host.
 
 `/melancholia:~/.emacs'
      This also edits the same file; the `~' is expanded to your home
-     directory on the remote machine, just like it is locally.
+     directory on the remote host, just like it is locally.
 
 `/melancholia:~daniel/.emacs'
      This edits the file `.emacs' in the home directory of the user
-     `daniel' on the machine `melancholia'.  The `~<user>' construct is
-     expanded to the home directory of that user on the remote machine.
+     `daniel' on the host `melancholia'.  The `~<user>' construct is
+     expanded to the home directory of that user on the remote host.
 
 `/melancholia:/etc/squid.conf'
-     This edits the file `/etc/squid.conf' on the machine `melancholia'.
+     This edits the file `/etc/squid.conf' on the host `melancholia'.
 
 
-   MACHINE can also be an IPv4 or IPv6 address, like in
+   HOST can also be an IPv4 or IPv6 address, like in
 `/127.0.0.1:.emacs' or `/[::1]:.emacs'.  For syntactical reasons, IPv6
 addresses must be embedded in square brackets `[' and `]'.
 
    Unless you specify a different name to use, TRAMP will use the
 current local user name as the remote user name to log in with.  If you
 need to log in as a different user, you can specify the user name as
-part of the filename.
+part of the file name.
 
-   To log in to the remote machine as a specific user, you use the
-syntax `/user@machine:path/to.file'.  That means that connecting to
-`melancholia' as `daniel' and editing `.emacs' in your home directory
-you would specify `/daniel@melancholia:.emacs'.
+   To log in to the remote host as a specific user, you use the syntax
+`/user@host:path/to.file'.  That means that connecting to `melancholia'
+as `daniel' and editing `.emacs' in your home directory you would
+specify `/daniel@melancholia:.emacs'.
 
    It is also possible to specify other file transfer methods (*note
-Inline methods::, *note External methods::) as part of the filename.
+Inline methods::, *note External methods::) as part of the file name.
 This is done by putting the method before the user and host name, as in
-`/METHOD:' (Note the trailing colon).  The user, machine and file
+`/METHOD:' (Note the trailing colon).  The user, host and file
 specification remain the same.
 
-   So, to connect to the machine `melancholia' as `daniel', using the
+   So, to connect to the host `melancholia' as `daniel', using the
 `ssh' method to transfer files, and edit `.emacs' in my home directory
-I would specify the filename `/ssh:daniel@melancholia:.emacs'.
+I would specify the file name `/ssh:daniel@melancholia:.emacs'.
+
+   A remote file name containing a host name only, which is equal to a
+method name, is not allowed.  If such a host name is used, it must
+always be preceded by an explicit method name, like `/ssh:ssh:'.
 
    Finally, for some methods it is possible to specify a different port
 number than the default one, given by the method.  This is specified by
 adding `#<port>' to the host name, like in
 `/ssh:daniel@melancholia#42:.emacs'.
 
-   Note that TRAMP supports only filenames encoded in unibyte.
-
 
-File: tramp,  Node: Alternative Syntax,  Next: Filename completion,  Prev: Filename Syntax,  Up: Usage
+File: tramp,  Node: File name completion,  Next: Ad-hoc multi-hops,  Prev: File name Syntax,  Up: Usage
 
-6.2 URL-like filename syntax
-============================
+6.2 File name completion
+========================
 
-Additionally to the syntax described in the previous chapter, it is
-possible to use a URL-like syntax for TRAMP.  This can be switched on
-by customizing the variable `tramp-syntax'.  Please note that this
-feature is experimental for the time being.
-
-   The variable `tramp-syntax' must be set before requiring TRAMP:
-
-     (setq tramp-syntax 'url)
-     (require 'tramp)
-
-   Then, a TRAMP filename would look like this:
-`/METHOD://USER@MACHINE:PORT/PATH/TO.FILE'.  `/METHOD://' is mandatory,
-all other parts are optional.  `:PORT' is useful for methods only who
-support this.
-
-   The last example from the previous section would look like this:
-`/ssh://daniel@melancholia/.emacs'.
-
-   For the time being, `tramp-syntax' can have the following values:
-
-     `ftp'--That is the default syntax
-
-     `url'--URL-like syntax
-
-
-File: tramp,  Node: Filename completion,  Next: Ad-hoc multi-hops,  Prev: Alternative Syntax,  Up: Usage
-
-6.3 Filename completion
-=======================
-
-Filename completion works with TRAMP for completion of method names, of
-user names and of machine names as well as for completion of file names
-on remote machines.  In order to enable this, partial completion must
-be activated in your `.emacs'.  *Note Completion Options:
+File name completion works with TRAMP for completion of method names,
+of user names and of host names as well as for completion of file names
+on remote hosts.  In order to enable this, partial completion must be
+activated in your `.emacs'.  *Note Completion Options:
 (emacs)Completion Options.
 
    If you, for example, type `C-x C-f /t <TAB>', TRAMP might give you
@@ -2026,34 +2047,34 @@ as result the choice for
      toto:                              
 
    `telnet:' is a possible completion for the respective method, `tmp/'
-stands for the directory `/tmp' on your local machine, and `toto:'
-might be a host TRAMP has detected in your `~/.ssh/known_hosts' file
-(given you're using default method `ssh').
+stands for the directory `/tmp' on your local host, and `toto:' might
+be a host TRAMP has detected in your `~/.ssh/known_hosts' file (given
+you're using default method `ssh').
 
    If you go on to type `e <TAB>', the minibuffer is completed to
-`/telnet:'.  Next `<TAB>' brings you all machine names TRAMP detects in
+`/telnet:'.  Next `<TAB>' brings you all host names TRAMP detects in
 your `/etc/hosts' file, let's say
 
      /telnet:127.0.0.1:                 /telnet:192.168.0.1:
      /telnet:[::1]:                     /telnet:localhost:
      /telnet:melancholia.danann.net:    /telnet:melancholia:
 
-   Now you can choose the desired machine, and you can continue to
-complete file names on that machine.
+   Now you can choose the desired host, and you can continue to
+complete file names on that host.
 
    If the configuration files (*note Customizing Completion::), which
 TRAMP uses for analysis of completion, offer user names, those user
 names will be taken into account as well.
 
-   Remote machines which have been visited in the past and kept
+   Remote hosts which have been visited in the past and kept
 persistently (*note Connection caching::) will be offered too.
 
-   Once the remote machine identification is completed, it comes to
-filename completion on the remote host.  This works pretty much like
-for files on the local host, with the exception that minibuffer killing
-via a double-slash works only on the filename part, except that
-filename part starts with `//'.  A triple-slash stands for the default
-behavior.  *Note Minibuffer File: (emacs)Minibuffer File.
+   Once the remote host identification is completed, it comes to file
+name completion on the remote host.  This works pretty much like for
+files on the local host, with the exception that minibuffer killing via
+a double-slash works only on the file name part, except that file name
+part starts with `//'.  A triple-slash stands for the default behavior.
+*Note Minibuffer File: (emacs)Minibuffer File.
 
 Example:
 
@@ -2068,20 +2089,21 @@ Example:
 
    A remote directory might have changed its contents out of Emacs
 control, for example by creation or deletion of files by other
-processes.  Therefore, during filename completion, the remote directory
-contents are reread regularly in order to detect such changes, which
-would be invisible otherwise (*note Connection caching::).
+processes.  Therefore, during file name completion, the remote
+directory contents are reread regularly in order to detect such
+changes, which would be invisible otherwise (*note Connection
+caching::).
 
  -- User Option: tramp-completion-reread-directory-timeout
      This variable defines the number of seconds since last remote
      command before rereading a directory contents.  A value of 0 would
-     require an immediate reread during filename completion, `nil'
+     require an immediate reread during file name completion, `nil'
      means to use always cached values for the directory contents.
 
 
-File: tramp,  Node: Ad-hoc multi-hops,  Next: Remote processes,  Prev: Filename completion,  Up: Usage
+File: tramp,  Node: Ad-hoc multi-hops,  Next: Remote processes,  Prev: File name completion,  Up: Usage
 
-6.4 Declaring multiple hops in the file name
+6.3 Declaring multiple hops in the file name
 ============================================
 
 Multiple hops are configured with the variable
@@ -2114,7 +2136,7 @@ sufficient from now on.
 
 File: tramp,  Node: Remote processes,  Next: Cleanup remote connections,  Prev: Ad-hoc multi-hops,  Up: Usage
 
-6.5 Integration with other Emacs packages
+6.4 Integration with other Emacs packages
 =========================================
 
 TRAMP supports running processes on a remote host.  This allows to
@@ -2131,9 +2153,9 @@ the variable `default-directory' is remote:
 
    If the remote host is mounted via GVFS (see *note GVFS based
 methods::), the remote filesystem is mounted locally.  Therefore, there
-are no remote processes; all processes run still locally on your
-machine with an adapted `default-directory'.  This section does not
-apply for such connection methods.
+are no remote processes; all processes run still locally on your host
+with an adapted `default-directory'.  This section does not apply for
+such connection methods.
 
    Remote processes are started when a corresponding command is executed
 from a buffer belonging to a remote file or directory.  Up to now, the
@@ -2142,8 +2164,8 @@ packages `compile.el' (commands like `compile' and `grep') and `gud.el'
 packages is planned, any help for this is welcome!
 
    When your program is not found in the default search path TRAMP sets
-on the remote machine, you should either use an absolute path, or
-extend `tramp-remote-path' (see *note Remote Programs::):
+on the remote host, you should either use an absolute path, or extend
+`tramp-remote-path' (see *note Remote Programs::):
 
      (add-to-list 'tramp-remote-path "~/bin")
      (add-to-list 'tramp-remote-path "/appli/pub/bin")
@@ -2174,7 +2196,7 @@ in your `.emacs':
 remote host, please let us know.  We will try to integrate them as
 well.  *Note Bug Reports::.
 
-6.5.1 Running remote programs that create local X11 windows
+6.4.1 Running remote programs that create local X11 windows
 -----------------------------------------------------------
 
 If you want to run a remote program, which shall connect the X11 server
@@ -2192,24 +2214,25 @@ remote host.
    Another trick might be that you put `ForwardX11 yes' or
 `ForwardX11Trusted yes' to your `~/.ssh/config' file for that host.
 
-6.5.2 Running `shell' on a remote host
+6.4.2 Running `shell' on a remote host
 --------------------------------------
 
 Calling `M-x shell' in a buffer related to a remote host runs the local
-shell as defined in `shell-file-name'.  This might be also a valid path
+shell as defined in `shell-file-name'.  This might be also a valid file
 name for a shell to be applied on the remote host, but it will fail at
 least when your local and remote hosts belong to different system
 types, like `windows-nt' and `gnu/linux'.
 
    You must set the variable `explicit-shell-file-name' to the shell
-path name on the remote host, in order to start that shell on the
+file name on the remote host, in order to start that shell on the
 remote host.
 
    Starting with Emacs 24 this won't be necessary, if you call `shell'
-interactively.  You will be asked for the remote shell path, if you are
-on a remote buffer, and if `explicit-shell-file-name' is equal to `nil'.
+interactively.  You will be asked for the remote shell file name, if
+you are on a remote buffer, and if `explicit-shell-file-name' is equal
+to `nil'.
 
-6.5.3 Running `shell-command' on a remote host
+6.4.3 Running `shell-command' on a remote host
 ----------------------------------------------
 
 `shell-command' allows to execute commands in a shell, either
@@ -2222,10 +2245,10 @@ Example:
    You will see the buffer `*Async Shell Command*', containing the
 continuous output of the `tail' command.
 
-   A similar behaviour can be reached by `M-x auto-revert-tail-mode',
-if available.
+   A similar behavior can be reached by `M-x auto-revert-tail-mode', if
+available.
 
-6.5.4 Running `eshell' on a remote host
+6.4.4 Running `eshell' on a remote host
 ---------------------------------------
 
 TRAMP is integrated into `eshell.el'.  That is, you can open an
@@ -2259,7 +2282,7 @@ corresponding entry to the variable `tramp-default-proxies-alist'
      uid=0(root) gid=0(root) groups=0(root)
      /su:root@remotehost:/root $
 
-6.5.5 Running a debugger on a remote host
+6.4.5 Running a debugger on a remote host
 -----------------------------------------
 
 `gud.el' offers an unified interface to several symbolic debuggers
@@ -2285,7 +2308,7 @@ though.
 means, file names as arguments must be given as ordinary relative or
 absolute file names, without any remote specification.
 
-6.5.6 Running remote processes on Windows hosts
+6.4.6 Running remote processes on Windows hosts
 -----------------------------------------------
 
 With the help of the `winexe' it is possible tu run processes on a
@@ -2311,7 +2334,7 @@ In case of running `powershell' as remote shell, the settings are
 
 File: tramp,  Node: Cleanup remote connections,  Prev: Remote processes,  Up: Usage
 
-6.6 Cleanup remote connections
+6.5 Cleanup remote connections
 ==============================
 
 Sometimes it is useful to cleanup remote connections.  The following
@@ -2362,13 +2385,16 @@ subscription requests to.
    Subscribing to the list is performed via the TRAMP Mail Subscription
 Page (http://lists.gnu.org/mailman/listinfo/tramp-devel/).
 
+   Before sending a bug report, you could check whether TRAMP works at
+all.  Run the test suite on your local host, *note Testing::.
+
    To report a bug in TRAMP, you should execute `M-x tramp-bug'.  This
 will automatically generate a buffer with the details of your system
 and TRAMP version.
 
    When submitting a bug report, please try to describe in excruciating
 detail the steps required to reproduce the problem, the setup of the
-remote machine and any special conditions that exist.  You should also
+remote host and any special conditions that exist.  You should also
 check that your problem is not described already in *Note Frequently
 Asked Questions::.
 
@@ -2433,7 +2459,7 @@ File: tramp,  Node: Frequently Asked Questions,  Next: Files directories and loc
      you are confident that files on remote hosts are not changed out of
      Emacs' control, set `remote-file-name-inhibit-cache' to `nil'.
      Set also `tramp-completion-reread-directory-timeout' to `nil',
-     *note Filename completion::.
+     *note File name completion::.
 
      Disable version control.  If you access remote files which are not
      under version control, a lot of check operations can be avoided by
@@ -2455,9 +2481,9 @@ File: tramp,  Node: Frequently Asked Questions,  Next: Files directories and loc
 
         - Unknown characters in the prompt
 
-          TRAMP needs to recognize the prompt on the remote machine
-          after execution any command.  This is not possible when the
-          prompt contains unknown characters like escape sequences for
+          TRAMP needs to recognize the prompt on the remote host after
+          execution any command.  This is not possible when the prompt
+          contains unknown characters like escape sequences for
           coloring.  This should be avoided on the remote side.  *Note
           Remote shell setup::. for setting the regular expression
           detecting the prompt.
@@ -2485,8 +2511,8 @@ File: tramp,  Node: Frequently Asked Questions,  Next: Files directories and loc
 
         - Echoed characters after login
 
-          When the remote machine opens an echoing shell, there might
-          be control characters in the welcome message.  TRAMP tries to
+          When the remote host opens an echoing shell, there might be
+          control characters in the welcome message.  TRAMP tries to
           suppress such echoes via the `stty -echo' command, but
           sometimes this command is not reached, because the echoed
           output has confused TRAMP already.  In such situations it
@@ -2529,22 +2555,52 @@ File: tramp,  Node: Frequently Asked Questions,  Next: Files directories and loc
           Host *
                ServerAliveInterval 5
 
+   * TRAMP does not use my `ssh' `ControlPath'
+
+     Your `ControlPath' setting will be overwritten by `ssh' sessions
+     initiated by TRAMP.  This is because a master session, initiated
+     outside Emacs, could be closed, which would stall all other `ssh'
+     sessions for that host inside Emacs.
+
+     Consequently, if you connect to a remote host via TRAMP, you might
+     be prompted for a password again, even if you have established
+     already an `ssh' connection to that host.  Further TRAMP
+     connections to that host, for example in order to run a process on
+     that host, will reuse that initial `ssh' connection.
+
+     If your `ssh' version supports the `ControlPersist' option, you
+     could customize the variable `tramp-ssh-controlmaster-options' to
+     use your `ControlPath', for example:
+
+          (setq tramp-ssh-controlmaster-options
+                (concat
+                  "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
+                  "-o ControlMaster=auto -o ControlPersist=yes"))
+
+     Note, that "%r", "%h" and "%p" must be encoded as "%%r", "%%h" and
+     "%%p", respectively.
+
+     These settings can be suppressed, if they are configured properly
+     in your `~/.ssh/config':
+
+          (setq tramp-use-ssh-controlmaster-options nil)
+
    * File name completion does not work with TRAMP
 
-     When you log in to the remote machine, do you see the output of
-     `ls' in color? If so, this may be the cause of your problems.
+     When you log in to the remote host, do you see the output of `ls'
+     in color? If so, this may be the cause of your problems.
 
      `ls' outputs ANSI escape sequences that your terminal emulator
      interprets to set the colors.  These escape sequences will confuse
      TRAMP however.
 
-     In your `.bashrc', `.profile' or equivalent on the remote machine
-     you probably have an alias configured that adds the option
+     In your `.bashrc', `.profile' or equivalent on the remote host you
+     probably have an alias configured that adds the option
      `--color=yes' or `--color=auto'.
 
      You should remove that alias and ensure that a new login _does not_
-     display the output of `ls' in color.  If you still cannot use
-     filename completion, report a bug to the TRAMP developers.
+     display the output of `ls' in color.  If you still cannot use file
+     name completion, report a bug to the TRAMP developers.
 
    * File name completion does not work in large directories
 
@@ -2945,7 +3001,7 @@ names.  As such, the lisp functions `file-name-directory' and
 `file-name-nondirectory' are overridden within the TRAMP package.
 
    Their replacements are reasonably simplistic in their approach.  They
-dissect the filename, call the original handler on the localname and
+dissect the file name, call the original handler on the localname and
 then rebuild the TRAMP file name with the result.
 
    This allows the platform specific hacks in the original handlers to
@@ -2957,23 +3013,22 @@ File: tramp,  Node: External packages,  Prev: Localname deconstruction,  Up: Fil
 9.2 Integration with external Lisp packages
 ===========================================
 
-9.2.1 Filename completion.
---------------------------
+9.2.1 File name completion.
+---------------------------
 
-While reading filenames in the minibuffer, TRAMP must decide whether it
-completes possible incomplete filenames, or not.  Imagine there is the
-following situation: You have typed `C-x C-f /ssh: <TAB>'.  TRAMP cannot
-know, whether `ssh' is a method or a host name.  It checks therefore
-the last input character you have typed.  If this is <TAB>, <SPACE> or
-`?', TRAMP assumes that you are still in filename completion, and it
-does not connect to the possible remote host `ssh'.
+While reading file names in the minibuffer, TRAMP must decide whether
+it completes possible incomplete file names, or not.  Imagine there is
+the following situation: You have typed `C-x C-f /ssh: <TAB>'.  TRAMP
+cannot know, whether `ssh' is a method or a host name.  It checks
+therefore the last input character you have typed.  If this is <TAB>,
+<SPACE> or `?', TRAMP assumes that you are still in file name
+completion, and it does not connect to the possible remote host `ssh'.
 
-   External packages, which use other characters for completing
-filenames in the minibuffer, must signal this to TRAMP.  For this case,
-the variable `tramp-completion-mode' can be bound temporarily to a
-non-`nil' value.
+   External packages, which use other characters for completing file
+names in the minibuffer, must signal this to TRAMP.  For this case, the
+variable `non-essential' can be bound temporarily to a non-`nil' value.
 
-     (let ((tramp-completion-mode t))
+     (let ((non-essential t))
        ...)
 
 9.2.2 File attributes cache.
@@ -3090,17 +3145,17 @@ File: tramp,  Node: Issues,  Next: GNU Free Documentation License,  Prev: Traces
      But I have decided that this is too fragile to reliably work, so
      on some systems you'll have to do without the uuencode methods.
 
-   * The TRAMP filename syntax differs between Emacs and XEmacs.
+   * The TRAMP file name syntax differs between Emacs and XEmacs.
 
-     The Emacs maintainers wish to use a unified filename syntax for
+     The Emacs maintainers wish to use a unified file name syntax for
      Ange-FTP and TRAMP so that users don't have to learn a new syntax.
      It is sufficient to learn some extensions to the old syntax.
 
      For the XEmacs maintainers, the problems caused from using a
-     unified filename syntax are greater than the gains.  The XEmacs
+     unified file name syntax are greater than the gains.  The XEmacs
      package system uses EFS for downloading new packages.  So,
-     obviously, EFS has to be installed from the start.  If the
-     filenames were unified, TRAMP would have to be installed from the
+     obviously, EFS has to be installed from the start.  If the file
+     names were unified, TRAMP would have to be installed from the
      start, too.
 
 
@@ -3601,7 +3656,7 @@ Function Index
 
 * my-tramp-parse:                        Customizing Completion.
                                                                (line 83)
-* tramp-bug:                             Bug Reports.          (line 22)
+* tramp-bug:                             Bug Reports.          (line 25)
 * tramp-cleanup-all-buffers:             Cleanup remote connections.
                                                                (line 28)
 * tramp-cleanup-all-connections:         Cleanup remote connections.
@@ -3645,9 +3700,10 @@ Variable Index
 * tramp-actions-before-shell:            Remote shell setup.  (line 100)
 * tramp-completion-function-alist:       Customizing Completion.
                                                               (line   6)
-* tramp-completion-mode:                 External packages.   (line  17)
-* tramp-completion-reread-directory-timeout: Filename completion.
-                                                              (line  66)
+* tramp-completion-reread-directory-timeout: File name completion.
+                                                              (line  67)
+* tramp-connection-properties:           Predefined connection information.
+                                                              (line  10)
 * tramp-default-host:                    Default Host.        (line   6)
 * tramp-default-host-alist:              Default Host.        (line  21)
 * tramp-default-method:                  Default Method.      (line   6)
@@ -3677,7 +3733,7 @@ Concept Index
 
 * .login file:                           Remote shell setup.  (line   6)
 * .profile file:                         Remote shell setup.  (line   6)
-* adb method:                            External methods.    (line 172)
+* adb method:                            External methods.    (line 171)
 * android shell setup:                   Android shell setup. (line   6)
 * auto-save:                             Auto-save and Backup.
                                                               (line   6)
@@ -3708,40 +3764,40 @@ Concept Index
 * default user:                          Default User.        (line   6)
 * details of operation:                  Overview.            (line  48)
 * development history:                   History.             (line   6)
-* eshell:                                Remote processes.    (line 117)
+* eshell:                                Remote processes.    (line 118)
 * external methods <1>:                  External methods.    (line   6)
-* external methods:                      Connection types.    (line  16)
+* external methods:                      Connection types.    (line  15)
 * FAQ:                                   Frequently Asked Questions.
                                                               (line   6)
 * fcp (with fcp method):                 External methods.    (line 102)
 * fcp method:                            External methods.    (line 102)
-* filename completion:                   Filename completion. (line   6)
-* filename examples <1>:                 Alternative Syntax.  (line   6)
-* filename examples:                     Filename Syntax.     (line   6)
-* filename syntax <1>:                   Alternative Syntax.  (line   6)
-* filename syntax:                       Filename Syntax.     (line   6)
+* file name completion:                  File name completion.
+                                                              (line   6)
+* file name examples:                    File name Syntax.    (line   6)
+* file name syntax:                      File name Syntax.    (line   6)
 * frequently asked questions:            Frequently Asked Questions.
                                                               (line   6)
 * fsh (with fcp method):                 External methods.    (line 102)
 * fsh method:                            External methods.    (line 115)
 * ftp method:                            External methods.    (line 121)
 * gateway methods:                       Gateway methods.     (line   6)
-* gdb:                                   Remote processes.    (line 151)
-* gud:                                   Remote processes.    (line 151)
+* gdb:                                   Remote processes.    (line 152)
+* gud:                                   Remote processes.    (line 152)
 * gvfs based methods:                    GVFS based methods.  (line   6)
 * history:                               History.             (line   6)
 * how it works:                          Overview.            (line  48)
 * inline methods <1>:                    Inline methods.      (line   6)
-* inline methods:                        Connection types.    (line  16)
+* inline methods:                        Connection types.    (line  15)
 * installation <1>:                      Load paths.          (line   6)
-* installation <2>:                      Installation parameters.
+* installation <2>:                      Testing.             (line   6)
+* installation <3>:                      Installation parameters.
                                                               (line   6)
 * installation:                          Installation.        (line   6)
 * Kerberos (with krlogin method):        Inline methods.      (line  95)
 * Kerberos (with ksu method):            Inline methods.      (line  99)
 * krlogin method:                        Inline methods.      (line  95)
 * ksu method:                            Inline methods.      (line  99)
-* method adb:                            External methods.    (line 172)
+* method adb:                            External methods.    (line 171)
 * method dav:                            GVFS based methods.  (line  16)
 * method davs:                           GVFS based methods.  (line  16)
 * method fcp:                            External methods.    (line 102)
@@ -3772,11 +3828,11 @@ Concept Index
 * method telnet:                         Inline methods.      (line  51)
 * method tunnel:                         Gateway methods.     (line  22)
 * methods, external <1>:                 External methods.    (line   6)
-* methods, external:                     Connection types.    (line  16)
+* methods, external:                     Connection types.    (line  15)
 * methods, gateway:                      Gateway methods.     (line   6)
 * methods, gvfs:                         GVFS based methods.  (line   6)
 * methods, inline <1>:                   Inline methods.      (line   6)
-* methods, inline:                       Connection types.    (line  16)
+* methods, inline:                       Connection types.    (line  15)
 * mimencode:                             Inline methods.      (line  18)
 * multi-hop:                             Multi-hops.          (line   6)
 * multi-hop, ad-hoc:                     Ad-hoc multi-hops.   (line   6)
@@ -3784,12 +3840,12 @@ Concept Index
 * obtaining Tramp:                       Obtaining Tramp.     (line   6)
 * overview:                              Overview.            (line   6)
 * passwords:                             Password handling.   (line   6)
-* perldb:                                Remote processes.    (line 151)
+* perldb:                                Remote processes.    (line 152)
 * plink (with pscp method):              External methods.    (line  86)
 * plink (with psftp method):             External methods.    (line  94)
 * plink method:                          Inline methods.      (line 103)
 * plinkx method:                         Inline methods.      (line 110)
-* powershell:                            Remote processes.    (line 177)
+* powershell:                            Remote processes.    (line 178)
 * proxy hosts:                           Multi-hops.          (line   6)
 * proxy hosts, ad-hoc:                   Ad-hoc multi-hops.   (line   6)
 * pscp (with pscp method):               External methods.    (line  86)
@@ -3817,7 +3873,7 @@ Concept Index
 * sftp method:                           External methods.    (line  45)
 * shell:                                 Remote processes.    (line  84)
 * shell init files:                      Remote shell setup.  (line   6)
-* shell-command:                         Remote processes.    (line 101)
+* shell-command:                         Remote processes.    (line 102)
 * smb method:                            External methods.    (line 125)
 * socks method:                          Gateway methods.     (line  31)
 * ssh (with rsync method):               External methods.    (line  55)
@@ -3832,6 +3888,7 @@ Concept Index
 * sudo method:                           Inline methods.      (line  63)
 * synce method:                          GVFS based methods.  (line  29)
 * telnet method:                         Inline methods.      (line  51)
+* testing:                               Testing.             (line   6)
 * tset Unix command:                     Remote shell setup.  (line  88)
 * tunnel method:                         Gateway methods.     (line  22)
 * type-ahead:                            Usage.               (line  14)
@@ -3839,59 +3896,65 @@ Concept Index
 * using non-standard methods:            Customizing Methods. (line   6)
 * using TRAMP:                           Usage.               (line   6)
 * uuencode:                              Inline methods.      (line  18)
-* winexe:                                Remote processes.    (line 177)
+* winexe:                                Remote processes.    (line 178)
 
 
 
 Tag Table:
-Node: Top921
-Node: Overview5562
-Ref: Overview-Footnote-111306
-Node: Obtaining Tramp11458
-Node: History13036
-Node: Installation14434
-Node: Installation parameters16563
-Node: Load paths19652
-Node: Configuration20309
-Node: Connection types22609
-Node: Inline methods24477
-Node: External methods29361
-Node: GVFS based methods38450
-Node: Gateway methods39859
-Node: Default Method41311
-Node: Default User45279
-Node: Default Host47229
-Node: Multi-hops48463
-Ref: Multi-hops-Footnote-153590
-Node: Customizing Methods53945
-Node: Customizing Completion54353
-Node: Password handling57818
-Ref: Using an authentication file58527
-Ref: Caching passwords59236
-Node: Connection caching60332
-Node: Remote Programs61975
-Node: Remote shell setup64767
-Node: Android shell setup73806
-Node: Auto-save and Backup75800
-Node: Windows setup hints78703
-Node: Usage80435
-Node: Filename Syntax81814
-Node: Alternative Syntax84437
-Node: Filename completion85422
-Node: Ad-hoc multi-hops88401
-Node: Remote processes89834
-Ref: Running a debugger on a remote host96064
-Node: Cleanup remote connections97947
-Node: Bug Reports99268
-Node: Frequently Asked Questions101583
-Node: Files directories and localnames121700
-Node: Localname deconstruction122128
-Node: External packages122857
-Node: Traces and Profiles125298
-Node: Issues127500
-Node: GNU Free Documentation License129201
-Node: Function Index154370
-Node: Variable Index156416
-Node: Concept Index158654
+Node: Top923
+Node: Overview5616
+Ref: Overview-Footnote-111341
+Node: Obtaining Tramp11493
+Node: History13071
+Node: Installation14470
+Node: Installation parameters16656
+Node: Testing19750
+Node: Load paths20553
+Node: Configuration21194
+Node: Connection types23597
+Node: Inline methods25447
+Node: External methods30325
+Node: GVFS based methods39385
+Node: Gateway methods40794
+Node: Default Method42246
+Node: Default User46202
+Node: Default Host48152
+Node: Multi-hops49386
+Ref: Multi-hops-Footnote-154514
+Node: Customizing Methods54869
+Node: Customizing Completion55277
+Node: Password handling58743
+Ref: Using an authentication file59452
+Ref: Caching passwords60161
+Node: Connection caching61257
+Node: Predefined connection information62918
+Node: Remote Programs64131
+Node: Remote shell setup66920
+Node: Android shell setup75960
+Node: Auto-save and Backup77994
+Node: Windows setup hints80897
+Node: Usage82631
+Node: File name Syntax83951
+Node: File name completion86679
+Node: Ad-hoc multi-hops89640
+Node: Remote processes91074
+Ref: Running a debugger on a remote host97302
+Node: Cleanup remote connections99185
+Node: Bug Reports100506
+Node: Frequently Asked Questions102952
+Node: Files directories and localnames124344
+Node: Localname deconstruction124772
+Node: External packages125502
+Node: Traces and Profiles127933
+Node: Issues130135
+Node: GNU Free Documentation License131840
+Node: Function Index157009
+Node: Variable Index159055
+Node: Concept Index161370
 
 End Tag Table
+
+
+Local Variables:
+coding: utf-8
+End:

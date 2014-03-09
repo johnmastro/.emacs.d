@@ -26,7 +26,7 @@
 ;; Set up the load path
 (add-to-list 'load-path basis/emacs-dir)
 (add-to-list 'load-path basis/site-lisp-dir)
-(add-to-list 'load-path (expand-file-name "tramp-2.2.7/" basis/site-lisp-dir))
+(add-to-list 'load-path (expand-file-name "tramp-2.2.9/" basis/site-lisp-dir))
 
 ;; package ---------------------------------------------------------------------
 
