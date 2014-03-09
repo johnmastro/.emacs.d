@@ -181,10 +181,10 @@ Do not save the string to the the kill ring."
   (let ((spaces (or spaces 4))
         (pattern (or pattern "\\S-")))
     (s-join "\n"
-            (mapcar #'(lambda (line)
-                        (if (string-match-p pattern line)
-                            (concat (s-repeat spaces " ") line)
-                          line))
+            (mapcar (lambda (line)
+                      (if (string-match-p pattern line)
+                          (concat (s-repeat spaces " ") line)
+                        line))
                     (s-split "\n" s)))))
 
 (defun basis/buffer-substring-indented (beg end)
@@ -343,10 +343,10 @@ This is the same as using \\[set-mark-command] with the prefix argument."
       (w32-shell-execute "explore" dir)
     (shell-command
      (format "%s %s"
-             (case system-type
-               (gnu/linux  "nautilus")
-               (darwin     "open")
-               (otherwise (error "No file manager known for: " system-type)))
+             (pcase system-type
+               (`gnu/linux  "nautilus")
+               (`darwin     "open")
+               (_ (error "No file manager known for: " system-type)))
              dir))))
 
 (defun basis/open-file-manager-here ()
@@ -377,10 +377,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (defmacro basis/define-keys (keymap &rest keydefs)
   "Define multiple key bindings for KEYMAP."
   `(progn
-     ,@(mapcar #'(lambda (keydef)
-                   (let ((key (car keydef))
-                         (def (cadr keydef)))
-                     `(define-key ,keymap ,key ,def)))
+     ,@(mapcar (lambda (keydef)
+                 (let ((key (car keydef))
+                       (def (cadr keydef)))
+                   `(define-key ,keymap ,key ,def)))
                keydefs)))
 
 (put 'basis/define-keys 'lisp-indent-function 'defun)
@@ -388,10 +388,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (defmacro basis/define-hyper-keys (keymap &rest keydefs)
   "Define multiple hyper-modified key bindings for KEYMAP."
   `(progn
-     ,@(mapcar #'(lambda (keydef)
-                   (let ((key (car keydef))
-                         (def (cadr keydef)))
-                     `(basis/define-hyper ,keymap ,key ,def)))
+     ,@(mapcar (lambda (keydef)
+                 (let ((key (car keydef))
+                       (def (cadr keydef)))
+                   `(basis/define-hyper ,keymap ,key ,def)))
                keydefs)))
 
 (put 'basis/define-hyper-keys 'lisp-indent-function 'defun)
@@ -399,10 +399,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (defmacro basis/define-key-translations (&rest keydefs)
   "Define multiple bindings in `key-translation-map'."
   `(progn
-     ,@(mapcar #'(lambda (keydef)
-                   (let ((key (car keydef))
-                         (def (cadr keydef)))
-                     `(define-key key-translation-map (kbd ,key) (kbd ,def))))
+     ,@(mapcar (lambda (keydef)
+                 (let ((key (car keydef))
+                       (def (cadr keydef)))
+                   `(define-key key-translation-map (kbd ,key) (kbd ,def))))
                keydefs)))
 
 (put 'basis/define-key-translations 'lisp-indent-function 'defun)
@@ -454,10 +454,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 (defun basis/dired-up-directory (&optional arg)
   (interactive "p")
-  (case arg
-    (4         (diredp-up-directory nil))
-    (16        (diredp-up-directory t))
-    (otherwise (diredp-up-directory-reuse-dir-buffer nil))))
+  (pcase arg
+    (`4  (diredp-up-directory nil))
+    (`16 (diredp-up-directory t))
+    (_   (diredp-up-directory-reuse-dir-buffer nil))))
 
 ;; emacs lisp ------------------------------------------------------------------
 
@@ -572,26 +572,26 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 (defmacro looking-at-case (&rest clauses)
   (let ((trues '(t :else otherwise)))
     `(cond
-      ,@(mapcar #'(lambda (clause)
-                    (let ((expr (car clause)))
-                      `(,(if (memq expr trues) t `(looking-at ,expr))
-                        ,@(cdr clause))))
+      ,@(mapcar (lambda (clause)
+                  (let ((expr (car clause)))
+                    `(,(if (memq expr trues) t `(looking-at ,expr))
+                      ,@(cdr clause))))
                 clauses))))
 
 ;; occur -----------------------------------------------------------------------
 
 (defun basis/active-major-modes ()
   "Return a list of major modes for which a buffer is active."
-  (-distinct (mapcar #'(lambda (buffer)
-                         (with-current-buffer buffer
-                           major-mode))
+  (-distinct (mapcar (lambda (buffer)
+                       (with-current-buffer buffer
+                         major-mode))
                      (buffer-list))))
 
 (defun basis/find-mode-buffers (mode)
   "Return a list of the buffers whose major mode is MODE."
-  (-filter #'(lambda (buffer)
-               (with-current-buffer buffer
-                 (eq mode major-mode)))
+  (-filter (lambda (buffer)
+             (with-current-buffer buffer
+               (eq mode major-mode)))
            (buffer-list)))
 
 (defun basis/ido-read-mode (prompt &optional choices)
@@ -667,7 +667,7 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
 (defun basis/set-mode-name (mode name)
   "Set MODE's modeline string to NAME."
   (let ((hook (intern (s-concat (symbol-name mode) "-hook"))))
-    (add-hook hook #'(lambda () (setq mode-name name)))))
+    (add-hook hook (lambda () (setq mode-name name)))))
 
 (defun basis/google ()
   "Run a Google search.

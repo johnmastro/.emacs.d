@@ -1,7 +1,5 @@
 ;;; init.el        -*- coding: utf-8; -*-
 
-(require 'cl)
-
 ;; Disable superfluous UI immediately to prevent momentary display
 (dolist (mode '(menu-bar-mode tool-bar-mode scroll-bar-mode))
   (when (fboundp mode) (funcall mode -1)))
@@ -39,13 +37,28 @@
 
 (package-initialize)
 
+;; No dash, cl, or defuns.el yet, so define a couple essentials
+(defun basis/every? (pred list)
+  (catch 'return
+    (dolist (item list)
+      (unless (funcall pred item)
+        (throw 'return nil)))
+    t))
+
+(defun basis/filter (pred list)
+  (let ((result nil))
+    (dolist (item result)
+      (unless (funcall pred item)
+        (push item result)))
+    (nreverse result)))
+
 ;; Make sure every archive is present in the elpa/archives/ folder
 (let* ((archive-folder "~/.emacs.d/elpa/archives/")
-       (archive-folders (mapcar #'(lambda (archive)
-                                    (let ((name (car archive)))
-                                      (expand-file-name name archive-folder)))
+       (archive-folders (mapcar (lambda (archive)
+                                  (let ((name (car archive)))
+                                    (expand-file-name name archive-folder)))
                                 package-archives)))
-  (unless (every #'file-exists-p archive-folders)
+  (unless (basis/every? #'file-exists-p archive-folders)
     (package-refresh-contents)))
 
 ;; Ensure that everything specified here is installed
@@ -110,7 +123,7 @@
           page-break-lines
           ))
        (basis/uninstalled-packages
-        (remove-if #'package-installed-p basis/required-packages)))
+        (basis/filter #'package-installed-p basis/required-packages)))
   (when basis/uninstalled-packages
     (package-refresh-contents)
     (mapc #'package-install basis/uninstalled-packages)))
@@ -288,10 +301,10 @@
   (setq frame-title-format
         '((:eval (basis/get-frame-title))))
   (-when-let (default-font
-               (case system-type
-                 (gnu/linux  "Inconsolata-11")
-                 (darwin     "Andale Mono-12")
-                 (windows-nt "Consolas-10")))
+               (pcase system-type
+                 (`gnu/linux  "Inconsolata-11")
+                 (`darwin     "Andale Mono-12")
+                 (`windows-nt "Consolas-10")))
     (set-face-attribute 'default nil :font default-font)))
 
 (after-load 'paredit
@@ -374,10 +387,10 @@
         w32-rwindow-modifier 'super)
   (define-key key-translation-map (kbd "<apps>") 'event-apply-hyper-modifier))
 
-(case system-type
-  (gnu/linux  (init-modifiers/linux))
-  (darwin     (init-modifiers/os-x))
-  (windows-nt (init-modifiers/windows)))
+(pcase system-type
+  (`gnu/linux  (init-modifiers/linux))
+  (`darwin     (init-modifiers/os-x))
+  (`windows-nt (init-modifiers/windows)))
 
 ;; Easier window management
 (winner-mode 1)
@@ -464,10 +477,10 @@
 (global-set-key (kbd "C-c C-e") 'basis/eval-and-replace)
 
 ;; Eval expression on {meta,super}-hyper
-(-when-let* ((template (case system-type
-                         (gnu/linux  "<%s-menu>")
-                         (darwin     "<%s-kp-enter>")
-                         (windows-nt "<%s-apps>")))
+(-when-let* ((template (pcase system-type
+                         (`gnu/linux  "<%s-menu>")
+                         (`darwin     "<%s-kp-enter>")
+                         (`windows-nt "<%s-apps>")))
              (meta-hyper (format template "M"))
              (super-hyper (format template "s")))
   (global-set-key (read-kbd-macro meta-hyper) 'eval-expression)
