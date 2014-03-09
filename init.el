@@ -47,7 +47,7 @@
 
 (defun basis/filter (pred list)
   (let ((result nil))
-    (dolist (item result)
+    (dolist (item list)
       (unless (funcall pred item)
         (push item result)))
     (nreverse result)))
