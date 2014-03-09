@@ -107,6 +107,7 @@
           idle-highlight-mode
           ssh-config-mode
           batch-mode
+          page-break-lines
           ))
        (basis/uninstalled-packages
         (remove-if #'package-installed-p basis/required-packages)))
@@ -203,6 +204,7 @@
 (show-paren-mode 1)
 (auto-compression-mode 1)
 (delete-selection-mode 1)
+(global-page-break-lines-mode 1)
 
 ;; TRAMP
 (setq tramp-default-method
