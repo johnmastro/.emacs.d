@@ -308,29 +308,6 @@
                  (`windows-nt "Consolas-10")))
     (set-face-attribute 'default nil :font default-font)))
 
-(after-load 'paredit
-  (diminish 'paredit-mode " π"))            ; pi
-(after-load 'cider
-  (diminish 'cider-mode " ν"))              ; nu
-(after-load 'auto-complete
-  (diminish 'auto-complete-mode " α"))      ; alpha
-(after-load 'yasnippet
-  (diminish 'yas-minor-mode " υ"))          ; upsilon
-(after-load 'smartparens
-  (diminish 'smartparens-mode " φ"))        ; phi
-(after-load 'tagedit
-  (diminish 'tagedit-mode " τ"))            ; tau
-(after-load 'flycheck
-  (diminish 'flycheck-mode " χ"))           ; chi
-(after-load 'flyspell
-  (diminish 'flyspell-mode " ι"))           ; iota
-(after-load 'skewer-mode
-  (diminish 'skewer-mode " σ"))             ; sigma
-(after-load 'skewer-html
-  (diminish 'skewer-html-mode " σ/html"))
-(after-load 'skewer-css
-  (diminish 'skewer-css-mode " σ/css"))
-
 (after-load 'elisp-slime-nav
   (diminish 'elisp-slime-nav-mode))
 (after-load 'eldoc
