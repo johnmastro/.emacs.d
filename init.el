@@ -751,7 +751,6 @@
 (global-set-key (kbd "M-]") 'mc/mark-next-like-this)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "<f9>") 'mc/mark-more-like-this-extended)
 
 ;; Make RET exit multiple-cursors-mode in the terminal too
 (define-key mc/keymap (kbd "RET") 'multiple-cursors-mode)
@@ -1238,7 +1237,7 @@ otherwise call `yas-insert-snippet'."
     ((kbd "<C-f6>") 'slime-pprint-region)
     ((kbd "<f7>")   'slime-expand-1)
     ((kbd "<f8>")   'slime-compile-and-load-file))
-  (global-set-key (kbd "<f9>") 'slime-selector)
+  (global-set-key (kbd "<f11>") 'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
 (after-load 'slime-repl-mode
