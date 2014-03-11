@@ -86,10 +86,15 @@ major mode isn't derived from `comint-mode', call
   (unless (looking-back ";")
     (insert ";")))
 
-(defun basis/insert-file-basename ()
+(defun basis/java-insert-class ()
   (interactive)
   (-if-let (name (buffer-file-name))
-      (insert (file-name-sans-extension (file-name-base name)))
+      (let ((classname (file-name-sans-extension (file-name-base name))))
+        (insert (format "public class %s {" classname))
+        (newline 2)
+        (insert "}")
+        (previous-line)
+        (indent-for-tab-command))
     (message "Buffer not visiting a file")))
 
 (defun basis/wrap-in-curlies ()
