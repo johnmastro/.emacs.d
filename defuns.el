@@ -894,10 +894,11 @@ If no keymap is found, return nil."
   (python-nav-forward-sexp (- arg)))
 
 (defun basis/jedi-installed-p ()
-  "Return t if Jedi and EPC are installed, otherwise nil."
-  (let* ((cmd "python -c \"import jedi; import epc; exit()\"")
-         (out (shell-command-to-string cmd)))
-    (zerop (length out))))
+  "Return t if Python, Jedi, and EPC are installed, otherwise nil."
+  (when (executable-find "python")
+    (let* ((cmd "python -c \"import jedi; import epc; exit()\"")
+           (out (shell-command-to-string cmd)))
+      (zerop (length out)))))
 
 (defun basis/insert-python-docstring-quotes ()
   "Insert the 6 double quotes for a Python docstring."
