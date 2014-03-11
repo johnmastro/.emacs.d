@@ -347,6 +347,10 @@
   (diminish 'clj-refactor-mode))
 (after-load 'projectile
   (diminish 'projectile-mode))
+(after-load 'page-break-lines
+  (diminish 'page-break-lines-mode))
+(after-load 'magit
+  (diminish 'magit-auto-revert-mode))
 
 ;; info ------------------------------------------------------------------------
 
