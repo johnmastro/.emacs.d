@@ -921,6 +921,10 @@
 (after-load 'dired
   (require 'dired+)
   (basis/define-keys dired-mode-map
+    ((kbd "RET")                 'dired-find-alternate-file)
+    ((kbd "M-RET")               'dired-find-file)
+    ((kbd "^")                   'diredp-up-directory-reuse-dir-buffer)
+    ((kbd "M-^")                 'diredp-up-directory)
     ((kbd "M-o")                 'other-window)
     ((kbd "M-m")                 'dired-omit-mode)
     ((kbd "M-n")                 'dired-next-subdir)
@@ -933,6 +937,8 @@
         dired-omit-extensions (remove ".bak" dired-omit-extensions)
         dired-recursive-deletes 'top)
   (put 'dired-find-alternate-file 'disabled nil))
+
+(global-set-key (kbd "C-h C-j") 'dired-jump)
 
 ;; shell-mode ------------------------------------------------------------------
 
@@ -1478,7 +1484,7 @@ haven't looked into the root cause yet."
 (setq js2-basic-offset 2)
 
 (after-load 'js2-mode
-  (js2r-add-keybindings-with-prefix "C-h C-j")
+  (js2r-add-keybindings-with-prefix "C-h m")
   (define-key js2-mode-map (kbd "C-;") 'basis/eol-maybe-semicolon))
 
 (defun basis/init-js2-mode ()

@@ -457,13 +457,6 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   (end-of-buffer)
   (dired-next-line -1))
 
-(defun basis/dired-up-directory (&optional arg)
-  (interactive "p")
-  (pcase arg
-    (`4  (diredp-up-directory nil))
-    (`16 (diredp-up-directory t))
-    (_   (diredp-up-directory-reuse-dir-buffer nil))))
-
 ;; emacs lisp ------------------------------------------------------------------
 
 (define-minor-mode basis/elisp-display-mode
