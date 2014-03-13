@@ -128,9 +128,9 @@
     (package-refresh-contents)
     (mapc #'package-install basis/uninstalled-packages)))
 
-;; load defuns -----------------------------------------------------------------
+;; load some code --------------------------------------------------------------
 
-;; Make dash and s available for use in defuns
+(require 'pcase)
 (require 'dash)
 (require 'dash-functional)
 (require 's)
@@ -593,47 +593,44 @@
 
 ;; TODO: <home> and <end> still don't work
 (when (getenv "TMUX")
-  (let ((specs '((2 . "S-")
-                 (3 . "M-")
-                 (4 . "M-S-")
-                 (5 . "C-")
-                 (6 . "C-S-")
-                 (7 . "C-M-")
-                 (8 . "C-M-S-"))))
-    (dolist (spec specs)
-      (let ((n (car spec))
-            (k (cdr spec)))
-        (basis/define-key-translations
-          ((format "M-[ 1 ; %d A" n)  (format "%s<up>" k))       ;; left arrow
-          ((format "M-[ 1 ; %d B" n)  (format "%s<down>" k))     ;; down arrow
-          ((format "M-[ 1 ; %d C" n)  (format "%s<right>" k))    ;; right arrow
-          ((format "M-[ 1 ; %d D" n)  (format "%s<left>" k))     ;; left arrow
-          ((format "M-[ 1 ; %d H" n)  (format "%s<home>" k))     ;; home
-          ((format "M-[ 1 ; %d F" n)  (format "%s<end>" k))      ;; end
-          ((format "M-[ 5 ; %d ~" n)  (format "%s<prior>" k))    ;; page up
-          ((format "M-[ 6 ; %d ~" n)  (format "%s<next>" k))     ;; page down
-          ((format "M-[ 2 ; %d ~" n)  (format "%s<delete>" k))   ;; insert
-          ((format "M-[ 3 ; %d ~" n)  (format "%s<delete>" k))   ;; delete
-          ((format "M-[ 1 ; %d P" n)  (format "%s<f1>" k))       ;; f1
-          ((format "M-[ 1 ; %d Q" n)  (format "%s<f2>" k))       ;; f2
-          ((format "M-[ 1 ; %d R" n)  (format "%s<f3>" k))       ;; f3
-          ((format "M-[ 1 ; %d S" n)  (format "%s<f4>" k))       ;; f4
-          ((format "M-[ 15 ; %d ~" n) (format "%s<f5>" k))       ;; f5
-          ((format "M-[ 17 ; %d ~" n) (format "%s<f6>" k))       ;; f6
-          ((format "M-[ 18 ; %d ~" n) (format "%s<f7>" k))       ;; f7
-          ((format "M-[ 19 ; %d ~" n) (format "%s<f8>" k))       ;; f8
-          ((format "M-[ 20 ; %d ~" n) (format "%s<f9>" k))       ;; f9
-          ((format "M-[ 21 ; %d ~" n) (format "%s<f10>" k))      ;; f10
-          ((format "M-[ 23 ; %d ~" n) (format "%s<f11>" k))      ;; f11
-          ((format "M-[ 24 ; %d ~" n) (format "%s<f12>" k))      ;; f12
-          ((format "M-[ 25 ; %d ~" n) (format "%s<f13>" k))      ;; f13
-          ((format "M-[ 26 ; %d ~" n) (format "%s<f14>" k))      ;; f14
-          ((format "M-[ 28 ; %d ~" n) (format "%s<f15>" k))      ;; f15
-          ((format "M-[ 29 ; %d ~" n) (format "%s<f16>" k))      ;; f16
-          ((format "M-[ 31 ; %d ~" n) (format "%s<f17>" k))      ;; f17
-          ((format "M-[ 32 ; %d ~" n) (format "%s<f18>" k))      ;; f18
-          ((format "M-[ 33 ; %d ~" n) (format "%s<f19>" k))      ;; f19
-          ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k))))))) ;; f20
+  (pcase-dolist (`(,n . ,k) '((2 . "S-")
+                              (3 . "M-")
+                              (4 . "M-S-")
+                              (5 . "C-")
+                              (6 . "C-S-")
+                              (7 . "C-M-")
+                              (8 . "C-M-S-")))
+    (basis/define-key-translations
+      ((format "M-[ 1 ; %d A" n)  (format "%s<up>" k))     ;; left arrow
+      ((format "M-[ 1 ; %d B" n)  (format "%s<down>" k))   ;; down arrow
+      ((format "M-[ 1 ; %d C" n)  (format "%s<right>" k))  ;; right arrow
+      ((format "M-[ 1 ; %d D" n)  (format "%s<left>" k))   ;; left arrow
+      ((format "M-[ 1 ; %d H" n)  (format "%s<home>" k))   ;; home
+      ((format "M-[ 1 ; %d F" n)  (format "%s<end>" k))    ;; end
+      ((format "M-[ 5 ; %d ~" n)  (format "%s<prior>" k))  ;; page up
+      ((format "M-[ 6 ; %d ~" n)  (format "%s<next>" k))   ;; page down
+      ((format "M-[ 2 ; %d ~" n)  (format "%s<delete>" k)) ;; insert
+      ((format "M-[ 3 ; %d ~" n)  (format "%s<delete>" k)) ;; delete
+      ((format "M-[ 1 ; %d P" n)  (format "%s<f1>" k))     ;; f1
+      ((format "M-[ 1 ; %d Q" n)  (format "%s<f2>" k))     ;; f2
+      ((format "M-[ 1 ; %d R" n)  (format "%s<f3>" k))     ;; f3
+      ((format "M-[ 1 ; %d S" n)  (format "%s<f4>" k))     ;; f4
+      ((format "M-[ 15 ; %d ~" n) (format "%s<f5>" k))     ;; f5
+      ((format "M-[ 17 ; %d ~" n) (format "%s<f6>" k))     ;; f6
+      ((format "M-[ 18 ; %d ~" n) (format "%s<f7>" k))     ;; f7
+      ((format "M-[ 19 ; %d ~" n) (format "%s<f8>" k))     ;; f8
+      ((format "M-[ 20 ; %d ~" n) (format "%s<f9>" k))     ;; f9
+      ((format "M-[ 21 ; %d ~" n) (format "%s<f10>" k))    ;; f10
+      ((format "M-[ 23 ; %d ~" n) (format "%s<f11>" k))    ;; f11
+      ((format "M-[ 24 ; %d ~" n) (format "%s<f12>" k))    ;; f12
+      ((format "M-[ 25 ; %d ~" n) (format "%s<f13>" k))    ;; f13
+      ((format "M-[ 26 ; %d ~" n) (format "%s<f14>" k))    ;; f14
+      ((format "M-[ 28 ; %d ~" n) (format "%s<f15>" k))    ;; f15
+      ((format "M-[ 29 ; %d ~" n) (format "%s<f16>" k))    ;; f16
+      ((format "M-[ 31 ; %d ~" n) (format "%s<f17>" k))    ;; f17
+      ((format "M-[ 32 ; %d ~" n) (format "%s<f18>" k))    ;; f18
+      ((format "M-[ 33 ; %d ~" n) (format "%s<f19>" k))    ;; f19
+      ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k))))) ;; f20
 
 ;; mintty ----------------------------------------------------------------------
 
@@ -702,15 +699,15 @@
 
 (key-chord-mode 1)
 
-(dolist (entry '(("jk" . ace-jump-word-mode)
-                 (",." . ido-switch-buffer)
-                 (",," . ibuffer)
-                 ("`1" . delete-other-windows)
-                 ("0-" . delete-window)
-                 ("j2" . split-window-below)
-                 ("j3" . split-window-right)
-                 (" 9" . "(")))
-  (key-chord-define-global (car entry) (cdr entry)))
+(pcase-dolist (`(,key . ,cmd) '(("jk" . ace-jump-word-mode)
+                                (",." . ido-switch-buffer)
+                                (",," . ibuffer)
+                                ("`1" . delete-other-windows)
+                                ("0-" . delete-window)
+                                ("j2" . split-window-below)
+                                ("j3" . split-window-right)
+                                (" 9" . "(")))
+  (key-chord-define-global key cmd))
 
 (defun basis/define-more-bracket-chords (&optional keymap)
   (interactive)
@@ -1301,8 +1298,8 @@ otherwise call `yas-insert-snippet'."
   (add-hook 'clojure-mode-hook 'basis/init-clojure-mode)
 
   ;; Indentation tweaks
-  (dolist (spec basis/clojure-indent-specs)
-    (put-clojure-indent (car spec) (cadr spec)))
+  (pcase-dolist (`(,sym ,n) basis/clojure-indent-specs)
+    (put-clojure-indent sym n))
   (put 'macrolet 'clojure-backtracking-indent '((2) 2))
 
   ;; Command completion for lein in eshell

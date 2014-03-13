@@ -383,8 +383,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   "Define multiple key bindings for KEYMAP."
   `(progn
      ,@(mapcar (lambda (keydef)
-                 (let ((key (car keydef))
-                       (def (cadr keydef)))
+                 (pcase-let ((`(,key ,def) keydef))
                    `(define-key ,keymap ,key ,def)))
                keydefs)))
 
@@ -394,8 +393,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   "Define multiple hyper-modified key bindings for KEYMAP."
   `(progn
      ,@(mapcar (lambda (keydef)
-                 (let ((key (car keydef))
-                       (def (cadr keydef)))
+                 (pcase-let ((`(,key ,def) keydef))
                    `(basis/define-hyper ,keymap ,key ,def)))
                keydefs)))
 
@@ -405,8 +403,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   "Define multiple bindings in `key-translation-map'."
   `(progn
      ,@(mapcar (lambda (keydef)
-                 (let ((key (car keydef))
-                       (def (cadr keydef)))
+                 (pcase-let ((`(,key ,def) keydef))
                    `(define-key key-translation-map (kbd ,key) (kbd ,def))))
                keydefs)))
 
@@ -571,9 +568,9 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
   (let ((trues '(t :else otherwise)))
     `(cond
       ,@(mapcar (lambda (clause)
-                  (let ((expr (car clause)))
-                    `(,(if (memq expr trues) t `(looking-at ,expr))
-                      ,@(cdr clause))))
+                  (pcase-let ((`(,condition . ,body) clause))
+                    `(,(if (memq condition trues) t `(looking-at ,condition))
+                      ,@body)))
                 clauses))))
 
 ;; occur -----------------------------------------------------------------------
