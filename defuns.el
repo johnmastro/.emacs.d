@@ -1028,11 +1028,11 @@ Use `slime-expand-1' to produce the expansion."
   (interactive)
   (unless (eq this-command last-command)
     (setq basis/sql-capitalization-context (basis/current-sql-capitalization)))
-  (if (eq basis/sql-capitalization-context 'none)
-      (progn (basis/recapitalize-sql-buffer 'caps)
-             (setq basis/sql-capitalization-context 'caps))
-    (basis/recapitalize-sql-buffer 'none)
-    (setq basis/sql-capitalization-context 'none)))
+  (let ((target (if (eq basis/sql-capitalization-context 'none)
+                    'caps
+                  'none)))
+    (basis/recapitalize-sql-buffer target)
+    (setq basis/sql-capitalization-context target)))
 
 ;; html utilities --------------------------------------------------------------
 
