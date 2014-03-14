@@ -366,6 +366,39 @@ buffer visiting a directory."
       (basis/open-file-manager dir)
     (message "Buffer '%s' is not associated with a directory" (buffer-name))))
 
+(defun basis/open-file (file)
+  "Open FILE in an external program."
+  (let ((file (expand-file-name file)))
+    (if (file-exists-p file)
+        (pcase system-type
+          (`windows-nt (let ((f (replace-regexp-in-string "/" "\\" file t t)))
+                         (w32-shell-execute "open" f)))
+          (`darwin     (shell-command (format "open \"%s\"" file)))
+          (`gnu/linux  (let ((process-connection-type nil))
+                         (start-process "" nil "xdg-open" file)))
+          (_ (error "Don't know how to open files on system type '%s'"
+                    system-type)))
+      (error "File '%s' does not exist" file))))
+
+(defun basis/open-files (&optional files)
+  "Open each of FILES in external programs."
+  (dolist (file files)
+    (basis/open-file file)))
+
+(defun basis/open-these-files ()
+  "Open the currently selected file(s) in external programs.
+If the current buffer is a Dired buffer, open any marked files.
+Otherwise open the file being visited by the current buffer."
+  (interactive)
+  (let* ((files (cond ((eq major-mode 'dired-mode)
+                       (dired-get-marked-files))
+                      ((buffer-file-name)
+                       (list (buffer-file-name)))))
+         (n-files (length files)))
+    (when (or (<= n-files 5)
+              (y-or-n-p (format "Really open %s files?" n-files)))
+      (basis/open-files files))))
+
 ;; key binding utilities -------------------------------------------------------
 
 (defmacro basis/define-hyper (keymap key def)
