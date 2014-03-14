@@ -936,6 +936,9 @@
         dired-recursive-deletes 'top)
   (put 'dired-find-alternate-file 'disabled nil))
 
+(autoload 'dired-jump "dired-x"
+  "Jump to dired buffer corresponding to current buffer.")
+
 (global-set-key (kbd "C-h C-j") 'dired-jump)
 
 ;; shell-mode ------------------------------------------------------------------
