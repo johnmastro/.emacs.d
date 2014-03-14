@@ -33,7 +33,7 @@ default of 80."
   (let* ((goal (if arg (read-number "Target column: " 80) 80))
          (pos (- (point) (line-beginning-position)))
          (enough (- goal pos)))
-    (insert (concat (-repeat enough ?-)))))
+    (insert (s-repeat enough "-"))))
 
 (defun basis/join-next-line ()
   "Join the next line up to the current one."
@@ -749,13 +749,14 @@ If no keymap is found, return nil."
   "Don't insert an extraneous space when entering a CL pathname."
   ;; If any of `paredit-space-for-delimiter-predicates' returns nil
   ;; a space isn't inserted.
-  (let ((pathname-opening-p
-         (and (not endp)
-              (eql delimiter ?\")
-              (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
-              (save-excursion
-                (backward-char 2)
-                (looking-at "#p")))))
+  (let* ((double-quote 34)
+         (pathname-opening-p
+          (and (not endp)
+               (eql delimiter double-quote)
+               (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
+               (save-excursion
+                 (backward-char 2)
+                 (looking-at "#p")))))
     (not pathname-opening-p)))
 
 (defun basis/paredit-open-something ()
