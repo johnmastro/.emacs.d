@@ -934,6 +934,8 @@
   (setq dired-omit-files "^\\.?#" ; don't omit . and ..
         dired-omit-extensions (remove ".bak" dired-omit-extensions)
         dired-recursive-deletes 'top)
+  (when (eq system-type 'gnu/linux)
+    (setq dired-listing-switches "-alh"))
   (put 'dired-find-alternate-file 'disabled nil))
 
 (autoload 'dired-jump "dired-x"
