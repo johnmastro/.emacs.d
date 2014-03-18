@@ -382,8 +382,7 @@ buffer visiting a directory."
 
 (defun basis/open-files (&optional files)
   "Open each of FILES in external programs."
-  (dolist (file files)
-    (basis/open-file file)))
+  (mapc #'basis/open-file files))
 
 (defun basis/open-these-files ()
   "Open the currently selected file(s) in external programs.
@@ -398,6 +397,12 @@ Otherwise open the file being visited by the current buffer."
     (when (or (<= n-files 5)
               (y-or-n-p (format "Really open %s files?" n-files)))
       (basis/open-files files))))
+
+(defun basis/windows->unix (path)
+  "Convert a path from Windows-style to UNIX-style."
+  (->> path
+    (s-replace "\\" "/")
+    (replace-regexp-in-string "[a-zA-Z]:" "")))
 
 ;; key binding utilities -------------------------------------------------------
 
