@@ -68,6 +68,8 @@
           expand-region
           smex
           dired+
+          dired-details
+          dired-details+
           diminish
           ido-ubiquitous
           undo-tree
@@ -923,6 +925,7 @@
 
 (after-load 'dired
   (require 'dired+)
+  (require 'dired-details+) ; dired-details won't be needed after 24.4
   (basis/define-keys dired-mode-map
     ((kbd "RET")                 'dired-find-alternate-file)
     ((kbd "M-RET")               'dired-find-file)
@@ -938,7 +941,9 @@
     ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
   (setq dired-omit-files "^\\.?#" ; don't omit . and ..
         dired-omit-extensions (remove ".bak" dired-omit-extensions)
-        dired-recursive-deletes 'top)
+        dired-recursive-deletes 'top
+        dired-details-initially-hide nil
+        dired-details-hidden-string "")
   (when (or (eq system-type 'gnu/linux)
             (and (eq system-type 'windows-nt)
                  basis/cygwin-p))
