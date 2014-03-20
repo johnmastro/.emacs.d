@@ -1234,7 +1234,7 @@ otherwise call `yas-insert-snippet'."
     ((kbd "<C-f6>") 'slime-pprint-region)
     ((kbd "<f7>")   'slime-expand-1)
     ((kbd "<f8>")   'slime-compile-and-load-file))
-  (global-set-key (kbd "<f11>") 'slime-selector)
+  (global-set-key (kbd "<f12>") 'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
 (after-load 'slime-repl-mode
@@ -1328,7 +1328,7 @@ otherwise call `yas-insert-snippet'."
 
   (setq cider-repl-use-pretty-printing t)
 
-  (global-set-key (kbd "<f10>") 'cider-selector)
+  (global-set-key (kbd "<f11>") 'cider-selector)
 
   (define-key cider-repl-mode-map (kbd "RET") 'cider-repl-return)
 
