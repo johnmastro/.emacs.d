@@ -45,7 +45,7 @@
         (throw 'return nil)))
     t))
 
-(defun basis/filter (pred list)
+(defun basis/remove (pred list)
   (let ((result nil))
     (dolist (item list)
       (unless (funcall pred item)
@@ -125,7 +125,7 @@
           page-break-lines
           ))
        (basis/uninstalled-packages
-        (basis/filter #'package-installed-p basis/required-packages)))
+        (basis/remove #'package-installed-p basis/required-packages)))
   (when basis/uninstalled-packages
     (package-refresh-contents)
     (mapc #'package-install basis/uninstalled-packages)))
