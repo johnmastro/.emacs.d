@@ -444,7 +444,10 @@
 
 ;; Ack/grep
 (global-set-key (kbd "<f9>") (if (executable-find "ack")
-                                 'ack-and-a-half 'rgrep))
+                                 'ack-and-a-half
+                               'rgrep))
+(global-set-key (kbd "<C-f9>") 'rgrep)
+(global-set-key (kbd "<M-f9>") 'rgrep)
 
 ;; Occur
 (define-key occur-mode-map (kbd "n") 'occur-next)
