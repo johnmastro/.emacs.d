@@ -12,7 +12,6 @@
 (defvar basis/autosaves-dir (expand-file-name "autosaves/" basis/emacs-dir))
 (defvar basis/tmp-dir (expand-file-name "tmp/" basis/emacs-dir))
 (defvar basis/custom-file (expand-file-name "custom.el" basis/emacs-dir))
-(defvar basis/themes-dir (expand-file-name "themes/" basis/emacs-dir))
 
 (dolist (dir (list basis/backups-dir basis/autosaves-dir basis/tmp-dir))
   (unless (file-exists-p dir)
