@@ -936,7 +936,6 @@
     ((kbd "M-RET")               'dired-find-file)
     ((kbd "^")                   'diredp-up-directory-reuse-dir-buffer)
     ((kbd "M-^")                 'diredp-up-directory)
-    ((kbd "M-o")                 'other-window)
     ((kbd "M-m")                 'dired-omit-mode)
     ((kbd "M-n")                 'diredp-next-subdir)
     ((kbd "M-p")                 'diredp-prev-subdir)
@@ -956,9 +955,17 @@
   (put 'dired-find-alternate-file 'disabled nil))
 
 (autoload 'dired-jump "dired-x"
-  "Jump to dired buffer corresponding to current buffer.")
+  "Jump to dired buffer corresponding to current buffer." t)
 
 (global-set-key (kbd "C-h C-j") 'dired-jump)
+
+(defun basis/dired-unbind-meta-o ()
+  "Unbind M-o in `dired-mode-map'."
+  ;; It seems to be necessary to do this in a hook when using dired-details+,
+  ;; which probably has something to do with re-requiring dired
+  (define-key dired-mode-map (kbd "M-o") nil))
+
+(add-hook 'dired-mode-hook 'basis/dired-unbind-meta-o)
 
 ;; shell-mode ------------------------------------------------------------------
 
