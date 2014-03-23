@@ -947,11 +947,8 @@
         dired-omit-extensions (remove ".bak" dired-omit-extensions)
         dired-recursive-deletes 'top
         dired-details-initially-hide nil
-        dired-details-hidden-string "")
-  (when (or (eq system-type 'gnu/linux)
-            (and (eq system-type 'windows-nt)
-                 basis/cygwin-p))
-    (setq dired-listing-switches "-alh"))
+        dired-details-hidden-string ""
+        dired-listing-switches "-alh")
   (put 'dired-find-alternate-file 'disabled nil))
 
 (autoload 'dired-jump "dired-x"
