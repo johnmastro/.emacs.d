@@ -1254,11 +1254,6 @@ otherwise call `yas-insert-snippet'."
   (global-set-key (kbd "<f12>") 'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
-(after-load 'slime-repl-mode
-  (define-key slime-repl-mode-map
-    (read-kbd-macro paredit-backward-delete-key) nil))
-
-;; slime auto-complete support
 (defun basis/set-up-slime-fuzzy-ac ()
   "Integrate SLIME's fuzzy completion with auto-complete."
   (interactive)
