@@ -467,7 +467,7 @@
 (global-set-key (kbd "C-c ;") 'basis/comment-or-uncomment)
 
 ;; Eval
-(global-set-key (kbd "C-x C-e") 'pp-eval-last-sexp)
+(global-set-key (kbd "C-x C-e") 'basis/eval-last-sexp)
 (global-set-key (kbd "C-c C-e") 'basis/eval-and-replace)
 
 ;; Eval expression on {meta,super}-hyper
