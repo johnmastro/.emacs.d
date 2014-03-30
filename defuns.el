@@ -62,14 +62,11 @@ default of 80."
   (newline-and-indent))
 
 (defun basis/maybe-electric-return ()
-  "Conditionally call `basis/electric-return'.
-If the major mode active in the buffer is derived from
-`comint-mode', try to find and invoke that mode's binding for RET
-or <return>. If such a command can't be found, or the active
-major mode isn't derived from `comint-mode', call
-`basis/electric-return'."
+  "Call `basis/electric-return', with exceptions for some modes."
   (interactive)
-  (cond ((derived-mode-p 'comint-mode)
+  (cond ((eq major-mode 'c-mode)
+         (newline-and-indent))
+        ((derived-mode-p 'comint-mode)
          (-if-let* ((map (basis/find-mode-keymap major-mode))
                     (cmd (or (lookup-key map (kbd "RET"))
                              (lookup-key map (kbd "<return>")))))
