@@ -778,6 +778,29 @@ If no keymap is found, return nil."
   (interactive)
   (kill-buffer (current-buffer)))
 
+(defun basis/file-modtime (file)
+  "Return FILE's modification time (in seconds since 1970-01-01)."
+  (if (file-exists-p file)
+      (time-to-seconds (nth 5 (file-attributes file)))
+    (error "No such file '%s'" file)))
+
+(defun basis/modtime-newer-p (file1 file2)
+  "Return t if FILE1 was modified more recently than FILE2."
+  (> (basis/file-modtime file1) (basis/file-modtime file2)))
+
+(defun basis/ido-sort-files-by-modtime ()
+  "Sort ido matches my modification time, descending."
+  (interactive)
+  (when ido-matches
+    (let* ((directory ido-current-directory)
+           (predicate (lambda (file1 file2)
+                        (basis/modtime-newer-p
+                         (expand-file-name file1 directory)
+                         (expand-file-name file2 directory)))))
+      (setq ido-cur-list (sort ido-cur-list predicate)
+            ido-matches (sort ido-matches predicate)
+            ido-rescan nil))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)

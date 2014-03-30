@@ -1016,11 +1016,13 @@
   ;; No offense to OS X; my Mac is just old
   (setq flx-ido-threshhold 10000))
 
-(defun basis/setup-ido ()
-  (define-key ido-file-completion-map (kbd "C-w") 'ido-delete-backward-updir)
-  (define-key ido-file-completion-map (kbd "M-w") 'ido-copy-current-file-name))
+(defun basis/init-ido-keys ()
+  (basis/define-keys ido-file-completion-map
+    ((kbd "C-w")   'ido-delete-backward-updir)
+    ((kbd "M-w")   'ido-copy-current-file-name)
+    ((kbd "C-M-e") 'basis/ido-sort-files-by-modtime)))
 
-(add-hook 'ido-setup-hook 'basis/setup-ido)
+(add-hook 'ido-setup-hook 'basis/init-ido-keys)
 
 ;; smex ------------------------------------------------------------------------
 
