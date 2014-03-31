@@ -1412,7 +1412,7 @@ haven't looked into the root cause yet."
 
   (sp-local-pair 'org-mode "=" "=" :actions '(wrap))
 
-  (sp-local-pair 'c-mode "{" "}" :actions '(:rem insert autoskip))
+  (sp-local-pair '(c-mode c++-mode) "{" "}" :actions '(:rem insert autoskip))
 
   (basis/define-keys sp-keymap
     ((kbd "RET")    'basis/maybe-electric-return)
