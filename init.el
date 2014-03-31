@@ -1564,9 +1564,15 @@ haven't looked into the root cause yet."
   (c-set-style "python")
   (setq indent-tabs-mode nil
         c-basic-offset 4)
-  (c-toggle-auto-newline 1))
+  (c-toggle-auto-newline 1)
+  (dolist (cleanup '(brace-else-brace brace-elseif-brace defun-close-semi))
+    (add-to-list 'c-cleanup-list cleanup)))
 
 (add-hook 'c-mode-hook 'basis/init-c)
+(add-hook 'c++-mode-hook 'basis/init-c)
+
+(after-load 'cc-mode
+  (define-key c-mode-base-map (kbd "C-j") 'c-context-line-break))
 
 ;; java ------------------------------------------------------------------------
 
