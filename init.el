@@ -1413,7 +1413,8 @@ haven't looked into the root cause yet."
 
   (sp-local-pair 'org-mode "=" "=" :actions '(wrap))
 
-  (sp-local-pair '(c-mode c++-mode) "{" "}" :actions '(:rem insert autoskip))
+  (sp-with-modes '(c-mode c++-mode java-mode)
+    (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
 
   (basis/define-keys sp-keymap
     ((kbd "RET")    'basis/maybe-electric-return)
@@ -1559,32 +1560,30 @@ haven't looked into the root cause yet."
      (apply #'sql-font-lock-keywords-builder
             'font-lock-builtin-face nil more-builtins))))
 
-;; c ---------------------------------------------------------------------------
+;; cc-mode ---------------------------------------------------------------------
 
-(defun basis/init-c ()
-  (c-set-style "python")
+(defun basis/init-c-base ()
   (setq indent-tabs-mode nil
         c-basic-offset 4)
   (c-toggle-auto-newline 1)
   (dolist (cleanup '(brace-else-brace brace-elseif-brace defun-close-semi))
-    (add-to-list 'c-cleanup-list cleanup)))
+    (add-to-list 'c-cleanup-list cleanup))
+  (subword-mode 1))
 
-(add-hook 'c-mode-hook 'basis/init-c)
-(add-hook 'c++-mode-hook 'basis/init-c)
+(defun basis/init-c-and-c++ ()
+  (c-set-style "python")
+  (basis/init-c-base))
+
+(defun basis/init-java ()
+  (c-set-style "java")
+  (basis/init-c-base))
+
+(add-hook 'c-mode-hook    'basis/init-c-and-c++)
+(add-hook 'c++-mode-hook  'basis/init-c-and-c++)
+(add-hook 'java-mode-hook 'basis/init-java)
 
 (after-load 'cc-mode
   (define-key c-mode-base-map (kbd "C-j") 'c-context-line-break))
-
-;; java ------------------------------------------------------------------------
-
-(defun basis/init-java-mode ()
-  (setq c-basic-offset 2
-        tab-width 2
-        fill-column 99)
-  (set (make-local-variable 'whitespace-line-column) 99)
-  (subword-mode 1))
-
-(add-hook 'java-mode-hook 'basis/init-java-mode)
 
 ;; ack and a half --------------------------------------------------------------
 
