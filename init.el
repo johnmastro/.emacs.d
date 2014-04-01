@@ -1403,7 +1403,8 @@ haven't looked into the root cause yet."
 
   (sp-use-paredit-bindings)
 
-  (setq sp-cancel-autoskip-on-backward-movement nil)
+  (setq sp-cancel-autoskip-on-backward-movement nil
+        sp-autoescape-string-quote nil)
 
   (sp-pair "'"
            nil
