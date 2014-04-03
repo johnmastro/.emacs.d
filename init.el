@@ -155,7 +155,8 @@
 
 (defun basis/init-for-cygwin ()
   (require 'cygwin-mount)
-  (let* ((dirs (->> '("/bin" "/usr/bin" "/usr/local/bin" "/Python27")
+  (let* ((dirs (->> '("/bin" "/usr/bin" "/usr/local/bin"
+                      "/Python27" "/Python27/Scripts")
                  (-filter #'file-directory-p)))
          (home (getenv "HOME"))
          (home/bin (when home
