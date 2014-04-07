@@ -1568,20 +1568,28 @@ haven't looked into the root cause yet."
   (setq indent-tabs-mode nil
         c-basic-offset 4)
   (c-toggle-auto-newline 1)
-  (dolist (cleanup '(brace-else-brace brace-elseif-brace defun-close-semi))
+  (dolist (cleanup '(brace-else-brace
+                     brace-elseif-brace
+                     defun-close-semi
+                     empty-defun-braces))
     (add-to-list 'c-cleanup-list cleanup))
   (subword-mode 1))
 
-(defun basis/init-c-and-c++ ()
+(defun basis/init-c ()
   (c-set-style "python")
   (basis/init-c-base))
+
+(defun basis/init-c++ ()
+  (basis/init-c)
+  (dolist (cleanup '(brace-catch-brace scope-operator))
+    (add-to-list 'c-cleanup-list cleanup)))
 
 (defun basis/init-java ()
   (c-set-style "java")
   (basis/init-c-base))
 
-(add-hook 'c-mode-hook    'basis/init-c-and-c++)
-(add-hook 'c++-mode-hook  'basis/init-c-and-c++)
+(add-hook 'c-mode-hook    'basis/init-c)
+(add-hook 'c++-mode-hook  'basis/init-c++)
 (add-hook 'java-mode-hook 'basis/init-java)
 
 (after-load 'cc-mode
