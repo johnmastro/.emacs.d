@@ -64,7 +64,7 @@ default of 80."
 (defun basis/maybe-electric-return ()
   "Call `basis/electric-return', with exceptions for some modes."
   (interactive)
-  (cond ((eq major-mode 'c-mode)
+  (cond ((memq major-mode '(c-mode c++-mode))
          (newline-and-indent))
         ((derived-mode-p 'comint-mode)
          (-if-let* ((map (basis/find-mode-keymap major-mode))
