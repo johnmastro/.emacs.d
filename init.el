@@ -207,6 +207,7 @@
       column-number-mode t
       global-font-lock-mode 1
       imenu-auto-rescan t
+      next-line-add-newlines t
       apropos-do-all t
       custom-file basis/custom-file
       dirtrack-list '("^(~?[a-zA-Z0-9/ _-]+)>" 1)
