@@ -687,13 +687,6 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
 
 ;; misc. defuns ----------------------------------------------------------------
 
-(defmacro after-load (feature &rest body)
-  "Evaluate BODY after FEATURE is loaded."
-  `(eval-after-load ,feature
-     '(progn ,@body)))
-
-(put 'after-load 'lisp-indent-function 1)
-
 (defun basis/set-mode-name (mode name)
   "Set MODE's modeline string to NAME."
   (let ((hook (intern (s-concat (symbol-name mode) "-hook"))))

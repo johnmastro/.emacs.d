@@ -24,7 +24,6 @@
 
 ;; Set up the load path
 (add-to-list 'load-path basis/site-lisp-dir)
-(add-to-list 'load-path (expand-file-name "tramp-2.2.9/" basis/site-lisp-dir))
 
 ;; package ---------------------------------------------------------------------
 
@@ -66,8 +65,6 @@
           expand-region
           smex
           dired+
-          dired-details
-          dired-details+
           diminish
           ido-ubiquitous
           undo-tree
@@ -141,10 +138,6 @@
 (when (file-exists-p basis/defuns-file)
   (load basis/defuns-file))
 
-;; Load GNU Emacs 24.4's `cycle-spacing' if we don't already have it
-(unless (fboundp 'cycle-spacing)
-  (require 'cycle-spacing))
-
 ;; cygwin ----------------------------------------------------------------------
 
 (defvar basis/cygwin-p (and (eq system-type 'windows-nt)
@@ -211,11 +204,11 @@
       custom-file basis/custom-file
       dirtrack-list '("^(~?[a-zA-Z0-9/ _-]+)>" 1)
       scroll-preserve-screen-position t
-      tab-stop-list (number-sequence 4 120 4)
       ;; This causes errors on OS X
       save-interprogram-paste-before-kill (not (eq system-type 'darwin)))
 
 (setq-default indent-tabs-mode nil
+              tab-width 4
               fill-column 80
               require-final-newline t)
 
@@ -318,42 +311,38 @@
                  (`windows-nt "Consolas-10")))
     (set-face-attribute 'default nil :font default-font)))
 
-(after-load 'elisp-slime-nav
+(with-eval-after-load 'elisp-slime-nav
   (diminish 'elisp-slime-nav-mode))
-(after-load 'eldoc
+(with-eval-after-load 'eldoc
   (diminish 'eldoc-mode))
-(after-load 'undo-tree
+(with-eval-after-load 'undo-tree
   (diminish 'undo-tree-mode))
-(after-load 'redshank
+(with-eval-after-load 'redshank
   (diminish 'redshank-mode))
-(after-load 'whitespace
+(with-eval-after-load 'whitespace
   (diminish 'whitespace-mode))
-(after-load 'guide-key
+(with-eval-after-load 'guide-key
   (diminish 'guide-key-mode))
-(after-load 'clj-refactor
+(with-eval-after-load 'clj-refactor
   (diminish 'clj-refactor-mode))
-(after-load 'projectile
+(with-eval-after-load 'projectile
   (diminish 'projectile-mode))
-(after-load 'page-break-lines
+(with-eval-after-load 'page-break-lines
   (diminish 'page-break-lines-mode))
-(after-load 'magit
+(with-eval-after-load 'magit
   (diminish 'magit-auto-revert-mode))
 
 ;; info ------------------------------------------------------------------------
 
-(after-load 'info
+(with-eval-after-load 'info
   (let ((info-path (expand-file-name "~/.emacs.d/doc/info")))
     (when (file-exists-p info-path)
       (add-to-list 'Info-additional-directory-list info-path))))
 
 ;; uniquify --------------------------------------------------------------------
 
-(require 'uniquify)
-
-(setq uniquify-buffer-name-style 'forward)
-(setq uniquify-separator "/")
-(setq uniquify-after-kill-buffer-p t)
-(setq uniquify-ignore-buffers-re "^\\*")
+(setq uniquify-buffer-name-style 'forward
+      uniquify-ignore-buffers-re "^\\*")
 
 ;; key bindings ----------------------------------------------------------------
 
@@ -660,7 +649,7 @@
 
 ;; help-mode -------------------------------------------------------------------
 
-(after-load 'help-mode
+(with-eval-after-load 'help-mode
   (basis/define-keys help-mode-map
     ((kbd "n") 'next-line)
     ((kbd "p") 'previous-line)
@@ -685,7 +674,7 @@
 
 ;; diff-mode -------------------------------------------------------------------
 
-(after-load 'diff-mode
+(with-eval-after-load 'diff-mode
   ;; Don't shadow my beloved `other-window' binding. `diff-goto-source' is
   ;; still available on C-c C-c.
   (define-key diff-mode-map (kbd "M-o") nil))
@@ -801,7 +790,7 @@
 
 ;; ace-jump-mode ---------------------------------------------------------------
 
-(after-load 'ace-jump-mode
+(with-eval-after-load 'ace-jump-mode
   (ace-jump-mode-enable-mark-sync))
 
 (global-set-key (kbd "M-SPC") 'ace-jump-mode)
@@ -865,7 +854,7 @@
       smtpmail-smtp-service 465
       smtpmail-stream-type 'ssl)
 
-(after-load 'mu4e
+(with-eval-after-load 'mu4e
   (add-hook 'mu4e-compose-mode-hook 'basis/maybe-enable-flyspell)
   (add-hook 'mu4e-compose-mode-hook 'turn-on-orgstruct))
 
@@ -888,7 +877,7 @@
 
 (add-hook 'magit-log-edit-mode-hook 'basis/init-magit-log-edit)
 
-(after-load 'magit
+(with-eval-after-load 'magit
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
   (setq magit-completing-read-function 'magit-ido-completing-read)
   (-when-let (home (getenv "HOME"))
@@ -900,7 +889,7 @@
 
 (global-set-key [remap list-buffers] 'ibuffer)
 
-(after-load 'ibuffer
+(with-eval-after-load 'ibuffer
   (basis/define-keys ibuffer-mode-map
     ((kbd "M-o") 'other-window)
     ((kbd "C-M-o") 'ibuffer-visit-buffer-1-window))
@@ -929,9 +918,8 @@
 
 ;; dired -----------------------------------------------------------------------
 
-(after-load 'dired
+(with-eval-after-load 'dired
   (require 'dired+)
-  (require 'dired-details+) ; dired-details won't be needed after 24.4
   (basis/define-keys dired-mode-map
     ((kbd "RET")                 'dired-find-alternate-file)
     ((kbd "M-RET")               'dired-find-file)
@@ -942,13 +930,12 @@
     ((kbd "M-p")                 'diredp-prev-subdir)
     ((kbd "M-e")                 'dired-next-dirline)
     ((kbd "M-a")                 'dired-prev-dirline)
+    ((kbd "M-o")                 nil)
     ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
     ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
   (setq dired-omit-files "^\\.?#" ; don't omit . and ..
         dired-omit-extensions (remove ".bak" dired-omit-extensions)
         dired-recursive-deletes 'top
-        dired-details-initially-hide nil
-        dired-details-hidden-string ""
         dired-listing-switches "-alh")
   (put 'dired-find-alternate-file 'disabled nil))
 
@@ -956,14 +943,6 @@
   "Jump to dired buffer corresponding to current buffer." t)
 
 (global-set-key (kbd "C-h C-j") 'dired-jump)
-
-(defun basis/dired-unbind-meta-o ()
-  "Unbind M-o in `dired-mode-map'."
-  ;; It seems to be necessary to do this in a hook when using dired-details+,
-  ;; which probably has something to do with re-requiring dired
-  (define-key dired-mode-map (kbd "M-o") nil))
-
-(add-hook 'dired-mode-hook 'basis/dired-unbind-meta-o)
 
 ;; shell-mode ------------------------------------------------------------------
 
@@ -1206,7 +1185,7 @@ otherwise call `yas-insert-snippet'."
 
 (add-hook 'minibuffer-setup-hook 'basis/maybe-enable-paredit-mode)
 
-(after-load 'paredit
+(with-eval-after-load 'paredit
   (basis/define-keys paredit-mode-map
     ((kbd "[")                      'basis/paredit-open-something)
     ((kbd "C-c [")                  'paredit-open-square)
@@ -1241,7 +1220,7 @@ otherwise call `yas-insert-snippet'."
 
 (add-hook 'slime-mode-hook 'basis/start-slime)
 
-(after-load 'slime
+(with-eval-after-load 'slime
   (basis/define-keys slime-mode-map
     ((kbd "<f5>")   'slime-eval-last-expression)
     ((kbd "<M-f5>") 'slime-eval-last-expression-in-repl)
@@ -1266,7 +1245,7 @@ otherwise call `yas-insert-snippet'."
 
 (require 'redshank-loader)
 
-(after-load 'redshank-loader
+(with-eval-after-load 'redshank-loader
   (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t))
 
 ;; clojure ---------------------------------------------------------------------
@@ -1318,7 +1297,7 @@ otherwise call `yas-insert-snippet'."
     (fresh 1))
   "Additional form indentation settings for `clojure-mode'.")
 
-(after-load 'clojure-mode
+(with-eval-after-load 'clojure-mode
   (add-hook 'clojure-mode-hook 'basis/init-clojure-mode)
 
   ;; Indentation tweaks
@@ -1329,7 +1308,7 @@ otherwise call `yas-insert-snippet'."
   ;; Command completion for lein in eshell
   (require 'pcmpl-lein))
 
-(after-load 'cider
+(with-eval-after-load 'cider
   (cond ((eq system-type 'darwin)
          (basis/setup-lein-path-for-mac))
         (basis/cygwin-p
@@ -1362,7 +1341,7 @@ otherwise call `yas-insert-snippet'."
 
 (require 'quack)
 
-(after-load 'scheme
+(with-eval-after-load 'scheme
   (basis/define-keys scheme-mode-map
     ((kbd "<f5>")   'scheme-send-last-sexp)
     ((kbd "<f6>")   'basis/scheme-send-something)
@@ -1397,7 +1376,7 @@ haven't looked into the root cause yet."
 
 (smartparens-global-strict-mode)
 
-(after-load 'smartparens
+(with-eval-after-load 'smartparens
   ;; I still prefer Paredit with lisps
   (dolist (mode basis/lisp-modes)
     (add-to-list 'sp-ignore-modes-list mode))
@@ -1431,7 +1410,7 @@ haven't looked into the root cause yet."
 (defvar basis/flycheck-keymap nil
   "Custom keybindings for Flycheck.")
 
-(after-load 'flycheck
+(with-eval-after-load 'flycheck
   (setq flycheck-check-syntax-automatically nil)
 
   (when (eq system-type 'windows-nt)
@@ -1464,7 +1443,7 @@ haven't looked into the root cause yet."
 
 ;; python ----------------------------------------------------------------------
 
-(after-load 'python
+(with-eval-after-load 'python
   (basis/define-keys python-mode-map
     ((kbd "C-c C-c")  'basis/python-send-something)
     ((kbd "<f6>")     'basis/python-send-something)
@@ -1509,7 +1488,7 @@ haven't looked into the root cause yet."
 
 (setq js2-basic-offset 2)
 
-(after-load 'js2-mode
+(with-eval-after-load 'js2-mode
   (js2r-add-keybindings-with-prefix "C-h m")
   (define-key js2-mode-map (kbd "C-;") 'basis/eol-maybe-semicolon))
 
@@ -1524,19 +1503,19 @@ haven't looked into the root cause yet."
 
 (skewer-setup) ; hook into js2, html, and css modes
 
-(after-load 'skewer-mode
+(with-eval-after-load 'skewer-mode
   (basis/define-keys skewer-mode-map
     ((kbd "<f5>") 'skewer-eval-last-expression)
     ((kbd "<f6>") 'skewer-eval-defun)
     ((kbd "<f8>") 'skewer-load-buffer)))
 
-(after-load 'skewer-repl
+(with-eval-after-load 'skewer-repl
   (define-key skewer-repl-mode-map (kbd "TAB") 'hippie-expand))
 
-(after-load 'skewer-html
+(with-eval-after-load 'skewer-html
   (define-key skewer-html-mode-map (kbd "<f6>") 'skewer-html-eval-tag))
 
-(after-load 'skewer-css
+(with-eval-after-load 'skewer-css
   (basis/define-keys skewer-css-mode-map
     ((kbd "<f5>") 'skewer-css-eval-current-declaration)
     ((kbd "<f6>") 'skewer-css-eval-current-rule)
@@ -1552,7 +1531,7 @@ haven't looked into the root cause yet."
 
 (add-hook 'sql-mode-hook 'basis/init-sql-mode)
 
-(after-load 'sql
+(with-eval-after-load 'sql
   ;; But I also work with other products and it's often easier not to switch
   ;; `sql-product' around.
   (let ((more-builtins '("elsif" "endif" "while")))
@@ -1591,12 +1570,12 @@ haven't looked into the root cause yet."
 (add-hook 'c++-mode-hook  'basis/init-c++)
 (add-hook 'java-mode-hook 'basis/init-java)
 
-(after-load 'cc-mode
+(with-eval-after-load 'cc-mode
   (define-key c-mode-base-map (kbd "C-j") 'c-context-line-break))
 
 ;; ack and a half --------------------------------------------------------------
 
-(after-load 'ack-and-a-half
+(with-eval-after-load 'ack-and-a-half
   (basis/define-keys ack-and-a-half-mode-map
     ((kbd "n") 'compilation-next-error)
     ((kbd "p") 'compilation-previous-error)
@@ -1657,7 +1636,7 @@ haven't looked into the root cause yet."
 
 ;; org-babel + clojure ---------------------------------------------------------
 
-(after-load 'org
+(with-eval-after-load 'org
   (require 'ob)
   (require 'ob-tangle)
   (require 'ob-clojure)
@@ -1685,7 +1664,7 @@ haven't looked into the root cause yet."
 (add-hook 'sgml-mode-hook 'basis/init-simplezen)
 (add-hook 'html-mode-hook 'basis/init-html-mode)
 
-(after-load 'sgml-mode
+(with-eval-after-load 'sgml-mode
   (require 'tagedit)
   (require 'simplezen)
   (basis/define-keys html-mode-map
@@ -1723,7 +1702,7 @@ two tags."
 
 (add-hook 'markdown-mode-hook 'basis/init-markdown-mode)
 
-(after-load 'markdown-mode
+(with-eval-after-load 'markdown-mode
   (basis/define-keys markdown-mode-map
     ((kbd "DEL")         'basis/sp-markdown-backspace)
     ((kbd "M-n")         'forward-paragraph)
