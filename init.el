@@ -701,9 +701,12 @@
 
 (key-chord-mode 1)
 
+(setq key-chord-two-keys-delay 0.05
+      key-chord-one-key-delay 0.18)
+
 (pcase-dolist (`(,key . ,cmd) '(("jk" . ace-jump-word-mode)
                                 (",." . ido-switch-buffer)
-                                (",," . ibuffer)
+                                ("l;" . ibuffer)
                                 ("`1" . delete-other-windows)
                                 ("0-" . delete-window)
                                 ("j2" . split-window-below)
