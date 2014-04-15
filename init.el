@@ -60,63 +60,63 @@
 
 ;; Ensure that everything specified here is installed
 (let* ((basis/required-packages
-        '(paredit
-          elisp-slime-nav
-          expand-region
-          smex
-          dired+
-          diminish
-          ido-ubiquitous
-          undo-tree
+        '(ace-jump-mode
           ack-and-a-half
-          markdown-mode
-          deft
-          ace-jump-mode
-          jump-char
-          magit
-          multiple-cursors
-          helm
+          batch-mode
+          browse-kill-ring
+          cider
+          clj-refactor
+          clojure-cheatsheet
+          clojure-mode
+          color-theme-solarized
           company
           company-cider
-          slime-company
           company-inf-python
-          slime
-          redshank
-          yaml-mode
           dash
           dash-functional
-          s
-          move-text
-          browse-kill-ring
-          pyvenv
+          deft
+          diminish
+          dired+
+          discover
+          elisp-slime-nav
+          expand-region
+          flx-ido
+          flycheck
+          geiser
+          gist
+          guide-key
+          helm
+          idle-highlight-mode
+          ido-ubiquitous
+          ido-vertical-mode
           jedi
-          yasnippet
-          tagedit
-          simplezen
+          js-comint
           js2-mode
           js2-refactor
-          js-comint
-          skewer-mode
-          flycheck
-          clojure-mode
-          cider
-          clojure-cheatsheet
+          jump-char
           key-chord
-          writegood-mode
-          projectile
-          flx-ido
-          ido-vertical-mode
-          guide-key
-          geiser
-          smartparens
-          color-theme-solarized
-          gist
-          clj-refactor
-          discover
-          idle-highlight-mode
-          ssh-config-mode
-          batch-mode
+          magit
+          markdown-mode
+          move-text
+          multiple-cursors
           page-break-lines
+          paredit
+          projectile
+          pyvenv
+          redshank
+          s
+          simplezen
+          skewer-mode
+          slime
+          slime-company
+          smartparens
+          smex
+          ssh-config-mode
+          tagedit
+          undo-tree
+          writegood-mode
+          yaml-mode
+          yasnippet
           ))
        (basis/uninstalled-packages
         (basis/remove #'package-installed-p basis/required-packages)))
