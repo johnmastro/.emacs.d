@@ -76,9 +76,11 @@
           magit
           multiple-cursors
           helm
-          auto-complete
+          company
+          company-cider
+          slime-company
+          company-inf-python
           slime
-          ac-slime
           redshank
           yaml-mode
           dash
@@ -92,14 +94,12 @@
           tagedit
           simplezen
           js2-mode
-          ac-js2
           js2-refactor
           js-comint
           skewer-mode
           flycheck
           clojure-mode
           cider
-          ac-nrepl
           clojure-cheatsheet
           key-chord
           writegood-mode
@@ -108,7 +108,6 @@
           ido-vertical-mode
           guide-key
           geiser
-          ac-geiser
           smartparens
           color-theme-solarized
           gist
@@ -290,8 +289,9 @@
 ;; interface -------------------------------------------------------------------
 
 (setq solarized-termcolors 256)
-
 (load-theme 'solarized-dark t)
+(require 'solarized-company-faces)
+(basis/set-solarized-company-faces 'dark)
 
 (defun basis/get-frame-title ()
   (-if-let (file buffer-file-name)
@@ -919,6 +919,15 @@
               (name 16 -1)
               " " filename)))
 
+;; company ---------------------------------------------------------------------
+
+(add-hook 'after-init-hook 'global-company-mode)
+
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "ESC") 'company-abort)
+  (add-to-list 'company-backends 'company-cider)
+  (add-to-list 'company-backends 'company-inf-python))
+
 ;; dired -----------------------------------------------------------------------
 
 (with-eval-after-load 'dired
@@ -1023,30 +1032,6 @@
   (setq hippie-expand-try-functions-list
         (delete f hippie-expand-try-functions-list)))
 
-;; auto-complete ---------------------------------------------------------------
-
-(require 'auto-complete)
-(require 'auto-complete-config)
-
-(global-auto-complete-mode t)
-(ac-config-default)
-
-(setq ac-comphist-file "~/.emacs.d/.ac-comphist.dat")
-
-(setq-default ac-sources
-              '(ac-source-imenu
-                ac-source-dictionary
-                ac-source-words-in-buffer
-                ac-source-words-in-same-mode-buffers))
-
-(define-key ac-completing-map (kbd "ESC") 'ac-stop)
-(define-key ac-completing-map (kbd "RET") nil)
-(define-key ac-completing-map (kbd "<return>") nil) ;; necessary even w/ above
-
-(dolist (mode '(slime-repl cider-repl geiser-repl inferior-python sql))
-  (let ((mode (intern (concat (symbol-name mode) "-mode"))))
-    (add-to-list 'ac-modes mode)))
-
 ;; yasnippet -------------------------------------------------------------------
 
 (require 'yasnippet)
@@ -1068,8 +1053,7 @@ otherwise call `yas-insert-snippet'."
 
 (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
       yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
-      yas-wrap-around-region t
-      ac-source-yasnippet nil)
+      yas-wrap-around-region t)
 
 (yas-global-mode 1)
 
@@ -1215,7 +1199,7 @@ otherwise call `yas-insert-snippet'."
         (ccl ("ccl"))))
 
 (setq slime-default-lisp 'sbcl
-      slime-contribs '(slime-fancy))
+      slime-contribs '(slime-fancy slime-company))
 
 (defun basis/start-slime ()
   (unless (slime-connected-p)
@@ -1260,11 +1244,9 @@ otherwise call `yas-insert-snippet'."
 
 (defun basis/init-cider-repl-mode ()
   (subword-mode)
-  (ac-nrepl-setup)
   (cider-turn-on-eldoc-mode))
 
 (defun basis/init-cider-mode ()
-  (ac-nrepl-setup)
   (cider-turn-on-eldoc-mode))
 
 (defun basis/setup-lein-path-for-mac ()
@@ -1332,8 +1314,7 @@ otherwise call `yas-insert-snippet'."
     ((kbd "<f7>")    'cider-macroexpand-1)
     ((kbd "<M-f7>")  'cider-macroexpand-all)
     ((kbd "<f8>")    'cider-eval-buffer)
-    ((kbd "<M-f8>")  'cider-load-current-buffer)
-    ((kbd "C-c C-d") 'ac-nrepl-popup-doc)))
+    ((kbd "<M-f8>")  'cider-load-current-buffer)))
 
 ;; scheme ----------------------------------------------------------------------
 
@@ -1364,8 +1345,6 @@ otherwise call `yas-insert-snippet'."
     ((kbd "<f8>")   'geiser-eval-buffer)
     ((kbd "<C-f8>") 'geiser-eval-buffer-and-go)))
 
-(add-hook 'geiser-mode-hook 'ac-geiser-setup)
-(add-hook 'geiser-repl-mode-hook 'ac-geiser-setup)
 (add-hook 'geiser-repl-mode-hook 'basis/geiser-map-keys)
 
 ;; smartparens -----------------------------------------------------------------
@@ -1497,7 +1476,6 @@ haven't looked into the root cause yet."
 
 (defun basis/init-js2-mode ()
   (subword-mode 1)
-  (ac-js2-mode 1)
   (js2-imenu-extras-setup))
 
 (add-hook 'js2-mode-hook 'basis/init-js2-mode)
