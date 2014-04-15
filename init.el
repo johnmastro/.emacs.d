@@ -1227,14 +1227,6 @@ otherwise call `yas-insert-snippet'."
   (global-set-key (kbd "<f12>") 'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
-(defun basis/set-up-slime-fuzzy-ac ()
-  "Integrate SLIME's fuzzy completion with auto-complete."
-  (interactive)
-  (set-up-slime-ac t))
-
-(add-hook 'slime-mode-hook 'basis/set-up-slime-fuzzy-ac)
-(add-hook 'slime-repl-mode-hook 'basis/set-up-slime-fuzzy-ac)
-
 ;; redshank --------------------------------------------------------------------
 
 (require 'redshank-loader)
