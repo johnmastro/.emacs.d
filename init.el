@@ -884,7 +884,14 @@
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
   (setq magit-completing-read-function 'magit-ido-completing-read)
   (-when-let (home (getenv "HOME"))
-    (setq magit-repo-dirs (list (expand-file-name "code" home)))))
+    (setq magit-repo-dirs (list (expand-file-name "code" home)))
+    ;; Tell magit where to find emacsclientw.exe on Windows
+    (when (eq system-type 'windows-nt)
+      (let ((exe (expand-file-name (format "emacs/emacs-%s/bin/emacsclientw.exe"
+                                           emacs-version)
+                                   home)))
+        (when (file-exists-p exe)
+          (setq magit-emacsclient-executable exe))))))
 
 ;; ibuffer ---------------------------------------------------------------------
 
