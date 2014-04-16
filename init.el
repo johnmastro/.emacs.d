@@ -4,18 +4,11 @@
 (dolist (mode '(menu-bar-mode tool-bar-mode scroll-bar-mode))
   (when (fboundp mode) (funcall mode -1)))
 
-;; Define directories for various purposes and ensure they exist
-(defvar basis/emacs-dir (file-name-directory load-file-name))
-(defvar basis/site-lisp-dir (expand-file-name "site-lisp/" basis/emacs-dir))
-(defvar basis/defuns-file (expand-file-name "defuns.el" basis/emacs-dir))
-(defvar basis/backups-dir (expand-file-name "backups/" basis/emacs-dir))
-(defvar basis/autosaves-dir (expand-file-name "autosaves/" basis/emacs-dir))
-(defvar basis/tmp-dir (expand-file-name "tmp/" basis/emacs-dir))
-(defvar basis/custom-file (expand-file-name "custom.el" basis/emacs-dir))
-
-(dolist (dir (list basis/backups-dir basis/autosaves-dir basis/tmp-dir))
-  (unless (file-exists-p dir)
-    (make-directory dir)))
+;; Make sure some directories exist
+(dolist (dir '("backups/" "autosaves/" "tmp/"))
+  (let ((path (expand-file-name dir "~/.emacs.d/")))
+    (unless (file-exists-p path)
+      (make-directory path))))
 
 ;; Emacs doesn't seem to respect $PATH on OS X
 (when (eq system-type 'darwin)
@@ -23,7 +16,7 @@
   (add-to-list 'exec-path "~/bin/"))
 
 ;; Set up the load path
-(add-to-list 'load-path basis/site-lisp-dir)
+(add-to-list 'load-path "~/.emacs.d/site-lisp/")
 
 ;; package ---------------------------------------------------------------------
 
@@ -133,8 +126,8 @@
 (dash-enable-font-lock)
 
 ;; Load custom functions
-(when (file-exists-p basis/defuns-file)
-  (load basis/defuns-file))
+(when (file-exists-p "~/.emacs.d/defuns.el")
+  (load "~/.emacs.d/defuns.el"))
 
 ;; cygwin ----------------------------------------------------------------------
 
@@ -199,7 +192,7 @@
       imenu-auto-rescan t
       next-line-add-newlines t
       apropos-do-all t
-      custom-file basis/custom-file
+      custom-file "~/.emacs.d/custom.el"
       dirtrack-list '("^(~?[a-zA-Z0-9/ _-]+)>" 1)
       scroll-preserve-screen-position t
       ;; This causes errors on OS X
@@ -240,7 +233,7 @@
 ;; recentf
 (recentf-mode 1)
 (setq recentf-max-saved-items 50
-      recentf-save-file (expand-file-name ".recentf" basis/emacs-dir)
+      recentf-save-file "~/.emacs.d/.recentf"
       recentf-exclude '(file-remote-p))
 
 ;; safe local variables
@@ -266,9 +259,9 @@
 
 ;; Backups, autosaves, and temporary files
 (setq backup-by-copying t
-      backup-directory-alist `((".*" . ,basis/backups-dir))
-      auto-save-file-name-transforms `((".*" ,basis/autosaves-dir t))
-      temporary-file-directory basis/tmp-dir)
+      backup-directory-alist `((".*" . "~/.emacs.d/backups/"))
+      auto-save-file-name-transforms `((".*" "~/.emacs.d/autosaves/" t))
+      temporary-file-directory "~/.emacs.d/tmp/")
 
 ;; Automatically refresh buffers
 (global-auto-revert-mode 1)
@@ -333,7 +326,7 @@
 ;; info ------------------------------------------------------------------------
 
 (with-eval-after-load 'info
-  (let ((info-path (expand-file-name "~/.emacs.d/doc/info")))
+  (let ((info-path "~/.emacs.d/doc/info"))
     (when (file-exists-p info-path)
       (add-to-list 'Info-additional-directory-list info-path))))
 
@@ -787,7 +780,7 @@
 
 (setq-default save-place t)
 
-(setq save-place-file (expand-file-name "places" basis/emacs-dir))
+(setq save-place-file "~/.emacs.d/places")
 
 ;; ace-jump-mode ---------------------------------------------------------------
 
@@ -831,11 +824,8 @@
                                #'html2text))
 
 ;; Where to save attachments
-(setq mu4e-attachment-dir (-first #'file-directory-p
-                                  (mapcar #'expand-file-name
-                                          '("~/downloads"
-                                            "~/Downloads"
-                                            "~/"))))
+(let ((dir (-first #'file-directory-p '("~/downloads" "~/Downloads" "~/"))))
+  (setq mu4e-attachment-dir dir))
 
 ;; Composing messages
 (setq mu4e-reply-to-address "jbm@jbm.io"
@@ -882,12 +872,11 @@
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
   (setq magit-completing-read-function 'magit-ido-completing-read)
   (-when-let (home (getenv "HOME"))
-    (setq magit-repo-dirs (list (expand-file-name "code" home)))
+    (setq magit-repo-dirs '("~/code/"))
     ;; Tell magit where to find emacsclientw.exe on Windows
     (when (eq system-type 'windows-nt)
-      (let ((exe (expand-file-name (format "emacs/emacs-%s/bin/emacsclientw.exe"
-                                           emacs-version)
-                                   home)))
+      (let ((exe (format "~/emacs/emacs-%s/bin/emacsclientw.exe"
+                         emacs-version)))
         (when (file-exists-p exe)
           (setq magit-emacsclient-executable exe))))))
 
@@ -1022,7 +1011,7 @@
 
 ;; smex ------------------------------------------------------------------------
 
-(setq smex-save-file (expand-file-name ".smex-items" basis/emacs-dir))
+(setq smex-save-file "~/.emacs.d/.smex-items")
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
@@ -1064,13 +1053,9 @@ otherwise call `yas-insert-snippet'."
 ;; projectile ------------------------------------------------------------------
 
 (setq projectile-keymap-prefix (kbd "C-h p")
-      projectile-completion-system 'ido)
-
-(setq projectile-known-projects-file
-      (expand-file-name "~/.emacs.d/.projectile-bookmarks.eld"))
-
-(setq projectile-cache-file
-      (expand-file-name "~/.emacs.d/.projectile.cache"))
+      projectile-completion-system 'ido
+      projectile-known-projects-file "~/.emacs.d/.projectile-bookmarks.eld"
+      projectile-cache-file "~/.emacs.d/.projectile.cache")
 
 ;; Projectile defaults to native indexing on Windows, but if we have Cygwin
 ;; set up we can use "alien".
@@ -1562,7 +1547,7 @@ haven't looked into the root cause yet."
 ;; org -------------------------------------------------------------------------
 
 ;; Paths
-(setq org-directory (expand-file-name "~/Dropbox/org/")
+(setq org-directory "~/Dropbox/org/"
       org-default-notes-file (expand-file-name "refile.org" org-directory)
       org-archive-location "%s.archive::"
       org-agenda-files (--map (expand-file-name it org-directory)
