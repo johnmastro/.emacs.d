@@ -547,8 +547,9 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
            (company-tooltip-mouse ((t (,@fg-base1 ,@bg-base02))))
            (company-tooltip-common ((t (,@fg-base1 ,@bg-base02))))
            (company-tooltip-common-selection ((t (,@fg-base1 ,@bg-base02))))
-           (company-scrollbar-fg ((t (,@fg-base02 ,@bg-base0))))
-           (company-scrollbar-bg ((t (,@fg-cyan ,@bg-base02))))
+           (company-tooltip-annotation ((t (,@fg-yellow ,@bg-base02))))
+           (company-scrollbar-fg ((t (,@bg-base0))))
+           (company-scrollbar-bg ((t (,@bg-base02))))
            (company-preview ((t (,@bg-green))))
            (company-preview-common ((t (,@bg-base02)))))
 
