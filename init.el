@@ -68,7 +68,6 @@
           clj-refactor
           clojure-cheatsheet
           clojure-mode
-          color-theme-solarized
           company
           company-cider
           company-inf-python
@@ -289,9 +288,8 @@
 ;; interface -------------------------------------------------------------------
 
 (setq solarized-termcolors 256)
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized/")
 (load-theme 'solarized-dark t)
-(require 'solarized-company-faces)
-(basis/set-solarized-company-faces 'dark)
 
 (defun basis/get-frame-title ()
   (-if-let (file buffer-file-name)
