@@ -918,6 +918,7 @@
 (add-hook 'after-init-hook 'global-company-mode)
 
 (with-eval-after-load 'company
+  (define-key company-active-map (kbd "C-c") 'company-abort)
   (add-to-list 'company-backends 'company-cider)
   (add-to-list 'company-backends 'company-inf-python))
 
