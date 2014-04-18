@@ -919,8 +919,12 @@
 
 (with-eval-after-load 'company
   (define-key company-active-map (kbd "C-c") 'company-abort)
-  (add-to-list 'company-backends 'company-cider)
-  (add-to-list 'company-backends 'company-inf-python))
+  (set-default
+   (make-variable-buffer-local 'company-backends)
+   '(company-capf
+     (company-dabbrev-code company-gtags company-etags company-keywords)
+     company-files
+     company-dabbrev)))
 
 ;; dired -----------------------------------------------------------------------
 
@@ -1226,10 +1230,12 @@ otherwise call `yas-insert-snippet'."
 
 (defun basis/init-cider-repl-mode ()
   (subword-mode)
-  (cider-turn-on-eldoc-mode))
+  (cider-turn-on-eldoc-mode)
+  (setq company-backends (cons 'company-cider company-backends)))
 
 (defun basis/init-cider-mode ()
-  (cider-turn-on-eldoc-mode))
+  (cider-turn-on-eldoc-mode)
+  (setq company-backends (cons 'company-cider company-backends)))
 
 (defun basis/setup-lein-path-for-mac ()
   (-when-let (lein (executable-find "lein"))
@@ -1426,12 +1432,11 @@ haven't looked into the root cause yet."
   (add-hook 'python-mode-hook 'jedi:setup))
 
 (defun basis/init-python-mode ()
-  (setq fill-column 79)
-  (set (make-variable-buffer-local 'whitespace-line-column) 79)
   (subword-mode 1)
-  (unless (and buffer-file-name
-               (file-remote-p buffer-file-name))
-    (flycheck-mode 1)))
+  (unless (and buffer-file-name (file-remote-p buffer-file-name))
+    (flycheck-mode 1))
+  (setq fill-column 79)
+  (set (make-local-variable 'whitespace-line-column) 79))
 
 (defun basis/init-inferior-python-mode ()
   (subword-mode 1))
