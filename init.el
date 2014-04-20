@@ -517,6 +517,10 @@
 (global-set-key (kbd "<M-s-up>") 'scroll-other-window)
 (global-set-key (kbd "<M-s-down>") 'scroll-other-window-down)
 
+;; Previous/next buffer
+(global-set-key (kbd "<C-prior>") 'previous-buffer)
+(global-set-key (kbd "<C-next>") 'next-buffer)
+
 ;; h-map -----------------------------------------------------------------------
 
 (define-prefix-command 'basis/h-map)
