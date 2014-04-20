@@ -919,7 +919,11 @@
 (add-hook 'after-init-hook 'global-company-mode)
 
 (with-eval-after-load 'company
-  (define-key company-active-map (kbd "C-c") 'company-abort)
+  (basis/define-keys company-active-map
+    ((kbd "C-t") 'company-complete-selection)
+    ((kbd "C-c") 'company-abort)
+    ((kbd "RET") nil)
+    ([return]    nil))
   (set-default
    (make-variable-buffer-local 'company-backends)
    '(company-capf
