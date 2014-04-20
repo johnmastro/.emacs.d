@@ -489,6 +489,33 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   (end-of-buffer)
   (dired-next-line -1))
 
+;; direx -----------------------------------------------------------------------
+
+;; `direx' includes a package `direx-project', which implements its own project
+;; root finding. However, since I have `projectile' anyway it makes more sense
+;; to use it.
+
+(defun basis/direx-find-project-root-noselect ()
+  (when (projectile-project-p)
+    (direx:find-directory-noselect (projectile-project-root))))
+
+(defun basis/direx-jump-to-project-root-noselect ()
+  (interactive)
+  (-if-let (buffer (basis/direx-find-project-root-noselect))
+      (progn (direx:maybe-goto-current-buffer-item buffer)
+             buffer)
+    ;; Or fall back to the current buffer's directory and/or
+    ;; `default-directory'?
+    (error "Not in a project")))
+
+(defun basis/direx-jump-to-project-root ()
+  (interactive)
+  (switch-to-buffer (basis/direx-jump-to-project-root-noselect)))
+
+(defun basis/direx-jump-to-project-root-other-window ()
+  (interactive)
+  (switch-to-buffer-other-window (basis/direx-jump-to-project-root-noselect)))
+
 ;; emacs lisp ------------------------------------------------------------------
 
 (define-minor-mode basis/elisp-display-mode

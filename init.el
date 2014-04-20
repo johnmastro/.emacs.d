@@ -69,6 +69,7 @@
           deft
           diminish
           dired+
+          direx
           discover
           elisp-slime-nav
           expand-region
@@ -953,6 +954,15 @@
   "Jump to dired buffer corresponding to current buffer." t)
 
 (global-set-key (kbd "C-h C-j") 'dired-jump)
+
+;; direx -----------------------------------------------------------------------
+
+(global-set-key (kbd "C-h j") 'direx:jump-to-directory)
+(global-set-key (kbd "C-h p C-j") 'basis/direx-jump-to-project-root)
+
+(with-eval-after-load 'direx
+  (define-key direx:direx-mode-map (kbd "M-n") 'direx:next-sibling-item)
+  (define-key direx:direx-mode-map (kbd "M-p") 'direx:previous-sibling-item))
 
 ;; shell-mode ------------------------------------------------------------------
 
