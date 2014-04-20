@@ -1513,6 +1513,7 @@ haven't looked into the root cause yet."
 (defun basis/init-c-base ()
   (setq indent-tabs-mode nil
         c-basic-offset 4)
+  (set (make-local-variable 'comment-style) 'extra-line)
   (c-toggle-auto-newline 1)
   (dolist (cleanup '(brace-else-brace
                      brace-elseif-brace
