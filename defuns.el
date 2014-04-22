@@ -824,6 +824,9 @@ If no keymap is found, return nil."
 (defun basis/ido-imenu ()
   "Jump to a symbol in the buffer using ido and imenu."
   (interactive)
+  ;; Need non-autoloaded symbols from `imenu'.
+  (unless (featurep 'imenu)
+    (require 'imenu nil t))
   (let ((symbols ())    ; A list of symbols in the buffer (as strings)
         (positions ())) ; An alist mapping symbols to buffer positions
     (flet ((org-marker (symbol)
