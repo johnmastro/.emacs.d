@@ -1104,61 +1104,29 @@ Use `slime-expand-1' to produce the expansion."
 
 ;; sql -------------------------------------------------------------------------
 
-(defun basis/recapitalize-sql-buffer (&optional style)
-  (interactive)
-  (let ((style (cond ((null style) 'none)
-                     ((memq style '(caps none)) style)
-                     (t (error "Unknown capitalization style '%s'" style)))))
-    (save-excursion
-      (goto-char (point-min))
-      (let ((last -1))
-        (while (> (point) last)
-          (let ((face (get-text-property (point) 'face)))
-            (cond ((memq face '(font-lock-builtin-face
-                                font-lock-keyword-face
-                                font-lock-type-face))
-                   (if (eq style 'caps)
-                       (upcase-word 1)
-                     (downcase-word 1))
-                   (backward-word 1))
-                  ((null face)
-                   (downcase-word 1)
-                   (backward-word 1))))
-          (setq last (point))
-          (forward-word 2)
-          (backward-word 1))))))
-
-(defun basis/current-sql-capitalization ()
+(defun basis/recapitalize-sql-buffer (style)
+  "Recapitalize the current buffer to STYLE (caps or none)."
+  (interactive "SStyle: ")
+  (unless (memq style '(caps none))
+    (error "Unknown capitalization style '%s'" style))
   (save-excursion
     (goto-char (point-min))
-    (forward-word 1)
-    (backward-word 1)
     (let ((last -1))
-      (catch 'return
-        (while (> (point) last)
-          (let ((face (get-text-property (point) 'face))
-                (case-fold-search nil))
-            (when (and (memq face '(font-lock-builtin-face
-                                    font-lock-keyword-face
-                                    font-lock-type-face))
-                       (not (in-string-p)))
-              (cond ((looking-at-p "[A-Z]") (throw 'return 'caps))
-                    ((looking-at-p "[a-z]") (throw 'return 'none))))
-            (setq last (point))
-            (forward-word 2)
-            (backward-word 1)))))))
-
-(defvar basis/sql-capitalization-context nil)
-
-(defun toggle-sql-capitalization ()
-  (interactive)
-  (unless (eq this-command last-command)
-    (setq basis/sql-capitalization-context (basis/current-sql-capitalization)))
-  (let ((target (if (eq basis/sql-capitalization-context 'none)
-                    'caps
-                  'none)))
-    (basis/recapitalize-sql-buffer target)
-    (setq basis/sql-capitalization-context target)))
+      (while (> (point) last)
+        (let ((face (get-text-property (point) 'face)))
+          (cond ((memq face '(font-lock-builtin-face
+                              font-lock-keyword-face
+                              font-lock-type-face))
+                 (if (eq style 'caps)
+                     (upcase-word 1)
+                   (downcase-word 1))
+                 (backward-word 1))
+                ((null face)
+                 (downcase-word 1)
+                 (backward-word 1))))
+        (setq last (point))
+        (forward-word 2)
+        (backward-word 1)))))
 
 ;; html utilities --------------------------------------------------------------
 
