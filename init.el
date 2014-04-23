@@ -165,7 +165,10 @@
             explicit-shell-file-name shell
             ediff-shell shell
             null-device "/dev/null")
-      (setenv "SHELL" shell))))
+      (setenv "SHELL" shell))
+    ;; Since Emacs wasn't launched from a Cygwin shell, $LANG will be wonky
+    ;; unless we fix it.
+    (setenv "LANG" "en_US.UTF-8")))
 
 (when basis/cygwin-p
   (basis/init-for-cygwin))
