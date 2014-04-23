@@ -1454,6 +1454,7 @@ haven't looked into the root cause yet."
   (unless (and buffer-file-name (file-remote-p buffer-file-name))
     (flycheck-mode 1))
   (setq fill-column 79)
+  (setq tab-width 4)
   (set (make-local-variable 'whitespace-line-column) 79))
 
 (defun basis/init-inferior-python-mode ()
