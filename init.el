@@ -574,7 +574,6 @@
 ;; aliases ---------------------------------------------------------------------
 
 (defalias 'qrr 'query-replace-regexp)
-(defalias 'man 'woman)
 (defalias 'ack 'ack-and-a-half)
 (defalias 'ack-same 'ack-and-a-half-same)
 (defalias 'ack-find-file 'ack-and-a-half-find-file)
@@ -654,6 +653,18 @@
     ((kbd "p") 'previous-line)
     ((kbd "b") 'help-go-back)
     ((kbd "f") 'help-go-forward)))
+
+;; man and woman ---------------------------------------------------------------
+
+;; The man.el library needs to be loaded before making man an alias for woman
+;; (below). Otherwise, when woman loads man it will overwrite the alias.
+(require 'man)
+
+;; So I can still get to the original man command
+(fset 'original-man (symbol-function 'man))
+
+;; Easier to type
+(defalias 'man 'woman)
 
 ;; isearch ---------------------------------------------------------------------
 
