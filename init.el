@@ -1390,6 +1390,7 @@ haven't looked into the root cause yet."
   (basis/define-keys sp-keymap
     ((kbd "RET")    'basis/maybe-electric-return)
     ((kbd "M-DEL")  'basis/sp-backward-kill-something)
+    ((kbd "C-w")    'basis/sp-backward-kill-something)
     ((kbd "M-k")    'sp-kill-sexp)
     ((kbd "M-e")    'basis/maybe-sp-forward-sexp)
     ((kbd "M-a")    'basis/maybe-sp-backward-sexp)
