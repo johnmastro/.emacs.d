@@ -72,6 +72,7 @@
           direx
           discover
           elisp-slime-nav
+          evil
           expand-region
           flx-ido
           flycheck
@@ -1575,6 +1576,16 @@ haven't looked into the root cause yet."
 
 (with-eval-after-load 'cc-mode
   (define-key c-mode-base-map (kbd "C-j") 'c-context-line-break))
+
+;; evil ------------------------------------------------------------------------
+
+(with-eval-after-load 'evil
+  (basis/define-keys evil-motion-state-map
+    ("H" 'evil-first-non-blank)
+    ("L" 'evil-end-of-line))
+  (basis/define-keys evil-normal-state-map
+    (",f" 'ido-find-file)
+    (",b" 'ido-switch-buffer)))
 
 ;; ack and a half --------------------------------------------------------------
 
