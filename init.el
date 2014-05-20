@@ -1591,12 +1591,27 @@ haven't looked into the root cause yet."
 
 ;; ack and a half --------------------------------------------------------------
 
+(defun basis/ack-somewhere (&optional arg)
+  (interactive "P")
+  (unless (featurep 'ack-and-a-half)
+    (require 'ack-and-a-half nil t))
+  (let* ((regexp-p (ack-and-a-half-xor arg ack-and-a-half-regexp-search))
+         (pattern (read-from-minibuffer "Ack: "))
+         (default (projectile-project-root))
+         (directory (ido-read-directory-name "Directory: " default)))
+    (ack-and-a-half pattern regexp-p directory)))
+
 (with-eval-after-load 'ack-and-a-half
   (basis/define-keys ack-and-a-half-mode-map
     ((kbd "n") 'compilation-next-error)
     ((kbd "p") 'compilation-previous-error)
     ((kbd "]") 'compilation-next-file)
-    ((kbd "[") 'compilation-previous-file)))
+    ((kbd "[") 'compilation-previous-file))
+  ;; Make Cygwin happy
+  (when (and basis/cygwin-p
+             (stringp ack-and-a-half-executable)
+             (string-prefix-p "c:" ack-and-a-half-executable))
+    (setq ack-and-a-half-executable (substring ack-and-a-half-executable 2))))
 
 ;; org -------------------------------------------------------------------------
 
