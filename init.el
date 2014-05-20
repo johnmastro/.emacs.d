@@ -1581,13 +1581,48 @@ haven't looked into the root cause yet."
 
 ;; evil ------------------------------------------------------------------------
 
-(with-eval-after-load 'evil
-  (basis/define-keys evil-motion-state-map
-    ("H" 'evil-first-non-blank)
-    ("L" 'evil-end-of-line))
-  (basis/define-keys evil-normal-state-map
-    (",f" 'ido-find-file)
-    (",b" 'ido-switch-buffer)))
+(require 'evil)
+
+(evil-define-operator basis/evil-comment (beg end type)
+  (interactive "<R>")
+  (comment-or-uncomment-region beg end))
+
+(basis/define-keys evil-motion-state-map
+  ("H" 'evil-first-non-blank)
+  ("L" 'evil-end-of-line))
+
+(basis/define-keys evil-normal-state-map
+  ("j"        'evil-next-visual-line)
+  ("k"        'evil-previous-visual-line)
+  ("gj"       'evil-next-line)
+  ("gk"       'evil-previous-line)
+  (" f"       'ido-find-file)
+  (" b"       'ido-switch-buffer)
+  (" r"       'basis/recentf-ido-find-file)
+  (" a"       'ack-and-a-half)
+  (" g"       'magit-status)
+  (" j"       'ace-jump-word-mode)
+  ("gc"       'basis/evil-comment)
+  ("[b"       'previous-buffer)
+  ("]b"       'next-buffer)
+  ("[q"       'previous-error)
+  ("]q"       'next-error)
+  ("[e"       'move-text-up)
+  ("]e"       'move-text-down)
+  ("[ "       'basis/insert-blank-above)
+  ("] "       'basis/insert-blank-below)
+  ("-"        'dired-jump)
+  ((kbd "M-.") nil))
+
+(basis/define-keys evil-insert-state-map
+  ((kbd "C-e") nil)
+  ((kbd "C-k") nil))
+
+(dolist (mode '(help-mode dired-mode Info-mode))
+  (add-to-list 'evil-emacs-state-modes mode))
+
+(dolist (mode '(help-mode Info-mode))
+  (setq evil-motion-state-modes (remq mode evil-motion-state-modes)))
 
 ;; ack and a half --------------------------------------------------------------
 

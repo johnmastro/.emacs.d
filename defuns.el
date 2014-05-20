@@ -108,6 +108,28 @@ default of 80."
     (insert "}")
     (indent-for-tab-command)))
 
+(defun basis/insert-blank-below (&optional count)
+  "Insert COUNT blank lines below point, without moving point."
+  (interactive "p")
+  (let ((count (or count 1)))
+    (save-excursion
+      (move-beginning-of-line 1)
+      (forward-line 1)
+      (while (> count 0)
+        (newline)
+        (setq count (1- count))))))
+
+(defun basis/insert-blank-above (&optional count)
+  "Insert COUNT blank lines above point, without moving point."
+  (interactive "p")
+  (let ((count (or count 1)))
+    (save-excursion
+      (forward-line -1)
+      (move-end-of-line 1)
+      (while (> count 0)
+        (newline)
+        (setq count (1- count))))))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word (arg)
