@@ -973,6 +973,8 @@
         dired-listing-switches "-alh")
   (put 'dired-find-alternate-file 'disabled nil))
 
+(add-hook 'dired-mode-hook 'dired-omit-mode)
+
 (autoload 'dired-jump "dired-x"
   "Jump to dired buffer corresponding to current buffer." t)
 
