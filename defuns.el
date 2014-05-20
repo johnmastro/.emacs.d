@@ -869,6 +869,11 @@ If no keymap is found, return nil."
                      (overlay-start position)
                    position)))))
 
+(defun basis/disable-themes (&optional themes)
+  "Disable THEMES (defaults to `custom-enabled-themes')."
+  (interactive)
+  (mapc #'disable-theme (or themes custom-enabled-themes)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
