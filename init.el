@@ -712,9 +712,6 @@
 
 (key-chord-mode 1)
 
-(setq key-chord-two-keys-delay 0.05
-      key-chord-one-key-delay 0.18)
-
 (pcase-dolist (`(,key . ,cmd) '(("jk" . ace-jump-word-mode)
                                 (",." . ido-switch-buffer)
                                 ("l;" . ibuffer)
