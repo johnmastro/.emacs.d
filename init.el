@@ -54,6 +54,7 @@
 ;; Ensure that everything specified here is installed
 (let* ((basis/required-packages
         '(ace-jump-mode
+          ace-window
           ack-and-a-half
           batch-mode
           browse-kill-ring
@@ -369,10 +370,8 @@
   (`darwin     (init-modifiers/os-x))
   (`windows-nt (init-modifiers/windows)))
 
-;; Easier window management
+;; Restore previous window configurations
 (winner-mode 1)
-(windmove-default-keybindings)
-(global-set-key (kbd "M-o") 'other-window)
 
 ;; Newlines
 (global-set-key (kbd "C-m") 'newline-and-indent)
@@ -809,6 +808,12 @@
 (global-set-key (kbd "s-SPC") 'ace-jump-mode)
 (global-set-key (kbd "C-h SPC") 'ace-jump-mode-pop-mark)
 
+;; ace-window ------------------------------------------------------------------
+
+(global-set-key (kbd "M-o") 'ace-window)
+
+(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+
 ;; mu4e ------------------------------------------------------------------------
 
 (let ((mu4e-path "/usr/local/share/emacs/site-lisp/mu4e/"))
@@ -906,7 +911,7 @@
 
 (with-eval-after-load 'ibuffer
   (basis/define-keys ibuffer-mode-map
-    ((kbd "M-o") 'other-window)
+    ((kbd "M-o")   nil) ;; don't shadow ace-window
     ((kbd "C-M-o") 'ibuffer-visit-buffer-1-window))
 
   (define-ibuffer-column size-h
