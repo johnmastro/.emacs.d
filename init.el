@@ -1277,18 +1277,12 @@ otherwise call `yas-insert-snippet'."
 
 (defun basis/setup-lein-path-for-mac ()
   (-when-let (lein (executable-find "lein"))
-    (setq cider-lein-command lein)
-    (when (s-starts-with? "lein" cider-server-command)
-      (setq cider-server-command
-            (s-replace "lein" cider-lein-command cider-server-command)))))
+    (setq cider-lein-command lein)))
 
 (defun basis/setup-lein-path-for-cygwin ()
-  (let ((lein "/home/jbm/bin/lein"))
+  (let ((lein "~/bin/lein"))
     (when (file-exists-p lein)
-      (setq cider-lein-command lein)
-      (when (s-starts-with? "lein" cider-server-command)
-        (setq cider-server-command
-              (s-replace "lein" cider-lein-command cider-server-command))))))
+      (setq cider-lein-command (expand-file-name lein)))))
 
 (defvar basis/clojure-indent-specs
   '((-> 1)
