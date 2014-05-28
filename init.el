@@ -1584,21 +1584,41 @@ haven't looked into the root cause yet."
   (interactive "<R>")
   (comment-or-uncomment-region beg end))
 
+(evil-define-text-object basis/evil-defun (count &optional beg end type)
+  :type line
+  (let ((beg (save-excursion (beginning-of-defun) (point)))
+        (end (save-excursion (end-of-defun) (point))))
+    (list beg end)))
+
 (basis/define-keys evil-motion-state-map
   ("H" 'evil-first-non-blank)
   ("L" 'evil-end-of-line))
 
+(defvar basis/evil-fake-leader-map
+  (let ((map (make-sparse-keymap)))
+    (basis/define-keys map
+      ("f" 'ido-find-file)
+      ("b" 'ido-switch-buffer)
+      ("c" basis/flycheck-keymap)
+      ("r" 'basis/recentf-ido-find-file)
+      ("a" 'ack-and-a-half)
+      ("g" 'magit-status)
+      ("i" 'basis/ido-imenu)
+      ("j" 'ace-jump-word-mode)
+      ("k" 'basis/kill-this-buffer)
+      ("o" 'ace-window)
+      ("0" 'delete-window)
+      ("1" 'delete-other-windows)
+      ("2" 'split-window-below)
+      ("3" 'split-window-right))
+    map))
+
 (basis/define-keys evil-normal-state-map
+  (" "        basis/evil-fake-leader-map)
   ("j"        'evil-next-visual-line)
   ("k"        'evil-previous-visual-line)
   ("gj"       'evil-next-line)
   ("gk"       'evil-previous-line)
-  (" f"       'ido-find-file)
-  (" b"       'ido-switch-buffer)
-  (" r"       'basis/recentf-ido-find-file)
-  (" a"       'ack-and-a-half)
-  (" g"       'magit-status)
-  (" j"       'ace-jump-word-mode)
   ("gc"       'basis/evil-comment)
   ("[b"       'previous-buffer)
   ("]b"       'next-buffer)
@@ -1611,15 +1631,31 @@ haven't looked into the root cause yet."
   ("-"        'dired-jump)
   ((kbd "M-.") nil))
 
+(defun basis/add-evil-fake-leader-map (modes)
+  (mapc (lambda (mode)
+          (let ((keymap (intern (concat (symbol-name mode) "-map"))))
+            (eval-after-load mode
+              '(define-key keymap " " basis/evil-fake-leader-map))))
+        modes))
+
 (basis/define-keys evil-insert-state-map
   ((kbd "C-e") nil)
   ((kbd "C-k") nil))
 
-(dolist (mode '(help-mode dired-mode Info-mode))
-  (add-to-list 'evil-emacs-state-modes mode))
+;; Define more emacs-state modes, including everything that evil has as a
+;; insert-state or motion-state mode by default
+(let ((more-emacs-state-modes '(dired-mode
+                                flycheck-error-list-mode
+                                makey-key-mode
+                                inferior-haskell-mode)))
+  (mapc (apply-partially #'add-to-list 'evil-emacs-state-modes)
+        (append evil-insert-state-modes
+                evil-motion-state-modes
+                more-emacs-state-modes))
+  (setq evil-motion-state-modes nil
+        evil-insert-state-modes nil))
 
-(dolist (mode '(help-mode Info-mode))
-  (setq evil-motion-state-modes (remq mode evil-motion-state-modes)))
+(evil-mode 1)
 
 ;; ack and a half --------------------------------------------------------------
 
