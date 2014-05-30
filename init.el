@@ -1410,7 +1410,16 @@ haven't looked into the root cause yet."
 
 ;; flycheck --------------------------------------------------------------------
 
-(defvar basis/flycheck-keymap nil
+(defvar basis/flycheck-keymap
+  (let ((map (make-sparse-keymap)))
+    (basis/define-keys map
+      ((kbd "c") 'flycheck-buffer)
+      ((kbd "n") 'flycheck-next-error)
+      ((kbd "p") 'flycheck-previous-error)
+      ((kbd "l") 'flycheck-list-errors)
+      ((kbd "s") 'flycheck-select-checker)
+      ((kbd "C") 'flycheck-clear))
+    map)
   "Custom keybindings for Flycheck.")
 
 (with-eval-after-load 'flycheck
@@ -1424,17 +1433,6 @@ haven't looked into the root cause yet."
   (add-hook 'flycheck-after-syntax-check-hook
             'basis/adjust-flycheck-idle-change-delay)
 
-  ;; Initialize the keymap
-  (setq basis/flycheck-keymap
-        (let ((map (make-sparse-keymap)))
-          (basis/define-keys map
-            ((kbd "c") 'flycheck-buffer)
-            ((kbd "n") 'flycheck-next-error)
-            ((kbd "p") 'flycheck-previous-error)
-            ((kbd "l") 'flycheck-list-errors)
-            ((kbd "s") 'flycheck-select-checker)
-            ((kbd "C") 'flycheck-clear))
-          map))
   (global-set-key (kbd "C-h l") basis/flycheck-keymap)
 
   ;; Keys for the errors buffer
