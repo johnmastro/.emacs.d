@@ -1001,6 +1001,69 @@ If no keymap is found, return nil."
         (basis/python-nav-backward-sexp arg)
       (sp-backward-sexp arg))))
 
+;; evil ------------------------------------------------------------------------
+
+(require 'evil)
+
+(evil-define-operator basis/evil-comment (beg end type)
+  "Comment or un-comment code covered by the motion."
+  (interactive "<R>")
+  (comment-or-uncomment-region beg end))
+
+(evil-define-text-object basis/evil-inner-defun (count &optional beg end type)
+  "Select inner defun."
+  (save-excursion
+    (let ((beg (progn (beginning-of-defun) (point)))
+          (end (progn (end-of-defun) (point))))
+      (list beg end))))
+
+(evil-define-text-object basis/evil-a-defun (count &optional beg end type)
+  "Select a defun."
+  (save-excursion
+    (let ((beg (progn (beginning-of-defun) (point)))
+          (end (let ((maybe-end (progn (end-of-defun) (point))))
+                 (if (looking-at "^$")
+                     (progn (forward-line 1)
+                            (point))
+                   maybe-end))))
+      (list beg end))))
+
+(defun basis/evil-move-symbol (count)
+  "Move forward COUNT symbols."
+  ;; Needed because `forward-symbol' by itself doesn't the return value needed
+  ;; by `evil-an-object-range' and `evil-inner-object-range'.
+  (evil-motion-loop (var count)
+    (forward-symbol var)))
+
+(evil-define-text-object basis/evil-a-symbol (count &optional beg end type)
+  "Select a symbol."
+  (evil-an-object-range count beg end type #'basis/evil-move-symbol))
+
+(evil-define-text-object basis/evil-inner-symbol (count &optional beg end type)
+  "Select inner symbol."
+  (evil-inner-object-range count beg end type #'basis/evil-move-symbol))
+
+(defun basis/evil-add-fake-leader-map (modes)
+  "Map `basis/evil-fake-leader-map' to space in MODES."
+  (mapc (lambda (mode)
+          (let ((map (intern (concat (symbol-name mode) "-mode-map"))))
+            (eval-after-load mode
+              `(define-key ,map " " basis/evil-fake-leader-map))))
+        modes))
+
+(defun basis/evil-exit-insert-state (&optional buffer)
+  "If BUFFER is in insert state, change it to normal state.
+BUFFER defaults to the current buffer if nil."
+  (with-current-buffer (or buffer (current-buffer))
+    (when (evil-insert-state-p)
+      (evil-normal-state 1))))
+
+(defun basis/evil-frame-exit-insert-state (&optional frame)
+  "Call `basis/evil-exit-insert-state' on each buffer in FRAME.
+FRAME defaults to the selected frame if nil."
+  (mapc #'basis/evil-exit-insert-state
+        (buffer-list (or frame (selected-frame)))))
+
 ;; scheme/geiser ---------------------------------------------------------------
 
 (defun basis/scheme-send-something ()

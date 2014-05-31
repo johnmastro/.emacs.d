@@ -1578,16 +1578,6 @@ haven't looked into the root cause yet."
 
 (require 'evil)
 
-(evil-define-operator basis/evil-comment (beg end type)
-  (interactive "<R>")
-  (comment-or-uncomment-region beg end))
-
-(evil-define-text-object basis/evil-defun (count &optional beg end type)
-  :type line
-  (let ((beg (save-excursion (beginning-of-defun) (point)))
-        (end (save-excursion (end-of-defun) (point))))
-    (list beg end)))
-
 (basis/define-keys evil-motion-state-map
   ("H" 'evil-first-non-blank)
   ("L" 'evil-end-of-line))
@@ -1629,16 +1619,17 @@ haven't looked into the root cause yet."
   ("-"        'dired-jump)
   ((kbd "M-.") nil))
 
-(defun basis/add-evil-fake-leader-map (modes)
-  (mapc (lambda (mode)
-          (let ((keymap (intern (concat (symbol-name mode) "-map"))))
-            (eval-after-load mode
-              '(define-key keymap " " basis/evil-fake-leader-map))))
-        modes))
-
 (basis/define-keys evil-insert-state-map
   ((kbd "C-e") nil)
   ((kbd "C-k") nil))
+
+(basis/define-keys evil-inner-text-objects-map
+  ("y" 'basis/evil-inner-symbol)
+  ("d" 'basis/evil-inner-defun))
+
+(basis/define-keys evil-outer-text-objects-map
+  ("y" 'basis/evil-a-symbol)
+  ("d" 'basis/evil-a-defun))
 
 ;; Define more emacs-state modes, including everything that evil has as a
 ;; insert-state or motion-state mode by default
@@ -1652,6 +1643,10 @@ haven't looked into the root cause yet."
                 more-emacs-state-modes))
   (setq evil-motion-state-modes nil
         evil-insert-state-modes nil))
+
+(add-hook 'focus-out-hook 'basis/evil-frame-exit-insert-state)
+
+;; (basis/add-evil-fake-leader-map '(dired help))
 
 (evil-mode 1)
 
