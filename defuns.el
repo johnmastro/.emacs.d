@@ -403,19 +403,17 @@ buffer visiting a directory."
   "Open each of FILES in external programs."
   (mapc #'basis/open-file files))
 
-(defun basis/open-these-files ()
-  "Open the currently selected file(s) in external programs.
-If the current buffer is a Dired buffer, open any marked files.
-Otherwise open the file being visited by the current buffer."
+(defun basis/dired-open-files ()
+  "Open marked file(s) in external program(s).
+If no files are marked, default to the file under point."
   (interactive)
-  (let* ((files (cond ((eq major-mode 'dired-mode)
-                       (dired-get-marked-files))
-                      ((buffer-file-name)
-                       (list (buffer-file-name)))))
-         (n-files (length files)))
-    (when (or (<= n-files 5)
-              (y-or-n-p (format "Really open %s files?" n-files)))
-      (basis/open-files files))))
+  (if (eq major-mode 'dired-mode)
+      (let* ((files (dired-get-marked-files))
+             (count (length files)))
+        (when (or (<= count 5)
+                  (y-or-n-p (format "Really open %s files?" count)))
+          (basis/open-files files)))
+    (error "Not in a dired-mode buffer")))
 
 (defun basis/windows->unix (path)
   "Convert a path from Windows-style to UNIX-style."

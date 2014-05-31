@@ -960,6 +960,7 @@
   (basis/define-keys dired-mode-map
     ((kbd "RET")                 'dired-find-alternate-file)
     ((kbd "M-RET")               'dired-find-file)
+    ((kbd "e")                   'basis/dired-open-files)
     ((kbd "^")                   'diredp-up-directory-reuse-dir-buffer)
     ((kbd "M-^")                 'diredp-up-directory)
     ((kbd "M-m")                 'dired-omit-mode)
