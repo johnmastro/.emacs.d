@@ -1681,8 +1681,8 @@ haven't looked into the root cause yet."
 (setq org-directory "~/Dropbox/org/"
       org-default-notes-file (expand-file-name "refile.org" org-directory)
       org-archive-location "%s.archive::"
-      org-agenda-files (--map (expand-file-name it org-directory)
-                              '("todo.org" "work.org")))
+      org-agenda-files (mapcar (-rpartial #'expand-file-name org-directory)
+                               '("todo.org" "work.org")))
 
 ;; Misc. options
 (setq org-completion-use-ido t

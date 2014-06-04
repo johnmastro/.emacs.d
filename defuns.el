@@ -12,18 +12,18 @@
 Go back to the first non-whitespace character or, if already
 there, to the beginning of the line."
   (interactive)
-  (if (= (point) (save-excursion (back-to-indentation) (point)))
-      (move-beginning-of-line nil)
-    (back-to-indentation)))
+  (let ((start (point)))
+    (back-to-indentation)
+    (when (= (point) start)
+      (move-beginning-of-line nil))))
 
 (defun basis/comment-or-uncomment ()
   "Comment or uncomment the active region or current line."
   (interactive)
   (let ((reg-p (use-region-p)))
-    (save-excursion
-      (comment-or-uncomment-region
-       (if reg-p (region-beginning) (line-beginning-position))
-       (if reg-p (region-end) (line-end-position))))))
+    (comment-or-uncomment-region
+     (if reg-p (region-beginning) (line-beginning-position))
+     (if reg-p (region-end) (line-end-position)))))
 
 (defun basis/insert-enough-dashes (&optional arg)
   "Insert enough dashes to reach a specific column.
@@ -331,7 +331,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
         (filename (buffer-file-name)))
     (if (not (and filename (file-exists-p filename)))
         (ido-kill-buffer)
-      (when (yes-or-no-p "Are you sure you want to delete this file? ")
+      (when (yes-or-no-p "Are you sure you want to delete this file?")
         (delete-file filename)
         (kill-buffer buffer)
         (message "File '%s' successfully deleted" filename)))))
