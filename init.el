@@ -1674,6 +1674,7 @@ haven't looked into the root cause yet."
     ((kbd "p") 'compilation-previous-error)
     ((kbd "]") 'compilation-next-file)
     ((kbd "[") 'compilation-previous-file))
+  (setq ack-and-a-half-use-ido t)
   ;; Make Cygwin happy
   (when (and basis/cygwin-p
              (stringp ack-and-a-half-executable)
