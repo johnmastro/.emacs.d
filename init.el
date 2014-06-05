@@ -72,6 +72,7 @@
           dired+
           direx
           discover
+          elfeed
           elisp-slime-nav
           evil
           expand-region
