@@ -1401,7 +1401,6 @@ haven't looked into the root cause yet."
     (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
 
   (basis/define-keys sp-keymap
-    ((kbd "RET")    'basis/maybe-electric-return)
     ((kbd "M-DEL")  'basis/sp-backward-kill-something)
     ((kbd "C-w")    'basis/sp-backward-kill-something)
     ((kbd "M-k")    'sp-kill-sexp)
@@ -1454,6 +1453,7 @@ haven't looked into the root cause yet."
     ((kbd "<f8>")     'python-shell-send-file)
     ((kbd "C-c M-k")  'python-shell-send-buffer)
     ((kbd "<M-f8>")   'python-shell-send-buffer)
+    ((kbd "RET")      'basis/electric-return)
     ((kbd "DEL")      'basis/sp-python-backspace)
     ((kbd "C-h C-p")  'basis/insert-python-docstring-quotes))
   (setq python-fill-docstring-style 'pep-257-nn))
@@ -1540,7 +1540,8 @@ haven't looked into the root cause yet."
     (add-to-list
      'sql-mode-postgres-font-lock-keywords
      (apply #'sql-font-lock-keywords-builder
-            'font-lock-builtin-face nil more-builtins))))
+            'font-lock-builtin-face nil more-builtins)))
+  (define-key sql-mode-map (kbd "RET") 'basis/electric-return))
 
 ;; cc-mode ---------------------------------------------------------------------
 

@@ -61,22 +61,6 @@ default of 80."
     (save-excursion (newline-and-indent)))
   (newline-and-indent))
 
-(defun basis/maybe-electric-return ()
-  "Call `basis/electric-return', with exceptions for some modes."
-  (interactive)
-  (cond ((memq major-mode '(c-mode c++-mode))
-         (newline-and-indent))
-        ((derived-mode-p 'comint-mode)
-         (-if-let* ((map (basis/find-mode-keymap major-mode))
-                    (cmd (or (lookup-key map (kbd "RET"))
-                             (lookup-key map (kbd "<return>")))))
-             (call-interactively cmd)
-           (basis/electric-return)))
-        ((eq major-mode 'html-mode)
-         (basis/html-newline-and-indent))
-        (t
-         (basis/electric-return))))
-
 (defun basis/eol-maybe-semicolon ()
   (interactive)
   (move-end-of-line)
