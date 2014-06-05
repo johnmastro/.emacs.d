@@ -1638,7 +1638,11 @@ haven't looked into the root cause yet."
 (let ((more-emacs-state-modes '(dired-mode
                                 flycheck-error-list-mode
                                 makey-key-mode
-                                inferior-haskell-mode)))
+                                inferior-haskell-mode
+                                direx:direx-mode
+                                cider-repl-mode
+                                elfeed-search-mode
+                                elfeed-show-mode)))
   (mapc (apply-partially #'add-to-list 'evil-emacs-state-modes)
         (append evil-insert-state-modes
                 evil-motion-state-modes
