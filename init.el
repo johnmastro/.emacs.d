@@ -206,7 +206,6 @@
       save-interprogram-paste-before-kill (not (eq system-type 'darwin)))
 
 (setq-default indent-tabs-mode nil
-              tab-width 4
               fill-column 80
               require-final-newline t)
 
@@ -1014,6 +1013,7 @@
 ;; sh-mode ---------------------------------------------------------------------
 
 (defun basis/maybe-set-shell-to-zsh ()
+  (setq tab-width 4)
   (when (and buffer-file-name
              (string= (file-name-nondirectory buffer-file-name) ".zshrc"))
     (sh-set-shell "zsh")))
@@ -1473,7 +1473,8 @@ haven't looked into the root cause yet."
   (set (make-local-variable 'whitespace-line-column) 79))
 
 (defun basis/init-inferior-python-mode ()
-  (subword-mode 1))
+  (subword-mode 1)
+  (setq tab-width 4))
 
 (add-hook 'python-mode-hook 'basis/init-python-mode)
 (add-hook 'inferior-python-mode-hook 'basis/init-inferior-python-mode)
@@ -1496,6 +1497,7 @@ haven't looked into the root cause yet."
   (define-key js2-mode-map (kbd "C-;") 'basis/eol-maybe-semicolon))
 
 (defun basis/init-js2-mode ()
+  (setq tab-width 4)
   (subword-mode 1)
   (js2-imenu-extras-setup))
 
@@ -1527,6 +1529,7 @@ haven't looked into the root cause yet."
 
 (defun basis/init-sql-mode ()
   (sql-set-product "postgres")
+  (setq tab-width 4)
   (let ((double-quote 34))
     ;; Change double quote's syntax entry from punctuation to string delimiter.
     (modify-syntax-entry double-quote "\"")))
@@ -1759,6 +1762,7 @@ haven't looked into the root cause yet."
        '(apply simplezen-expand-or-indent-for-tab)))
 
 (defun basis/init-html-mode ()
+  (setq tab-width 4)
   (tagedit-mode 1))
 
 (add-hook 'sgml-mode-hook 'basis/init-simplezen)
@@ -1796,6 +1800,7 @@ two tags."
   (add-to-list 'auto-mode-alist (cons ext 'markdown-mode)))
 
 (defun basis/init-markdown-mode ()
+  (setq tab-width 4)
   (unless (eq major-mode 'gfm-mode)
     (turn-on-auto-fill))
   (basis/maybe-enable-flyspell))
