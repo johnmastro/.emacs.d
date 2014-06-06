@@ -718,6 +718,23 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
 
 ;; misc. defuns ----------------------------------------------------------------
 
+(defun basis/ack-somewhere (&optional arg)
+  "Do an ack search. Prompt for the directory to use.
+Default to `projectile-project-root' if in a project, otherwise
+`default-directory'."
+  (interactive "P")
+  (unless (featurep 'ack-and-a-half)
+    (require 'ack-and-a-half nil t))
+  (let* ((regexp-p  (if arg
+                        (not ack-and-a-half-regexp-search)
+                      ack-and-a-half-regexp-search))
+         (pattern   (read-from-minibuffer "Ack: "))
+         (default   (if (projectile-project-p)
+                        (projectile-project-root)
+                      default-directory))
+         (directory (ido-read-directory-name "Directory: " default)))
+    (ack-and-a-half pattern regexp-p directory)))
+
 (defun basis/read-file (file)
   "Read a Lisp form from FILE."
   (with-temp-buffer
