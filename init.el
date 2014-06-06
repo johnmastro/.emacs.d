@@ -1421,7 +1421,7 @@ haven't looked into the root cause yet."
 (with-eval-after-load 'flycheck
   (setq flycheck-check-syntax-automatically nil)
 
-  (when (eq system-type 'windows-nt)
+  (unless (basis/libxml-available-p)
     (setq flycheck-xml-parser 'flycheck-parse-xml-region))
 
   ;; Check buffers with errors more frequently than ones without

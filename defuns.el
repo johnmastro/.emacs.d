@@ -882,6 +882,12 @@ If no keymap is found, return nil."
   (interactive)
   (mapc #'disable-theme (or themes custom-enabled-themes)))
 
+(defun basis/libxml-available-p ()
+  (and (fboundp 'libxml-parse-html-region)
+       (with-temp-buffer
+         (insert "<html></html>")
+         (not (null (libxml-parse-html-region (point-min) (point-max)))))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
