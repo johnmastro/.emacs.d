@@ -279,6 +279,9 @@
       (remq 'process-kill-buffer-query-function
             kill-buffer-query-functions))
 
+;; URL
+(setq url-configuration-directory "~/.emacs.d/.url/")
+
 ;; No blinking please
 (blink-cursor-mode -1)
 
