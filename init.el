@@ -1646,7 +1646,9 @@ haven't looked into the root cause yet."
                                 direx:direx-mode
                                 cider-repl-mode
                                 elfeed-search-mode
-                                elfeed-show-mode)))
+                                elfeed-show-mode
+                                eww-mode
+                                diff-mode)))
   (mapc (apply-partially #'add-to-list 'evil-emacs-state-modes)
         (append evil-insert-state-modes
                 evil-motion-state-modes
