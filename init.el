@@ -1627,7 +1627,8 @@ haven't looked into the root cause yet."
 
 (basis/define-keys evil-insert-state-map
   ((kbd "C-e") nil)
-  ((kbd "C-k") nil))
+  ((kbd "C-k") nil)
+  ((kbd "M-o") 'basis/evil-ace-window))
 
 (basis/define-keys evil-inner-text-objects-map
   ("y" 'basis/evil-inner-symbol)

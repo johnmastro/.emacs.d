@@ -741,6 +741,16 @@ Default to `projectile-project-root' if in a project, otherwise
     (insert-file-contents file)
     (read (current-buffer))))
 
+(defun basis/evil-ace-window (arg)
+  "Exit insert state and run `ace-window'.
+If `evil-mode' isn't active, or the buffer isn't in insert state,
+this is identical to invoking `ace-window' directly."
+  (interactive "p")
+  (when (and (bound-and-true-p evil-mode)
+             (evil-insert-state-p))
+    (evil-normal-state 1))
+  (ace-window arg))
+
 (defun basis/set-mode-name (mode name)
   "Set MODE's modeline string to NAME."
   (let ((hook (intern (s-concat (symbol-name mode) "-hook"))))
