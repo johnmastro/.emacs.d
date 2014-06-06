@@ -695,7 +695,6 @@
 
 ;; discover-mode ---------------------------------------------------------------
 
-(require 'discover)
 (global-discover-mode 1)
 
 (discover-add-context-menu
@@ -710,8 +709,6 @@
 (setq guide-key/guide-key-sequence '("C-x 4" "C-x v" "C-x 8"))
 
 ;; key-chord -------------------------------------------------------------------
-
-(require 'key-chord)
 
 (key-chord-mode 1)
 
@@ -1250,10 +1247,7 @@
 
 ;; redshank --------------------------------------------------------------------
 
-(require 'redshank-loader)
-
-(with-eval-after-load 'redshank-loader
-  (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t))
+(redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t)
 
 ;; clojure ---------------------------------------------------------------------
 
@@ -1339,9 +1333,8 @@
           "racket"
         "guile"))
 
-(require 'quack)
-
 (with-eval-after-load 'scheme
+  (require 'quack)
   (basis/define-keys scheme-mode-map
     ((kbd "<f5>")   'scheme-send-last-sexp)
     ((kbd "<f6>")   'basis/scheme-send-something)
