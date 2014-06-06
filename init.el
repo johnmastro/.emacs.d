@@ -816,12 +816,7 @@
 
 ;; mu4e ------------------------------------------------------------------------
 
-(let ((mu4e-path "/usr/local/share/emacs/site-lisp/mu4e/"))
-  (when (and (not (eq system-type 'windows-nt))
-             (file-directory-p  mu4e-path)
-             (executable-find "mu"))
-    (add-to-list 'load-path mu4e-path)
-    (require 'mu4e)))
+(autoload 'mu4e "mu4e" "Launch mu4e" t nil)
 
 ;; Mail
 (setq mu4e-get-mail-command "offlineimap"
