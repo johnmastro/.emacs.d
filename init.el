@@ -1595,6 +1595,7 @@ haven't looked into the root cause yet."
       ("j" 'ace-jump-word-mode)
       ("k" 'basis/kill-this-buffer)
       ("o" 'ace-window)
+      ("p" projectile-command-map)
       ("0" 'delete-window)
       ("1" 'delete-other-windows)
       ("2" 'split-window-below)
