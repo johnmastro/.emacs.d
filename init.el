@@ -1075,28 +1075,19 @@
 
 ;; yasnippet -------------------------------------------------------------------
 
-(require 'yasnippet)
-
 (add-to-list 'auto-mode-alist '("\\.yasnippet\\'" . snippet-mode))
 
-(defun basis/yas-expand-or-insert ()
-  "Call `yas-expand' or `yas-insert-snippet' depending on context.
-If point is after what might be a snippet key, call `yas-expand',
-otherwise call `yas-insert-snippet'."
-  (interactive)
-  (call-interactively
-   (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
-
-;; Steal C-t for expanding snippets. `transpose-chars' is still available on
-;; M-t c
-(define-key yas-minor-mode-map (kbd "C-t") 'basis/yas-expand-or-insert)
-(define-key yas-keymap (kbd "RET") 'yas-exit-all-snippets)
-
-(setq yas-snippet-dirs '("~/.emacs.d/snippets/")
-      yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
-      yas-wrap-around-region t)
-
-(yas-global-mode 1)
+(with-eval-after-load 'yasnippet
+  ;; Steal C-t for expanding snippets. `transpose-chars' is still available on
+  ;; M-t c
+  (define-keys yas-minor-mode-map
+    ((kbd "C-t") 'basis/yas-expand-or-insert)
+    ((kbd "TAB") nil)
+    ([(tab)]     nil))
+  (define-key yas-keymap (kbd "RET") 'yas-exit-all-snippets)
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
+        yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
+        yas-wrap-around-region t))
 
 ;; projectile ------------------------------------------------------------------
 

@@ -921,6 +921,14 @@ If no keymap is found, return nil."
          (insert "<html></html>")
          (not (null (libxml-parse-html-region (point-min) (point-max)))))))
 
+(defun basis/yas-expand-or-insert ()
+  "Call `yas-expand' or `yas-insert-snippet' depending on context.
+If point is after what might be a snippet key, call `yas-expand',
+otherwise call `yas-insert-snippet'."
+  (interactive)
+  (call-interactively
+   (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
