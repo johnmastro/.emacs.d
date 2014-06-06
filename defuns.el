@@ -718,6 +718,12 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
 
 ;; misc. defuns ----------------------------------------------------------------
 
+(defun basis/read-file (file)
+  "Read a Lisp form from FILE."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (read (current-buffer))))
+
 (defun basis/set-mode-name (mode name)
   "Set MODE's modeline string to NAME."
   (let ((hook (intern (s-concat (symbol-name mode) "-hook"))))
@@ -1286,6 +1292,23 @@ Use `slime-expand-1' to produce the expansion."
 If the last check found errors, set it to 0.5 or 5.0 otherwise."
   (setq flycheck-idle-change-delay
         (if flycheck-current-errors 0.5 5.0)))
+
+;; elfeed ----------------------------------------------------------------------
+
+(defun basis/elfeed-parse-group (group)
+  "Parse the feed and tag specification GROUP.
+GROUP should be a list whose car contains a list of tags and
+whose cdr is a list of feeds to associate with those tags. If
+only one tag will be associated with the group, a symbol can be
+used rather than a list of symbols."
+  (pcase-let* ((`(,tag . ,feeds) group)
+               (tags (if (listp tag) tag (list tag))))
+    (mapcar (lambda (feed) (cons feed tags))
+            feeds)))
+
+(defun basis/elfeed-load-feeds (file)
+  "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
+  (-mapcat #'basis/elfeed-parse-group (basis/read-file file)))
 
 ;; lorem ipsum -----------------------------------------------------------------
 

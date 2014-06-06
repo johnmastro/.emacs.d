@@ -867,6 +867,11 @@
   (add-hook 'mu4e-compose-mode-hook 'basis/maybe-enable-flyspell)
   (add-hook 'mu4e-compose-mode-hook 'turn-on-orgstruct))
 
+;; elfeed ----------------------------------------------------------------------
+
+(setq elfeed-db-directory "~/.emacs.d/.elfeed"
+      elfeed-feeds (basis/elfeed-load-feeds "~/.emacs.d/feeds.el"))
+
 ;; magit -----------------------------------------------------------------------
 
 (defadvice magit-status (around magit-fullscreen activate)
