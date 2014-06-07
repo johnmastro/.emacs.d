@@ -431,7 +431,7 @@
 
 ;; Ack/grep
 (global-set-key (kbd "<f9>") (if (executable-find "ack")
-                                 'ack-and-a-half
+                                 'basis/ack-somewhere
                                'rgrep))
 (global-set-key (kbd "<C-f9>") 'rgrep)
 (global-set-key (kbd "<M-f9>") 'rgrep)
@@ -1582,7 +1582,7 @@ haven't looked into the root cause yet."
       ("b" 'ido-switch-buffer)
       ("c" basis/flycheck-keymap)
       ("r" 'basis/recentf-ido-find-file)
-      ("a" 'ack-and-a-half)
+      ("a" 'basis/ack-somewhere)
       ("g" 'magit-status)
       ("i" 'basis/ido-imenu)
       ("j" 'ace-jump-word-mode)
