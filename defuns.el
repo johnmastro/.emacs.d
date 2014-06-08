@@ -1099,6 +1099,23 @@ FRAME defaults to the selected frame if nil."
   (mapc #'basis/evil-exit-insert-state
         (buffer-list (or frame (selected-frame)))))
 
+(defun basis/evil-paredit-change ()
+  "Do `paredit-kill' and enter insert state."
+  (interactive)
+  (paredit-kill)
+  (evil-insert-state))
+
+(defun basis/evil-paredit-yank ()
+  "Yank the sexp at point into the kill ring."
+  (interactive)
+  (kill-ring-save (point) (save-excursion (paredit-forward 1) (point))))
+
+(defun basis/add-evil-paredit-keys (map)
+  (evil-define-key 'normal map
+    "D" 'paredit-kill
+    "C" 'basis/evil-paredit-change
+    "Y" 'basis/evil-paredit-yank))
+
 ;; scheme/geiser ---------------------------------------------------------------
 
 (defun basis/scheme-send-something ()

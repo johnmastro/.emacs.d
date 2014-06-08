@@ -1602,6 +1602,12 @@ haven't looked into the root cause yet."
 
 (add-hook 'focus-out-hook 'basis/evil-frame-exit-insert-state)
 
+;; More Paredit-y D/C/Y for Lisps
+(dolist (mode basis/lisp-modes)
+  (let ((map-sym (intern (concat (symbol-name mode) "-map"))))
+    (when (boundp map-sym)
+      (basis/add-evil-paredit-keys (symbol-value map-sym)))))
+
 ;; (basis/add-evil-fake-leader-map '(dired help))
 
 (evil-mode 1)
