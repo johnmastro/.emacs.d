@@ -929,6 +929,12 @@ otherwise call `yas-insert-snippet'."
   (call-interactively
    (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
 
+(defun basis/kill-ring-save-string (str)
+  "Save STR to the kill ring."
+  (with-temp-buffer
+    (insert str)
+    (kill-ring-save (point-min) (point-max))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
