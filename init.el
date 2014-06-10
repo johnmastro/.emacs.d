@@ -1032,7 +1032,7 @@
 (with-eval-after-load 'yasnippet
   ;; Steal C-t for expanding snippets. `transpose-chars' is still available on
   ;; M-t c
-  (define-keys yas-minor-mode-map
+  (basis/define-keys yas-minor-mode-map
     ((kbd "C-t") 'basis/yas-expand-or-insert)
     ((kbd "TAB") nil)
     ([(tab)]     nil))
