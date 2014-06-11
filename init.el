@@ -1605,11 +1605,16 @@ haven't looked into the root cause yet."
 
 (add-hook 'focus-out-hook 'basis/evil-frame-exit-insert-state)
 
-;; More Paredit-y D/C/Y for Lisps
-(dolist (mode basis/lisp-modes)
-  (let ((map-sym (intern (concat (symbol-name mode) "-map"))))
-    (when (boundp map-sym)
-      (basis/add-evil-paredit-keys (symbol-value map-sym)))))
+;; Lispier D/C/Y keys
+(basis/add-evil-paredit-keys
+ '((lisp-mode emacs-lisp-mode-map lisp-mode-map lisp-interaction-mode-map)
+   (ielm inferior-emacs-lisp-mode-map)
+   (inf-lisp inferior-lisp-mode-map)
+   (slime-repl slime-repl-mode-map)
+   (clojure-mode clojure-mode-map)
+   (cider-repl cider-repl-mode-map)
+   (scheme scheme-mode-map inferior-scheme-mode-map)
+   (geiser-repl geiser-repl-mode-map)))
 
 ;; (basis/add-evil-fake-leader-map '(dired help))
 

@@ -1110,11 +1110,28 @@ FRAME defaults to the selected frame if nil."
   (interactive)
   (kill-ring-save (point) (save-excursion (paredit-forward 1) (point))))
 
-(defun basis/add-evil-paredit-keys (map)
-  (evil-define-key 'normal map
-    "D" 'paredit-kill
-    "C" 'basis/evil-paredit-change
-    "Y" 'basis/evil-paredit-yank))
+(defun basis/add-evil-paredit-keys (targets)
+  "Lazily define Paredit-friendly keys in TARGETS.
+Each entry in TARGETS should be a list whose car identifies a
+feature and whose cdr is a list of maps in which to define the
+keys once that feature is loaded."
+  (mapc (lambda (entry)
+          (pcase-let ((`(,feature . ,maps) entry))
+            (eval-after-load feature
+              `(progn
+                 ,@(mapcar (lambda (map)
+                             `(evil-define-key 'normal ,map
+                                "D" 'paredit-kill
+                                "C" 'basis/evil-paredit-change
+                                "Y" 'basis/evil-paredit-yank))
+                           maps)))))
+        targets))
+
+(defun basis/add-evil-paredit-keys-locally ()
+  (pcase-dolist (`(,key ,cmd) '(("D" paredit-kill)
+                                ("C" basis/evil-paredit-change)
+                                ("Y" basis/evil-paredit-yank)))
+    (evil-local-set-key 'normal key cmd)))
 
 ;; scheme/geiser ---------------------------------------------------------------
 
