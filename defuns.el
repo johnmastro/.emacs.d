@@ -527,7 +527,9 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   :lighter nil
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "q") 'quit-window)
-            map))
+            map)
+  (when (bound-and-true-p evil-mode)
+    (evil-local-set-key 'normal "q" 'quit-window)))
 
 (defun basis/eval-region (beg end)
   (interactive "r")
