@@ -169,7 +169,10 @@ Do not save the string to the the kill ring."
       (let ((s (buffer-substring-no-properties (region-beginning)
                                                (region-end))))
         (basis/clipboard-save-string s)
-        (setq deactivate-mark t))
+        (if (and (bound-and-true-p evil-mode)
+                 (evil-visual-state-p))
+            (evil-exit-visual-state)
+          (setq deactivate-mark t)))
     (let ((s (buffer-substring-no-properties (point-min) (point-max))))
       (basis/clipboard-save-string s))))
 
