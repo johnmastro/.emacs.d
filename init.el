@@ -1180,7 +1180,7 @@
         (ccl ("ccl"))))
 
 (setq slime-default-lisp 'sbcl
-      slime-contribs '(slime-fancy slime-company))
+      slime-contribs '(slime-fancy))
 
 (defun basis/start-slime ()
   (unless (slime-connected-p)
@@ -1214,12 +1214,10 @@
 
 (defun basis/init-cider-repl-mode ()
   (subword-mode)
-  (cider-turn-on-eldoc-mode)
-  (setq company-backends (cons 'company-cider company-backends)))
+  (cider-turn-on-eldoc-mode))
 
 (defun basis/init-cider-mode ()
-  (cider-turn-on-eldoc-mode)
-  (setq company-backends (cons 'company-cider company-backends)))
+  (cider-turn-on-eldoc-mode))
 
 (defun basis/setup-lein-path-for-mac ()
   (-when-let (lein (executable-find "lein"))
