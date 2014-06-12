@@ -824,8 +824,10 @@
 
 ;; elfeed ----------------------------------------------------------------------
 
-(setq elfeed-db-directory "~/.emacs.d/.elfeed"
-      elfeed-feeds (basis/elfeed-load-feeds "~/.emacs.d/feeds.el"))
+(setq elfeed-db-directory "~/.emacs.d/.elfeed")
+
+(when (file-exists-p "~/.emacs.d/feeds.el")
+  (setq elfeed-feeds (basis/elfeed-load-feeds "~/.emacs.d/feeds.el")))
 
 ;; magit -----------------------------------------------------------------------
 
