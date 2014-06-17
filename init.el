@@ -1,5 +1,7 @@
 ;;; init.el        -*- coding: utf-8; -*-
 
+(eval-when-compile (require 'cl-lib))
+
 ;; Disable superfluous UI immediately to prevent momentary display
 (dolist (mode '(menu-bar-mode tool-bar-mode scroll-bar-mode))
   (when (fboundp mode) (funcall mode -1)))
@@ -27,28 +29,14 @@
 
 (package-initialize)
 
-;; No dash, cl, or defuns.el yet, so define a couple essentials
-(defun basis/every? (pred list)
-  (catch 'return
-    (dolist (item list)
-      (unless (funcall pred item)
-        (throw 'return nil)))
-    t))
-
-(defun basis/remove (pred list)
-  (let ((result nil))
-    (dolist (item list)
-      (unless (funcall pred item)
-        (push item result)))
-    (nreverse result)))
-
 ;; Make sure every archive is present in the elpa/archives/ folder
 (let* ((archive-folder "~/.emacs.d/elpa/archives/")
        (archive-folders (mapcar (lambda (archive)
                                   (let ((name (car archive)))
                                     (expand-file-name name archive-folder)))
                                 package-archives)))
-  (unless (basis/every? #'file-exists-p archive-folders)
+  (unless (cl-loop for folder in archive-folders
+                   always (file-exists-p folder))
     (package-refresh-contents)))
 
 ;; Ensure that everything specified here is installed
@@ -115,7 +103,8 @@
           yasnippet
           ))
        (basis/uninstalled-packages
-        (basis/remove #'package-installed-p basis/required-packages)))
+        (cl-loop for pkg in basis/required-packages
+                 unless (package-installed-p pkg) collect pkg)))
   (when basis/uninstalled-packages
     (package-refresh-contents)
     (mapc #'package-install basis/uninstalled-packages)))
