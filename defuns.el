@@ -940,6 +940,20 @@ otherwise call `yas-insert-snippet'."
     (insert str)
     (kill-ring-save (point-min) (point-max))))
 
+(defun fit-frame-width-to-buffer (&optional frame)
+  "Adjust the width of FRAME to display the contents its buffer.
+FRAME defaults to the selected frame."
+  (interactive)
+  (let* ((frame (or frame (window-frame (selected-window))))
+         (height (frame-height frame)))
+    (fit-frame-to-buffer frame height)))
+
+(defun basis/full-calc-frame ()
+  "Create a new frame and run `calc' in a full-size window."
+  (interactive)
+  (with-selected-frame (make-frame)
+    (calc nil t t)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
