@@ -1641,6 +1641,7 @@ haven't looked into the root cause yet."
                                 inferior-haskell-mode
                                 direx:direx-mode
                                 cider-repl-mode
+                                cider-stacktrace-mode
                                 elfeed-search-mode
                                 elfeed-show-mode
                                 eww-mode
