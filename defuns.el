@@ -723,22 +723,30 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
 
 ;; misc. defuns ----------------------------------------------------------------
 
-(defun basis/ack-somewhere (&optional arg)
-  "Do an ack search. Prompt for the directory to use.
-Default to `projectile-project-root' if in a project, otherwise
-`default-directory'."
-  (interactive "P")
+(defun basis/ack-somewhere (arg default-dir)
   (unless (featurep 'ack-and-a-half)
     (require 'ack-and-a-half nil t))
   (let* ((regexp-p  (if arg
                         (not ack-and-a-half-regexp-search)
                       ack-and-a-half-regexp-search))
          (pattern   (read-from-minibuffer "Ack: "))
-         (default   (if (projectile-project-p)
-                        (projectile-project-root)
-                      default-directory))
-         (directory (ido-read-directory-name "Directory: " default)))
+         (directory (ido-read-directory-name "Directory: " default-dir)))
     (ack-and-a-half pattern regexp-p directory)))
+
+(defun basis/ack-project (&optional arg)
+  "Do an ack search. Prompt for the directory to use.
+Default to `projectile-project-root' if in a project, otherwise
+`default-directory'."
+  (interactive "P")
+  (basis/ack-somewhere arg (if (projectile-project-p)
+                               (projectile-project-root)
+                             default-directory)))
+
+(defun basis/ack-here (&optional arg)
+  "Do an ack search. Prompt for the directory to use.
+Default to `default-directory'."
+  (interactive "P")
+  (basis/ack-somewhere arg default-directory))
 
 (defun basis/read-file (file)
   "Read a Lisp form from FILE."
@@ -1119,7 +1127,7 @@ FRAME defaults to the selected frame if nil."
   "Do `paredit-kill' and enter insert state."
   (interactive)
   (paredit-kill)
-  (evil-insert-state))
+  (evil-insert-state 1))
 
 (defun basis/evil-paredit-yank ()
   "Yank the sexp at point into the kill ring."
