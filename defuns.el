@@ -1228,6 +1228,15 @@ Use `slime-expand-1' to produce the expansion."
 
 ;; clojure ---------------------------------------------------------------------
 
+(defun basis/cider-trust-me ()
+  "Run `cider-jack-in' without checking for lein."
+  ;; Necessary because `executable-find' can't find lein on my Cygwin box for
+  ;; some reason, despite the fact that it's present and works.
+  (interactive)
+  (cl-letf (((symbol-function 'cider--lein-present-p)
+             (lambda () t)))
+    (call-interactively #'cider-jack-in)))
+
 (defun basis/cider-eval-something (&optional prefix)
   (interactive "P")
   (if (use-region-p)
