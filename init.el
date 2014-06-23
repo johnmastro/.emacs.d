@@ -20,6 +20,11 @@
 ;; Set up the load path
 (add-to-list 'load-path "~/.emacs.d/site-lisp/")
 
+;; So e.g. `find-function' works on C functions
+(let ((source (format "~/src/emacs/emacs-%s/" emacs-version)))
+  (when (file-directory-p source)
+    (setq source-directory source)))
+
 ;; package ---------------------------------------------------------------------
 
 (require 'package)
