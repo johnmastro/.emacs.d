@@ -1517,6 +1517,59 @@ haven't looked into the root cause yet."
 (with-eval-after-load 'cc-mode
   (define-key c-mode-base-map (kbd "C-j") 'c-context-line-break))
 
+;; eval map --------------------------------------------------------------------
+
+(defvar basis/eval-functions
+  '((emacs-lisp-mode
+     (defun     . eval-defun)
+     (last-sexp . eval-last-sexp)
+     (buffer    . eval-buffer)
+     (region    . eval-region))
+    (clojure-mode
+     (defun     . cider-eval-defun-at-point)
+     (last-sexp . cider-eval-last-sexp)
+     (buffer    . cider-eval-buffer)
+     (region    . cider-eval-region)
+     (file      . cider-eval-load-file))
+    (python-mode
+     (defun     . python-shell-send-defun)
+     (buffer    . python-shell-send-buffer)
+     (region    . python-shell-send-region)
+     (file      . python-shell-send-file))))
+
+(defun basis/do-eval (thing)
+  (cl-flet ((lookup (key list)
+              (cdr (assq key list))))
+    (let ((cmd (->> basis/eval-functions
+                 (lookup major-mode)
+                 (lookup thing))))
+      (if cmd
+          (call-interactively cmd)
+        (error "No function to eval '%s' for %s" thing major-mode)))))
+
+(defmacro basis/defevalmap (&rest defs)
+  (cl-flet ((make-eval-name (thing)
+              (intern (format "basis/do-eval-%s" thing))))
+    (let ((map (make-symbol "map")))
+      `(defvar basis/eval-map
+         (let ((,map (make-sparse-keymap)))
+           ,@(mapcar (lambda (def)
+                       (pcase-let* ((`(,key ,thing) def))
+                         `(progn
+                            (defun ,(make-eval-name thing) ()
+                              (interactive)
+                              (basis/do-eval ',thing))
+                            (define-key ,map ,key ',(make-eval-name thing)))))
+                     defs)
+           ,map)))))
+
+(basis/defevalmap
+ ("l" last-sexp)
+ ("d" defun)
+ ("b" buffer)
+ ("r" region)
+ ("f" file))
+
 ;; evil ------------------------------------------------------------------------
 
 (require 'evil)
@@ -1528,9 +1581,11 @@ haven't looked into the root cause yet."
 (defvar basis/evil-fake-leader-map
   (let ((map (make-sparse-keymap)))
     (basis/define-keys map
+      (";"     'eval-expression)
       ("f"     'ido-find-file)
       ("b"     'ido-switch-buffer)
       ("c"     basis/flycheck-keymap)
+      ("e"     basis/eval-map)
       ("r"     'basis/recentf-ido-find-file)
       ("a"     'basis/ack-somewhere)
       ("g"     'magit-status)
