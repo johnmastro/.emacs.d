@@ -924,8 +924,7 @@
     ((kbd "M-o")                 nil)
     ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
     ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
-  (setq dired-omit-files "^\\.?#" ; don't omit . and ..
-        dired-omit-extensions (remove ".bak" dired-omit-extensions)
+  (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
         dired-recursive-deletes 'top
         dired-listing-switches "-alh"
         find-ls-options '("-exec ls -ldh {} +" . "-ldh"))
