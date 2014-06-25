@@ -883,26 +883,27 @@ If no keymap is found, return nil."
     (require 'imenu nil t))
   (let ((symbols ())    ; A list of symbols in the buffer (as strings)
         (positions ())) ; An alist mapping symbols to buffer positions
-    (cl-flet ((org-marker (symbol)
-                ;; Return the org-imenu-marker text property for SYMBOL
-                (get-text-property 1 'org-imenu-marker symbol))
-              (add-symbols (symbol-list)
-                ;; Add the symbol(s) to symbols and positions
-                (when (listp symbol-list)
-                  (dolist (symbol symbol-list)
-                    (if (and (listp symbol) (imenu--subalist-p symbol))
-                        (add-symbols symbol)
-                      (pcase-let* ((name&pos
-                                    (cond ((listp symbol)
-                                           symbol)
-                                          ((stringp symbol)
-                                           (cons symbol (org-marker symbol)))))
-                                   (`(,name . ,position)
-                                    name&pos))
-                        (unless (or (null position)
-                                    (null name))
-                          (add-to-list 'symbols name)
-                          (add-to-list 'positions name&pos))))))))
+    (cl-labels ((org-marker (symbol)
+                  ;; Return the org-imenu-marker text property for SYMBOL
+                  (get-text-property 1 'org-imenu-marker symbol))
+                (add-symbols (symbol-list)
+                  ;; Add the symbol(s) to symbols and positions
+                  (when (listp symbol-list)
+                    (dolist (symbol symbol-list)
+                      (if (and (listp symbol) (imenu--subalist-p symbol))
+                          (add-symbols symbol)
+                        (pcase-let* ((name&pos
+                                      (cond
+                                       ((listp symbol)
+                                        symbol)
+                                       ((stringp symbol)
+                                        (cons symbol (org-marker symbol)))))
+                                     (`(,name . ,position)
+                                      name&pos))
+                          (unless (or (null position)
+                                      (null name))
+                            (add-to-list 'symbols name)
+                            (add-to-list 'positions name&pos))))))))
       (imenu--make-index-alist)
       (add-symbols imenu--index-alist))
     (-when-let (symbol-at-point (thing-at-point 'symbol))
