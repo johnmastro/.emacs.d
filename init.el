@@ -908,6 +908,7 @@
 
 (with-eval-after-load 'dired
   (require 'dired+)
+  (require 'find-dired)
   (basis/define-keys dired-mode-map
     ((kbd "RET")                 'dired-find-alternate-file)
     ((kbd "M-RET")               'dired-find-file)
@@ -926,7 +927,8 @@
   (setq dired-omit-files "^\\.?#" ; don't omit . and ..
         dired-omit-extensions (remove ".bak" dired-omit-extensions)
         dired-recursive-deletes 'top
-        dired-listing-switches "-alh")
+        dired-listing-switches "-alh"
+        find-ls-options '("-exec ls -ldh {} +" . "-ldh"))
   (put 'dired-find-alternate-file 'disabled nil))
 
 (add-hook 'dired-mode-hook 'dired-omit-mode)
