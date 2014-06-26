@@ -1259,12 +1259,6 @@ Use `slime-expand-1' to produce the expansion."
                     (volatile)
                     (headline "^[;(]")))))
 
-(defun basis/cider-refresh ()
-  (interactive)
-  (cider-interactive-eval
-   "(require 'clojure.tools.namespace.repl)
-    (clojure.tools.namespace.repl/refresh)"))
-
 ;; org-mode --------------------------------------------------------------------
 
 (defun basis/process-clojure-output (s)
