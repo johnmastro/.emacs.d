@@ -184,7 +184,6 @@
       mouse-yank-at-point t
       whitespace-style '(face trailing lines-tail tabs)
       whitespace-line-column 80
-      truncate-lines t
       ediff-window-setup-function 'ediff-setup-windows-plain
       ediff-split-window-function 'split-window-horizontally
       line-number-mode t
@@ -201,6 +200,7 @@
 
 (setq-default indent-tabs-mode nil
               fill-column 80
+              truncate-lines t
               require-final-newline t)
 
 (when (file-exists-p custom-file)
@@ -678,7 +678,6 @@
 
 (add-hook 'prog-mode-hook 'basis/maybe-enable-whitespace-mode)
 (add-hook 'prog-mode-hook 'basis/maybe-enable-flyspell-prog-mode)
-(add-hook 'prog-mode-hook 'basis/truncate-lines)
 
 ;; diff-mode -------------------------------------------------------------------
 

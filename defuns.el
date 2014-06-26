@@ -823,10 +823,6 @@ If `linum-mode' was already enabled just call `goto-line'."
              (not (file-remote-p buffer-file-name)))
     (flyspell-prog-mode)))
 
-(defun basis/truncate-lines ()
-  "Enable truncation of long lines."
-  (toggle-truncate-lines 1))
-
 (defun basis/maybe-enable-whitespace-mode ()
   "Enable `whitespace-mode' in programming modes (but not REPLs)."
   (interactive)
