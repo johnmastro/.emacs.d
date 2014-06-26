@@ -64,7 +64,7 @@ default of 80."
 (defun basis/eol-maybe-semicolon ()
   (interactive)
   (move-end-of-line)
-  (unless (looking-back ";")
+  (unless (basis/looking-back-p ";")
     (insert ";")))
 
 (defun basis/java-insert-class ()
@@ -83,7 +83,7 @@ default of 80."
   (save-excursion
     (previous-line)
     (move-end-of-line 1)
-    (unless (looking-back " ")
+    (unless (basis/looking-back-p " ")
       (insert " "))
     (insert "{")
     (forward-line)
@@ -640,7 +640,7 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
     `(cond
       ,@(mapcar (lambda (clause)
                   (pcase-let ((`(,condition . ,body) clause))
-                    `(,(if (memq condition trues) t `(looking-at ,condition))
+                    `(,(if (memq condition trues) t `(looking-at-p ,condition))
                       ,@body)))
                 clauses))))
 
@@ -937,7 +937,7 @@ If point is after what might be a snippet key, call `yas-expand',
 otherwise call `yas-insert-snippet'."
   (interactive)
   (call-interactively
-   (if (looking-at "\\>") #'yas-expand #'yas-insert-snippet)))
+   (if (looking-at-p "\\>") #'yas-expand #'yas-insert-snippet)))
 
 (defun basis/kill-ring-save-string (str)
   "Save STR to the kill ring."
@@ -959,6 +959,11 @@ FRAME defaults to the selected frame."
   (with-selected-frame (make-frame)
     (calc nil t t)))
 
+(defun basis/looking-back-p (regexp)
+  "Same as `looking-back' but don't change the match data."
+  (save-match-data
+    (looking-back regexp)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
@@ -972,7 +977,7 @@ FRAME defaults to the selected frame."
                (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
                (save-excursion
                  (backward-char 2)
-                 (looking-at "#p")))))
+                 (looking-at-p "#p")))))
     (not pathname-opening-p)))
 
 (defun basis/paredit-open-something ()
@@ -1078,7 +1083,7 @@ FRAME defaults to the selected frame."
   (save-excursion
     (let ((beg (progn (beginning-of-defun) (point)))
           (end (let ((maybe-end (progn (end-of-defun) (point))))
-                 (if (looking-at "^$")
+                 (if (looking-at-p "^$")
                      (progn (forward-line 1)
                             (point))
                    maybe-end))))
@@ -1355,7 +1360,7 @@ Use `slime-expand-1' to produce the expansion."
 
 (defun basis/html-newline-and-indent ()
   (interactive)
-  (if (and (looking-at "<") (looking-back ">"))
+  (if (and (looking-at-p "<") (basis/looking-back-p ">"))
       (tagedit-toggle-multiline-tag)
     (newline-and-indent)))
 

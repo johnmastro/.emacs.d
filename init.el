@@ -1312,7 +1312,7 @@
   "Smartparens sometimes kills too much whitespace in but I
 haven't looked into the root cause yet."
   (unless (and (memq major-mode '(python-mode sql-mode))
-               (looking-back "^[[:space:]]*"))
+               (basis/looking-back-p "^[[:space:]]*"))
     ad-do-it))
 
 (smartparens-global-strict-mode)
@@ -1789,7 +1789,7 @@ haven't looked into the root cause yet."
 (defadvice tagedit-toggle-multiline-tag (around maybe-forward activate)
   "Move forward by a line and indent if invoked directly between
 two tags."
-  (let ((move-forward-p (and (looking-at "<") (looking-back ">"))))
+  (let ((move-forward-p (and (looking-at-p "<") (basis/looking-back-p ">"))))
     ad-do-it
     (when move-forward-p
       (forward-line 1)
