@@ -74,6 +74,7 @@
           geiser
           gist
           guide-key
+          haskell-mode
           helm
           idle-highlight-mode
           ido-ubiquitous
@@ -1417,6 +1418,10 @@ haven't looked into the root cause yet."
 (add-hook 'python-mode-hook 'basis/init-python-mode)
 (add-hook 'inferior-python-mode-hook 'basis/init-inferior-python-mode)
 
+;; haskell ---------------------------------------------------------------------
+
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+
 ;; javascript ------------------------------------------------------------------
 
 (add-to-list 'auto-mode-alist (cons "\\.js\\'" 'js2-mode))
@@ -1536,7 +1541,10 @@ haven't looked into the root cause yet."
      (defun     . python-shell-send-defun)
      (buffer    . python-shell-send-buffer)
      (region    . python-shell-send-region)
-     (file      . python-shell-send-file))))
+     (file      . python-shell-send-file))
+    (haskell-mode
+     (defun     . inferior-haskell-send-decl)
+     (file      . inferior-haskell-load-file))))
 
 (defun basis/do-eval (thing)
   (cl-flet ((lookup (key list)
