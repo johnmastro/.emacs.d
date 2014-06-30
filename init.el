@@ -117,6 +117,7 @@
 ;; load some code --------------------------------------------------------------
 
 (require 'pcase)
+(require 'subr-x)
 (require 'dash)
 (require 'dash-functional)
 (require 's)
