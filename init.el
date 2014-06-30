@@ -1667,16 +1667,25 @@ haven't looked into the root cause yet."
 
 ;; Lispier D/C/Y keys
 (basis/add-evil-paredit-keys
- '((lisp-mode emacs-lisp-mode-map lisp-mode-map lisp-interaction-mode-map)
-   (ielm inferior-emacs-lisp-mode-map)
-   (inf-lisp inferior-lisp-mode-map)
-   (slime-repl slime-repl-mode-map)
-   (clojure-mode clojure-mode-map)
-   (cider-repl cider-repl-mode-map)
-   (scheme scheme-mode-map inferior-scheme-mode-map)
-   (geiser-repl geiser-repl-mode-map)))
+ '((lisp-mode     emacs-lisp-mode-map lisp-mode-map lisp-interaction-mode-map)
+   (ielm          inferior-emacs-lisp-mode-map)
+   (inf-lisp      inferior-lisp-mode-map)
+   (slime-repl    slime-repl-mode-map)
+   (clojure-mode  clojure-mode-map)
+   (cider-repl    cider-repl-mode-map)
+   (scheme        scheme-mode-map inferior-scheme-mode-map)
+   (geiser-repl   geiser-repl-mode-map)))
 
-;; (basis/add-evil-fake-leader-map '(dired help))
+;; Lispier D/C/Y keys... even for non-Lisps
+(basis/add-evil-sp-keys
+ '((python        python-mode-map)
+   (sql           sql-mode-map)
+   (yaml-mode     yaml-mode-map)
+   (haskell-mode  haskell-mode-map)))
+
+(basis/add-evil-fake-leader-map '((ibuffer   ibuffer-mode-map)
+                                  (dired     dired-mode-map)
+                                  (help-mode help-mode-map)))
 
 (evil-mode 1)
 
