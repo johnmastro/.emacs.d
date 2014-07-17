@@ -1598,6 +1598,7 @@ haven't looked into the root cause yet."
       ("r"     'basis/recentf-ido-find-file)
       ("a"     'basis/ack-project)
       ("A"     'basis/ack-here)
+      ("d"     'ido-dired)
       ("g"     'magit-status)
       ("i"     'basis/ido-imenu)
       ("j"     'ace-jump-word-mode)
