@@ -1841,6 +1841,13 @@ two tags."
       deft-directory "~/Dropbox/deft"
       deft-text-mode  'gfm-mode)
 
+;; gnus ------------------------------------------------------------------------
+
+(setq gnus-use-dribble-file nil
+      gnus-always-read-dribble-file nil
+      gnus-read-newsrc-file nil
+      gnus-save-newsrc-file nil)
+
 ;; ssh-config-mode -------------------------------------------------------------
 
 (add-to-list 'auto-mode-alist '(".ssh/config\\'"  . ssh-config-mode))
