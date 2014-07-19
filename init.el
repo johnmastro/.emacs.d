@@ -1856,6 +1856,17 @@ two tags."
       gnus-read-newsrc-file nil
       gnus-save-newsrc-file nil)
 
+;; message-mode ----------------------------------------------------------------
+
+(defun basis/init-message-mode ()
+  (setq fill-column 72)
+  (auto-fill-mode 1)
+  (flyspell-mode 1))
+
+(setq message-auto-save-directory "~/.emacs.d/tmp/")
+
+(add-hook 'message-mode-hook 'basis/init-message-mode)
+
 ;; ssh-config-mode -------------------------------------------------------------
 
 (add-to-list 'auto-mode-alist '(".ssh/config\\'"  . ssh-config-mode))
