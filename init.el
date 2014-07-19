@@ -1653,6 +1653,7 @@ haven't looked into the root cause yet."
 ;; Define more emacs-state modes, including everything that evil has as a
 ;; insert-state or motion-state mode by default
 (let ((more-emacs-state-modes '(dired-mode
+                                git-rebase-mode
                                 flycheck-error-list-mode
                                 makey-key-mode
                                 inferior-haskell-mode
