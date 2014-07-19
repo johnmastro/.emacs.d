@@ -903,7 +903,13 @@
    '(company-capf
      (company-dabbrev-code company-gtags company-etags company-keywords)
      company-files
-     company-dabbrev)))
+     company-dabbrev))
+  (with-eval-after-load 'cc-mode
+    (-when-let (includes (basis/find-clang-includes-path))
+      ;; `basis/find-clang-includes-path' returns nil if clang isn't installed
+      (require 'company-clang)
+      (setq company-clang-arguments (cons "-std=c11" includes))
+      (add-hook 'c-mode-hook 'basis/enable-company-clang))))
 
 ;; dired -----------------------------------------------------------------------
 

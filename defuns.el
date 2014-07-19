@@ -964,6 +964,27 @@ FRAME defaults to the selected frame."
   (save-match-data
     (looking-back regexp)))
 
+(defun basis/find-clang-includes-path ()
+  "Return clang's #include <...> search path."
+  ;; This isn't a very satisfactory solution but it's "good enough"
+  (let* ((string (or (ignore-errors (shell-command-to-string "clang -v -xx -"))
+                     ""))
+         (lines (split-string string "\n" t "[[:space:]]+"))
+         (result '()))
+    (catch 'return
+      (while lines
+        (pcase-let ((`(,line . ,more) lines))
+          (if (string= line "#include <...> search starts here:")
+              (dolist (path more)
+                (if (string= path "End of search list.")
+                    (throw 'return (nreverse result))
+                  (push path result)))
+            (setq lines more)))))))
+
+(defun basis/enable-company-clang ()
+  "Enable `company-clang' for the current buffer."
+  (add-to-list 'company-backends 'company-clang))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
