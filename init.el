@@ -1769,7 +1769,9 @@ haven't looked into the root cause yet."
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
-     (clojure . t)))
+     (clojure    . t)
+     (python     . t)
+     (sh         . t)))
 
   ;; The `org-babel-execute:clojure' in `ob-clojure' is for SLIME so we replace
   ;; it with one for Cider.
