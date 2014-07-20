@@ -967,7 +967,7 @@ FRAME defaults to the selected frame."
 (defun basis/find-clang-includes-path ()
   "Return clang's #include <...> search path."
   ;; This isn't a very satisfactory solution but it's "good enough"
-  (let* ((string (or (ignore-errors (shell-command-to-string "clang -v -xx -"))
+  (let* ((string (or (ignore-errors (shell-command-to-string "clang -v -xc -"))
                      ""))
          (lines (split-string string "\n" t "[[:space:]]+"))
          (result '()))
