@@ -305,7 +305,11 @@
                  (`gnu/linux  "Inconsolata-11")
                  (`darwin     "Andale Mono-12")
                  (`windows-nt "Consolas-10")))
-    (set-face-attribute 'default nil :font default-font)))
+    (set-face-attribute 'default nil :font default-font))
+  (when (member "Symbola" (font-family-list))
+    ;; (set-fontset-font t 'unicode "Symbola" nil 'prepend)
+    (let ((symbola (font-spec :size 20 :name "Symbola")))
+      (set-fontset-font "fontset-default" nil symbola))))
 
 (with-eval-after-load 'elisp-slime-nav
   (diminish 'elisp-slime-nav-mode))
