@@ -156,7 +156,7 @@
         (push path dirs)))
     ;; Set paths
     (setenv "PATH" (s-join ":" dirs))
-    (setq exec-path (-map (lambda (dir) (concat "c:" dir)) dirs))
+    (setq exec-path (mapcar (lambda (dir) (concat "c:" dir)) dirs))
     ;; Use zsh or bash as shell
     (let ((shell (or (executable-find "zsh")
                      (executable-find "bash"))))
