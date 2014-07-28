@@ -73,6 +73,7 @@
           flycheck
           geiser
           gist
+          git-timemachine
           guide-key
           haskell-mode
           helm
@@ -1658,18 +1659,19 @@ haven't looked into the root cause yet."
 
 ;; Define more emacs-state modes, including everything that evil has as a
 ;; insert-state or motion-state mode by default
-(let ((more-emacs-state-modes '(dired-mode
-                                git-rebase-mode
-                                flycheck-error-list-mode
-                                makey-key-mode
-                                inferior-haskell-mode
-                                direx:direx-mode
-                                cider-repl-mode
+(let ((more-emacs-state-modes '(cider-repl-mode
                                 cider-stacktrace-mode
+                                diff-mode
+                                dired-mode
+                                direx:direx-mode
                                 elfeed-search-mode
                                 elfeed-show-mode
                                 eww-mode
-                                diff-mode)))
+                                flycheck-error-list-mode
+                                git-rebase-mode
+                                git-timemachine-mode
+                                inferior-haskell-mode
+                                makey-key-mode)))
   (mapc (apply-partially #'add-to-list 'evil-emacs-state-modes)
         (append evil-insert-state-modes
                 evil-motion-state-modes
