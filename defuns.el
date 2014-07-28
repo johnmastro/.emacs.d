@@ -33,7 +33,7 @@ default of 80."
   (let* ((goal (if arg (read-number "Target column: " 80) 80))
          (pos (- (point) (line-beginning-position)))
          (enough (- goal pos)))
-    (insert (s-repeat enough "-"))))
+    (insert (make-string enough ?-))))
 
 (defun basis/join-next-line ()
   "Join the next line up to the current one."
@@ -191,12 +191,12 @@ Do not save the string to the the kill ring."
 (defun basis/s-add-indent (s &optional spaces pattern)
   (let ((spaces (or spaces 4))
         (pattern (or pattern "\\S-")))
-    (s-join "\n"
-            (mapcar (lambda (line)
-                      (if (string-match-p pattern line)
-                          (concat (s-repeat spaces " ") line)
-                        line))
-                    (s-split "\n" s)))))
+    (mapconcat (lambda (line)
+                 (if (string-match-p pattern line)
+                     (concat (make-string spaces ? ) line)
+                   line))
+               (split-string s "\n")
+               "\n")))
 
 (defun basis/buffer-substring-indented (beg end)
   (basis/s-add-indent (buffer-substring-no-properties beg end)))
@@ -405,7 +405,7 @@ If no files are marked, default to the file under point."
 (defun basis/windows->unix (path)
   "Convert a path from Windows-style to UNIX-style."
   (->> path
-    (s-replace "\\" "/")
+    (replace-regexp-in-string "\\\\" "/")
     (replace-regexp-in-string "[a-zA-Z]:" "")))
 
 ;; key binding utilities -------------------------------------------------------
@@ -766,7 +766,7 @@ this is identical to invoking `ace-window' directly."
 
 (defun basis/set-mode-name (mode name)
   "Set MODE's modeline string to NAME."
-  (let ((hook (intern (s-concat (symbol-name mode) "-hook"))))
+  (let ((hook (intern (concat (symbol-name mode) "-hook"))))
     (add-hook hook (lambda () (setq mode-name name)))))
 
 (defun basis/google ()
@@ -1273,7 +1273,8 @@ keys once that feature is loaded."
 (defun basis/insert-python-docstring-quotes ()
   "Insert the 6 double quotes for a Python docstring."
   (interactive)
-  (insert (s-repeat 6 "\""))
+  (let ((double-quote 34))
+    (insert (make-string 6 double-quote)))
   (backward-char 3))
 
 ;; slime -----------------------------------------------------------------------
@@ -1359,9 +1360,7 @@ many windows."
                (->> line
                  (s-chop-suffix "\r")
                  (concat ";; ")))
-             (->> s
-               (s-chop-suffix "\n")
-               (s-split "\n"))
+             (split-string (s-chop-suffix "\n" s) "\n")
              "\n"))
 
 (defun basis/org-babel-execute:clojure (body params)
@@ -1372,13 +1371,13 @@ many windows."
          (stderr (-when-let (s (plist-get result :stderr))
                    (basis/process-clojure-output s)))
          (output (concat stdout
-                         (when (and stdout (not (s-ends-with? "\n" stdout)))
+                         (when (and stdout (not (string-suffix-p "\n" stdout)))
                            "\n")
                          stderr)))
     (concat output
             (when (and output
                        (not (string= output ""))
-                       (not (s-ends-with? "\n" output)))
+                       (not (string-suffix-p "\n" output)))
               "\n")
             (when value (concat ";;=> " value)))))
 
@@ -1524,9 +1523,11 @@ used rather than a list of symbols."
       (setq basis/lorem-ipsum
             (with-temp-buffer
               (insert-file-contents basis/lorem-ipsum-file)
-              (s-split "\n\n"
-                       (buffer-substring-no-properties 1 (point-max))))))
+              (split-string (buffer-substring-no-properties 1 (point-max))
+                            "\n\n"))))
     (let ((arg (cond ((null arg) 1)
                      ((consp arg) (car arg))
                      (t arg))))
-      (insert (s-join "\n\n" (-take arg basis/lorem-ipsum))))))
+      (insert (mapconcat #'identity
+                         (-take arg basis/lorem-ipsum)
+                         "\n\n")))))

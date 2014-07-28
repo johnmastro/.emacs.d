@@ -145,17 +145,18 @@
          (home/bin (when home
                      (concat (basis/windows->unix home)
                              "/bin")))
-         (jdk-path (-when-let (dir (-first (lambda (dir)
-                                             (s-contains-p "Java\\jdk" dir))
-                                           (s-split ";" (getenv "PATH"))))
-                     (basis/windows->unix dir))))
+         (jdk-path (let* ((regexp (regexp-quote "Java\\jdk"))
+			  (dir (-first (lambda (dir)
+					 (string-match-p regexp dir))
+				       (split-string (getenv "PATH") ";"))))
+                     (when dir (basis/windows->unix dir)))))
     (when (and home (file-directory-p home))
       (cd home))
     (dolist (path (list jdk-path home/bin))
       (when (and path (file-directory-p path))
         (push path dirs)))
     ;; Set paths
-    (setenv "PATH" (s-join ":" dirs))
+    (setenv "PATH" (mapconcat #'identity dirs ":"))
     (setq exec-path (mapcar (lambda (dir) (concat "c:" dir)) dirs))
     ;; Use zsh or bash as shell
     (let ((shell (or (executable-find "zsh")
@@ -253,7 +254,7 @@
 ;; Don't use CRLF on remote Unix machines
 (defun basis/maybe-set-coding ()
   (when (and buffer-file-name
-             (s-starts-with? "/plinkx:" buffer-file-name))
+             (string-prefix-p "/plinkx:" buffer-file-name))
     (set-buffer-file-coding-system 'utf-8-unix)))
 
 (when (eq system-type 'windows-nt)
