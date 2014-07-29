@@ -1520,6 +1520,7 @@ haven't looked into the root cause yet."
 
 (defun basis/init-c++ ()
   (basis/init-c)
+  (c-set-offset 'innamespace 0)
   (dolist (cleanup '(brace-catch-brace scope-operator))
     (add-to-list 'c-cleanup-list cleanup)))
 
