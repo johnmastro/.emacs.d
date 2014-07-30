@@ -52,6 +52,7 @@
           batch-mode
           browse-kill-ring
           cider
+          cider-browse-ns
           clj-refactor
           clojure-cheatsheet
           clojure-mode
