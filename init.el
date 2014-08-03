@@ -127,9 +127,7 @@
 
 (dash-enable-font-lock)
 
-;; Load custom functions
-(when (file-exists-p "~/.emacs.d/defuns.el")
-  (load "~/.emacs.d/defuns.el"))
+(load "~/.emacs.d/defuns.el")
 
 ;; cygwin ----------------------------------------------------------------------
 
