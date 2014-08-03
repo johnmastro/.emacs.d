@@ -198,9 +198,7 @@
       apropos-do-all t
       custom-file "~/.emacs.d/custom.el"
       dirtrack-list '("^(~?[a-zA-Z0-9/ _-]+)>" 1)
-      scroll-preserve-screen-position t
-      ;; This causes errors on OS X
-      save-interprogram-paste-before-kill (not (eq system-type 'darwin)))
+      scroll-preserve-screen-position t)
 
 (setq-default indent-tabs-mode nil
               fill-column 80
