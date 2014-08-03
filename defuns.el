@@ -536,11 +536,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 (defun basis/eval-region (beg end)
   (interactive "r")
-  (let* ((chop '("\r" "\n"))
-         (result (->> (with-output-to-string
+  (let* ((result (->> (with-output-to-string
                         (eval-region beg end standard-output))
-                   (s-chop-prefixes chop)
-                   (s-chop-suffixes chop)
+                   (string-remove-prefix "\n")
+                   (string-remove-suffix "\n")
                    (read))))
     (if (called-interactively-p)
         (message "%s" result)
@@ -1358,9 +1357,9 @@ many windows."
 (defun basis/process-clojure-output (s)
   (mapconcat (lambda (line)
                (->> line
-                 (s-chop-suffix "\r")
+                 (string-remove-suffix "\r")
                  (concat ";; ")))
-             (split-string (s-chop-suffix "\n" s) "\n")
+             (split-string (string-remove-suffix "\n" s) "\n")
              "\n"))
 
 (defun basis/org-babel-execute:clojure (body params)
