@@ -1280,7 +1280,8 @@
   (add-hook 'cider-repl-mode-hook 'basis/init-cider-repl-mode)
   (add-hook 'cider-mode-hook 'basis/init-cider-mode)
 
-  (setq cider-repl-use-pretty-printing t)
+  (setq cider-repl-use-pretty-printing t
+        nrepl-log-messages t)
 
   (global-set-key (kbd "<f11>") 'cider-selector)
 
