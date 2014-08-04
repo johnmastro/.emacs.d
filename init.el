@@ -79,6 +79,7 @@
           haskell-mode
           helm
           idle-highlight-mode
+          ido-at-point
           ido-ubiquitous
           ido-vertical-mode
           jedi
@@ -1003,6 +1004,10 @@
 (ido-ubiquitous-mode 1)
 (flx-ido-mode 1)
 (ido-vertical-mode 1)
+(ido-at-point-mode)
+
+;; For ido-powered completion at point. Need a better key binding for this.
+(global-set-key (kbd "C-c TAB") 'completion-at-point)
 
 (unless (eq system-type 'darwin)
   ;; No offense to OS X; my Mac is just old
