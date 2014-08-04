@@ -908,6 +908,8 @@
      (company-dabbrev-code company-gtags company-etags company-keywords)
      company-files
      company-dabbrev))
+  (setq company-minimum-prefix-length 2
+        company-tooltip-flip-when-above t)
   (with-eval-after-load 'cc-mode
     (-when-let (includes (basis/find-clang-includes-path))
       ;; `basis/find-clang-includes-path' returns nil if clang isn't installed
