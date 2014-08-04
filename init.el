@@ -88,6 +88,7 @@
           js2-refactor
           jump-char
           key-chord
+          leuven-theme
           magit
           markdown-mode
           move-text
