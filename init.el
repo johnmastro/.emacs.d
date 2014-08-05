@@ -912,10 +912,9 @@
   (setq company-minimum-prefix-length 2
         company-tooltip-flip-when-above t)
   (with-eval-after-load 'cc-mode
-    (-when-let (includes (basis/find-clang-includes-path))
-      ;; `basis/find-clang-includes-path' returns nil if clang isn't installed
+    (-when-let (args (basis/build-clang-args 'c))
       (require 'company-clang)
-      (setq company-clang-arguments (cons "-std=c11" includes))
+      (setq company-clang-arguments args)
       (add-hook 'c-mode-hook 'basis/enable-company-clang))))
 
 ;; dired -----------------------------------------------------------------------

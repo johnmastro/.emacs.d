@@ -914,22 +914,43 @@ FRAME defaults to the selected frame."
   (save-match-data
     (looking-back regexp)))
 
-(defun basis/find-clang-includes-path ()
+(defun basis/find-clang-includes-path (&optional language)
   "Return clang's #include <...> search path."
   ;; This isn't a very satisfactory solution but it's "good enough"
-  (let* ((string (or (ignore-errors (shell-command-to-string "clang -v -xc -"))
-                     ""))
-         (lines (split-string string "\n" t "[[:space:]]+"))
-         (result '()))
-    (catch 'return
-      (while lines
-        (pcase-let ((`(,line . ,more) lines))
-          (if (string= line "#include <...> search starts here:")
-              (dolist (path more)
-                (if (string= path "End of search list.")
-                    (throw 'return (nreverse result))
-                  (push path result)))
-            (setq lines more)))))))
+  (-filter #'file-directory-p
+           (pcase (or language 'c)
+             (`c (let* ((cmd "clang -v -xc -")
+                        (str (ignore-errors (shell-command-to-string cmd)))
+                        (str (or str ""))
+                        (lines (split-string str "\n" t "[[:space:]]+"))
+                        (result '()))
+                   (catch 'return
+                     (while lines
+                       (pcase-let ((`(,line . ,more) lines))
+                         (if (string= line "#include <...> search starts here:")
+                             (dolist (path more)
+                               (if (string= path "End of search list.")
+                                   (throw 'return (nreverse result))
+                                 (push path result)))
+                           (setq lines more)))))))
+             ;; Hardcoded based on an Ubuntu 12.04 box...
+             (`c++ '("/usr/include/c++/4.6"
+                     "/usr/include/c++/4.6/i686-linux-gnu"
+                     "/usr/include/c++/4.6/backward"
+                     "/usr/local/include"
+                     "/usr/include/clang/3.3/include"
+                     "/usr/include/i386-linux-gnu"
+                     "/usr/include")))))
+
+(defun basis/build-clang-args (&optional language)
+  (let* ((language (or language 'c))
+         (standard (pcase language
+                     (`c   "c11")
+                     (`c++ "c++11")))
+         (includes (basis/find-clang-includes-path language)))
+    (when (and standard includes)
+      (cons (format "-std=%s" standard)
+            (basis/find-clang-includes-path language)))))
 
 (defun basis/enable-company-clang ()
   "Enable `company-clang' for the current buffer."
