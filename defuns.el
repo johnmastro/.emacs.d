@@ -870,55 +870,6 @@ If no keymap is found, return nil."
             ido-matches (sort ido-matches predicate)
             ido-rescan nil))))
 
-(defun basis/ido-imenu ()
-  "Jump to a symbol in the buffer using ido and imenu."
-  (interactive)
-  ;; Need non-autoloaded symbols from `imenu'.
-  (unless (featurep 'imenu)
-    (require 'imenu nil t))
-  (let ((symbols ())    ; A list of symbols in the buffer (as strings)
-        (positions ())) ; An alist mapping symbols to buffer positions
-    (cl-labels ((org-marker (symbol)
-                  ;; Return the org-imenu-marker text property for SYMBOL
-                  (get-text-property 1 'org-imenu-marker symbol))
-                (add-symbols (symbol-list)
-                  ;; Add the symbol(s) to symbols and positions
-                  (when (listp symbol-list)
-                    (dolist (symbol symbol-list)
-                      (if (and (listp symbol) (imenu--subalist-p symbol))
-                          (add-symbols symbol)
-                        (pcase-let* ((name&pos
-                                      (cond
-                                       ((listp symbol)
-                                        symbol)
-                                       ((stringp symbol)
-                                        (cons symbol (org-marker symbol)))))
-                                     (`(,name . ,position)
-                                      name&pos))
-                          (unless (or (null position)
-                                      (null name))
-                            (add-to-list 'symbols name)
-                            (add-to-list 'positions name&pos))))))))
-      (imenu--make-index-alist)
-      (add-symbols imenu--index-alist))
-    (-when-let (symbol-at-point (thing-at-point 'symbol))
-      (let* ((regexp (concat (regexp-quote symbol-at-point) "$"))
-             ;; Matches sorted by length, descending
-             (matches (sort (-filter (-partial #'string-match regexp)
-                                     symbols)
-                            (lambda (a b) (> (length a) (length b))))))
-        ;; Put the matches at the front of the list of symbols. They'll now be
-        ;; in ascending order of length.
-        (dolist (symbol matches)
-          (setq symbols (cons symbol (delete symbol symbols))))))
-    (let* ((selected (ido-completing-read "Symbol: " symbols))
-           (position (cdr (assoc selected positions))))
-      (unless (bound-and-true-p mark-active)
-        (push-mark nil t nil))
-      (goto-char (if (overlayp position)
-                     (overlay-start position)
-                   position)))))
-
 (defun basis/disable-themes (&optional themes)
   "Disable THEMES (defaults to `custom-enabled-themes')."
   (interactive)
