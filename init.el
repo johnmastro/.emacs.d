@@ -198,7 +198,8 @@
       apropos-do-all t
       custom-file "~/.emacs.d/custom.el"
       dirtrack-list '("^(~?[a-zA-Z0-9/ _-]+)>" 1)
-      scroll-preserve-screen-position t)
+      scroll-preserve-screen-position t
+      delete-by-moving-to-trash t)
 
 (setq-default indent-tabs-mode nil
               fill-column 80
