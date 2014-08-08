@@ -1666,7 +1666,8 @@ haven't looked into the root cause yet."
 
 ;; Define more emacs-state modes, including everything that evil has as a
 ;; insert-state or motion-state mode by default
-(let ((more-emacs-state-modes '(cider-repl-mode
+(let ((more-emacs-state-modes '(cider-docview-mode
+                                cider-repl-mode
                                 cider-stacktrace-mode
                                 diff-mode
                                 dired-mode
