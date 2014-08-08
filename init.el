@@ -57,7 +57,6 @@
           clojure-cheatsheet
           clojure-mode
           company
-          company-cider
           company-inf-python
           dash
           dash-functional
