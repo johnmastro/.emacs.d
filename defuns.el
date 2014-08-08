@@ -1274,6 +1274,8 @@ Use `slime-expand-1' to produce the expansion."
   ;; Necessary because `executable-find' can't find lein on my Cygwin box for
   ;; some reason, despite the fact that it's present and works.
   (interactive)
+  (unless (featurep 'cider)
+    (require 'cider))
   (cl-letf (((symbol-function 'cider--lein-present-p)
              (lambda () t)))
     (call-interactively #'cider-jack-in)))
