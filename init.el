@@ -1018,6 +1018,7 @@
 
 ;; For ido-powered completion at point. Need a better key binding for this.
 (global-set-key (kbd "C-c TAB") 'completion-at-point)
+(global-set-key (kbd "C-c <C-tab>") 'completion-at-point)
 
 (unless (eq system-type 'darwin)
   ;; No offense to OS X; my Mac is just old
