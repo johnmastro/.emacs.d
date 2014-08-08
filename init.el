@@ -785,7 +785,8 @@
       mu4e-maildir "/home/jbm/.maildir/fastmail"
       mu4e-sent-folder "/sent"
       mu4e-drafts-folder "/drafts"
-      mu4e-trash-folder "/trash")
+      mu4e-trash-folder "/trash"
+      mu4e-compose-signature "jbm")
 
 ;; Shortcuts. Available as jX
 (setq mu4e-maildir-shortcuts '(("/archive" . ?a)
@@ -811,8 +812,7 @@
 (setq mu4e-reply-to-address "jbm@jbm.io"
       user-mail-address "jbm@jbm.io"
       user-full-name "John Mastro"
-      message-signature t                    ;; use signature file
-      message-signature-file "~/.signature"
+      message-signature "jbm"
       mu4e-sent-messages-behavior 'delete    ;; they're saved on the server
       message-kill-buffer-on-exit t)
 
