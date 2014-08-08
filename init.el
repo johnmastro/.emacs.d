@@ -290,7 +290,14 @@
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized/")
 (load-theme 'solarized-dark t)
 
+;; Don't italicize comments and docstrings
+(dolist (face '(font-lock-comment-face
+                font-lock-comment-delimiter-face
+                font-lock-doc-face))
+  (set-face-attribute face nil :slant 'normal))
+
 (defun basis/get-frame-title ()
+  "Return a frame title including the current project directory."
   (-if-let (file buffer-file-name)
       (concat (abbreviate-file-name file)
               (when (and (bound-and-true-p projectile-mode)
