@@ -969,10 +969,8 @@
   ;; you're e.g. in the minibuffer because some buried Dired buffer has
   ;; auto-reverted.
   (cl-letf (((symbol-value 'dired-omit-verbose)
-             (if (with-current-buffer (window-buffer (selected-window))
-                   (eq major-mode 'dired-mode))
-                 t
-               nil)))
+             (with-current-buffer (window-buffer (selected-window))
+               (eq major-mode 'dired-mode))))
     ad-do-it))
 
 (add-hook 'dired-mode-hook 'dired-omit-mode)
