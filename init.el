@@ -963,6 +963,18 @@
         find-ls-options '("-exec ls -ldh {} +" . "-ldh"))
   (put 'dired-find-alternate-file 'disabled nil))
 
+(defadvice dired-omit-expunge (around maybe-omit-verbose activate)
+  ;; I only want to see messages about files being omitted when I'm actually in
+  ;; a Dired window. It's can be annoying to get one of those messages while
+  ;; you're e.g. in the minibuffer because some buried Dired buffer has
+  ;; auto-reverted.
+  (cl-letf (((symbol-value 'dired-omit-verbose)
+             (if (with-current-buffer (window-buffer (selected-window))
+                   (eq major-mode 'dired-mode))
+                 t
+               nil)))
+    ad-do-it))
+
 (add-hook 'dired-mode-hook 'dired-omit-mode)
 
 (autoload 'dired-jump "dired-x"
