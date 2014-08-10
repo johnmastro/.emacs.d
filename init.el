@@ -1348,13 +1348,6 @@
 
 ;; smartparens -----------------------------------------------------------------
 
-(defadvice sp--cleanup-after-kill (around restrict-python-cleanup activate)
-  "Smartparens sometimes kills too much whitespace in but I
-haven't looked into the root cause yet."
-  (unless (and (memq major-mode '(python-mode sql-mode))
-               (basis/looking-back-p "^[[:space:]]*"))
-    ad-do-it))
-
 (smartparens-global-strict-mode)
 
 (with-eval-after-load 'smartparens
