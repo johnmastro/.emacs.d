@@ -713,7 +713,19 @@
 ;; guide-key -------------------------------------------------------------------
 
 (guide-key-mode 1)
-(setq guide-key/guide-key-sequence '("C-x 4" "C-x v" "C-x 8"))
+
+(setq guide-key/popup-window-position 'bottom
+      guide-key/idle-delay 0.2)
+
+(setq guide-key/guide-key-sequence
+      '("C-x 4" "C-x v" "C-x 8"
+        (dired-mode "*" "C-t")
+        (ibuffer-mode "/" "*" "%")
+        (calc-mode "V")))
+
+(set-face-attribute 'guide-key/key-face nil :foreground (if (display-graphic-p)
+                                                            "#268bd2"
+                                                          "#0087ff"))
 
 ;; key-chord -------------------------------------------------------------------
 
