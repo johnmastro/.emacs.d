@@ -14,11 +14,6 @@
     (unless (file-exists-p path)
       (make-directory path))))
 
-;; Emacs doesn't seem to respect $PATH on OS X
-(when (eq system-type 'darwin)
-  (add-to-list 'exec-path "/usr/local/bin/")
-  (add-to-list 'exec-path "~/bin/"))
-
 ;; Set up the load path
 (add-to-list 'load-path "~/.emacs.d/site-lisp/")
 
@@ -26,6 +21,11 @@
 (let ((source (format "~/src/emacs/emacs-%s/" emacs-version)))
   (when (file-directory-p source)
     (setq source-directory source)))
+
+;; OS X doesn't run a shell during login, so Emacs doesn't automatically inherit
+;; $PATH and $MANPATH.
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 ;; package ---------------------------------------------------------------------
 
@@ -70,6 +70,7 @@
           elfeed
           elisp-slime-nav
           evil
+          exec-path-from-shell
           expand-region
           flx-ido
           flycheck
