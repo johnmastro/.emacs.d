@@ -717,12 +717,12 @@
 (guide-key-mode 1)
 
 (setq guide-key/popup-window-position 'bottom
-      guide-key/idle-delay 0.2)
+      guide-key/idle-delay 0.0)
 
 (setq guide-key/guide-key-sequence
       '("C-x 4" "C-x v" "C-x 8"
         (dired-mode "*" "C-t")
-        (ibuffer-mode "/" "*" "%")
+        (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
         (calc-mode "V")))
 
 (set-face-attribute 'guide-key/key-face nil :foreground (if (display-graphic-p)
