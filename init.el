@@ -1652,6 +1652,7 @@
       ("i"     'imenu)
       ("j"     'ace-jump-word-mode)
       ("k"     'basis/kill-this-buffer)
+      ("l"     'ibuffer)
       ("o"     'ace-window)
       ("p"     projectile-command-map)
       ("r"     'basis/recentf-ido-find-file)
