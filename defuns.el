@@ -468,6 +468,34 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (create-simple-keybinding-command f11 "<f11>")
 (create-simple-keybinding-command f12 "<f12>")
 
+;; ibuffer ---------------------------------------------------------------------
+
+(defadvice ibuffer-vc-root (around exclude-emacs-buffers activate)
+  "Only associate a buffer with a VC if it's visiting a file."
+  (let ((buf (ad-get-arg 0)))
+    (when (buffer-file-name buf)
+      ad-do-it)))
+
+(defvar basis/ibuffer-grouped-by-vc-p nil
+  "Non-nil is grouping by VC root is enabled.")
+
+(defun basis/ibuffer-disable-vc-groups ()
+  "Disable grouping by VC root."
+  (interactive)
+  (ibuffer-assert-ibuffer-mode)
+  (setq ibuffer-filter-groups nil)
+  (ibuffer-update nil t))
+
+(defun basis/ibuffer-toggle-vc-grouping ()
+  "Toggle whether grouping by VC root is enabled."
+  (interactive)
+  (ibuffer-assert-ibuffer-mode)
+  (if basis/ibuffer-grouped-by-vc-p
+      (progn (basis/ibuffer-disable-vc-groups)
+             (setq basis/ibuffer-grouped-by-vc-p nil))
+    (ibuffer-vc-set-filter-groups-by-vc-root)
+    (setq basis/ibuffer-grouped-by-vc-p t)))
+
 ;; eshell ----------------------------------------------------------------------
 
 (defun basis/eshell-kill-line-backward ()

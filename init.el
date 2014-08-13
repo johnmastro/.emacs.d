@@ -79,6 +79,7 @@
           guide-key
           haskell-mode
           helm
+          ibuffer-vc
           idle-highlight-mode
           ido-at-point
           ido-ubiquitous
@@ -887,9 +888,11 @@
 (global-set-key [remap list-buffers] 'ibuffer)
 
 (with-eval-after-load 'ibuffer
+  (require 'ibuffer-vc)
   (basis/define-keys ibuffer-mode-map
     ((kbd "M-o")   nil) ;; don't shadow ace-window
-    ((kbd "C-M-o") 'ibuffer-visit-buffer-1-window))
+    ((kbd "C-M-o") 'ibuffer-visit-buffer-1-window)
+    ((kbd "\\")    'basis/ibuffer-toggle-vc-grouping))
 
   (define-ibuffer-column size-h
     ;; a more readable size column
@@ -908,10 +911,15 @@
               (size-h 9 -1 :right)
               " "
               (mode 16 16 :left :elide)
-              " " filename-and-process)
+              " "
+              (vc-status 16 16 :left)
+              " "
+              filename-and-process)
         (mark " "
               (name 16 -1)
               " " filename)))
+
+(setq ibuffer-show-empty-filter-groups nil)
 
 ;; company ---------------------------------------------------------------------
 
