@@ -342,6 +342,10 @@
   (diminish 'page-break-lines-mode))
 (with-eval-after-load 'magit
   (diminish 'magit-auto-revert-mode))
+(with-eval-after-load 'subword
+  (diminish 'subword-mode))
+(with-eval-after-load 'superword
+  (diminish 'superword-mode))
 
 ;; info ------------------------------------------------------------------------
 
