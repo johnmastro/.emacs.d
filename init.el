@@ -1716,6 +1716,7 @@
                                 git-rebase-mode
                                 git-timemachine-mode
                                 image-mode
+                                inferior-forth-mode
                                 inferior-haskell-mode
                                 makey-key-mode
                                 process-menu-mode)))
@@ -1877,6 +1878,17 @@ two tags."
     (when move-forward-p
       (forward-line 1)
       (indent-according-to-mode))))
+
+;; forth -----------------------------------------------------------------------
+
+(autoload 'forth-mode "gforth" "Forth mode" t)
+
+(with-eval-after-load 'forth-mode
+  (define-key forth-mode-map (kbd "M-o")   nil)
+  (define-key forth-mode-map (kbd "M-SPC") nil))
+
+(dolist (ext '("f" "fs" "fth"))
+  (add-to-list 'auto-mode-alist `(,(format "\\.%s\\'" ext) . forth-mode)))
 
 ;; markdown --------------------------------------------------------------------
 
