@@ -59,7 +59,6 @@
           clojure-cheatsheet
           clojure-mode
           company
-          company-inf-python
           dash
           dash-functional
           deft
