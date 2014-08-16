@@ -1137,7 +1137,7 @@
 (-when-let (sbcl (executable-find "sbcl"))
   (setq inferior-lisp-program sbcl))
 
-(add-to-list 'auto-mode-alist '("\\.sbclrc$" . lisp-mode))
+(add-to-list 'auto-mode-alist '("\\.sbclrc\\'" . lisp-mode))
 
 (defun basis/lisp-setup ()
   "Enable features useful in any Lisp mode."
@@ -1892,8 +1892,8 @@ two tags."
 
 ;; markdown --------------------------------------------------------------------
 
-(dolist (ext (list "\\.markdown" "\\.mkd" "\\.md"))
-  (add-to-list 'auto-mode-alist (cons ext 'markdown-mode)))
+(dolist (ext (list "markdown" "mkd" "md"))
+  (add-to-list 'auto-mode-alist `(,(format "\\.%s\\'" ext) . markdown-mode)))
 
 (defun basis/init-markdown-mode ()
   (setq tab-width 4)
