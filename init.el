@@ -1931,7 +1931,10 @@ two tags."
   (auto-fill-mode 1)
   (flyspell-mode 1))
 
-(setq message-auto-save-directory "~/.emacs.d/tmp/")
+(setq message-auto-save-directory "~/.emacs.d/tmp/"
+      message-subject-trailing-was-query nil
+      message-dont-reply-to-names (rx (or (seq "jbm@" (or "jbm.io" "deft.li"))
+                                          "john.b.mastro@gmail.com")))
 
 (add-hook 'message-mode-hook 'basis/init-message-mode)
 
