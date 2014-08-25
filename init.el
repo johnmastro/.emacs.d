@@ -199,7 +199,6 @@
       next-line-add-newlines t
       apropos-do-all t
       custom-file "~/.emacs.d/custom.el"
-      dirtrack-list '("^(~?[a-zA-Z0-9/ _-]+)>" 1)
       scroll-preserve-screen-position t
       delete-by-moving-to-trash t)
 
@@ -1003,10 +1002,19 @@
 
 ;; shell-mode ------------------------------------------------------------------
 
-(defun basis/set-comint-process-echoes ()
-  (setq comint-process-echoes t))
+;; Not sure why comint/dirtrack see junk in front of my prompt with Cygwin's
+;; zsh, so just work around it
+(setq-default dirtrack-list
+              (if basis/cygwin-p
+                  '("^%[ \r]*\\(.+\\)>" 1)
+                '("^[^:\n]+@[^:\n]+:\\(.+\\)>" 1)))
 
-(add-hook 'shell-mode-hook 'basis/set-comint-process-echoes)
+(defun basis/init-shell-mode ()
+  (setq comint-process-echoes t)
+  (shell-dirtrack-mode -1)
+  (dirtrack-mode +1))
+
+(add-hook 'shell-mode-hook 'basis/init-shell-mode)
 
 ;; eshell ----------------------------------------------------------------------
 
