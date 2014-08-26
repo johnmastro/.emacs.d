@@ -1251,7 +1251,7 @@
   (unless (slime-connected-p)
     (save-excursion (slime))))
 
-(add-hook 'slime-mode-hook 'basis/start-slime)
+;; (add-hook 'slime-mode-hook 'basis/start-slime)
 
 (with-eval-after-load 'slime
   (basis/define-keys slime-mode-map
