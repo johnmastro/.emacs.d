@@ -1,0 +1,28 @@
+((code
+  "http://adereth.github.io/atom.xml"
+  "http://blog.fogus.me/feed/"
+  "http://eli.thegreenplace.net/feed/"
+  "http://emacsredux.com/atom.xml"
+  "http://endlessparentheses.com/atom.xml"
+  "http://feeds2.feedburner.com/stevelosh"
+  "http://gbracha.blogspot.com/feeds/posts/default"
+  "http://lambda-the-ultimate.org/rss.xml"
+  "http://lucumr.pocoo.org/feed.atom"
+  "http://nullprogram.com/feed/"
+  "http://technomancy.us/feed/atom.xml"
+  "http://wingolog.org/feed/atom"
+  "https://hynek.me/feed.xml")
+ ((code planet)
+  "http://planet.clojure.in/atom.xml"
+  "http://planet.emacsen.org/atom.xml"
+  "http://planet.haskell.org/rss20.xml"
+  "http://planet.lisp.org/rss20.xml"
+  "http://planet.python.org/rss20.xml"
+  "http://www.scheme.dk/planet/atom.xml"
+  "https://planet.postgresql.org/rss20.xml")
+ (world
+  "http://blog.mpettis.com/feed/"
+  "http://feeds.feedburner.com/marginalrevolution/feed"
+  "http://www.overcomingbias.com/feed"
+  "http://www.vox.com/authors/matthew-yglesias/rss"
+  "https://www.schneier.com/blog/atom.xml"))
