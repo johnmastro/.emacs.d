@@ -218,15 +218,6 @@
 (delete-selection-mode 1)
 (global-page-break-lines-mode 1)
 
-;; ispell
-(let ((aspell (if (and (eq system-type 'windows-nt)
-                       (not basis/cygwin-p))
-                  "c:\\Program Files (x86)\\Aspell\\bin\\aspell.exe"
-                "aspell")))
-  (setq ispell-program-name aspell
-        ispell-personal-dictionary "~/.aspell.en.pws"
-        aspell-installed-p (executable-find aspell)))
-
 ;; recentf
 (recentf-mode 1)
 (setq recentf-max-saved-items 50
@@ -699,6 +690,15 @@
 
 ;; Like C-w but the whole sexp
 (define-key isearch-mode-map (kbd "C-e") 'basis/isearch-yank-sexp)
+
+;; ispell ----------------------------------------------------------------------
+
+(let ((aspell (or (executable-find "aspell")
+                  (and (eq system-type 'windows-nt)
+                       (executable-find
+                        "c:\\Program Files (x86)\\Aspell\\bin\\aspell.exe")))))
+  (setq ispell-program-name aspell
+        ispell-personal-dictionary "~/.aspell.en.pws"))
 
 ;; prog-mode -------------------------------------------------------------------
 

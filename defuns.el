@@ -840,8 +840,7 @@ If `linum-mode' was already enabled just call `goto-line'."
 
 (defun basis/maybe-enable-flyspell ()
   "Enable `flyspell-mode' if aspell is installed."
-  (when (and (boundp 'aspell-installed-p)
-             aspell-installed-p)
+  (when ispell-program-name  ; Set to nil if aspell isn't installed
     (flyspell-mode 1)))
 
 (defun basis/maybe-enable-flyspell-prog-mode ()
