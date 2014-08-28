@@ -218,13 +218,6 @@
 (delete-selection-mode 1)
 (global-page-break-lines-mode 1)
 
-;; TRAMP
-(setq tramp-default-method
-      (if (and (eq system-type 'windows-nt)
-               (not basis/cygwin-p))
-          "plinkx"
-        "sshx"))
-
 ;; ispell
 (let ((aspell (if (and (eq system-type 'windows-nt)
                        (not basis/cygwin-p))
@@ -660,6 +653,20 @@
     ("M-[ 1 ; 6 n" "C->")
     ("M-[ 1 ; 6 y" "C-(")
     ("M-[ 1 ; 6 k" "C-+")))
+
+;; TRAMP -----------------------------------------------------------------------
+
+(setq tramp-default-method
+      (if (and (eq system-type 'windows-nt)
+               (not basis/cygwin-p))
+          "plinkx"
+        "sshx"))
+
+;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
+(when basis/cygwin-p
+  (setq tramp-encoding-shell (executable-find "sh")
+        tramp-encoding-command-switch "-c"
+        tramp-encoding-command-interactive "-i"))
 
 ;; help-mode -------------------------------------------------------------------
 
