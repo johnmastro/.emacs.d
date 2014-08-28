@@ -323,11 +323,19 @@ This is the same as using \\[set-mark-command] with the prefix argument."
         (kill-buffer buffer)
         (message "File '%s' successfully deleted" filename)))))
 
+(defun basis/commit-msg-p (file)
+  "Return true if FILE is a git \"COMMIT_EDITMSG\" file."
+  (string= "COMMIT_EDITMSG" (file-name-nondirectory file)))
+
 (defun basis/recentf-ido-find-file ()
   "Find recently open files using ido and recentf."
   (interactive)
-  (let* ((recent (mapcar #'abbreviate-file-name recentf-list))
-         (file (ido-completing-read "Choose recent file: " recent nil t)))
+  (let* ((list (->> recentf-list
+                 (mapcar (lambda (file)
+                           (unless (basis/commit-msg-p file)
+                             (abbreviate-file-name file))))
+                 (delq nil)))
+         (file (ido-completing-read "Recent file: " list nil t)))
     (when file
       (find-file file))))
 
