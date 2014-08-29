@@ -869,10 +869,16 @@ If no keymap is found, return nil."
     (when (boundp name)
       (symbol-value name))))
 
-(defun basis/isearch-yank-sexp ()
-  "Pull next sexp in buffer into search string."
+(defun basis/isearch-yank-something ()
+  "Pull the current region or symbol into the search string."
   (interactive)
-  (isearch-yank-internal (lambda () (forward-sexp 1) (point))))
+  (isearch-yank-string
+   (if (use-region-p)
+       (let ((str (buffer-substring (region-beginning) (region-end))))
+         (deactivate-mark)
+         str)
+     (or (thing-at-point 'symbol)
+         ""))))
 
 (defun basis/kill-this-buffer ()
   "Kill the currently active buffer."

@@ -691,8 +691,8 @@
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)
 
-;; Like C-w but the whole sexp
-(define-key isearch-mode-map (kbd "C-e") 'basis/isearch-yank-sexp)
+;; Like C-w but the current region or symbol
+(define-key isearch-mode-map (kbd "C-t") 'basis/isearch-yank-something)
 
 ;; ispell ----------------------------------------------------------------------
 
