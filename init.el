@@ -266,7 +266,6 @@
 
 ;; interface -------------------------------------------------------------------
 
-(setq solarized-termcolors 256)
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized/")
 (load-theme 'solarized-dark t)
 
