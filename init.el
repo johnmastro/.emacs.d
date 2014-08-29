@@ -1750,7 +1750,8 @@
                                 inferior-haskell-mode
                                 makey-key-mode
                                 process-menu-mode
-                                special-mode)))
+                                special-mode
+                                sql-interactive-mode)))
   (mapc (apply-partially #'add-to-list 'evil-emacs-state-modes)
         (append evil-insert-state-modes
                 evil-motion-state-modes
