@@ -84,6 +84,7 @@
           ido-at-point
           ido-ubiquitous
           ido-vertical-mode
+          idomenu
           jedi
           js-comint
           js2-mode
@@ -540,7 +541,7 @@
   ((kbd "C-h g")   'magit-status)
   ((kbd "C-h C-k") 'basis/kill-this-buffer)
   ((kbd "<f10>")   'magit-status)
-  ((kbd "C-h i")   'imenu)
+  ((kbd "C-h i")   'idomenu)
   ((kbd "C-h 0")   'delete-window)
   ((kbd "C-h 1")   'delete-other-windows)
   ((kbd "C-h 2")   'split-window-below)
@@ -1668,7 +1669,7 @@
       ("e"     basis/eval-map)
       ("f"     'ido-find-file)
       ("g"     'magit-status)
-      ("i"     'imenu)
+      ("i"     'idomenu)
       ("j"     'ace-jump-word-mode)
       ("k"     'basis/kill-this-buffer)
       ("l"     'ibuffer)
