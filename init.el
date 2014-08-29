@@ -219,12 +219,6 @@
 (delete-selection-mode 1)
 (global-page-break-lines-mode 1)
 
-;; recentf
-(recentf-mode 1)
-(setq recentf-max-saved-items 50
-      recentf-save-file "~/.emacs.d/.recentf"
-      recentf-exclude '(file-remote-p))
-
 ;; safe local variables
 (add-to-list 'safe-local-variable-values '(lexical-binding . t))
 (add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
@@ -645,6 +639,14 @@
     ("M-[ 1 ; 6 n" "C->")
     ("M-[ 1 ; 6 y" "C-(")
     ("M-[ 1 ; 6 k" "C-+")))
+
+;; recentf ---------------------------------------------------------------------
+
+(recentf-mode 1)
+
+(setq recentf-max-saved-items 50
+      recentf-save-file "~/.emacs.d/.recentf"
+      recentf-exclude '(file-remote-p basis/git-commit-msg-p))
 
 ;; TRAMP -----------------------------------------------------------------------
 
