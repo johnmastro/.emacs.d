@@ -1093,6 +1093,18 @@
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 (global-set-key (kbd "C-h M-x") 'execute-extended-command)
 
+;; helm ------------------------------------------------------------------------
+
+(setq helm-split-window-default-side 'other
+      helm-split-window-in-side-p t
+      helm-ff-file-name-history-use-recentf t
+      helm-buffers-fuzzy-matching t
+      helm-man-or-woman-function 'woman)
+
+(with-eval-after-load 'helm
+  (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
+  (define-key helm-map (kbd "C-z") 'helm-select-action))
+
 ;; hippie expand ---------------------------------------------------------------
 
 (global-set-key (kbd "M-/") 'hippie-expand)
