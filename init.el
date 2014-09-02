@@ -1094,15 +1094,49 @@
 
 ;; helm ------------------------------------------------------------------------
 
+(define-prefix-command 'basis/helm-map)
+
+(global-set-key (kbd "C-c h") 'basis/helm-map)
+
+(basis/define-keys basis/helm-map
+  ("a" 'helm-apropos)
+  ("b" 'helm-buffers-list)
+  ("c" 'helm-colors)
+  ("e" 'helm-register)
+  ("f" 'helm-find-files)
+  ("g" 'helm-do-grep)
+  ("i" 'helm-semantic-or-imenu)
+  ("k" 'helm-man-woman)
+  ("m" 'helm-all-mark-rings)
+  ("o" 'helm-occur)
+  ("O" 'helm-multi-occur)
+  ("p" 'helm-list-emacs-process)
+  ("r" 'helm-regexp)
+  ("R" 'helm-resume)
+  ("t" 'helm-top)
+  ("y" 'helm-show-kill-ring)
+  ("/" 'helm-find))
+
 (setq helm-split-window-default-side 'other
       helm-split-window-in-side-p t
       helm-ff-file-name-history-use-recentf t
+      helm-ff-search-library-in-sexp t
       helm-buffers-fuzzy-matching t
-      helm-man-or-woman-function 'woman)
+      helm-man-or-woman-function 'woman
+      helm-quick-update t)
 
 (with-eval-after-load 'helm
   (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-z") 'helm-select-action))
+  (define-key helm-map (kbd "C-z") 'helm-select-action)
+  ;; Use Solarized's "yellow" (foreground) and "base02" (background) for
+  ;; highlighting selections
+  (set-face-attribute 'helm-selection nil
+                      :background (solarized-find-color 'base02)
+                      :underline nil)
+  (set-face-attribute 'helm-selection-line nil
+                      :foreground (solarized-find-color 'base02)
+                      :background (solarized-find-color 'yellow)
+                      :underline nil))
 
 ;; hippie expand ---------------------------------------------------------------
 
@@ -1682,6 +1716,7 @@
       ("e"     basis/eval-map)
       ("f"     'ido-find-file)
       ("g"     'magit-status)
+      ("h"     basis/helm-map)
       ("i"     'idomenu)
       ("j"     'ace-jump-word-mode)
       ("k"     'basis/kill-this-buffer)
