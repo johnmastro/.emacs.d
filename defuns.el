@@ -114,6 +114,20 @@ default of 80."
         (newline)
         (setq count (1- count))))))
 
+(defun basis/insert-files (files &optional buffer)
+  "Insert the contents of FILES into BUFFER.
+If BUFFER is nil, use the current buffer."
+  (let ((buffer (or buffer (current-buffer))))
+    (with-current-buffer (get-buffer buffer)
+      (mapc #'insert-file-contents files))))
+
+(defun basis/insert-directory-files (dir &optional buffer)
+  "Insert the contents of DIR's files into BUFFER.
+If BUFFER is nil, use the current buffer."
+  (interactive (list (ido-read-directory-name "Directory: ")))
+  (basis/insert-files (directory-files dir t (rx (1+ word)))
+                      buffer))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun kill-region-or-backward-word (arg)
