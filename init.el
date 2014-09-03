@@ -1126,6 +1126,7 @@
       helm-quick-update t)
 
 (with-eval-after-load 'helm
+  (require 'helm-utils) ; For the `helm-selection-line' face
   (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
   (define-key helm-map (kbd "C-z") 'helm-select-action)
   ;; Use Solarized's "yellow" (foreground) and "base02" (background) for
