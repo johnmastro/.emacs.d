@@ -1300,6 +1300,17 @@ keys once that feature is loaded."
     (insert (make-string 6 double-quote)))
   (backward-char 3))
 
+(defun basis/run-python ()
+  "Adjust the frame's configuration and run Python."
+  (interactive)
+  (unless (eq major-mode 'python-mode)
+    (error "Not in a python-mode buffer"))
+  (delete-other-windows)
+  (let ((frame (selected-frame)))
+    (when (< (frame-width frame) 165)
+      (set-frame-width frame 165)))
+  (call-interactively #'run-python))
+
 ;; slime -----------------------------------------------------------------------
 
 (defun basis/slime-eval-something ()
