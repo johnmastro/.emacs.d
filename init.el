@@ -737,9 +737,8 @@
         (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
         (calc-mode "V")))
 
-(set-face-attribute 'guide-key/key-face nil :foreground (if (display-graphic-p)
-                                                            "#268bd2"
-                                                          "#0087ff"))
+(let ((blue (solarized-find-color 'blue)))
+  (set-face-attribute 'guide-key/key-face nil :foreground blue))
 
 ;; key-chord -------------------------------------------------------------------
 
