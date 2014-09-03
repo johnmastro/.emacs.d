@@ -79,6 +79,7 @@
           guide-key
           haskell-mode
           helm
+          helm-projectile
           ibuffer-vc
           idle-highlight-mode
           ido-at-point
