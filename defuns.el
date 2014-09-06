@@ -171,6 +171,25 @@ If `subword-mode' is active, use `subword-backward-kill'."
   (interactive)
   (kill-ring-save (point-min) (point-max)))
 
+(defun basis/kill-ring-save-buffer-file-name (buffer &optional basename)
+  "Save BUFFER's associated file name to the kill ring.
+If BASENAME is non-nil, save only its base name. Otherwise save
+its full path."
+  (interactive
+   (list (ido-completing-read "Buffer: "
+                              (delq nil (mapcar (lambda (buf)
+                                                  (when (buffer-file-name buf)
+                                                    (buffer-name buf)))
+                                                (buffer-list)))
+                              nil
+                              t)
+         current-prefix-arg))
+  (let ((filename (buffer-file-name (get-buffer buffer))))
+    (basis/kill-ring-save-string
+     (if basename
+         (file-name-nondirectory filename)
+       filename))))
+
 (defun basis/clipboard-save-string (str)
   "Save STR directly to the system clipboard.
 Do not save the string to the the kill ring."
@@ -189,18 +208,6 @@ Do not save the string to the the kill ring."
           (setq deactivate-mark t)))
     (let ((s (buffer-substring-no-properties (point-min) (point-max))))
       (basis/clipboard-save-string s))))
-
-(defun basis/clipboard-save-buffer-file-name ()
-  "Save the current buffer's filename to the system clipboard."
-  (interactive)
-  (-when-let (str buffer-file-name)
-    (basis/clipboard-save-string str)))
-
-(defun basis/clipboard-save-buffer-base-name ()
-  "Save the current buffer's basename to the system clipboard."
-  (interactive)
-  (-when-let (str buffer-file-name)
-    (basis/clipboard-save-string (file-name-nondirectory str))))
 
 (defun basis/s-add-indent (s &optional spaces pattern)
   (let ((spaces (or spaces 4))
