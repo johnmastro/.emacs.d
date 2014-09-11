@@ -130,7 +130,7 @@ If BUFFER is nil, use the current buffer."
 
 ;; kill commands ---------------------------------------------------------------
 
-(defun kill-region-or-backward-word (arg)
+(defun basis/kill-region-or-backward-word (arg)
   "Kill the region, or one or more words backward.
 If `subword-mode' is active, use `subword-backward-kill'."
   (interactive "p")
@@ -141,19 +141,19 @@ If `subword-mode' is active, use `subword-backward-kill'."
         (t
          (backward-kill-word arg))))
 
-(defun kill-line-backward ()
+(defun basis/kill-line-backward ()
   "Kill everything before point. Respect indentation."
   (interactive)
   (kill-line 0)
   (indent-according-to-mode))
 
-(defun smart-kill-whole-line (&optional arg)
+(defun basis/smart-kill-whole-line (&optional arg)
   "A simple wrapper around `kill-whole-line' that respects indentation."
   (interactive "P")
   (kill-whole-line arg)
   (back-to-indentation))
 
-(defun smart-kill-almost-whole-line ()
+(defun basis/smart-kill-almost-whole-line ()
   "Like `smart-kill-whole-line' but doesn't kill the newline."
   (interactive)
   (beginning-of-line-or-indentation)
@@ -265,20 +265,20 @@ on whether the region is active."
 
 ;; mark commands ---------------------------------------------------------------
 
-(defun push-mark-no-activate ()
+(defun basis/push-mark-no-activate ()
   "Pushes `point` to `mark-ring` without activating the region.
 Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled."
   (interactive)
   (push-mark (point) t nil)
   (message "Pushed mark to ring"))
 
-(defun jump-to-mark ()
+(defun basis/jump-to-mark ()
   "Jumps to the local mark, respecting the `mark-ring` order.
 This is the same as using \\[set-mark-command] with the prefix argument."
   (interactive)
   (set-mark-command 1))
 
-(defun exchange-point-and-mark-no-activate ()
+(defun basis/exchange-point-and-mark-no-activate ()
   "Identical to \\[exchange-point-and-mark] but will not activate the region."
   (interactive)
   (exchange-point-and-mark)
@@ -286,34 +286,34 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 ;; buffer cleanup --------------------------------------------------------------
 
-(defun untabify-buffer ()
+(defun basis/untabify-buffer ()
   "Untabify the current buffer."
   (interactive)
   (save-excursion
     (untabify (point-min) (point-max))))
 
-(defun indent-buffer ()
+(defun basis/indent-buffer ()
   "Indent the current buffer."
   (interactive)
   (save-excursion
     (indent-region (point-min) (point-max))))
 
-(defun cleanup-buffer-safe ()
+(defun basis/cleanup-buffer-safe ()
   "Clean up the whitespace content of a buffer conservatively."
   (interactive)
-  (untabify-buffer)
+  (basis/untabify-buffer)
   (delete-trailing-whitespace)
   (set-buffer-file-coding-system 'utf-8))
 
-(defun cleanup-buffer ()
+(defun basis/cleanup-buffer ()
   "Clean up and indent the current buffer."
   (interactive)
-  (cleanup-buffer-save)
-  (indent-buffer))
+  (basis/cleanup-buffer-safe)
+  (basis/indent-buffer))
 
 ;; file utilities --------------------------------------------------------------
 
-(defun rename-current-buffer-file ()
+(defun basis/rename-current-buffer-file ()
   "Rename the current buffer and the file it's visiting."
   (interactive)
   (let ((name (buffer-name))
@@ -331,7 +331,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
             (message "File '%s' renamed to '%s'"
                      name (file-name-nondirectory new-name))))))))
 
-(defun delete-current-buffer-file ()
+(defun basis/delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
   (interactive)
   (let ((name (buffer-name))
@@ -356,14 +356,6 @@ This is the same as using \\[set-mark-command] with the prefix argument."
          (file (ido-completing-read "Recent file: " list nil t)))
     (when file
       (find-file file))))
-
-(defun file-basename-sans-extension (filename)
-  "Return FILENAME's basename without its extension."
-  (file-name-sans-extension (file-name-nondirectory filename)))
-
-(defun buffer-file-basename-sans-extension ()
-  "Return the buffer's file's basename without its extension."
-  (file-basename-sans-extension (buffer-file-name)))
 
 (defun basis/kill-all-buffers ()
   "Kill all buffers except *scratch*."
@@ -477,22 +469,22 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 
 (put 'basis/define-key-translations 'lisp-indent-function 'defun)
 
-(defmacro create-simple-keybinding-command (name key)
+(defmacro basis/create-simple-keybinding-command (name key)
   `(defun ,name (def &optional keymap)
      (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
 
-(create-simple-keybinding-command f1 "<f1>")
-(create-simple-keybinding-command f2 "<f2>")
-(create-simple-keybinding-command f3 "<f3>")
-(create-simple-keybinding-command f4 "<f4>")
-(create-simple-keybinding-command f5 "<f5>")
-(create-simple-keybinding-command f6 "<f6>")
-(create-simple-keybinding-command f7 "<f7>")
-(create-simple-keybinding-command f8 "<f8>")
-(create-simple-keybinding-command f9 "<f9>")
-(create-simple-keybinding-command f10 "<f10>")
-(create-simple-keybinding-command f11 "<f11>")
-(create-simple-keybinding-command f12 "<f12>")
+(basis/create-simple-keybinding-command f1 "<f1>")
+(basis/create-simple-keybinding-command f2 "<f2>")
+(basis/create-simple-keybinding-command f3 "<f3>")
+(basis/create-simple-keybinding-command f4 "<f4>")
+(basis/create-simple-keybinding-command f5 "<f5>")
+(basis/create-simple-keybinding-command f6 "<f6>")
+(basis/create-simple-keybinding-command f7 "<f7>")
+(basis/create-simple-keybinding-command f8 "<f8>")
+(basis/create-simple-keybinding-command f9 "<f9>")
+(basis/create-simple-keybinding-command f10 "<f10>")
+(basis/create-simple-keybinding-command f11 "<f11>")
+(basis/create-simple-keybinding-command f12 "<f12>")
 
 ;; ibuffer ---------------------------------------------------------------------
 
@@ -678,7 +670,7 @@ Otherwise, insert the result into the current buffer."
       (basis/pp-eval-last-sexp nil)
     (eval-last-sexp nil)))
 
-(defmacro with-unique-names (names &rest body)
+(defmacro basis/with-unique-names (names &rest body)
   "Create unique names for use in a macro definition.
 This idea also goes by the name `with-gensyms` in Common Lisp."
   `(let ,(mapcar (lambda (sym)
@@ -686,9 +678,9 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
                  names)
      ,@body))
 
-(put 'with-unique-names 'lisp-indent-function 1)
+(put 'basis/with-unique-names 'lisp-indent-function 1)
 
-(defmacro looking-at-case (&rest clauses)
+(defmacro basis/looking-at-case (&rest clauses)
   (let ((trues '(t :else otherwise)))
     `(cond
       ,@(mapcar (lambda (clause)
@@ -735,7 +727,7 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
 
 ;; window utilities ------------------------------------------------------------
 
-(defun transpose-windows (arg)
+(defun basis/transpose-windows (arg)
   "Transpose the relative positions of two or more windows."
   (interactive "p")
   (let ((selector (if (>= arg 0) 'next-window 'previous-window)))
@@ -746,7 +738,7 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
         (set-window-buffer (funcall selector) this-win)
         (select-window (funcall selector))))))
 
-(defun toggle-window-split ()
+(defun basis/toggle-window-split ()
   "Toggle between horizontal and vertical window split (for two windows)."
   (interactive)
   (when (= (count-windows) 2)
@@ -954,7 +946,7 @@ otherwise call `yas-insert-snippet'."
     (insert str)
     (kill-ring-save (point-min) (point-max))))
 
-(defun fit-frame-width-to-buffer (&optional frame)
+(defun basis/fit-frame-width-to-buffer (&optional frame)
   "Adjust the width of FRAME to display the contents its buffer.
 FRAME defaults to the selected frame."
   (interactive)

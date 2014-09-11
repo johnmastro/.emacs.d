@@ -338,12 +338,12 @@
 
 ;; key bindings ----------------------------------------------------------------
 
-(defun init-modifiers/linux ()
+(defun basis/init-modifiers-for-linux ()
   (define-key key-translation-map
     (kbd "<menu>")
     'event-apply-hyper-modifier))
 
-(defun init-modifiers/os-x ()
+(defun basis/init-modifiers-for-os-x ()
   (setq mac-command-modifier 'meta
         mac-option-modifier 'super)
   ;; Use <kp-enter>, conveniently located to the right of the space
@@ -352,7 +352,7 @@
   (define-prefix-command 'quasi-hyper)
   (global-set-key (kbd "<kp-enter>") 'quasi-hyper))
 
-(defun init-modifiers/windows ()
+(defun basis/init-modifiers-for-windows ()
   (setq w32-pass-apps-to-system nil
         w32-pass-lwindow-to-system nil
         w32-pass-rwindow-to-system nil
@@ -361,9 +361,9 @@
   (define-key key-translation-map (kbd "<apps>") 'event-apply-hyper-modifier))
 
 (pcase system-type
-  (`gnu/linux  (init-modifiers/linux))
-  (`darwin     (init-modifiers/os-x))
-  (`windows-nt (init-modifiers/windows)))
+  (`gnu/linux  (basis/init-modifiers-for-linux))
+  (`darwin     (basis/init-modifiers-for-os-x))
+  (`windows-nt (basis/init-modifiers-for-windows)))
 
 ;; Restore previous window configurations
 (winner-mode 1)
@@ -390,11 +390,11 @@
 
 ;; Kill/save stuff
 (global-set-key (kbd "M-k") 'kill-sexp)
-(global-set-key (kbd "C-w") 'kill-region-or-backward-word)
-(global-set-key (kbd "M-DEL") 'kill-region-or-backward-word)
-(global-set-key [remap kill-whole-line] 'kill-line-backward) ; C-S-backspace
-(global-set-key (kbd "<C-delete>") 'smart-kill-whole-line)
-(global-set-key (kbd "<M-delete>") 'smart-kill-almost-whole-line)
+(global-set-key (kbd "C-w") 'basis/kill-region-or-backward-word)
+(global-set-key (kbd "M-DEL") 'basis/kill-region-or-backward-word)
+(global-set-key [remap kill-whole-line] 'basis/kill-line-backward)
+(global-set-key (kbd "<C-delete>") 'basis/smart-kill-whole-line)
+(global-set-key (kbd "<M-delete>") 'basis/smart-kill-almost-whole-line)
 (global-set-key (kbd "ESC M-DEL") 'backward-kill-sexp)
 (global-set-key (kbd "M-w") 'basis/kill-ring-save-something)
 (global-set-key (kbd "<f2>") 'basis/clipboard-save-something)
@@ -418,8 +418,8 @@
 (global-set-key (kbd "M-t w") 'transpose-words)
 (global-set-key (kbd "M-t s") 'transpose-sexps)
 (global-set-key (kbd "M-t c") 'transpose-chars)
-(global-set-key (kbd "M-t M-w") 'transpose-windows)
-(global-set-key (kbd "M-t M-s") 'toggle-window-split)
+(global-set-key (kbd "M-t M-w") 'basis/transpose-windows)
+(global-set-key (kbd "M-t M-s") 'basis/toggle-window-split)
 
 ;; Ack/grep
 (global-set-key (kbd "<f9>") (if (executable-find "ack")
@@ -434,10 +434,10 @@
 (global-set-key (kbd "<C-f2>") 'basis/multi-occur-this-mode)
 
 ;; Mark commands
-(global-set-key (kbd "C-`") 'push-mark-no-activate)
-(global-set-key (kbd "M-`") 'jump-to-mark)
+(global-set-key (kbd "C-`") 'basis/push-mark-no-activate)
+(global-set-key (kbd "M-`") 'basis/jump-to-mark)
 (global-set-key
- [remap exchange-point-and-mark] 'exchange-point-and-mark-no-activate)
+ [remap exchange-point-and-mark] 'basis/exchange-point-and-mark-no-activate)
 
 ;; Expand-region
 (global-set-key (kbd "M-=") 'er/expand-region)
@@ -549,7 +549,7 @@
 
 (global-set-key (kbd "<f1> e") 'lisp-find-map)
 
-(defun scratch! ()
+(defun basis/scratch! ()
   "Switch to the scratch buffer, creating it if necessary."
   (interactive)
   (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
@@ -561,7 +561,7 @@
 (global-set-key (kbd "<f1> e i") 'info-apropos)
 (global-set-key (kbd "<f1> e k") 'find-function-on-key)
 (global-set-key (kbd "<f1> e l") 'find-library)
-(global-set-key (kbd "<f1> e s") 'scratch!)
+(global-set-key (kbd "<f1> e s") 'basis/scratch!)
 (global-set-key (kbd "<f1> e v") 'find-variable)
 (global-set-key (kbd "<f1> e V") 'apropos-value)
 (global-set-key (kbd "<f1> e a") 'helm-apropos)
@@ -869,7 +869,7 @@
   ad-do-it
   (delete-other-windows))
 
-(defun magit-quit-session ()
+(defun basis/magit-quit-session ()
   "Restores the previous window configuration and kills the magit buffer."
   (interactive)
   (kill-buffer)
@@ -882,7 +882,7 @@
 (add-hook 'magit-log-edit-mode-hook 'basis/init-magit-log-edit)
 
 (with-eval-after-load 'magit
-  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
+  (define-key magit-status-mode-map (kbd "q") 'basis/magit-quit-session)
   (setq magit-completing-read-function 'magit-ido-completing-read)
   (-when-let (home (getenv "HOME"))
     (setq magit-repo-dirs '("~/code/"))
@@ -1207,7 +1207,7 @@
   "Enable features useful in any Lisp mode."
   (paredit-mode +1))
 
-(defun set-up-hippie-expand-for-elisp ()
+(defun basis/set-up-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in Hippie Expand."
   (make-local-variable 'hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol t)
@@ -1217,7 +1217,7 @@
 (defun basis/emacs-lisp-setup ()
   "Enable features useful when working with Emacs Lisp."
   (elisp-slime-nav-mode t)
-  (set-up-hippie-expand-for-elisp)
+  (basis/set-up-hippie-expand-for-elisp)
   (turn-on-eldoc-mode))
 
 (let* ((elispy-hooks '(emacs-lisp-mode-hook
