@@ -1818,7 +1818,7 @@
                                   (dired     dired-mode-map)
                                   (help-mode help-mode-map)))
 
-(evil-mode 1)
+;; (evil-mode 1)
 
 ;; ack and a half --------------------------------------------------------------
 
