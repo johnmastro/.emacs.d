@@ -937,6 +937,8 @@
   (basis/define-keys company-active-map
     ((kbd "C-t") 'company-complete-selection)
     ((kbd "C-c") 'company-abort)
+    ((kbd "C-l") 'company-show-location)
+    ((kbd "C-w") nil)
     ((kbd "RET") nil)
     ([return]    nil))
   (set-default
