@@ -388,20 +388,24 @@
 (global-set-key (kbd "M-n") 'forward-paragraph)
 (global-set-key (kbd "M-p") 'backward-paragraph)
 
-;; Kill/save stuff
+;; Kill stuff
 (global-set-key (kbd "M-k") 'kill-sexp)
 (global-set-key (kbd "C-w") 'basis/kill-region-or-backward-word)
+(global-set-key (kbd "C-DEL") 'basis/kill-region-or-backward-word)
 (global-set-key (kbd "M-DEL") 'basis/kill-region-or-backward-word)
 (global-set-key [remap kill-whole-line] 'basis/kill-line-backward)
 (global-set-key (kbd "<C-delete>") 'basis/smart-kill-whole-line)
 (global-set-key (kbd "<M-delete>") 'basis/smart-kill-almost-whole-line)
+(global-set-key (kbd "ESC C-DEL") 'backward-kill-sexp)
 (global-set-key (kbd "ESC M-DEL") 'backward-kill-sexp)
+
+;; Copy stuff
 (global-set-key (kbd "M-w") 'basis/kill-ring-save-something)
 (global-set-key (kbd "<f2>") 'basis/clipboard-save-something)
 (global-set-key (kbd "<M-f2>") 'basis/kill-ring-save-buffer)
 (global-set-key (kbd "s-w") 'basis/kill-ring-save-indented)
 
-;; ... and then browse it with M-y
+;; Browse the kill ring with M-y
 (browse-kill-ring-default-keybindings)
 
 ;; Join lines
@@ -1284,8 +1288,9 @@
     ((kbd "M-a")                    'paredit-backward)
     ((kbd "<M-left>")               'paredit-backward)
     ((kbd "M-k")                    'kill-sexp)
-    ((kbd "C-w")                    'basis/paredit-kill-something)
-    ((kbd "M-DEL")                  'basis/paredit-kill-something)
+    ((kbd "C-w")                    'basis/paredit-kill-region-or-backward-word)
+    ((kbd "C-DEL")                  'basis/paredit-kill-region-or-backward-word)
+    ((kbd "M-DEL")                  'basis/paredit-kill-region-or-backward-word)
     ([remap backward-kill-sentence] 'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
                'basis/paredit-doublequote-space-p))
@@ -1457,8 +1462,9 @@
     (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
 
   (basis/define-keys sp-keymap
-    ((kbd "M-DEL")  'basis/sp-backward-kill-something)
-    ((kbd "C-w")    'basis/sp-backward-kill-something)
+    ((kbd "C-DEL")  'basis/sp-kill-region-or-backward-word)
+    ((kbd "M-DEL")  'basis/sp-kill-region-or-backward-word)
+    ((kbd "C-w")    'basis/sp-kill-region-or-backward-word)
     ((kbd "M-k")    'sp-kill-sexp)
     ((kbd "M-e")    'basis/maybe-sp-forward-sexp)
     ((kbd "M-a")    'basis/maybe-sp-backward-sexp)

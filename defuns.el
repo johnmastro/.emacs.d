@@ -1030,7 +1030,7 @@ FRAME defaults to the selected frame."
        #'paredit-open-square
      #'paredit-open-round)))
 
-(defun basis/paredit-kill-something ()
+(defun basis/paredit-kill-region-or-backward-word ()
   (interactive)
   (if (use-region-p)
       (kill-region (region-beginning) (region-end))
@@ -1057,7 +1057,7 @@ FRAME defaults to the selected frame."
 
 ;; smartparens -----------------------------------------------------------------
 
-(defun basis/sp-backward-kill-something (&optional arg)
+(defun basis/sp-kill-region-or-backward-word (&optional arg)
   "Call `sp-backward-kill-word' or `kill-region'. "
   (interactive "p")
   (if (use-region-p)
