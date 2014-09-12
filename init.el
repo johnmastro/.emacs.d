@@ -425,12 +425,8 @@
 (global-set-key (kbd "M-t M-w") 'basis/transpose-windows)
 (global-set-key (kbd "M-t M-s") 'basis/toggle-window-split)
 
-;; Ack/grep
-(global-set-key (kbd "<f9>") (if (executable-find "ack")
-                                 'basis/ack-somewhere
-                               'rgrep))
-(global-set-key (kbd "<C-f9>") 'rgrep)
-(global-set-key (kbd "<M-f9>") 'rgrep)
+;; Grep
+(global-set-key (kbd "<f9>") 'rgrep)
 
 ;; Occur
 (define-key occur-mode-map (kbd "n") 'occur-next)
@@ -573,10 +569,6 @@
 ;; aliases ---------------------------------------------------------------------
 
 (defalias 'qrr 'query-replace-regexp)
-(defalias 'ack 'ack-and-a-half)
-(defalias 'ack-same 'ack-and-a-half-same)
-(defalias 'ack-find-file 'ack-and-a-half-find-file)
-(defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 (defalias 'sayonara 'save-buffers-kill-terminal)
 
 ;; tmux ------------------------------------------------------------------------
@@ -1827,6 +1819,17 @@
 ;; (evil-mode 1)
 
 ;; ack and a half --------------------------------------------------------------
+
+(defalias 'ack 'ack-and-a-half)
+(defalias 'ack-same 'ack-and-a-half-same)
+(defalias 'ack-find-file 'ack-and-a-half-find-file)
+(defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
+
+(global-set-key (kbd "<C-f9>") 'ack-and-a-half)
+(global-set-key (kbd "<M-f9>") 'ack-and-a-half)
+
+(when (file-exists-p "~/bin/ack")
+  (setq ack-and-a-half-executable "~/bin/ack"))
 
 (with-eval-after-load 'ack-and-a-half
   (basis/define-keys ack-and-a-half-mode-map
