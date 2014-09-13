@@ -858,6 +858,17 @@
 (when (file-exists-p "~/.emacs.d/feeds.el")
   (setq elfeed-feeds (basis/elfeed-load-feeds "~/.emacs.d/feeds.el")))
 
+
+;; w3m -------------------------------------------------------------------------
+
+(when (and (not (display-graphic-p))
+           (executable-find "w3m"))
+  (setq browse-url-browser-function 'w3m-browse-url))
+
+(with-eval-after-load 'w3m
+  (define-key w3m-mode-map "n" 'w3m-next-anchor)
+  (define-key w3m-mode-map "p" 'w3m-previous-anchor))
+
 ;; magit -----------------------------------------------------------------------
 
 (defadvice magit-status (around magit-fullscreen activate)
