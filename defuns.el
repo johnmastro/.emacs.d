@@ -1507,6 +1507,12 @@ many windows."
 
 ;; flycheck --------------------------------------------------------------------
 
+(defun basis/flycheck-check-and-list-errors ()
+  "Run a check and show the errors, if any."
+  (interactive)
+  (flycheck-buffer)
+  (flycheck-list-errors))
+
 (defun basis/flycheck-enable-automatic-checking ()
   "Enable automatic syntax checking by Flycheck."
   (interactive)

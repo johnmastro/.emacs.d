@@ -1481,12 +1481,13 @@
 (defvar basis/flycheck-keymap
   (let ((map (make-sparse-keymap)))
     (basis/define-keys map
-      ((kbd "c") 'flycheck-buffer)
-      ((kbd "n") 'flycheck-next-error)
-      ((kbd "p") 'flycheck-previous-error)
-      ((kbd "l") 'flycheck-list-errors)
-      ((kbd "s") 'flycheck-select-checker)
-      ((kbd "C") 'flycheck-clear))
+      ((kbd "c")   'flycheck-buffer)
+      ((kbd "n")   'flycheck-next-error)
+      ((kbd "p")   'flycheck-previous-error)
+      ((kbd "l")   'flycheck-list-errors)
+      ((kbd "s")   'flycheck-select-checker)
+      ((kbd "C")   'flycheck-clear)
+      ((kbd "SPC") 'basis/flycheck-check-and-list-errors))
     map)
   "Custom keybindings for Flycheck.")
 
