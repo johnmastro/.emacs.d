@@ -566,6 +566,57 @@
 (global-set-key (kbd "<f1> e V") 'apropos-value)
 (global-set-key (kbd "<f1> e a") 'helm-apropos)
 
+;; eval map --------------------------------------------------------------------
+
+(defvar-local basis/eval-defun-function nil
+  "Function to eval the defun at point.")
+
+(defvar-local basis/eval-last-sexp-function nil
+  "Function to eval the sexp before point.")
+
+(defvar-local basis/eval-region-function nil
+  "Function to eval the active region.")
+
+(defvar-local basis/eval-buffer-function nil
+  "Function to eval the current buffer.")
+
+(defvar-local basis/eval-file-function nil
+  "Function to eval and load the current buffer's file.")
+
+(defun basis/do-eval (thing)
+  "Call an appropriate function to evaluate THING."
+  (let* ((sym (intern (format "basis/eval-%s-function" thing)))
+         (val (symbol-value sym)))
+    (if val
+        (call-interactively val)
+      (error "No function to eval '%s' for %s" thing major-mode))))
+
+(defmacro basis/def-eval-map (&rest defs)
+  (cl-flet ((make-eval-name (thing)
+              (intern (format "basis/do-eval-%s" thing)))
+            (keyword->symbol (keyword)
+              (intern (substring (symbol-name keyword) 1))))
+    (let ((map (make-symbol "map")))
+      `(defvar basis/eval-map
+         (let ((,map (make-sparse-keymap)))
+           ,@(mapcar (lambda (def)
+                       (let ((thing (keyword->symbol (car def)))
+                             (key (cadr def)))
+                         `(progn
+                            (defun ,(make-eval-name thing) ()
+                              (interactive)
+                              (basis/do-eval ',thing))
+                            (define-key ,map ,key ',(make-eval-name thing)))))
+                     (-partition 2 defs))
+           ,map)))))
+
+(basis/def-eval-map
+ :last-sexp "l"
+ :defun     "d"
+ :buffer    "b"
+ :region    "r"
+ :file      "f")
+
 ;; aliases ---------------------------------------------------------------------
 
 (defalias 'qrr 'query-replace-regexp)
@@ -1212,9 +1263,29 @@
 
 (add-to-list 'auto-mode-alist '("\\.sbclrc\\'" . lisp-mode))
 
-(defun basis/lisp-setup ()
+(defun basis/init-lisp-generic ()
   "Enable features useful in any Lisp mode."
   (paredit-mode +1))
+
+(let ((lispy-hooks '(emacs-lisp-mode-hook
+                     lisp-interaction-mode-hook
+                     ielm-mode-hook
+                     lisp-mode-hook
+                     slime-repl-mode-hook
+                     clojure-mode-hook
+                     cider-repl-mode-hook
+                     inferior-lisp-mode-hook
+                     scheme-mode-hook
+                     inferior-scheme-mode-hook
+                     geiser-repl-mode-hook)))
+  (dolist (hook lispy-hooks)
+    (add-hook hook 'basis/init-lisp-generic)))
+
+(setq lisp-lambda-list-keyword-alignment t
+      lisp-lambda-list-keyword-parameter-alignment t
+      lisp-loop-forms-indentation 6)
+
+;; emacs lisp ------------------------------------------------------------------
 
 (defun basis/set-up-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in Hippie Expand."
@@ -1223,34 +1294,26 @@
   (add-to-list 'hippie-expand-try-functions-list
                'try-complete-lisp-symbol-partially t))
 
-(defun basis/emacs-lisp-setup ()
+(defun basis/init-emacs-lisp-modes ()
   "Enable features useful when working with Emacs Lisp."
+  ;; Paredit is enabled by `basis/init-lisp-generic'
   (elisp-slime-nav-mode t)
   (basis/set-up-hippie-expand-for-elisp)
   (turn-on-eldoc-mode))
 
-(let* ((elispy-hooks '(emacs-lisp-mode-hook
-                       lisp-interaction-mode-hook
-                       ielm-mode-hook))
-       (lispy-hooks (append elispy-hooks
-                            '(lisp-mode-hook
-                              slime-repl-mode-hook
-                              clojure-mode-hook
-                              cider-repl-mode-hook
-                              inferior-lisp-mode-hook
-                              scheme-mode-hook
-                              inferior-scheme-mode-hook
-                              geiser-repl-mode-hook))))
-  (dolist (hook lispy-hooks)
-    (add-hook hook 'basis/lisp-setup))
-  (dolist (hook elispy-hooks)
-    (add-hook hook 'basis/emacs-lisp-setup)))
+(defun basis/init-emacs-lisp-eval-map ()
+  (setq basis/eval-defun-function 'eval-defun
+        basis/eval-last-sexp-function 'eval-last-sexp
+        basis/eval-region-function 'eval-region
+        basis/eval-buffer-function 'eval-buffer))
 
-(setq lisp-lambda-list-keyword-alignment t
-      lisp-lambda-list-keyword-parameter-alignment t
-      lisp-loop-forms-indentation 6)
+(dolist (hook '(emacs-lisp-mode-hook
+                lisp-interaction-mode-hook
+                ielm-mode-hook))
+  (add-hook hook 'basis/init-emacs-lisp-modes))
 
-;; emacs lisp ------------------------------------------------------------------
+(dolist (hook '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
+  (add-hook hook 'basis/init-emacs-lisp-eval-map))
 
 (dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (basis/define-keys mode
@@ -1348,6 +1411,11 @@
   (cider-turn-on-eldoc-mode))
 
 (defun basis/init-cider-mode ()
+  (setq basis/eval-defun-function 'cider-eval-defun-at-point
+        basis/eval-last-sexp-function 'cider-eval-last-sexp
+        basis/eval-buffer-function 'cider-eval-buffer
+        basis/eval-region-function 'cider-eval-region
+        basis/eval-file-function 'cider-eval-load-file)
   (cider-turn-on-eldoc-mode))
 
 (defun basis/setup-lein-path-for-mac ()
@@ -1538,7 +1606,11 @@
     (flycheck-mode 1))
   (setq fill-column 79)
   (setq tab-width 4)
-  (set (make-local-variable 'whitespace-line-column) 79))
+  (set (make-local-variable 'whitespace-line-column) 79)
+  (setq basis/eval-defun-function 'python-shell-send-defun
+        basis/eval-region-function 'python-shell-send-region
+        basis/eval-buffer-function 'python-shell-send-buffer
+        basis/eval-file-function 'python-shell-send-file))
 
 (defun basis/init-inferior-python-mode ()
   (subword-mode 1)
@@ -1549,7 +1621,12 @@
 
 ;; haskell ---------------------------------------------------------------------
 
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+(defun basis/init-haskell-mode ()
+  (setq basis/eval-defun-function 'inferior-haskell-send-decl
+        basis/eval-file-function 'inferior-haskell-load-file)
+  (turn-on-haskell-indentation))
+
+(add-hook 'haskell-mode-hook 'basis/init-haskell-mode)
 
 ;; javascript ------------------------------------------------------------------
 
@@ -1652,62 +1729,6 @@
 
 (with-eval-after-load 'cc-mode
   (define-key c-mode-base-map (kbd "C-j") 'c-context-line-break))
-
-;; eval map --------------------------------------------------------------------
-
-(defvar basis/eval-functions
-  '((emacs-lisp-mode
-     (defun     . eval-defun)
-     (last-sexp . eval-last-sexp)
-     (buffer    . eval-buffer)
-     (region    . eval-region))
-    (clojure-mode
-     (defun     . cider-eval-defun-at-point)
-     (last-sexp . cider-eval-last-sexp)
-     (buffer    . cider-eval-buffer)
-     (region    . cider-eval-region)
-     (file      . cider-eval-load-file))
-    (python-mode
-     (defun     . python-shell-send-defun)
-     (buffer    . python-shell-send-buffer)
-     (region    . python-shell-send-region)
-     (file      . python-shell-send-file))
-    (haskell-mode
-     (defun     . inferior-haskell-send-decl)
-     (file      . inferior-haskell-load-file))))
-
-(defun basis/do-eval (thing)
-  (cl-flet ((lookup (key list)
-              (cdr (assq key list))))
-    (let ((cmd (->> basis/eval-functions
-                 (lookup major-mode)
-                 (lookup thing))))
-      (if cmd
-          (call-interactively cmd)
-        (error "No function to eval '%s' for %s" thing major-mode)))))
-
-(defmacro basis/defevalmap (&rest defs)
-  (cl-flet ((make-eval-name (thing)
-              (intern (format "basis/do-eval-%s" thing))))
-    (let ((map (make-symbol "map")))
-      `(defvar basis/eval-map
-         (let ((,map (make-sparse-keymap)))
-           ,@(mapcar (lambda (def)
-                       (pcase-let* ((`(,key ,thing) def))
-                         `(progn
-                            (defun ,(make-eval-name thing) ()
-                              (interactive)
-                              (basis/do-eval ',thing))
-                            (define-key ,map ,key ',(make-eval-name thing)))))
-                     defs)
-           ,map)))))
-
-(basis/defevalmap
- ("l" last-sexp)
- ("d" defun)
- ("b" buffer)
- ("r" region)
- ("f" file))
 
 ;; evil ------------------------------------------------------------------------
 
