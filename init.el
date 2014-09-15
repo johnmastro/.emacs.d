@@ -36,14 +36,14 @@
 
 (package-initialize)
 
-;; Make sure every archive is present in the elpa/archives/ folder
-(let* ((archive-folder "~/.emacs.d/elpa/archives/")
-       (archive-folders (mapcar (lambda (archive)
-                                  (let ((name (car archive)))
-                                    (expand-file-name name archive-folder)))
-                                package-archives)))
-  (unless (cl-loop for folder in archive-folders
-                   always (file-exists-p folder))
+;; Make sure every archive is present in the elpa/archives/ directory
+(let* ((archive-root "~/.emacs.d/elpa/archives/")
+       (archive-dirs (mapcar (lambda (archive)
+                               (let ((name (car archive)))
+                                 (expand-file-name name archive-root)))
+                             package-archives)))
+  (unless (cl-loop for dir in archive-dirs
+                   always (file-exists-p dir))
     (package-refresh-contents)))
 
 ;; Ensure that everything specified here is installed
@@ -102,6 +102,7 @@
           projectile
           pyvenv
           redshank
+          rust-mode
           s
           simplezen
           skewer-mode
@@ -1627,6 +1628,28 @@
   (turn-on-haskell-indentation))
 
 (add-hook 'haskell-mode-hook 'basis/init-haskell-mode)
+
+;; rust ------------------------------------------------------------------------
+
+(defun basis/rust-set-compile-command ()
+  (unless (or (file-exists-p "Makefile")
+              (file-exists-p "makefile"))
+    (set (make-local-variable 'compile-command)
+         (if (file-exists-p "Cargo.toml")
+             "cargo build"
+           (format "rustc %s"
+                   (if buffer-file-name
+                       (shell-quote-argument buffer-file-name)
+                     ""))))))
+
+(defun basis/init-rust-mode ()
+  (subword-mode 1)
+  (basis/rust-set-compile-command))
+
+(add-hook 'rust-mode-hook 'basis/init-rust-mode)
+
+(with-eval-after-load 'rust-mode
+  (define-key rust-mode-map (kbd "RET") 'basis/electric-return))
 
 ;; javascript ------------------------------------------------------------------
 
