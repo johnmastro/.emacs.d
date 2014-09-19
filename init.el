@@ -197,7 +197,6 @@
       ediff-split-window-function 'split-window-horizontally
       line-number-mode t
       column-number-mode t
-      global-font-lock-mode 1
       imenu-auto-rescan t
       next-line-add-newlines t
       apropos-do-all t
