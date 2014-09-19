@@ -128,6 +128,8 @@ If BUFFER is nil, use the current buffer."
   (basis/insert-files (directory-files dir t (rx (1+ word)))
                       buffer))
 
+(defalias 'basis/concat-directory-files 'basis/insert-directory-files)
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun basis/kill-region-or-backward-word (arg)
