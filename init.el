@@ -425,6 +425,10 @@
 (global-set-key (kbd "M-t M-w") 'basis/transpose-windows)
 (global-set-key (kbd "M-t M-s") 'basis/toggle-window-split)
 
+;; More comfortable {next,previous}-error
+(global-set-key (kbd "M-g M-f") 'next-error)
+(global-set-key (kbd "M-g M-b") 'previous-error)
+
 ;; Grep
 (global-set-key (kbd "<f9>") 'rgrep)
 
@@ -544,7 +548,8 @@
   ((kbd "C-h 2")   'split-window-below)
   ((kbd "C-h 3")   'split-window-right)
   ((kbd "C-h r")   ctl-x-r-map)
-  ((kbd "C-h C-h") 'mark-paragraph))
+  ((kbd "C-h C-h") 'mark-paragraph)
+  ((kbd "C-h C-l") 'ibuffer))
 
 ;; find elisp map --------------------------------------------------------------
 
