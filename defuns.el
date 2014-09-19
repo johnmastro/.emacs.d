@@ -536,7 +536,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   "Move point to the first line representing a file."
   (interactive)
   (beginning-of-buffer)
-  (dired-next-line 2))
+  (dired-next-line (if dired-hide-details-mode 1 2)))
 
 (defun basis/dired-jump-to-bottom ()
   "Move point to the last line representing a file."
