@@ -790,9 +790,6 @@
         (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
         (calc-mode "V")))
 
-(let ((blue (solarized-find-color 'blue)))
-  (set-face-attribute 'guide-key/key-face nil :foreground blue))
-
 ;; key-chord -------------------------------------------------------------------
 
 (key-chord-mode 1)
@@ -1194,16 +1191,7 @@
 (with-eval-after-load 'helm
   (require 'helm-utils) ; For the `helm-selection-line' face
   (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-z") 'helm-select-action)
-  ;; Use Solarized's "yellow" (foreground) and "base02" (background) for
-  ;; highlighting selections
-  (set-face-attribute 'helm-selection nil
-                      :background (solarized-find-color 'base02)
-                      :underline nil)
-  (set-face-attribute 'helm-selection-line nil
-                      :foreground (solarized-find-color 'base02)
-                      :background (solarized-find-color 'yellow)
-                      :underline nil))
+  (define-key helm-map (kbd "C-z") 'helm-select-action))
 
 ;; hippie expand ---------------------------------------------------------------
 
