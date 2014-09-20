@@ -440,8 +440,6 @@
 ;; Mark commands
 (global-set-key (kbd "C-`") 'basis/push-mark-no-activate)
 (global-set-key (kbd "M-`") 'basis/jump-to-mark)
-(global-set-key
- [remap exchange-point-and-mark] 'basis/exchange-point-and-mark-no-activate)
 
 ;; Expand-region
 (global-set-key (kbd "M-=") 'er/expand-region)
