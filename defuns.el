@@ -121,12 +121,20 @@ If BUFFER is nil, use the current buffer."
     (with-current-buffer (get-buffer buffer)
       (mapc #'insert-file-contents files))))
 
-(defun basis/insert-directory-files (dir &optional buffer)
+(defun basis/insert-directory-files (dir &optional pattern)
   "Insert the contents of DIR's files into BUFFER.
-If BUFFER is nil, use the current buffer."
-  (interactive (list (ido-read-directory-name "Directory: ")))
-  (basis/insert-files (directory-files dir t (rx (1+ word)))
-                      buffer))
+If PATTERN is non-nil, only include matching files (via
+`file-expand-wildcards')."
+  (interactive
+   (list (ido-read-directory-name "Directory: ")
+         (when current-prefix-arg
+           (read-string "Pattern: "))))
+  (let ((files (file-expand-wildcards (expand-file-name (or pattern "*")
+                                                        dir)
+                                      t)))
+    (if files
+        (basis/insert-files files nil)
+      (message "No files matching '%s' in '%s'" pattern dir))))
 
 (defalias 'basis/concat-directory-files 'basis/insert-directory-files)
 
