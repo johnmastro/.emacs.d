@@ -391,8 +391,9 @@
 ;; Kill stuff
 (global-set-key (kbd "M-k") 'kill-sexp)
 (global-set-key (kbd "C-w") 'basis/kill-region-or-backward-word)
-(global-set-key (kbd "C-DEL") 'basis/kill-region-or-backward-word)
 (global-set-key (kbd "M-DEL") 'basis/kill-region-or-backward-word)
+(global-set-key (kbd "C-DEL") 'basis/kill-region-or-backward-word)
+(global-set-key (kbd "<C-backspace>") 'basis/kill-region-or-backward-word)
 (global-set-key [remap kill-whole-line] 'basis/kill-line-backward)
 (global-set-key (kbd "<C-delete>") 'basis/smart-kill-whole-line)
 (global-set-key (kbd "<M-delete>") 'basis/smart-kill-almost-whole-line)
@@ -1092,7 +1093,6 @@
 
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map
-    ((kbd "C-DEL")   'basis/eshell-kill-line-backward)
     ((kbd "S-DEL")   'basis/eshell-kill-line-backward)
     ((kbd "C-S-DEL") 'basis/eshell-kill-whole-line)))
 
@@ -1351,8 +1351,9 @@
     ((kbd "<M-left>")               'paredit-backward)
     ((kbd "M-k")                    'kill-sexp)
     ((kbd "C-w")                    'basis/paredit-kill-region-or-backward-word)
-    ((kbd "C-DEL")                  'basis/paredit-kill-region-or-backward-word)
     ((kbd "M-DEL")                  'basis/paredit-kill-region-or-backward-word)
+    ((kbd "C-DEL")                  'basis/paredit-kill-region-or-backward-word)
+    ((kbd "<C-backspace>")          'basis/paredit-kill-region-or-backward-word)
     ([remap backward-kill-sentence] 'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
                'basis/paredit-doublequote-space-p))
@@ -1529,14 +1530,15 @@
     (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
 
   (basis/define-keys sp-keymap
-    ((kbd "C-DEL")  'basis/sp-kill-region-or-backward-word)
-    ((kbd "M-DEL")  'basis/sp-kill-region-or-backward-word)
-    ((kbd "C-w")    'basis/sp-kill-region-or-backward-word)
-    ((kbd "M-k")    'sp-kill-sexp)
-    ((kbd "M-e")    'basis/maybe-sp-forward-sexp)
-    ((kbd "M-a")    'basis/maybe-sp-backward-sexp)
-    ((kbd "]")      'sp-up-sexp)
-    ((kbd "C-c ]")  'basis/insert-right-bracket)))
+    ((kbd "M-DEL")         'basis/sp-kill-region-or-backward-word)
+    ((kbd "C-DEL")         'basis/sp-kill-region-or-backward-word)
+    ((kbd "<C-backspace>") 'basis/sp-kill-region-or-backward-word)
+    ((kbd "C-w")           'basis/sp-kill-region-or-backward-word)
+    ((kbd "M-k")           'sp-kill-sexp)
+    ((kbd "M-e")           'basis/maybe-sp-forward-sexp)
+    ((kbd "M-a")           'basis/maybe-sp-backward-sexp)
+    ((kbd "]")             'sp-up-sexp)
+    ((kbd "C-c ]")         'basis/insert-right-bracket)))
 
 ;; flycheck --------------------------------------------------------------------
 
