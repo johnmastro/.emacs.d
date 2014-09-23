@@ -47,7 +47,7 @@
     (package-refresh-contents)))
 
 ;; Ensure that everything specified here is installed
-(let* ((basis/required-packages
+(let* ((required-packages
         '(ace-jump-mode
           ace-window
           ack-and-a-half
@@ -117,12 +117,12 @@
           yaml-mode
           yasnippet
           ))
-       (basis/uninstalled-packages
-        (cl-loop for pkg in basis/required-packages
+       (install-packages
+        (cl-loop for pkg in required-packages
                  unless (package-installed-p pkg) collect pkg)))
-  (when basis/uninstalled-packages
+  (when install-packages
     (package-refresh-contents)
-    (mapc #'package-install basis/uninstalled-packages)))
+    (mapc #'package-install install-packages)))
 
 ;; load some code --------------------------------------------------------------
 
@@ -339,9 +339,7 @@
 ;; key bindings ----------------------------------------------------------------
 
 (defun basis/init-modifiers-for-linux ()
-  (define-key key-translation-map
-    (kbd "<menu>")
-    'event-apply-hyper-modifier))
+  (define-key key-translation-map (kbd "<menu>") 'event-apply-hyper-modifier))
 
 (defun basis/init-modifiers-for-os-x ()
   (setq mac-command-modifier 'meta
@@ -1413,11 +1411,11 @@
         basis/eval-file-function 'cider-eval-load-file)
   (cider-turn-on-eldoc-mode))
 
-(defun basis/setup-lein-path-for-mac ()
+(defun basis/set-lein-command-for-mac ()
   (-when-let (lein (executable-find "lein"))
     (setq cider-lein-command lein)))
 
-(defun basis/setup-lein-path-for-cygwin ()
+(defun basis/set-lein-command-for-cygwin ()
   (let ((lein "~/bin/lein"))
     (when (file-exists-p lein)
       (setq cider-lein-command (expand-file-name lein)))))
@@ -1453,9 +1451,9 @@
 
 (with-eval-after-load 'cider
   (cond ((eq system-type 'darwin)
-         (basis/setup-lein-path-for-mac))
+         (basis/set-lein-command-for-mac))
         (basis/cygwin-p
-         (basis/setup-lein-path-for-cygwin)))
+         (basis/set-lein-command-for-cygwin)))
 
   (add-hook 'cider-repl-mode-hook 'basis/init-cider-repl-mode)
   (add-hook 'cider-mode-hook 'basis/init-cider-mode)
