@@ -1115,6 +1115,15 @@ FRAME defaults to the selected frame."
         (basis/python-nav-backward-sexp arg)
       (sp-backward-sexp arg))))
 
+(defun basis/sp-point-after-word-p (id action context)
+  "Like `sp-point-after-word-p' but special-case Python's raw strings."
+  (let ((result (sp-point-after-word-p id action context)))
+    (if (and (memq major-mode '(python-mode inferior-python-mode))
+             (member id '("'" "\"")))
+        (let ((raw-string (concat "\\([^\\sw\\s_]\\)r" (regexp-quote id))))
+          (and result (not (looking-back raw-string))))
+      result)))
+
 ;; evil ------------------------------------------------------------------------
 
 (require 'evil)

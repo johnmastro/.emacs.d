@@ -1519,7 +1519,7 @@
 
   (sp-pair "'"
            nil
-           :unless '(sp-point-after-word-p)
+           :unless '(basis/sp-point-after-word-p)
            :actions '(insert wrap autoskip))
 
   (sp-local-pair 'org-mode "=" "=" :actions '(wrap))
