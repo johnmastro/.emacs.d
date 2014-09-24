@@ -836,6 +836,15 @@
 
 (setq save-place-file "~/.emacs.d/places")
 
+;; savehist --------------------------------------------------------------------
+
+(require 'savehist)
+
+(setq savehist-additional-variables '(search-ring regexp-search-ring)
+      savehist-file "~/.emacs.d/history")
+
+(savehist-mode t)
+
 ;; ace-jump-mode ---------------------------------------------------------------
 
 (with-eval-after-load 'ace-jump-mode
