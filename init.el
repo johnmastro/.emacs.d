@@ -9,7 +9,7 @@
       '(menu-bar-mode tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode))
 
 ;; Make sure some directories exist
-(dolist (dir '("backups/" "autosaves/" "tmp/"))
+(dolist (dir '("var/" "tmp/"))
   (let ((path (expand-file-name dir "~/.emacs.d/")))
     (unless (file-exists-p path)
       (make-directory path))))
@@ -202,7 +202,9 @@
       apropos-do-all t
       custom-file "~/.emacs.d/custom.el"
       scroll-preserve-screen-position t
-      delete-by-moving-to-trash t)
+      delete-by-moving-to-trash t
+      server-auth-dir "~/.emacs.d/var/server/"
+      bookmark-default-file "~/.emacs.d/var/bookmarks")
 
 (setq-default indent-tabs-mode nil
               fill-column 80
@@ -243,8 +245,9 @@
 
 ;; Backups, autosaves, and temporary files
 (setq backup-by-copying t
-      backup-directory-alist `((".*" . "~/.emacs.d/backups/"))
-      auto-save-file-name-transforms `((".*" "~/.emacs.d/autosaves/" t))
+      backup-directory-alist `((".*" . "~/.emacs.d/var/backups/"))
+      auto-save-file-name-transforms `((".*" "~/.emacs.d/var/autosaves/" t))
+      auto-save-list-file-prefix "~/.emacs.d/var/auto-save-list/.saves-"
       temporary-file-directory "~/.emacs.d/tmp/")
 
 ;; Automatically refresh buffers
@@ -258,7 +261,7 @@
             kill-buffer-query-functions))
 
 ;; URL
-(setq url-configuration-directory "~/.emacs.d/.url/")
+(setq url-configuration-directory "~/.emacs.d/var/url/")
 
 ;; No blinking please
 (blink-cursor-mode -1)
@@ -697,7 +700,7 @@
 (recentf-mode 1)
 
 (setq recentf-max-saved-items 50
-      recentf-save-file "~/.emacs.d/.recentf"
+      recentf-save-file "~/.emacs.d/var/recentf"
       recentf-exclude '(file-remote-p basis/git-commit-msg-p))
 
 ;; TRAMP -----------------------------------------------------------------------
@@ -707,6 +710,8 @@
                (not basis/cygwin-p))
           "plinkx"
         "sshx"))
+
+(setq tramp-persistency-file-name "~/.emacs.d/var/tramp/")
 
 ;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
 (when basis/cygwin-p
@@ -823,6 +828,8 @@
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 
+(setq mc/list-file "~/.emacs.d/var/mc-lists.el")
+
 (with-eval-after-load 'multiple-cursors
   (add-to-list 'mc/temporarily-disabled-minor-modes 'idle-highlight-mode)
   ;; Make RET exit multiple-cursors-mode in the terminal too
@@ -834,14 +841,14 @@
 
 (setq-default save-place t)
 
-(setq save-place-file "~/.emacs.d/places")
+(setq save-place-file "~/.emacs.d/var/places")
 
 ;; savehist --------------------------------------------------------------------
 
 (require 'savehist)
 
 (setq savehist-additional-variables '(search-ring regexp-search-ring)
-      savehist-file "~/.emacs.d/history")
+      savehist-file "~/.emacs.d/var/history")
 
 (savehist-mode t)
 
@@ -915,7 +922,7 @@
 
 ;; elfeed ----------------------------------------------------------------------
 
-(setq elfeed-db-directory "~/.emacs.d/.elfeed")
+(setq elfeed-db-directory "~/.emacs.d/var/elfeed/")
 
 (when (file-exists-p "~/.emacs.d/feeds.el")
   (setq elfeed-feeds (basis/elfeed-load-feeds "~/.emacs.d/feeds.el")))
@@ -1098,6 +1105,8 @@
 
 ;; eshell ----------------------------------------------------------------------
 
+(setq eshell-directory-name "~/.emacs.d/var/eshell/")
+
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map
     ((kbd "S-DEL")   'basis/eshell-kill-line-backward)
@@ -1130,7 +1139,7 @@
       ido-use-faces nil
       ido-max-prospects 10
       ido-ignore-extensions t
-      ido-save-directory-list-file "~/.emacs.d/.ido.last")
+      ido-save-directory-list-file "~/.emacs.d/var/ido.last")
 
 (ido-everywhere 1)
 (ido-ubiquitous-mode 1)
@@ -1156,7 +1165,7 @@
 
 ;; smex ------------------------------------------------------------------------
 
-(setq smex-save-file "~/.emacs.d/.smex-items")
+(setq smex-save-file "~/.emacs.d/var/smex-items")
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
@@ -1228,8 +1237,8 @@
 
 (setq projectile-keymap-prefix (kbd "C-h p")
       projectile-completion-system 'ido
-      projectile-known-projects-file "~/.emacs.d/.projectile-bookmarks.eld"
-      projectile-cache-file "~/.emacs.d/.projectile.cache")
+      projectile-known-projects-file "~/.emacs.d/var/projectile-bookmarks.eld"
+      projectile-cache-file "~/.emacs.d/var/projectile.cache")
 
 ;; Projectile defaults to native indexing on Windows, but if we have Cygwin
 ;; set up we can use "alien".
