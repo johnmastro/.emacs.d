@@ -411,8 +411,8 @@
 (browse-kill-ring-default-keybindings)
 
 ;; Join lines
-(global-set-key (kbd "s-j") 'basis/join-next-line)
-(global-set-key (kbd "s-J") 'join-line)
+(global-set-key (kbd "C-c C-j") 'basis/join-next-line)
+(global-set-key (kbd "C-c j") 'basis/join-next-line)
 
 ;; Moves lines or regions
 (global-set-key (kbd "<M-s-up>") 'move-text-up)
