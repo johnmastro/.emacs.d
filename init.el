@@ -1964,6 +1964,8 @@
   ((kbd "C-c c") 'org-capture)
   ((kbd "C-c l") 'org-store-link))
 
+(add-hook 'org-mode-hook 'basis/maybe-enable-flyspell)
+
 ;; org-babel + clojure ---------------------------------------------------------
 
 (with-eval-after-load 'org
