@@ -25,15 +25,19 @@ there, to the beginning of the line."
      (if reg-p (region-beginning) (line-beginning-position))
      (if reg-p (region-end) (line-end-position)))))
 
-(defun basis/insert-enough-dashes (&optional arg)
+(defun basis/insert-enough-dashes (&optional goal char)
   "Insert enough dashes to reach a specific column.
-With a prefix arg, prompt for the target column. Otherwise use a
-default of 80."
-  (interactive "P")
-  (let* ((goal (if arg (read-number "Target column: " 80) 80))
+With a prefix arg, prompt for the target column and the character
+to use. Otherwise use a default of 80 and char ?-."
+  (interactive
+   (when current-prefix-arg
+     (list (read-number "Target column: ")
+           (read-char "Character: "))))
+  (let* ((goal (or goal 80))
+         (char (or char ?-))
          (pos (- (point) (line-beginning-position)))
          (enough (- goal pos)))
-    (insert (make-string enough ?-))))
+    (insert (make-string enough char))))
 
 (defun basis/join-next-line ()
   "Join the next line up to the current one."
