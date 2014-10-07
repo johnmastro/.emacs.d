@@ -1448,7 +1448,8 @@ many windows."
 
 (defun basis/recapitalize-sql-buffer (style)
   "Recapitalize the current buffer to STYLE (caps or none)."
-  (interactive "SStyle: ")
+  (interactive
+   (list (intern (ido-completing-read "Style: " '("caps" "none")))))
   (unless (memq style '(caps none))
     (error "Unknown capitalization style '%s'" style))
   (save-excursion
