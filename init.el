@@ -548,8 +548,7 @@
   ((kbd "C-h 2")   'split-window-below)
   ((kbd "C-h 3")   'split-window-right)
   ((kbd "C-h r")   ctl-x-r-map)
-  ((kbd "C-h C-h") 'mark-paragraph)
-  ((kbd "C-h C-l") 'ibuffer))
+  ((kbd "C-h C-h") 'mark-paragraph))
 
 ;; find elisp map --------------------------------------------------------------
 
