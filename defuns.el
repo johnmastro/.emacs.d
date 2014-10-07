@@ -327,23 +327,22 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 ;; file utilities --------------------------------------------------------------
 
-(defun basis/rename-current-buffer-file ()
-  "Rename the current buffer and the file it's visiting."
-  (interactive)
+(defun basis/rename-current-buffer-file (destination)
+  (interactive "FDestination: ")
   (let ((name (buffer-name))
-        (filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (error "Buffer '%s' is not visiting a file" name)
-      (let ((new-name (read-file-name "New name: " filename)))
-        (if (get-buffer new-name)
-            (error "A buffer named '%s' already exists" new-name)
-          (progn
-            (rename-file filename new-name 1)
-            (rename-buffer new-name)
-            (set-visited-file-name new-name)
-            (set-buffer-modified-p nil)
-            (message "File '%s' renamed to '%s'"
-                     name (file-name-nondirectory new-name))))))))
+        (file (buffer-file-name)))
+    (cond ((not (and file (file-exists-p file)))
+           (error "Buffer '%s' is not visiting a file" file))
+          ((get-buffer destination)
+           (error "A buffer named '%s' already exists"))
+          (t
+           (rename-file file destination 1)
+           (rename-buffer destination)
+           (set-visited-file-name destination)
+           (set-buffer-modified-p nil)
+           (message "File '%s' renamed to '%s'"
+                    name
+                    (file-name-nondirectory destination))))))
 
 (defun basis/delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
@@ -1049,6 +1048,16 @@ FRAME defaults to the selected frame."
 (defun basis/enable-company-clang ()
   "Enable `company-clang' for the current buffer."
   (add-to-list 'company-backends 'company-clang))
+
+(defun basis/kill-frame-or-terminal ()
+  (interactive)
+  (let ((msg "Attempt to delete the sole visible or iconified frame"))
+    (condition-case err
+        (delete-frame)
+      (error
+       (when (and (string= (error-message-string err) msg)
+                  (y-or-n-p "Quit Emacs?"))
+         (save-buffers-kill-terminal))))))
 
 ;; paredit ---------------------------------------------------------------------
 
