@@ -422,23 +422,33 @@ buffer visiting a directory."
   "Open each of FILES in external programs."
   (mapc #'basis/open-file files))
 
-(defun basis/dired-open-files ()
-  "Open marked file(s) in external program(s).
-If no files are marked, default to the file under point."
-  (interactive)
-  (if (eq major-mode 'dired-mode)
-      (let* ((files (dired-get-marked-files))
-             (count (length files)))
-        (when (or (<= count 5)
-                  (y-or-n-p (format "Really open %s files?" count)))
-          (basis/open-files files)))
-    (error "Not in a dired-mode buffer")))
-
 (defun basis/windows->unix (path)
   "Convert a path from Windows-style to UNIX-style."
   (->> path
     (replace-regexp-in-string "\\\\" "/")
     (replace-regexp-in-string "[a-zA-Z]:" "")))
+
+(defun basis/emacs-file (name)
+  (let ((path (expand-file-name name user-emacs-directory)))
+    (unless (file-exists-p path)
+      (make-directory (file-name-directory path) t))
+    path))
+
+(defun basis/read-file (file)
+  "Read a Lisp form from FILE."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (read (current-buffer))))
+
+(defun basis/file-modtime (file)
+  "Return FILE's modification time (in seconds since 1970-01-01)."
+  (if (file-exists-p file)
+      (time-to-seconds (nth 5 (file-attributes file)))
+    (error "No such file '%s'" file)))
+
+(defun basis/modtime-newer-p (file1 file2)
+  "Return t if FILE1 was modified more recently than FILE2."
+  (> (basis/file-modtime file1) (basis/file-modtime file2)))
 
 ;; key binding utilities -------------------------------------------------------
 
@@ -556,6 +566,42 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   (end-of-buffer)
   (dired-next-line -1))
 
+(defun basis/dired-open-files ()
+  "Open marked file(s) in external program(s).
+If no files are marked, default to the file under point."
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let* ((files (dired-get-marked-files))
+             (count (length files)))
+        (when (or (<= count 5)
+                  (y-or-n-p (format "Really open %s files?" count)))
+          (basis/open-files files)))
+    (error "Not in a dired-mode buffer")))
+
+(defvar basis/dired-sorting-options
+  '(("modification" . "c")
+    ("access"       . "u")
+    ("size"         . "S")
+    ("extension"    . "X")
+    ("name"         . ""))
+  "Sorting options and their associated ls switches.")
+
+(defun basis/dired-sort-by (what)
+  "Sort this `dired-mode' buffer by WHAT.
+WHAT must be an option in `dired-sorting-options'."
+  (interactive
+   (list (ido-completing-read "Sort by: "
+                              (mapcar #'car basis/dired-sorting-options)
+                              nil
+                              t)))
+  ;; This assumes we can slap the sort option on the end of
+  ;; `dired-listing-switches'. It works with my current setup (and the default
+  ;; value) but is fragile and unsatisfactory.
+  (let ((opt (cdr (assoc what basis/dired-sorting-options))))
+    (if opt
+        (dired-sort-other (concat dired-listing-switches opt))
+      (error "Don't know how to sort by '%s'" what))))
+
 ;; direx -----------------------------------------------------------------------
 
 ;; `direx' includes a package `direx-project', which implements its own project
@@ -571,8 +617,7 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   (-if-let (buffer (basis/direx-find-project-root-noselect))
       (progn (direx:maybe-goto-current-buffer-item buffer)
              buffer)
-    ;; Or fall back to the current buffer's directory and/or
-    ;; `default-directory'?
+    ;; Or fall back to `default-directory'?
     (error "Not in a project")))
 
 (defun basis/direx-jump-to-project-root ()
@@ -807,12 +852,6 @@ Default to `default-directory'."
   (interactive "P")
   (basis/ack-somewhere arg default-directory))
 
-(defun basis/read-file (file)
-  "Read a Lisp form from FILE."
-  (with-temp-buffer
-    (insert-file-contents file)
-    (read (current-buffer))))
-
 (defun basis/evil-ace-window (arg)
   "Exit insert state and run `ace-window'.
 If `evil-mode' isn't active, or the buffer isn't in insert state,
@@ -911,16 +950,6 @@ If no keymap is found, return nil."
   "Kill the currently active buffer."
   (interactive)
   (kill-buffer (current-buffer)))
-
-(defun basis/file-modtime (file)
-  "Return FILE's modification time (in seconds since 1970-01-01)."
-  (if (file-exists-p file)
-      (time-to-seconds (nth 5 (file-attributes file)))
-    (error "No such file '%s'" file)))
-
-(defun basis/modtime-newer-p (file1 file2)
-  "Return t if FILE1 was modified more recently than FILE2."
-  (> (basis/file-modtime file1) (basis/file-modtime file2)))
 
 (defun basis/ido-sort-files-by-modtime ()
   "Sort ido matches my modification time, descending."
