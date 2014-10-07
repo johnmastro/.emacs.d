@@ -370,9 +370,11 @@
 (winner-mode 1)
 
 ;; Newlines
-(global-set-key (kbd "C-m") 'newline-and-indent)
+(global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "S-RET") 'basis/open-line-below)
+(global-set-key (kbd "<S-return>") 'basis/open-line-below)
 (global-set-key (kbd "C-S-RET") 'basis/open-line-above)
+(global-set-key (kbd "<C-S-return>") 'basis/open-line-above)
 
 ;; Whitespace
 (global-set-key (kbd "M-\\") 'cycle-spacing)
