@@ -7,7 +7,7 @@
 
 ;; misc. editing utilities -----------------------------------------------------
 
-(defun beginning-of-line-or-indentation ()
+(defun basis/beginning-of-line-or-indentation ()
   "Smarter `move-beginning-of-line'.
 Go back to the first non-whitespace character or, if already
 there, to the beginning of the line."

@@ -378,7 +378,7 @@
 (global-set-key (kbd "M-\\") 'cycle-spacing)
 
 ;; Clever C-a
-(global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
+(global-set-key (kbd "C-a") 'basis/beginning-of-line-or-indentation)
 
 ;; Movement by sentence (I use the forward- and backward-sexp commands from
 ;; Paredit and Smartparens on M-a and M-e).
