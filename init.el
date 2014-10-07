@@ -511,6 +511,8 @@
 
 ;; Kill frames with C-x C-c
 (global-set-key (kbd "C-x C-c") 'delete-frame)
+;; Kill Emacs with M-x sayonara
+(defalias 'sayonara 'save-buffers-kill-terminal)
 
 ;; Google stuff
 (global-set-key (kbd "C-c g") 'basis/google)
@@ -625,11 +627,6 @@
  :buffer    "b"
  :region    "r"
  :file      "f")
-
-;; aliases ---------------------------------------------------------------------
-
-(defalias 'qrr 'query-replace-regexp)
-(defalias 'sayonara 'save-buffers-kill-terminal)
 
 ;; tmux ------------------------------------------------------------------------
 
