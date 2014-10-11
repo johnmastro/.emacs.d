@@ -1,4 +1,4 @@
-;;; init.el        -*- coding: utf-8; -*-
+;;; init.el        -*- coding: utf-8; lexical-binding: t -*-
 
 (eval-when-compile (require 'cl-lib))
 
@@ -1308,7 +1308,11 @@
   ;; Paredit is enabled by `basis/init-lisp-generic'
   (elisp-slime-nav-mode t)
   (basis/set-up-hippie-expand-for-elisp)
-  (turn-on-eldoc-mode))
+  (turn-on-eldoc-mode)
+  ;; Normally `lexical-binding' should be set within a file, but that doesn't
+  ;; work for *scratch* and *ielm*
+  (when (member (buffer-name) '("*scratch*" "*ielm*"))
+    (setq lexical-binding t)))
 
 (defun basis/init-emacs-lisp-eval-map ()
   (setq basis/eval-defun-function 'eval-defun
