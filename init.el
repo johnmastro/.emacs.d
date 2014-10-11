@@ -236,8 +236,10 @@
 
 ;; Don't use CRLF on remote Unix machines
 (defun basis/maybe-set-coding ()
-  (when (and buffer-file-name
-             (string-prefix-p "/plinkx:" buffer-file-name))
+  (when (and (eq system-type 'windows-nt)
+             buffer-file-name
+             (or (string-match-p "\\`/sshx?:" buffer-file-name)
+                 (string-match-p "\\`/plinkx?:" buffer-file-name)))
     (set-buffer-file-coding-system 'utf-8-unix)))
 
 (when (eq system-type 'windows-nt)
