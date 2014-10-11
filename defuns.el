@@ -347,8 +347,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 (defun basis/delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
   (interactive)
-  (let ((name (buffer-name))
-        (buffer (current-buffer))
+  (let ((buffer (current-buffer))
         (filename (buffer-file-name)))
     (if (not (and filename (file-exists-p filename)))
         (ido-kill-buffer)
