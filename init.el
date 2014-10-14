@@ -1592,10 +1592,8 @@
 
   ;; Keys for the errors buffer
   (basis/define-keys flycheck-error-list-mode-map
-    ((kbd "n")   'compilation-next-error)
-    ((kbd "p")   'compilation-previous-error)
-    ((kbd "M-n") 'next-error)
-    ((kbd "M-p") 'previous-error)))
+    ((kbd "n") 'flycheck-error-list-next-error)
+    ((kbd "p") 'flycheck-error-list-previous-error)))
 
 ;; python ----------------------------------------------------------------------
 
