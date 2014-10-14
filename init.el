@@ -1328,6 +1328,8 @@
 (dolist (hook '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
   (add-hook hook 'basis/init-emacs-lisp-eval-map))
 
+(add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
+
 (dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (basis/define-keys mode
     ((kbd "<f5>") 'basis/eval-last-sexp)
