@@ -204,7 +204,8 @@
       scroll-preserve-screen-position t
       delete-by-moving-to-trash t
       server-auth-dir "~/.emacs.d/var/server/"
-      bookmark-default-file "~/.emacs.d/var/bookmarks")
+      bookmark-default-file "~/.emacs.d/var/bookmarks"
+      load-prefer-newer t)
 
 (setq-default indent-tabs-mode nil
               fill-column 80
