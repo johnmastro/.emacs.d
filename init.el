@@ -513,7 +513,7 @@
 (global-set-key (kbd "M-c") 'basis/capitalize-something)
 
 ;; Kill frames with C-x C-c
-(global-set-key (kbd "C-x C-c") 'delete-frame)
+(global-set-key (kbd "C-x C-c") 'basis/kill-frame-or-terminal)
 ;; Kill Emacs with M-x sayonara
 (defalias 'sayonara 'save-buffers-kill-terminal)
 

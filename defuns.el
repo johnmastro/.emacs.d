@@ -1048,15 +1048,15 @@ FRAME defaults to the selected frame."
   "Enable `company-clang' for the current buffer."
   (add-to-list 'company-backends 'company-clang))
 
-(defun basis/kill-frame-or-terminal ()
-  (interactive)
-  (let ((msg "Attempt to delete the sole visible or iconified frame"))
-    (condition-case err
-        (delete-frame)
-      (error
-       (when (and (string= (error-message-string err) msg)
-                  (y-or-n-p "Quit Emacs?"))
-         (save-buffers-kill-terminal))))))
+(defun basis/kill-frame-or-terminal (&optional arg)
+  "Kill the current frame or session.
+If there is more than one live frame, close the current one.
+Otherwise kill the current session. If optional ARG is non-nil,
+kill the current session even if there are multiple frames."
+  (interactive "P")
+  (if (or arg (= (length (frame-list)) 1))
+      (save-buffers-kill-terminal)
+    (delete-frame)))
 
 ;; paredit ---------------------------------------------------------------------
 
