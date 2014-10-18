@@ -361,7 +361,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   ;; Used in `recentf-exclude'
   (string= "COMMIT_EDITMSG" (file-name-nondirectory file)))
 
-(defun basis/recentf-ido-find-file ()
+(defun basis/ido-recentf ()
   "Find recently open files using ido and recentf."
   (interactive)
   (let* ((list (mapcar #'abbreviate-file-name recentf-list))
@@ -465,7 +465,10 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   "Define multiple key bindings for KEYMAP."
   `(progn
      ,@(mapcar (lambda (keydef)
-                 (pcase-let ((`(,key ,def) keydef))
+                 (let ((key (if (vectorp (car keydef))
+                                (car keydef)
+                              (read-kbd-macro (car keydef))))
+                       (def (cadr keydef)))
                    `(define-key ,keymap ,key ,def)))
                keydefs)))
 

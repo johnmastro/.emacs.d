@@ -373,11 +373,12 @@
 (winner-mode 1)
 
 ;; Newlines
-(global-set-key (kbd "RET") 'newline-and-indent)
-(global-set-key (kbd "S-RET") 'basis/open-line-below)
-(global-set-key (kbd "<S-return>") 'basis/open-line-below)
-(global-set-key (kbd "C-S-RET") 'basis/open-line-above)
-(global-set-key (kbd "<C-S-return>") 'basis/open-line-above)
+(basis/define-keys global-map
+  ("RET"          'newline-and-indent)
+  ("S-RET"        'basis/open-line-below)
+  ("<S-return>"   'basis/open-line-below)
+  ("C-S-RET"      'basis/open-line-above)
+  ("<C-S-return>" 'basis/open-line-above))
 
 ;; Whitespace
 (global-set-key (kbd "M-\\") 'cycle-spacing)
@@ -395,22 +396,24 @@
 (global-set-key (kbd "M-p") 'backward-paragraph)
 
 ;; Kill stuff
-(global-set-key (kbd "M-k") 'kill-sexp)
-(global-set-key (kbd "C-w") 'basis/kill-region-or-backward-word)
-(global-set-key (kbd "M-DEL") 'basis/kill-region-or-backward-word)
-(global-set-key (kbd "C-DEL") 'basis/kill-region-or-backward-word)
-(global-set-key (kbd "<C-backspace>") 'basis/kill-region-or-backward-word)
-(global-set-key [remap kill-whole-line] 'basis/kill-line-backward)
-(global-set-key (kbd "<C-delete>") 'basis/smart-kill-whole-line)
-(global-set-key (kbd "<M-delete>") 'basis/smart-kill-almost-whole-line)
-(global-set-key (kbd "ESC C-DEL") 'backward-kill-sexp)
-(global-set-key (kbd "ESC M-DEL") 'backward-kill-sexp)
+(basis/define-keys global-map
+  ("M-k"                   'kill-sexp)
+  ("C-w"                   'basis/kill-region-or-backward-word)
+  ("M-DEL"                 'basis/kill-region-or-backward-word)
+  ("C-DEL"                 'basis/kill-region-or-backward-word)
+  ("<C-backspace>"         'basis/kill-region-or-backward-word)
+  ([remap kill-whole-line] 'basis/kill-line-backward)
+  ("<C-delete>"            'basis/smart-kill-whole-line)
+  ("<M-delete>"            'basis/smart-kill-almost-whole-line)
+  ("ESC C-DEL"             'backward-kill-sexp)
+  ("ESC M-DEL"             'backward-kill-sexp))
 
 ;; Copy stuff
-(global-set-key (kbd "M-w") 'basis/kill-ring-save-something)
-(global-set-key (kbd "<f2>") 'basis/clipboard-save-something)
-(global-set-key (kbd "<M-f2>") 'basis/kill-ring-save-buffer)
-(global-set-key (kbd "s-w") 'basis/kill-ring-save-indented)
+(basis/define-keys global-map
+  ("M-w"    'basis/kill-ring-save-something)
+  ("<f2>"   'basis/clipboard-save-something)
+  ("<M-f2>" 'basis/kill-ring-save-buffer)
+  ("s-w"    'basis/kill-ring-save-indented))
 
 ;; Browse the kill ring with M-y
 (browse-kill-ring-default-keybindings)
@@ -424,13 +427,16 @@
 (global-set-key (kbd "<M-s-down>") 'move-text-down)
 
 ;; Transpose stuff with M-t
-(global-unset-key (kbd "M-t"))
-(global-set-key (kbd "M-t l") 'transpose-lines)
-(global-set-key (kbd "M-t w") 'transpose-words)
-(global-set-key (kbd "M-t s") 'transpose-sexps)
-(global-set-key (kbd "M-t c") 'transpose-chars)
-(global-set-key (kbd "M-t M-w") 'basis/transpose-windows)
-(global-set-key (kbd "M-t M-s") 'basis/toggle-window-split)
+(define-prefix-command 'basis/transposition-map)
+(global-set-key (kbd "M-t") 'basis/transposition-map)
+
+(basis/define-keys basis/transposition-map
+  ("l"   'transpose-lines)
+  ("w"   'transpose-words)
+  ("s"   'transpose-sexps)
+  ("c"   'transpose-chars)
+  ("M-w" 'basis/transpose-windows)
+  ("M-s" 'basis/toggle-window-split))
 
 ;; More comfortable {next,previous}-error
 (global-set-key (kbd "M-g M-f") 'next-error)
@@ -481,10 +487,11 @@
 (global-set-key (kbd "M-g M-g") 'basis/goto-line-with-numbers)
 
 ;; Movement by sexp
-(global-set-key (kbd "M-e") 'forward-sexp)
-(global-set-key (kbd "M-a") 'backward-sexp)
-(global-set-key (kbd "<M-right>") 'forward-sexp)
-(global-set-key (kbd "<M-left>") 'backward-sexp)
+(basis/define-keys global-map
+  ("M-e"       'forward-sexp)
+  ("M-a"       'backward-sexp)
+  ("<M-right>" 'forward-sexp)
+  ("<M-left>"  'backward-sexp))
 
 ;; M-x shell
 (global-set-key (kbd "C-c RET") 'shell)
@@ -500,7 +507,7 @@
 (global-set-key (kbd "C-c m") 'execute-extended-command)
 
 ;; recetf+ido
-(global-set-key (kbd "C-x C-r") 'basis/recentf-ido-find-file)
+(global-set-key (kbd "C-x C-r") 'basis/ido-recentf)
 
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including, the ARGth occurrence of CHAR.")
@@ -508,9 +515,10 @@
 (global-set-key (kbd "M-Z") 'zap-to-char)
 
 ;; Change word case
-(global-set-key (kbd "M-u") 'basis/upcase-something)
-(global-set-key (kbd "M-l") 'basis/downcase-something)
-(global-set-key (kbd "M-c") 'basis/capitalize-something)
+(basis/define-keys global-map
+  ("M-u" 'basis/upcase-something)
+  ("M-l" 'basis/downcase-something)
+  ("M-c" 'basis/capitalize-something))
 
 ;; Kill frames with C-x C-c
 (global-set-key (kbd "C-x C-c") 'basis/kill-frame-or-terminal)
@@ -524,10 +532,11 @@
 (global-set-key (kbd "C-x p") 'proced)
 
 ;; C-v et al. are uncomfortable on my MBP
-(global-set-key (kbd "<s-up>") 'scroll-up-command)
-(global-set-key (kbd "<s-down>") 'scroll-down-command)
-(global-set-key (kbd "<M-s-up>") 'scroll-other-window)
-(global-set-key (kbd "<M-s-down>") 'scroll-other-window-down)
+(basis/define-keys global-map
+  ("<s-up>"     'scroll-up-command)
+  ("<s-down>"   'scroll-down-command)
+  ("<M-s-up>"   'scroll-other-window)
+  ("<M-s-down>" 'scroll-other-window-down))
 
 ;; Previous/next buffer
 (global-set-key (kbd "<C-prior>") 'previous-buffer)
@@ -541,21 +550,20 @@
 (global-set-key (kbd "C-h") 'basis/h-map)
 (global-set-key (kbd "M-h") 'basis/h-map)
 
-(basis/define-keys global-map
-  ((kbd "C-h a")   'beginning-of-defun)
-  ((kbd "C-h e")   'end-of-defun)
-  ((kbd "C-h f")   'ido-find-file)
-  ((kbd "C-h b")   'ido-switch-buffer)
-  ((kbd "C-h g")   'magit-status)
-  ((kbd "C-h C-k") 'basis/kill-this-buffer)
-  ((kbd "<f10>")   'magit-status)
-  ((kbd "C-h i")   'idomenu)
-  ((kbd "C-h 0")   'delete-window)
-  ((kbd "C-h 1")   'delete-other-windows)
-  ((kbd "C-h 2")   'split-window-below)
-  ((kbd "C-h 3")   'split-window-right)
-  ((kbd "C-h r")   ctl-x-r-map)
-  ((kbd "C-h C-h") 'mark-paragraph))
+(basis/define-keys basis/h-map
+  ("a"   'beginning-of-defun)
+  ("e"   'end-of-defun)
+  ("f"   'ido-find-file)
+  ("b"   'ido-switch-buffer)
+  ("g"   'magit-status)
+  ("C-k" 'basis/kill-this-buffer)
+  ("i"   'idomenu)
+  ("0"   'delete-window)
+  ("1"   'delete-other-windows)
+  ("2"   'split-window-below)
+  ("3"   'split-window-right)
+  ("r"   ctl-x-r-map)
+  ("C-h" 'mark-paragraph))
 
 ;; find elisp map --------------------------------------------------------------
 
@@ -568,17 +576,18 @@
   (interactive)
   (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
 
-(global-set-key (kbd "<f1> e c") 'finder-commentary)
-(global-set-key (kbd "<f1> e e") 'view-echo-area-messages)
-(global-set-key (kbd "<f1> e f") 'find-function)
-(global-set-key (kbd "<f1> e F") 'find-face-definition)
-(global-set-key (kbd "<f1> e i") 'info-apropos)
-(global-set-key (kbd "<f1> e k") 'find-function-on-key)
-(global-set-key (kbd "<f1> e l") 'find-library)
-(global-set-key (kbd "<f1> e s") 'basis/scratch!)
-(global-set-key (kbd "<f1> e v") 'find-variable)
-(global-set-key (kbd "<f1> e V") 'apropos-value)
-(global-set-key (kbd "<f1> e a") 'helm-apropos)
+(basis/define-keys lisp-find-map
+  ("c" 'finder-commentary)
+  ("e" 'view-echo-area-messages)
+  ("f" 'find-function)
+  ("F" 'find-face-definition)
+  ("i" 'info-apropos)
+  ("k" 'find-function-on-key)
+  ("l" 'find-library)
+  ("s" 'basis/scratch!)
+  ("v" 'find-variable)
+  ("V" 'apropos-value)
+  ("a" 'helm-apropos))
 
 ;; eval map --------------------------------------------------------------------
 
@@ -724,10 +733,10 @@
 
 (with-eval-after-load 'help-mode
   (basis/define-keys help-mode-map
-    ((kbd "n") 'next-line)
-    ((kbd "p") 'previous-line)
-    ((kbd "b") 'help-go-back)
-    ((kbd "f") 'help-go-forward)))
+    ("n" 'next-line)
+    ("p" 'previous-line)
+    ("b" 'help-go-back)
+    ("f" 'help-go-forward)))
 
 ;; man and woman ---------------------------------------------------------------
 
@@ -744,10 +753,11 @@
 ;; isearch ---------------------------------------------------------------------
 
 ;; Regexp search by default
-(global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-r") 'isearch-backward-regexp)
-(global-set-key (kbd "C-M-s") 'isearch-forward)
-(global-set-key (kbd "C-M-r") 'isearch-backward)
+(basis/define-keys global-map
+  ("C-s"   'isearch-forward-regexp)
+  ("C-r"   'isearch-backward-regexp)
+  ("C-M-s" 'isearch-forward)
+  ("C-M-r" 'isearch-backward))
 
 ;; Like C-w but the current region or symbol
 (define-key isearch-mode-map (kbd "C-t") 'basis/isearch-yank-something)
@@ -825,9 +835,10 @@
 
 ;; multiple-cursors ------------------------------------------------------------
 
-(global-set-key (kbd "M-]") 'mc/mark-next-like-this)
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(basis/define-keys global-map
+  ("M-]" 'mc/mark-next-like-this)
+  ("C->" 'mc/mark-next-like-this)
+  ("C-<" 'mc/mark-previous-like-this))
 
 (setq mc/list-file "~/.emacs.d/var/mc-lists.el")
 
@@ -858,9 +869,10 @@
 (with-eval-after-load 'ace-jump-mode
   (ace-jump-mode-enable-mark-sync))
 
-(global-set-key (kbd "M-SPC") 'ace-jump-mode)
-(global-set-key (kbd "s-SPC") 'ace-jump-mode)
-(global-set-key (kbd "C-h SPC") 'ace-jump-mode-pop-mark)
+(basis/define-keys global-map
+  ("M-SPC"   'ace-jump-mode)
+  ("s-SPC"   'ace-jump-mode)
+  ("C-h SPC" 'ace-jump-mode-pop-mark))
 
 ;; ace-window ------------------------------------------------------------------
 
@@ -941,6 +953,8 @@
 
 ;; magit -----------------------------------------------------------------------
 
+(global-set-key (kbd "<f10>") 'magit-status)
+
 (defadvice magit-status (around magit-fullscreen activate)
   (window-configuration-to-register :magit-fullscreen)
   ad-do-it
@@ -978,9 +992,9 @@
 (with-eval-after-load 'ibuffer
   (require 'ibuffer-vc)
   (basis/define-keys ibuffer-mode-map
-    ((kbd "M-o")   nil) ;; don't shadow ace-window
-    ((kbd "C-M-o") 'ibuffer-visit-buffer-1-window)
-    ((kbd "\\")    'basis/ibuffer-toggle-vc-grouping))
+    ("M-o"   nil) ;; don't shadow ace-window
+    ("C-M-o" 'ibuffer-visit-buffer-1-window)
+    ("\\"    'basis/ibuffer-toggle-vc-grouping))
 
   (define-ibuffer-column size-h
     ;; a more readable size column
@@ -1015,12 +1029,12 @@
 
 (with-eval-after-load 'company
   (basis/define-keys company-active-map
-    ((kbd "C-t") 'company-complete-selection)
-    ((kbd "C-c") 'company-abort)
-    ((kbd "C-l") 'company-show-location)
-    ((kbd "C-w") nil)
-    ((kbd "RET") nil)
-    ([return]    nil))
+    ("C-t"    'company-complete-selection)
+    ("C-c"    'company-abort)
+    ("C-l"    'company-show-location)
+    ("C-w"    nil)
+    ("RET"    nil)
+    ([return] nil))
   (set-default
    (make-variable-buffer-local 'company-backends)
    '(company-capf
@@ -1041,18 +1055,18 @@
   (require 'dired+)
   (require 'find-dired)
   (basis/define-keys dired-mode-map
-    ((kbd "RET")                 'dired-find-alternate-file)
-    ((kbd "M-RET")               'dired-find-file)
-    ((kbd "e")                   'basis/dired-open-files)
-    ((kbd "-")                   'diredp-up-directory-reuse-dir-buffer)
-    ((kbd "^")                   'diredp-up-directory-reuse-dir-buffer)
-    ((kbd "M-^")                 'diredp-up-directory)
-    ((kbd "M-m")                 'dired-omit-mode)
-    ((kbd "M-n")                 'diredp-next-subdir)
-    ((kbd "M-p")                 'diredp-prev-subdir)
-    ((kbd "M-e")                 'dired-next-dirline)
-    ((kbd "M-a")                 'dired-prev-dirline)
-    ((kbd "M-o")                 nil)
+    ("RET"                       'dired-find-alternate-file)
+    ("M-RET"                     'dired-find-file)
+    ("e"                         'basis/dired-open-files)
+    ("-"                         'diredp-up-directory-reuse-dir-buffer)
+    ("^"                         'diredp-up-directory-reuse-dir-buffer)
+    ("M-^"                       'diredp-up-directory)
+    ("M-m"                       'dired-omit-mode)
+    ("M-n"                       'diredp-next-subdir)
+    ("M-p"                       'diredp-prev-subdir)
+    ("M-e"                       'dired-next-dirline)
+    ("M-a"                       'dired-prev-dirline)
+    ("M-o"                       nil)
     ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
     ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
   (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
@@ -1109,8 +1123,8 @@
 
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map
-    ((kbd "S-DEL")   'basis/eshell-kill-line-backward)
-    ((kbd "C-S-DEL") 'basis/eshell-kill-whole-line)))
+    ("S-DEL"   'basis/eshell-kill-line-backward)
+    ("C-S-DEL" 'basis/eshell-kill-whole-line)))
 
 (add-hook 'eshell-mode-hook 'basis/init-eshell)
 
@@ -1157,9 +1171,9 @@
 
 (defun basis/init-ido-keys ()
   (basis/define-keys ido-file-completion-map
-    ((kbd "C-w")   'ido-delete-backward-updir)
-    ((kbd "M-w")   'ido-copy-current-file-name)
-    ((kbd "C-M-e") 'basis/ido-sort-files-by-modtime)))
+    ("C-w"   'ido-delete-backward-updir)
+    ("M-w"   'ido-copy-current-file-name)
+    ("C-M-e" 'basis/ido-sort-files-by-modtime)))
 
 (add-hook 'ido-setup-hook 'basis/init-ido-keys)
 
@@ -1167,9 +1181,10 @@
 
 (setq smex-save-file "~/.emacs.d/var/smex-items")
 
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
-(global-set-key (kbd "C-h M-x") 'execute-extended-command)
+(basis/define-keys global-map
+  ("M-x"     'smex)
+  ("M-X"     'smex-major-mode-commands)
+  ("C-h M-x" 'execute-extended-command))
 
 ;; helm ------------------------------------------------------------------------
 
@@ -1225,9 +1240,9 @@
   ;; Steal C-t for expanding snippets. `transpose-chars' is still available on
   ;; M-t c
   (basis/define-keys yas-minor-mode-map
-    ((kbd "C-t") 'basis/yas-expand-or-insert)
-    ((kbd "TAB") nil)
-    ([(tab)]     nil))
+    ("C-t"   'basis/yas-expand-or-insert)
+    ("TAB"   nil)
+    ([(tab)] nil))
   (define-key yas-keymap (kbd "RET") 'yas-exit-all-snippets)
   (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
         yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
@@ -1333,10 +1348,10 @@
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (basis/define-keys map
-    ((kbd "<f5>") 'basis/eval-last-sexp)
-    ((kbd "<f6>") 'basis/eval-something)
-    ((kbd "<f7>") 'basis/expand-sexp-at-point)
-    ((kbd "<f8>") 'eval-buffer)))
+    ("<f5>" 'basis/eval-last-sexp)
+    ("<f6>" 'basis/eval-something)
+    ("<f7>" 'basis/expand-sexp-at-point)
+    ("<f8>" 'eval-buffer)))
 
 ;; paredit ---------------------------------------------------------------------
 
@@ -1364,18 +1379,18 @@
 
 (with-eval-after-load 'paredit
   (basis/define-keys paredit-mode-map
-    ((kbd "[")                      'basis/paredit-open-something)
-    ((kbd "C-c [")                  'paredit-open-square)
-    ((kbd "M-)")                    'basis/paredit-wrap-round-from-behind)
-    ((kbd "M-e")                    'paredit-forward)
-    ((kbd "<M-right>")              'paredit-forward)
-    ((kbd "M-a")                    'paredit-backward)
-    ((kbd "<M-left>")               'paredit-backward)
-    ((kbd "M-k")                    'kill-sexp)
-    ((kbd "C-w")                    'basis/paredit-kill-region-or-backward-word)
-    ((kbd "M-DEL")                  'basis/paredit-kill-region-or-backward-word)
-    ((kbd "C-DEL")                  'basis/paredit-kill-region-or-backward-word)
-    ((kbd "<C-backspace>")          'basis/paredit-kill-region-or-backward-word)
+    ("["                            'basis/paredit-open-something)
+    ("C-c ["                        'paredit-open-square)
+    ("M-)"                          'basis/paredit-wrap-round-from-behind)
+    ("M-e"                          'paredit-forward)
+    ("<M-right>"                    'paredit-forward)
+    ("M-a"                          'paredit-backward)
+    ("<M-left>"                     'paredit-backward)
+    ("M-k"                          'kill-sexp)
+    ("C-w"                          'basis/paredit-kill-region-or-backward-word)
+    ("M-DEL"                        'basis/paredit-kill-region-or-backward-word)
+    ("C-DEL"                        'basis/paredit-kill-region-or-backward-word)
+    ("<C-backspace>"                'basis/paredit-kill-region-or-backward-word)
     ([remap backward-kill-sentence] 'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
                'basis/paredit-doublequote-space-p))
@@ -1401,14 +1416,14 @@
 
 (with-eval-after-load 'slime
   (basis/define-keys slime-mode-map
-    ((kbd "<f5>")   'slime-eval-last-expression)
-    ((kbd "<M-f5>") 'slime-eval-last-expression-in-repl)
-    ((kbd "<C-f5>") 'slime-pprint-eval-last-expression)
-    ((kbd "<f6>")   'basis/slime-eval-something)
-    ((kbd "<M-f6>") 'slime-compile-defun)
-    ((kbd "<C-f6>") 'slime-pprint-region)
-    ((kbd "<f7>")   'slime-expand-1)
-    ((kbd "<f8>")   'slime-compile-and-load-file))
+    ("<f5>"   'slime-eval-last-expression)
+    ("<M-f5>" 'slime-eval-last-expression-in-repl)
+    ("<C-f5>" 'slime-pprint-eval-last-expression)
+    ("<f6>"   'basis/slime-eval-something)
+    ("<M-f6>" 'slime-compile-defun)
+    ("<C-f6>" 'slime-pprint-region)
+    ("<f7>"   'slime-expand-1)
+    ("<f8>"   'slime-compile-and-load-file))
   (global-set-key (kbd "<f12>") 'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
@@ -1490,12 +1505,12 @@
   (define-key cider-repl-mode-map (kbd "RET") 'cider-repl-return)
 
   (basis/define-keys cider-mode-map
-    ((kbd "<f5>")    'cider-eval-last-expression)
-    ((kbd "<f6>")    'basis/cider-eval-something)
-    ((kbd "<f7>")    'cider-macroexpand-1)
-    ((kbd "<M-f7>")  'cider-macroexpand-all)
-    ((kbd "<f8>")    'cider-eval-buffer)
-    ((kbd "<M-f8>")  'cider-load-current-buffer)))
+    ("<f5>"    'cider-eval-last-expression)
+    ("<f6>"    'basis/cider-eval-something)
+    ("<f7>"    'cider-macroexpand-1)
+    ("<M-f7>"  'cider-macroexpand-all)
+    ("<f8>"    'cider-eval-buffer)
+    ("<M-f8>"  'cider-load-current-buffer)))
 
 ;; scheme ----------------------------------------------------------------------
 
@@ -1507,23 +1522,23 @@
 (with-eval-after-load 'scheme
   (require 'quack)
   (basis/define-keys scheme-mode-map
-    ((kbd "<f5>")   'scheme-send-last-sexp)
-    ((kbd "<f6>")   'basis/scheme-send-something)
-    ((kbd "<C-f6>") 'scheme-compile-definition-and-go)
-    ((kbd "<f8>")   'scheme-compile-file)
-    ((kbd "<C-f8>") 'scheme-load-file)))
+    ("<f5>"   'scheme-send-last-sexp)
+    ("<f6>"   'basis/scheme-send-something)
+    ("<C-f6>" 'scheme-compile-definition-and-go)
+    ("<f8>"   'scheme-compile-file)
+    ("<C-f8>" 'scheme-load-file)))
 
 (defun basis/geiser-map-keys ()
   ;; Can't do this until the REPL is started because otherwise
   ;; `geiser-mode-map' is null.
   (basis/define-keys geiser-mode-map
-    ((kbd "<f5>")   'geiser-eval-last-sexp)
-    ((kbd "<f6>")   'basis/geiser-eval-something)
-    ((kbd "<C-f6>") 'basis/geiser-eval-something-and-go)
-    ((kbd "<f7>")   'basis/geiser-expand-something)
-    ((kbd "<C-f7>") 'geiser-expand-definition)
-    ((kbd "<f8>")   'geiser-eval-buffer)
-    ((kbd "<C-f8>") 'geiser-eval-buffer-and-go)))
+    ("<f5>"   'geiser-eval-last-sexp)
+    ("<f6>"   'basis/geiser-eval-something)
+    ("<C-f6>" 'basis/geiser-eval-something-and-go)
+    ("<f7>"   'basis/geiser-expand-something)
+    ("<C-f7>" 'geiser-expand-definition)
+    ("<f8>"   'geiser-eval-buffer)
+    ("<C-f8>" 'geiser-eval-buffer-and-go)))
 
 (add-hook 'geiser-repl-mode-hook 'basis/geiser-map-keys)
 
@@ -1552,28 +1567,28 @@
     (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
 
   (basis/define-keys sp-keymap
-    ((kbd "M-DEL")         'basis/sp-kill-region-or-backward-word)
-    ((kbd "C-DEL")         'basis/sp-kill-region-or-backward-word)
-    ((kbd "<C-backspace>") 'basis/sp-kill-region-or-backward-word)
-    ((kbd "C-w")           'basis/sp-kill-region-or-backward-word)
-    ((kbd "M-k")           'sp-kill-sexp)
-    ((kbd "M-e")           'basis/maybe-sp-forward-sexp)
-    ((kbd "M-a")           'basis/maybe-sp-backward-sexp)
-    ((kbd "]")             'sp-up-sexp)
-    ((kbd "C-c ]")         'basis/insert-right-bracket)))
+    ("M-DEL"         'basis/sp-kill-region-or-backward-word)
+    ("C-DEL"         'basis/sp-kill-region-or-backward-word)
+    ("<C-backspace>" 'basis/sp-kill-region-or-backward-word)
+    ("C-w"           'basis/sp-kill-region-or-backward-word)
+    ("M-k"           'sp-kill-sexp)
+    ("M-e"           'basis/maybe-sp-forward-sexp)
+    ("M-a"           'basis/maybe-sp-backward-sexp)
+    ("]"             'sp-up-sexp)
+    ("C-c ]"         'basis/insert-right-bracket)))
 
 ;; flycheck --------------------------------------------------------------------
 
-(defvar basis/flycheck-keymap
+(defvar basis/flycheck-map
   (let ((map (make-sparse-keymap)))
     (basis/define-keys map
-      ((kbd "c")   'flycheck-buffer)
-      ((kbd "n")   'flycheck-next-error)
-      ((kbd "p")   'flycheck-previous-error)
-      ((kbd "l")   'flycheck-list-errors)
-      ((kbd "s")   'flycheck-select-checker)
-      ((kbd "C")   'flycheck-clear)
-      ((kbd "SPC") 'basis/flycheck-check-and-list-errors))
+      ("c"   'flycheck-buffer)
+      ("n"   'flycheck-next-error)
+      ("p"   'flycheck-previous-error)
+      ("l"   'flycheck-list-errors)
+      ("s"   'flycheck-select-checker)
+      ("C"   'flycheck-clear)
+      ("SPC" 'basis/flycheck-check-and-list-errors))
     map)
   "Custom keybindings for Flycheck.")
 
@@ -1588,26 +1603,26 @@
   (add-hook 'flycheck-after-syntax-check-hook
             'basis/adjust-flycheck-idle-change-delay)
 
-  (global-set-key (kbd "C-h l") basis/flycheck-keymap)
+  (global-set-key (kbd "C-h l") basis/flycheck-map)
 
   ;; Keys for the errors buffer
   (basis/define-keys flycheck-error-list-mode-map
-    ((kbd "n") 'flycheck-error-list-next-error)
-    ((kbd "p") 'flycheck-error-list-previous-error)))
+    ("n" 'flycheck-error-list-next-error)
+    ("p" 'flycheck-error-list-previous-error)))
 
 ;; python ----------------------------------------------------------------------
 
 (with-eval-after-load 'python
   (basis/define-keys python-mode-map
-    ((kbd "C-c C-c")  'basis/python-send-something)
-    ((kbd "<f6>")     'basis/python-send-something)
-    ((kbd "C-c C-k")  'python-shell-send-file)
-    ((kbd "<f8>")     'python-shell-send-file)
-    ((kbd "C-c M-k")  'python-shell-send-buffer)
-    ((kbd "<M-f8>")   'python-shell-send-buffer)
-    ((kbd "RET")      'basis/electric-return)
-    ((kbd "DEL")      'basis/sp-python-backspace)
-    ((kbd "C-h C-p")  'basis/insert-python-docstring-quotes))
+    ("C-c C-c"  'basis/python-send-something)
+    ("<f6>"     'basis/python-send-something)
+    ("C-c C-k"  'python-shell-send-file)
+    ("<f8>"     'python-shell-send-file)
+    ("C-c M-k"  'python-shell-send-buffer)
+    ("<M-f8>"   'python-shell-send-buffer)
+    ("RET"      'basis/electric-return)
+    ("DEL"      'basis/sp-python-backspace)
+    ("C-h C-p"  'basis/insert-python-docstring-quotes))
   (setq python-fill-docstring-style 'pep-257-nn))
 
 (when (basis/jedi-installed-p)
@@ -1696,9 +1711,9 @@
 
 (with-eval-after-load 'skewer-mode
   (basis/define-keys skewer-mode-map
-    ((kbd "<f5>") 'skewer-eval-last-expression)
-    ((kbd "<f6>") 'skewer-eval-defun)
-    ((kbd "<f8>") 'skewer-load-buffer)))
+    ("<f5>" 'skewer-eval-last-expression)
+    ("<f6>" 'skewer-eval-defun)
+    ("<f8>" 'skewer-load-buffer)))
 
 (with-eval-after-load 'skewer-repl
   (define-key skewer-repl-mode-map (kbd "TAB") 'hippie-expand))
@@ -1708,9 +1723,9 @@
 
 (with-eval-after-load 'skewer-css
   (basis/define-keys skewer-css-mode-map
-    ((kbd "<f5>") 'skewer-css-eval-current-declaration)
-    ((kbd "<f6>") 'skewer-css-eval-current-rule)
-    ((kbd "<f8>") 'skewer-css-eval-buffer)))
+    ("<f5>" 'skewer-css-eval-current-declaration)
+    ("<f6>" 'skewer-css-eval-current-rule)
+    ("<f8>" 'skewer-css-eval-buffer)))
 
 ;; sql -------------------------------------------------------------------------
 
@@ -1783,7 +1798,7 @@
       ("a"     'basis/ack-project)
       ("A"     'basis/ack-here)
       ("b"     'ido-switch-buffer)
-      ("c"     basis/flycheck-keymap)
+      ("c"     basis/flycheck-map)
       ("d"     'ido-dired)
       ("e"     basis/eval-map)
       ("f"     'ido-find-file)
@@ -1795,7 +1810,7 @@
       ("l"     'ibuffer)
       ("o"     'ace-window)
       ("p"     projectile-command-map)
-      ("r"     'basis/recentf-ido-find-file)
+      ("r"     'basis/ido-recentf)
       ("s"     'shell)
       ("t"     'ff-find-other-file)
       ("0"     'delete-window)
@@ -1807,27 +1822,27 @@
     map))
 
 (basis/define-keys evil-normal-state-map
-  (" "        basis/evil-fake-leader-map)
-  ("j"        'evil-next-visual-line)
-  ("k"        'evil-previous-visual-line)
-  ("gj"       'evil-next-line)
-  ("gk"       'evil-previous-line)
-  ("gc"       'basis/evil-comment)
-  ("[b"       'previous-buffer)
-  ("]b"       'next-buffer)
-  ("[q"       'previous-error)
-  ("]q"       'next-error)
-  ("[e"       'move-text-up)
-  ("]e"       'move-text-down)
-  ("[ "       'basis/insert-blank-above)
-  ("] "       'basis/insert-blank-below)
-  ("-"        'dired-jump)
-  ((kbd "M-.") nil))
+  (" "   basis/evil-fake-leader-map)
+  ("j"   'evil-next-visual-line)
+  ("k"   'evil-previous-visual-line)
+  ("gj"  'evil-next-line)
+  ("gk"  'evil-previous-line)
+  ("gc"  'basis/evil-comment)
+  ("[b"  'previous-buffer)
+  ("]b"  'next-buffer)
+  ("[q"  'previous-error)
+  ("]q"  'next-error)
+  ("[e"  'move-text-up)
+  ("]e"  'move-text-down)
+  ("[ "  'basis/insert-blank-above)
+  ("] "  'basis/insert-blank-below)
+  ("-"   'dired-jump)
+  ("M-." nil))
 
 (basis/define-keys evil-insert-state-map
-  ((kbd "C-e") nil)
-  ((kbd "C-k") nil)
-  ((kbd "M-o") 'basis/evil-ace-window))
+  ("C-e" nil)
+  ("C-k" nil)
+  ("M-o" 'basis/evil-ace-window))
 
 (basis/define-keys evil-inner-text-objects-map
   ("y" 'basis/evil-inner-symbol)
@@ -1906,10 +1921,10 @@
 
 (with-eval-after-load 'ack-and-a-half
   (basis/define-keys ack-and-a-half-mode-map
-    ((kbd "n") 'compilation-next-error)
-    ((kbd "p") 'compilation-previous-error)
-    ((kbd "]") 'compilation-next-file)
-    ((kbd "[") 'compilation-previous-file))
+    ("n" 'compilation-next-error)
+    ("p" 'compilation-previous-error)
+    ("]" 'compilation-next-file)
+    ("[" 'compilation-previous-file))
   (setq ack-and-a-half-use-ido t)
   ;; Make Cygwin happy
   (when (and basis/cygwin-p
@@ -1964,10 +1979,10 @@
 
 ;; Keys
 (basis/define-keys global-map
-  ((kbd "C-c a") 'org-agenda)
-  ((kbd "C-c b") 'org-iswitchb)
-  ((kbd "C-c c") 'org-capture)
-  ((kbd "C-c l") 'org-store-link))
+  ("C-c a" 'org-agenda)
+  ("C-c b" 'org-iswitchb)
+  ("C-c c" 'org-capture)
+  ("C-c l" 'org-store-link))
 
 (add-hook 'org-mode-hook 'basis/maybe-enable-flyspell)
 
@@ -2010,11 +2025,11 @@
   (basis/define-keys html-mode-map
     ([remap forward-paragraph]  'basis/move-to-next-blank-line)
     ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
-    ((kbd "RET")                'basis/html-newline-and-indent)
-    ((kbd "M-RET")              'basis/html-multiline-expand)
-    ((kbd "C-c C-w")            'basis/html-wrap-in-tag)
-    ((kbd "C-c w")              'basis/html-wrap-in-tag)
-    ((kbd "<f8>")               'browse-url-of-buffer))
+    ("RET"                      'basis/html-newline-and-indent)
+    ("M-RET"                    'basis/html-multiline-expand)
+    ("C-c C-w"                  'basis/html-wrap-in-tag)
+    ("C-c w"                    'basis/html-wrap-in-tag)
+    ("<f8>"                     'browse-url-of-buffer))
   (tagedit-add-paredit-like-keybindings)
   (tagedit-add-experimental-features))
 
@@ -2056,11 +2071,11 @@ two tags."
 
 (with-eval-after-load 'markdown-mode
   (basis/define-keys markdown-mode-map
-    ((kbd "DEL")         'basis/sp-markdown-backspace)
-    ((kbd "M-n")         'forward-paragraph)
-    ((kbd "M-p")         'backward-paragraph)
-    ((kbd "C-c r")       'markdown-insert-reference-link-dwim)
-    ((kbd "C-c C-r")     'markdown-insert-reference-link-dwim)))
+    ("DEL"     'basis/sp-markdown-backspace)
+    ("M-n"     'forward-paragraph)
+    ("M-p"     'backward-paragraph)
+    ("C-c r"   'markdown-insert-reference-link-dwim)
+    ("C-c C-r" 'markdown-insert-reference-link-dwim)))
 
 ;; deft ------------------------------------------------------------------------
 
