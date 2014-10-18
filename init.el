@@ -1331,8 +1331,8 @@
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
-(dolist (mode (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (basis/define-keys mode
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
+  (basis/define-keys map
     ((kbd "<f5>") 'basis/eval-last-sexp)
     ((kbd "<f6>") 'basis/eval-something)
     ((kbd "<f7>") 'basis/expand-sexp-at-point)
