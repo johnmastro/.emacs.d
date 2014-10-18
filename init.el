@@ -68,7 +68,6 @@
           discover
           elfeed
           elisp-slime-nav
-          evil
           exec-path-from-shell
           expand-region
           flx-ido
@@ -1782,129 +1781,6 @@
 
 (with-eval-after-load 'cc-mode
   (define-key c-mode-base-map (kbd "C-j") 'c-context-line-break))
-
-;; evil ------------------------------------------------------------------------
-
-(require 'evil)
-
-(basis/define-keys evil-motion-state-map
-  ("H" 'evil-first-non-blank)
-  ("L" 'evil-end-of-line))
-
-(defvar basis/evil-fake-leader-map
-  (let ((map (make-sparse-keymap)))
-    (basis/define-keys map
-      (";"     'eval-expression)
-      ("a"     'basis/ack-project)
-      ("A"     'basis/ack-here)
-      ("b"     'ido-switch-buffer)
-      ("c"     basis/flycheck-map)
-      ("d"     'ido-dired)
-      ("e"     basis/eval-map)
-      ("f"     'ido-find-file)
-      ("g"     'magit-status)
-      ("h"     basis/helm-map)
-      ("i"     'idomenu)
-      ("j"     'ace-jump-word-mode)
-      ("k"     'basis/kill-this-buffer)
-      ("l"     'ibuffer)
-      ("o"     'ace-window)
-      ("p"     projectile-command-map)
-      ("r"     'basis/ido-recentf)
-      ("s"     'shell)
-      ("t"     'ff-find-other-file)
-      ("0"     'delete-window)
-      ("1"     'delete-other-windows)
-      ("2"     'split-window-below)
-      ("3"     'split-window-right)
-      ([left]  'winner-undo)
-      ([right] 'winner-redo))
-    map))
-
-(basis/define-keys evil-normal-state-map
-  (" "   basis/evil-fake-leader-map)
-  ("j"   'evil-next-visual-line)
-  ("k"   'evil-previous-visual-line)
-  ("gj"  'evil-next-line)
-  ("gk"  'evil-previous-line)
-  ("gc"  'basis/evil-comment)
-  ("[b"  'previous-buffer)
-  ("]b"  'next-buffer)
-  ("[q"  'previous-error)
-  ("]q"  'next-error)
-  ("[e"  'move-text-up)
-  ("]e"  'move-text-down)
-  ("[ "  'basis/insert-blank-above)
-  ("] "  'basis/insert-blank-below)
-  ("-"   'dired-jump)
-  ("M-." nil))
-
-(basis/define-keys evil-insert-state-map
-  ("C-e" nil)
-  ("C-k" nil)
-  ("M-o" 'basis/evil-ace-window))
-
-(basis/define-keys evil-inner-text-objects-map
-  ("y" 'basis/evil-inner-symbol)
-  ("d" 'basis/evil-inner-defun))
-
-(basis/define-keys evil-outer-text-objects-map
-  ("y" 'basis/evil-a-symbol)
-  ("d" 'basis/evil-a-defun))
-
-;; Define more emacs-state modes, including everything that evil has as a
-;; insert-state or motion-state mode by default
-(let ((more-emacs-state-modes '(cider-docview-mode
-                                cider-repl-mode
-                                cider-stacktrace-mode
-                                diff-mode
-                                dired-mode
-                                direx:direx-mode
-                                elfeed-search-mode
-                                elfeed-show-mode
-                                eww-mode
-                                flycheck-error-list-mode
-                                git-rebase-mode
-                                git-timemachine-mode
-                                image-mode
-                                inferior-forth-mode
-                                inferior-haskell-mode
-                                makey-key-mode
-                                process-menu-mode
-                                special-mode
-                                sql-interactive-mode)))
-  (mapc (apply-partially #'add-to-list 'evil-emacs-state-modes)
-        (append evil-insert-state-modes
-                evil-motion-state-modes
-                more-emacs-state-modes))
-  (setq evil-motion-state-modes nil
-        evil-insert-state-modes nil))
-
-(add-hook 'focus-out-hook 'basis/evil-frame-exit-insert-state)
-
-;; Lispier D/C/Y keys
-(basis/add-evil-paredit-keys
- '((lisp-mode     emacs-lisp-mode-map lisp-mode-map lisp-interaction-mode-map)
-   (ielm          inferior-emacs-lisp-mode-map)
-   (inf-lisp      inferior-lisp-mode-map)
-   (slime-repl    slime-repl-mode-map)
-   (clojure-mode  clojure-mode-map)
-   (cider-repl    cider-repl-mode-map)
-   (scheme        scheme-mode-map inferior-scheme-mode-map)
-   (geiser-repl   geiser-repl-mode-map)))
-
-;; Lispier D/C/Y keys... even for non-Lisps
-(basis/add-evil-sp-keys
- '((python        python-mode-map)
-   (sql           sql-mode-map)
-   (yaml-mode     yaml-mode-map)
-   (haskell-mode  haskell-mode-map)))
-
-(basis/add-evil-fake-leader-map '((ibuffer   ibuffer-mode-map)
-                                  (dired     dired-mode-map)
-                                  (help-mode help-mode-map)))
-
-;; (evil-mode 1)
 
 ;; ack and a half --------------------------------------------------------------
 

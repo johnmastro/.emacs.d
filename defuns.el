@@ -216,10 +216,7 @@ Do not save the string to the the kill ring."
       (let ((s (buffer-substring-no-properties (region-beginning)
                                                (region-end))))
         (basis/clipboard-save-string s)
-        (if (and (bound-and-true-p evil-mode)
-                 (evil-visual-state-p))
-            (evil-exit-visual-state)
-          (setq deactivate-mark t)))
+        (setq deactivate-mark t))
     (let ((s (buffer-substring-no-properties (point-min) (point-max))))
       (basis/clipboard-save-string s))))
 
@@ -636,9 +633,7 @@ WHAT must be an option in `dired-sorting-options'."
   :lighter nil
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "q") 'quit-window)
-            map)
-  (when (bound-and-true-p evil-mode)
-    (evil-local-set-key 'normal "q" 'quit-window)))
+            map))
 
 (defun basis/eval-region (beg end)
   (interactive "r")
@@ -852,16 +847,6 @@ Default to `projectile-project-root' if in a project, otherwise
 Default to `default-directory'."
   (interactive "P")
   (basis/ack-somewhere arg default-directory))
-
-(defun basis/evil-ace-window (arg)
-  "Exit insert state and run `ace-window'.
-If `evil-mode' isn't active, or the buffer isn't in insert state,
-this is identical to invoking `ace-window' directly."
-  (interactive "p")
-  (when (and (bound-and-true-p evil-mode)
-             (evil-insert-state-p))
-    (evil-normal-state 1))
-  (ace-window arg))
 
 (defun basis/set-mode-name (mode name)
   "Set MODE's modeline string to NAME."
@@ -1167,141 +1152,6 @@ kill the current session even if there are multiple frames."
         (let ((raw-string (concat "\\([^\\sw\\s_]\\)r" (regexp-quote id))))
           (and result (not (looking-back raw-string))))
       result)))
-
-;; evil ------------------------------------------------------------------------
-
-(require 'evil)
-
-(evil-define-operator basis/evil-comment (beg end type)
-  "Comment or un-comment code covered by the motion."
-  (interactive "<R>")
-  (comment-or-uncomment-region beg end))
-
-(evil-define-text-object basis/evil-inner-defun (count &optional beg end type)
-  "Select inner defun."
-  (save-excursion
-    (let ((beg (progn (beginning-of-defun) (point)))
-          (end (progn (end-of-defun) (point))))
-      (list beg end))))
-
-(evil-define-text-object basis/evil-a-defun (count &optional beg end type)
-  "Select a defun."
-  (save-excursion
-    (let ((beg (progn (beginning-of-defun) (point)))
-          (end (let ((maybe-end (progn (end-of-defun) (point))))
-                 (if (looking-at-p "^$")
-                     (progn (forward-line 1)
-                            (point))
-                   maybe-end))))
-      (list beg end))))
-
-(defun basis/evil-move-symbol (count)
-  "Move forward COUNT symbols."
-  ;; Needed because `forward-symbol' by itself doesn't the return value needed
-  ;; by `evil-an-object-range' and `evil-inner-object-range'.
-  (evil-motion-loop (var count)
-    (forward-symbol var)))
-
-(evil-define-text-object basis/evil-a-symbol (count &optional beg end type)
-  "Select a symbol."
-  (evil-an-object-range count beg end type #'basis/evil-move-symbol))
-
-(evil-define-text-object basis/evil-inner-symbol (count &optional beg end type)
-  "Select inner symbol."
-  (evil-inner-object-range count beg end type #'basis/evil-move-symbol))
-
-(defun basis/evil-add-fake-leader-map (modes)
-  "Map `basis/evil-fake-leader-map' to space in MODES."
-  (mapc (lambda (mode)
-          (let ((map (intern (concat (symbol-name mode) "-mode-map"))))
-            (eval-after-load mode
-              `(define-key ,map " " basis/evil-fake-leader-map))))
-        modes))
-
-(defun basis/evil-exit-insert-state (&optional buffer)
-  "If BUFFER is in insert state, change it to normal state.
-BUFFER defaults to the current buffer if nil."
-  (with-current-buffer (or buffer (current-buffer))
-    (when (evil-insert-state-p)
-      (evil-normal-state 1))))
-
-(defun basis/evil-frame-exit-insert-state (&optional frame)
-  "Call `basis/evil-exit-insert-state' on each buffer in FRAME.
-FRAME defaults to the selected frame if nil."
-  (mapc #'basis/evil-exit-insert-state
-        (buffer-list (or frame (selected-frame)))))
-
-(defun basis/evil-paredit-change ()
-  "Do `paredit-kill' and enter insert state."
-  (interactive)
-  (paredit-kill)
-  (evil-insert-state 1))
-
-(defun basis/evil-paredit-yank ()
-  "Yank the sexp at point into the kill ring."
-  (interactive)
-  (kill-ring-save (point) (save-excursion (paredit-forward 1) (point))))
-
-(defun basis/add-evil-paredit-keys (targets)
-  "Lazily define Paredit-friendly keys in TARGETS.
-Each entry in TARGETS should be a list whose car identifies a
-feature and whose cdr is a list of maps in which to define the
-keys once that feature is loaded."
-  (pcase-dolist (`(,feature . ,maps) targets)
-    (eval-after-load feature
-      `(progn
-         ,@(mapcar (lambda (map)
-                     `(evil-define-key 'normal ,map
-                        "D" 'paredit-kill
-                        "C" 'basis/evil-paredit-change
-                        "Y" 'basis/evil-paredit-yank))
-                   maps)))))
-
-(defun basis/add-evil-paredit-keys-locally ()
-  "Use `evil-local-set-key' to define some Paredit-friendly keys."
-  (pcase-dolist (`(,key ,cmd) '(("D" paredit-kill)
-                                ("C" basis/evil-paredit-change)
-                                ("Y" basis/evil-paredit-yank)))
-    (evil-local-set-key 'normal key cmd)))
-
-(defun basis/add-evil-fake-leader-map (targets)
-  "Map space to `basis/evil-fake-leader-map' in TARGETS."
-  (pcase-dolist (`(,feature ,map) targets)
-    (eval-after-load feature
-      `(define-key ,map (kbd "SPC") basis/evil-fake-leader-map))))
-
-(defun basis/evil-sp-change ()
-  "Do `sp-kill-hybrid-sexp' and enter insert state."
-  (interactive)
-  (sp-kill-hybrid-sexp nil)
-  (evil-insert-state 1))
-
-(defun basis/evil-sp-yank ()
-  "Yank the sexp at point into the kill ring."
-  (interactive)
-  (kill-ring-save (point) (save-excursion (sp-forward-sexp 1) (point))))
-
-(defun basis/add-evil-sp-keys (targets)
-  "Lazily define Smartparens-friendly keys in TARGETS.
-Each entry in TARGETS should be a list whose car identifies a
-feature and whose cdr is a list of maps in which to define the
-keys once that feature is loaded."
-  (pcase-dolist (`(,feature . ,maps) targets)
-    (eval-after-load feature
-      `(progn
-         ,@(mapcar (lambda (map)
-                     `(evil-define-key 'normal ,map
-                        "D" 'sp-kill-hybrid-sexp
-                        "C" 'basis/evil-sp-change
-                        "Y" 'basis/evil-sp-yank))
-                   maps)))))
-
-(defun basis/add-evil-sp-keys-locally ()
-  "Use `evil-local-set-key' to define some SP-friendly keys."
-  (pcase-dolist (`(,key ,cmd) '(("D" sp-kill-hybrid-sexp)
-                                ("C" basis/evil-sp-change)
-                                ("Y" basis/evil-sp-yank)))
-    (evil-local-set-key 'normal key cmd)))
 
 ;; scheme/geiser ---------------------------------------------------------------
 
