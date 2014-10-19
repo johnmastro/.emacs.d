@@ -325,6 +325,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 ;; file utilities --------------------------------------------------------------
 
 (defun basis/rename-current-buffer-file (destination)
+  "Rename the current buffer's file to DESTINATION."
   (interactive "FDestination: ")
   (let ((name (buffer-name))
         (file (buffer-file-name)))
@@ -365,14 +366,6 @@ This is the same as using \\[set-mark-command] with the prefix argument."
          (file (ido-completing-read "Recent file: " list nil t)))
     (when file
       (find-file file))))
-
-(defun basis/kill-all-buffers ()
-  "Kill all buffers except *scratch*."
-  (interactive)
-  (dolist (buffer (buffer-list))
-    (unless (string= (buffer-name buffer) "*scratch*")
-      (kill-buffer buffer)))
-  (delete-other-windows))
 
 (defun basis/open-file-manager (dir)
   "Open a system file manager at DIR."
@@ -422,12 +415,6 @@ buffer visiting a directory."
   (->> path
     (replace-regexp-in-string "\\\\" "/")
     (replace-regexp-in-string "[a-zA-Z]:" "")))
-
-(defun basis/emacs-file (name)
-  (let ((path (expand-file-name name user-emacs-directory)))
-    (unless (file-exists-p path)
-      (make-directory (file-name-directory path) t))
-    path))
 
 (defun basis/read-file (file)
   "Read a Lisp form from FILE."
@@ -635,17 +622,6 @@ WHAT must be an option in `dired-sorting-options'."
             (define-key map (kbd "q") 'quit-window)
             map))
 
-(defun basis/eval-region (beg end)
-  (interactive "r")
-  (let* ((result (->> (with-output-to-string
-                        (eval-region beg end standard-output))
-                   (string-remove-prefix "\n")
-                   (string-remove-suffix "\n")
-                   (read))))
-    (if (called-interactively-p)
-        (message "%s" result)
-      result)))
-
 (defun basis/eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
@@ -735,14 +711,6 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 (put 'basis/with-unique-names 'lisp-indent-function 1)
 
-(defmacro basis/looking-at-case (&rest clauses)
-  (let ((trues '(t :else otherwise)))
-    `(cond
-      ,@(mapcar (lambda (clause)
-                  (pcase-let ((`(,condition . ,body) clause))
-                    `(,(if (memq condition trues) t `(looking-at-p ,condition))
-                      ,@body)))
-                clauses))))
 
 ;; occur -----------------------------------------------------------------------
 
