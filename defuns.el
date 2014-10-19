@@ -902,7 +902,8 @@ If `linum-mode' was already enabled just call `goto-line'."
 
 (defun basis/maybe-enable-flyspell-prog-mode ()
   "Enable `flyspell-prog-mode' in programming modes for local files."
-  (when (and buffer-file-name
+  (when (and ispell-program-name
+             buffer-file-name
              (not (file-remote-p buffer-file-name)))
     (flyspell-prog-mode)))
 
