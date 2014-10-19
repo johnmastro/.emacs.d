@@ -833,15 +833,6 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
          (directory (ido-read-directory-name "Directory: " default-dir)))
     (ack-and-a-half pattern regexp-p directory)))
 
-(defun basis/ack-project (&optional arg)
-  "Do an ack search. Prompt for the directory to use.
-Default to `projectile-project-root' if in a project, otherwise
-`default-directory'."
-  (interactive "P")
-  (basis/ack-somewhere arg (if (projectile-project-p)
-                               (projectile-project-root)
-                             default-directory)))
-
 (defun basis/ack-here (&optional arg)
   "Do an ack search. Prompt for the directory to use.
 Default to `default-directory'."
