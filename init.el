@@ -131,9 +131,23 @@
 (require 'dash-functional)
 (require 's)
 
-(dash-enable-font-lock)
-
 (load "~/.emacs.d/defuns.el")
+
+;; Why not? Idea taken from `dash-enable-font-lock', although I think that
+;; overdoes it a bit
+(basis/add-elisp-font-lock-keywords '("pcase-dolist"
+                                      "->"
+                                      "->>"
+                                      "-->"
+                                      "-when-let"
+                                      "-when-let*"
+                                      "--when-let"
+                                      "-if-let"
+                                      "-if-let*"
+                                      "--if-let"
+                                      "-let*"
+                                      "-let"
+                                      "-lambda"))
 
 ;; cygwin ----------------------------------------------------------------------
 

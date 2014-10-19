@@ -711,6 +711,19 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 (put 'basis/with-unique-names 'lisp-indent-function 1)
 
+(defun basis/add-elisp-font-lock-keywords (keywords)
+  "Highlight KEYWORDS with `font-lock-keyword-face'."
+  (with-eval-after-load 'lisp-mode
+    (font-lock-add-keywords
+     'emacs-lisp-mode
+     `((,(concat "(\\s-*" (regexp-opt keywords 'paren) "\\_>")
+        1 font-lock-keyword-face)) 'append)
+    (mapc (lambda (buffer)
+            (with-current-buffer buffer
+              (when (and (eq major-mode 'emacs-lisp-mode)
+                         (bound-and-true-p font-lock-mode))
+                (font-lock-refresh-defaults))))
+          (buffer-list))))
 
 ;; occur -----------------------------------------------------------------------
 
