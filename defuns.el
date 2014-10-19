@@ -1312,27 +1312,29 @@ many windows."
 (defun basis/recapitalize-sql-buffer (style)
   "Recapitalize the current buffer to STYLE (caps or none)."
   (interactive
-   (list (intern (ido-completing-read "Style: " '("caps" "none")))))
+   (list (intern (ido-completing-read  "Style: " '("caps" "none") nil t))))
   (unless (memq style '(caps none))
     (error "Unknown capitalization style '%s'" style))
-  (save-excursion
-    (goto-char (point-min))
-    (let ((last -1))
-      (while (> (point) last)
-        (let ((face (get-text-property (point) 'face)))
-          (cond ((memq face '(font-lock-builtin-face
-                              font-lock-keyword-face
-                              font-lock-type-face))
-                 (if (eq style 'caps)
-                     (upcase-word 1)
-                   (downcase-word 1))
-                 (backward-word 1))
-                ((null face)
-                 (downcase-word 1)
-                 (backward-word 1))))
-        (setq last (point))
-        (forward-word 2)
-        (backward-word 1)))))
+  (when (or (eq major-mode 'sql-mode)
+            (y-or-n-p "Not in a SQL buffer. Proceed anyway?"))
+    (save-excursion
+      (goto-char (point-min))
+      (let ((last -1))
+        (while (> (point) last)
+          (let ((face (get-text-property (point) 'face)))
+            (cond ((memq face '(font-lock-builtin-face
+                                font-lock-keyword-face
+                                font-lock-type-face))
+                   (if (eq style 'caps)
+                       (upcase-word 1)
+                     (downcase-word 1))
+                   (backward-word 1))
+                  ((null face)
+                   (downcase-word 1)
+                   (backward-word 1))))
+          (setq last (point))
+          (forward-word 2)
+          (backward-word 1))))))
 
 ;; html utilities --------------------------------------------------------------
 
