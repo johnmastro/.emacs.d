@@ -130,7 +130,7 @@ If BUFFER is nil, use the current buffer."
 If PATTERN is non-nil, only include matching files (via
 `file-expand-wildcards')."
   (interactive
-   (list (ido-read-directory-name "Directory: ")
+   (list (ido-read-directory-name "Directory: " nil nil t)
          (when current-prefix-arg
            (read-string "Pattern: "))))
   (let ((files (file-expand-wildcards (expand-file-name (or pattern "*")
@@ -368,8 +368,9 @@ This is the same as using \\[set-mark-command] with the prefix argument."
       (find-file file))))
 
 (defun basis/open-file-manager (dir)
-  "Open a system file manager at DIR."
-  (interactive (list (ido-read-directory-name "Dir: ")))
+  "Open a system file manager at DIR.
+If called interactively, use `ido' to read the directory."
+  (interactive (list (ido-read-directory-name "Dir: " nil nil t)))
   (if (eq system-type 'windows-nt)
       (w32-shell-execute "explore" dir)
     (shell-command
@@ -724,7 +725,10 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 Optional argument CHOICES should, if provided, be a list of
 symbols naming major modes."
   (let ((choices (or choices (basis/active-major-modes))))
-    (intern (ido-completing-read "Mode: " (mapcar #'symbol-name choices)))))
+    (intern (ido-completing-read "Mode: "
+                                 (mapcar #'symbol-name choices)
+                                 nil
+                                 t))))
 
 (defun basis/multi-occur-by-mode (mode regexp &optional nlines)
   "Run `multi-occur' on all buffers in MODE.
@@ -789,7 +793,7 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
                         (not ack-and-a-half-regexp-search)
                       ack-and-a-half-regexp-search))
          (pattern   (read-from-minibuffer "Ack: "))
-         (directory (ido-read-directory-name "Directory: " default-dir)))
+         (directory (ido-read-directory-name "Directory: " default-dir nil t)))
     (ack-and-a-half pattern regexp-p directory)))
 
 (defun basis/ack-here (&optional arg)
