@@ -1,0 +1,31 @@
+#    -*- mode: org -*-
+
+* Building Emacs from source
+  I often forget the names of dependencies for features I want, and the
+  arguments to give `configure'.
+
+  The below assumes Debian (or derived), but it's enough info to remind me of what
+  I'm doing for other builds too.
+  
+** GTK3
+#+BEGIN_SRC sh
+  sudo aptitude install build-essential pkg-config m4 \
+    libncurses-dev \
+    libgtk-3-dev \
+    libxml2 libxml2-dev \
+    libgnutls28 libgnutls28-dev \
+    zlib1g zlib1g-dev
+  ./configure --with-xml2 --with-zlib --with-gnutls --with-x-toolkit=gtk3
+#+END_SRC
+
+** No X
+#+BEGIN_SRC sh
+  sudo aptitude install build-essential pkg-config m4 \
+    libncurses-dev \
+    libxml2 libxml2-dev \
+    libgnutls28 libgnutls28-dev \
+    zlib1g zlib1g-dev
+  ./configure --with-xml2 --with-zlib --with-gnutls \
+    --with-x-toolkit=no \
+    --without-xpm --without-jpeg --without-tiff --without-gif --without-png
+#+END_SRC
