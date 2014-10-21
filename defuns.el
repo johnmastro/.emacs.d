@@ -380,18 +380,6 @@ This is the same as using \\[set-mark-command] with the prefix argument."
                (_ (error "No file manager known for: " system-type)))
              dir))))
 
-(defun basis/open-file-manager-here ()
-  "Open a file manager in the current buffer's directory.
-The buffer must be either visiting a file, or a `dired-mode'
-buffer visiting a directory."
-  (interactive)
-  (-if-let (dir (cond ((eq major-mode 'dired-mode)
-                       (dired-current-directory))
-                      ((buffer-file-name)
-                       (file-name-directory (buffer-file-name)))))
-      (basis/open-file-manager dir)
-    (message "Buffer '%s' is not associated with a directory" (buffer-name))))
-
 (defun basis/open-file (file)
   "Open FILE in an external program."
   (let ((file (expand-file-name file)))
