@@ -422,16 +422,6 @@ buffer visiting a directory."
     (insert-file-contents file)
     (read (current-buffer))))
 
-(defun basis/file-modtime (file)
-  "Return FILE's modification time (in seconds since 1970-01-01)."
-  (if (file-exists-p file)
-      (time-to-seconds (nth 5 (file-attributes file)))
-    (error "No such file '%s'" file)))
-
-(defun basis/modtime-newer-p (file1 file2)
-  "Return t if FILE1 was modified more recently than FILE2."
-  (> (basis/file-modtime file1) (basis/file-modtime file2)))
-
 ;; key binding utilities -------------------------------------------------------
 
 (defmacro basis/define-hyper (keymap key def)
@@ -916,7 +906,7 @@ If no keymap is found, return nil."
   (when ido-matches
     (let* ((directory ido-current-directory)
            (predicate (lambda (file1 file2)
-                        (basis/modtime-newer-p
+                        (file-newer-than-file-p
                          (expand-file-name file1 directory)
                          (expand-file-name file2 directory)))))
       (setq ido-cur-list (sort ido-cur-list predicate)
