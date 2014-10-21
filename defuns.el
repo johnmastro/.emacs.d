@@ -170,7 +170,7 @@ If `subword-mode' is active, use `subword-backward-kill'."
 (defun basis/smart-kill-almost-whole-line ()
   "Like `smart-kill-whole-line' but doesn't kill the newline."
   (interactive)
-  (beginning-of-line-or-indentation)
+  (basis/beginning-of-line-or-indentation)
   (kill-line nil))
 
 (defun basis/kill-ring-save-something ()
