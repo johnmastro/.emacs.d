@@ -565,18 +565,8 @@
 (global-set-key (kbd "M-h") 'basis/h-map)
 
 (basis/define-keys basis/h-map
-  ("a"   'beginning-of-defun)
-  ("e"   'end-of-defun)
-  ("f"   'ido-find-file)
-  ("b"   'ido-switch-buffer)
-  ("g"   'magit-status)
   ("C-k" 'basis/kill-this-buffer)
   ("i"   'idomenu)
-  ("0"   'delete-window)
-  ("1"   'delete-other-windows)
-  ("2"   'split-window-below)
-  ("3"   'split-window-right)
-  ("r"   ctl-x-r-map)
   ("C-h" 'mark-paragraph))
 
 ;; find elisp map --------------------------------------------------------------
