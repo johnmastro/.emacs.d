@@ -457,6 +457,7 @@
 
 ;; Grep
 (global-set-key (kbd "<f9>") 'rgrep)
+(global-set-key (kbd "<C-f9>") 'lgrep)
 
 ;; Occur
 (define-key occur-mode-map (kbd "n") 'occur-next)
@@ -1803,7 +1804,6 @@
 (defalias 'ack-find-file 'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 
-(global-set-key (kbd "<C-f9>") 'ack-and-a-half)
 (global-set-key (kbd "<M-f9>") 'ack-and-a-half)
 
 (when (file-exists-p "~/bin/ack")
