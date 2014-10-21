@@ -180,7 +180,8 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
             (fmt-revr `(:weight normal :slant normal  :underline nil        :inverse-video t))
             (fmt-revb `(:weight ,bold  :slant normal  :underline nil        :inverse-video t))
             (fmt-revbb `(:weight ,bright-bold :slant normal :underline nil  :inverse-video t))
-            (fmt-revbbu `(:weight ,bright-bold :slant normal  :underline ,underline :inverse-video t)))
+            (fmt-revbbu `(:weight ,bright-bold :slant normal  :underline ,underline :inverse-video t))
+            (have-wave '((supports :underline (:style wave)))))
         `(( ;; basic
            (default ((t (,@fg-base0 ,@bg-back))))  ; Normal
            (cursor ((t (,@fg-base03 ,@bg-base0)))) ; Cursor
@@ -363,9 +364,45 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
            (bm-fringe-face ((t (,@bg-orange ,@fg-base03))))
            (bm-fringe-persistent-face ((t (,@bg-blue ,@fg-base03))))
            ;; Flymake
-           (flymake-errline ((t (,@fmt-revr ,@fg-red ,@bg-back)))) ; ErrorMsg
-           (flymake-warnline                                       ; WarningMsg
-            ((t (,@fmt-bold ,@fg-red ,@bg-back))))
+           (flymake-errline
+            ((,have-wave
+              (:underline (:style wave :color ,red) :inherit unspecified
+                          :foreground unspecified :background unspecified))
+             (t (,@fmt-revr ,@fg-red ,@bg-back))))
+           (flymake-warnline
+            ((,have-wave
+              (:underline (:style wave :color ,yellow) :inherit unspecified
+                          :foreground unspecified :background unspecified))
+             (t (,@fmt-bold ,@fg-red ,@bg-back))))
+           (flymake-infoline
+            ((,have-wave
+              (:underline (:style wave :color ,green) :inherit unspecified
+                          :foreground unspecified :background unspecified))))
+           ;; flycheck
+           (flycheck-error
+            ((,have-wave
+              (:underline (:style wave :color ,red) :inherit unspecified))))
+           (flycheck-warning
+            ((,have-wave
+              (:underline (:style wave :color ,yellow) :inherit unspecified))))
+           (flycheck-info
+            ((,have-wave
+              (:underline (:style wave :color ,base03) :inherit unspecified))))
+           (flycheck-fringe-error
+            ((t (:foreground ,red :background ,base03 :weight bold))))
+           (flycheck-fringe-warning
+            ((t (:foreground ,yellow :background ,base03 :weight bold))))
+           (flycheck-fringe-info
+            ((t (:foreground ,base01 :background ,base03 :weight bold))))
+           ;;flyspell
+           (flyspell-incorrect
+            ((,have-wave
+              (:underline (:style wave :color ,red) :inherit unspecified))
+             (t (,@fg-red))))
+           (flyspell-duplicate
+            ((,have-wave
+              (:underline (:style wave :color ,yellow) :inherit unspecified))
+             (t (,@fg-yellow))))
            ;; column-marker
            (column-marker-1 ((t (,@bg-base01))))
            (column-marker-2 ((t (,@bg-cyan))))
@@ -529,9 +566,6 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
            ;;font-latex
            (font-latex-warning-face ((t (,@fg-red))))
            (font-latex-sectioning-5-face ((t (,@fg-violet))))
-           ;;flyspell
-           (flyspell-incorrect ((t (,@fg-red))))
-           (flyspell-duplicate ((t (,@fg-yellow))))
            ;;ansi-term
            (term-color-black ((t ( ,@fg-base02))))
            (term-color-red ((t ( ,@fg-red))))
