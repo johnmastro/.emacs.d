@@ -846,7 +846,7 @@
 
 (setq mc/list-file "~/.emacs.d/var/mc-lists.el")
 
-(with-eval-after-load 'multiple-cursors
+(with-eval-after-load 'multiple-cursors-core
   (add-to-list 'mc/temporarily-disabled-minor-modes 'idle-highlight-mode)
   ;; Make RET exit multiple-cursors-mode in the terminal too
   (define-key mc/keymap (kbd "RET") 'multiple-cursors-mode))
