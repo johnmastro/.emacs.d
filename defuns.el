@@ -1323,6 +1323,22 @@ many windows."
           (forward-word 2)
           (backward-word 1))))))
 
+(defun basis/modify-sql-syntax-table ()
+  "Set double quote's syntax to string delimiter.
+By default, SQL treats double quote as punctuation. That's
+arguably accurate (real strings are delimited with single quotes)
+but it's still natural to work with e.g. column names as
+strings."
+  (let ((buffer (current-buffer)))
+    (run-at-time
+     "1 sec"
+     nil
+     (lambda ()
+       ;; This doesn't work correctly if run immediately, I think because the
+       ;; syntax table for the particular SQL product isn't initialized yet.
+       (with-current-buffer buffer
+         (modify-syntax-entry 34 "\""))))))
+
 ;; html utilities --------------------------------------------------------------
 
 (defun basis/move-to-next-blank-line ()

@@ -1741,9 +1741,7 @@
 (defun basis/init-sql-mode ()
   (sql-set-product "postgres")
   (setq tab-width 4)
-  (let ((double-quote 34))
-    ;; Change double quote's syntax entry from punctuation to string delimiter.
-    (modify-syntax-entry double-quote "\"")))
+  (basis/modify-sql-syntax-table))
 
 (add-hook 'sql-mode-hook 'basis/init-sql-mode)
 
