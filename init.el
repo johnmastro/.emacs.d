@@ -1032,6 +1032,11 @@
 (add-hook 'after-init-hook 'global-company-mode)
 
 (with-eval-after-load 'company
+  (defadvice company-auto-begin (around no-freeze activate)
+    ;; Kludge to work around a problem I haven't figured out yet
+    (unless (and (eq major-mode 'python-mode)
+                 (basis/in-string-p))
+      ad-do-it))
   (basis/define-keys company-active-map
     ("C-t"    'company-complete-selection)
     ("C-c"    'company-abort)

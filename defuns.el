@@ -1001,6 +1001,11 @@ kill the current session even if there are multiple frames."
       (save-buffers-kill-terminal)
     (delete-frame)))
 
+(defun basis/in-string-p ()
+  "Return non-nil if point is within a string."
+  (let ((ppss (syntax-ppss)))
+    (and (nth 3 ppss) (nth 8 ppss))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
