@@ -22,11 +22,6 @@
   (when (file-directory-p source)
     (setq source-directory source)))
 
-;; OS X doesn't run a shell during login, so Emacs doesn't automatically inherit
-;; $PATH and $MANPATH.
-(when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize))
-
 ;; package ---------------------------------------------------------------------
 
 (require 'package)
@@ -148,6 +143,12 @@
                                       "-let*"
                                       "-let"
                                       "-lambda"))
+
+;; os x ------------------------------------------------------------------------
+
+;; A graphical Emacs on OS X doesn't automatically inherit $PATH
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 ;; cygwin ----------------------------------------------------------------------
 
