@@ -219,6 +219,7 @@
       delete-by-moving-to-trash t
       server-auth-dir "~/.emacs.d/var/server/"
       bookmark-default-file "~/.emacs.d/var/bookmarks"
+      url-configuration-directory "~/.emacs.d/var/url/"
       load-prefer-newer t)
 
 (setq-default indent-tabs-mode nil
@@ -237,7 +238,7 @@
 (delete-selection-mode 1)
 (global-page-break-lines-mode 1)
 
-;; safe local variables
+;; Safe local variables
 (add-to-list 'safe-local-variable-values '(lexical-binding . t))
 (add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
 
@@ -276,9 +277,6 @@
 (setq kill-buffer-query-functions
       (remq 'process-kill-buffer-query-function
             kill-buffer-query-functions))
-
-;; URL
-(setq url-configuration-directory "~/.emacs.d/var/url/")
 
 ;; No blinking please
 (blink-cursor-mode -1)
@@ -319,30 +317,20 @@
     (let ((symbola (font-spec :size 20 :name "Symbola")))
       (set-fontset-font "fontset-default" nil symbola))))
 
-(with-eval-after-load 'elisp-slime-nav
-  (diminish 'elisp-slime-nav-mode))
-(with-eval-after-load 'eldoc
-  (diminish 'eldoc-mode))
-(with-eval-after-load 'undo-tree
-  (diminish 'undo-tree-mode))
-(with-eval-after-load 'redshank
-  (diminish 'redshank-mode))
-(with-eval-after-load 'whitespace
-  (diminish 'whitespace-mode))
-(with-eval-after-load 'guide-key
-  (diminish 'guide-key-mode))
-(with-eval-after-load 'clj-refactor
-  (diminish 'clj-refactor-mode))
-(with-eval-after-load 'projectile
-  (diminish 'projectile-mode))
-(with-eval-after-load 'page-break-lines
-  (diminish 'page-break-lines-mode))
-(with-eval-after-load 'magit
-  (diminish 'magit-auto-revert-mode))
-(with-eval-after-load 'subword
-  (diminish 'subword-mode))
-(with-eval-after-load 'superword
-  (diminish 'superword-mode))
+(pcase-dolist (`(,feature ,mode) '((elisp-slime-nav   elisp-slime-nav-mode)
+                                   (eldoc             eldoc-mode)
+                                   (undo-tree         undo-tree-mode)
+                                   (redshank          redshank-mode)
+                                   (whitespace        whitespace-mode)
+                                   (guide-key         guide-key-mode)
+                                   (clj-refactor      clj-refactor-mode)
+                                   (projectile        projectile-mode)
+                                   (page-break-lines  page-break-lines-mode)
+                                   (magit             magit-auto-revert-mode)
+                                   (subword           subword-mode)
+                                   (superword         superword-mode)))
+  (eval-after-load feature
+    `(diminish ',mode)))
 
 ;; info ------------------------------------------------------------------------
 
@@ -383,7 +371,7 @@
   (`darwin     (basis/init-modifiers-for-os-x))
   (`windows-nt (basis/init-modifiers-for-windows)))
 
-;; Restore previous window configurations
+;; C-c <left>/<right> to move backward/forward through window configurations
 (winner-mode 1)
 
 ;; Newlines
