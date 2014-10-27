@@ -835,7 +835,6 @@
 (setq mc/list-file "~/.emacs.d/var/mc-lists.el")
 
 (with-eval-after-load 'multiple-cursors-core
-  (add-to-list 'mc/temporarily-disabled-minor-modes 'idle-highlight-mode)
   ;; Make RET exit multiple-cursors-mode in the terminal too
   (define-key mc/keymap (kbd "RET") 'multiple-cursors-mode))
 
@@ -1979,6 +1978,17 @@ two tags."
 
 (add-to-list 'auto-mode-alist '(".ssh/config\\'"  . ssh-config-mode))
 (add-to-list 'auto-mode-alist '("sshd?_config\\'" . ssh-config-mode))
+
+;; idle-highlight-mode ---------------------------------------------------------
+
+(defadvice idle-highlight-mode (after handle-mc-disable-list activate)
+  ;; Add/remove `idle-highlight-mode' from `mc/temporarily-disabled-minor-modes'
+  ;; as it's enabled/disabled. The idea to is to keep mc from enabling
+  ;; idle-highlight unless it was really enabled to begin with.
+  (if (bound-and-true-p idle-highlight-mode)
+      (add-to-list 'mc/temporarily-disabled-minor-modes 'idle-highlight-mode)
+    (setq mc/temporarily-disabled-minor-modes
+          (remq 'idle-highlight-mode mc/temporarily-disabled-minor-modes))))
 
 ;; batch-mode ------------------------------------------------------------------
 
