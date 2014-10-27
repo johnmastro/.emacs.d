@@ -891,6 +891,7 @@
 ;; Addresses to consider "me" when searching
 (setq mu4e-user-mail-address-list '("jbm@jbm.io"
                                     "jbm@deft.li"
+                                    "jbm@fastmail.com"
                                     "jbm@fastmail.fm"
                                     "jbm@mailforce.net"))
 
@@ -908,8 +909,9 @@
       user-mail-address "jbm@jbm.io"
       user-full-name "John Mastro"
       message-signature "jbm"
-      mu4e-sent-messages-behavior 'delete    ;; they're saved on the server
-      message-kill-buffer-on-exit t)
+      mu4e-sent-messages-behavior 'delete ; they're saved on the server
+      message-kill-buffer-on-exit t
+      message-dont-reply-to-names (regexp-opt mu4e-user-mail-address-list))
 
 ;; SMTP
 (setq send-mail-function 'smtpmail-send-it
@@ -1968,9 +1970,7 @@ two tags."
   (flyspell-mode 1))
 
 (setq message-auto-save-directory "~/.emacs.d/tmp/"
-      message-subject-trailing-was-query nil
-      message-dont-reply-to-names (rx (or (seq "jbm@" (or "jbm.io" "deft.li"))
-                                          "john.b.mastro@gmail.com")))
+      message-subject-trailing-was-query nil)
 
 (add-hook 'message-mode-hook 'basis/init-message-mode)
 
