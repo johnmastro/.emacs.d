@@ -871,6 +871,18 @@
 
 (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
 
+;; message-mode ----------------------------------------------------------------
+
+(defun basis/init-message-mode ()
+  (setq fill-column 72)
+  (auto-fill-mode 1)
+  (basis/maybe-enable-flyspell))
+
+(setq message-auto-save-directory "~/.emacs.d/tmp/"
+      message-subject-trailing-was-query nil)
+
+(add-hook 'message-mode-hook 'basis/init-message-mode)
+
 ;; mu4e ------------------------------------------------------------------------
 
 (autoload 'mu4e "mu4e" "Launch mu4e" t nil)
@@ -1961,18 +1973,6 @@ two tags."
       gnus-always-read-dribble-file nil
       gnus-read-newsrc-file nil
       gnus-save-newsrc-file nil)
-
-;; message-mode ----------------------------------------------------------------
-
-(defun basis/init-message-mode ()
-  (setq fill-column 72)
-  (auto-fill-mode 1)
-  (flyspell-mode 1))
-
-(setq message-auto-save-directory "~/.emacs.d/tmp/"
-      message-subject-trailing-was-query nil)
-
-(add-hook 'message-mode-hook 'basis/init-message-mode)
 
 ;; ssh-config-mode -------------------------------------------------------------
 
