@@ -1115,6 +1115,22 @@ used to create Unicode, raw, and byte strings respectively."
           (and result (not (looking-back raw-string))))
       result)))
 
+(defun basis/sp-disable-sql-reindent (function &rest args)
+  "Advice to disable SP's automatic reindentation in `sql-mode'."
+  (if (and (eq major-mode 'sql-mode)
+           (eq indent-line-function 'indent-relative))
+      (cl-letf (((symbol-function 'indent-according-to-mode)
+                 (symbol-function 'ignore)))
+        (apply function args))
+    (apply function args)))
+
+(advice-add 'sp-kill-word :around #'basis/sp-disable-sql-reindent)
+(advice-add 'sp-backward-kill-word :around #'basis/sp-disable-sql-reindent)
+(advice-add 'sp-kill-hybrid-sexp :around #'basis/sp-disable-sql-reindent)
+(advice-add 'basis/sp-kill-region-or-backward-word
+            :around
+            #'basis/sp-disable-sql-reindent)
+
 ;; scheme/geiser ---------------------------------------------------------------
 
 (defun basis/scheme-send-something ()
