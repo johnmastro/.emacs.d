@@ -1105,11 +1105,13 @@ kill the current session even if there are multiple frames."
       (sp-backward-sexp arg))))
 
 (defun basis/sp-point-after-word-p (id action context)
-  "Like `sp-point-after-word-p' but special-case Python's raw strings."
+  "Like `sp-point-after-word-p' but special-case Python's strings.
+Specifically, this handles the \"u\", \"r\", and \"b\" prefixes
+used to create Unicode, raw, and byte strings respectively."
   (let ((result (sp-point-after-word-p id action context)))
     (if (and (memq major-mode '(python-mode inferior-python-mode))
              (member id '("'" "\"")))
-        (let ((raw-string (concat "\\([^\\sw\\s_]\\)r" (regexp-quote id))))
+        (let ((raw-string (concat "\\([^\\sw\\s_]\\)[bru]" (regexp-quote id))))
           (and result (not (looking-back raw-string))))
       result)))
 
