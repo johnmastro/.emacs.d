@@ -452,8 +452,7 @@
 (define-key occur-mode-map (kbd "p") 'occur-prev)
 (global-set-key (kbd "<C-f2>") 'basis/multi-occur-this-mode)
 
-;; Mark commands
-(global-set-key (kbd "C-`") 'basis/push-mark-no-activate)
+;; Jump to the mark without arg
 (global-set-key (kbd "M-`") 'basis/jump-to-mark)
 
 ;; Expand-region
@@ -522,7 +521,7 @@
   ("M-l" 'basis/downcase-something)
   ("M-c" 'basis/capitalize-something))
 
-;; Kill frames with C-x C-c
+;; DWIM C-x C-c
 (global-set-key (kbd "C-x C-c") 'basis/kill-frame-or-terminal)
 ;; Kill Emacs with M-x sayonara
 (defalias 'sayonara 'save-buffers-kill-terminal)
