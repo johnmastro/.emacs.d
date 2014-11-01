@@ -1748,12 +1748,16 @@
 (with-eval-after-load 'sql
   ;; But I also work with other products and it's often easier not to switch
   ;; `sql-product' around.
-  (let ((more-builtins '("elsif" "endif" "while")))
+  (let ((more-keywords '("elsif" "endif" "while")))
     (add-to-list
      'sql-mode-postgres-font-lock-keywords
      (apply #'sql-font-lock-keywords-builder
-            'font-lock-builtin-face nil more-builtins)))
-  (define-key sql-mode-map (kbd "RET") 'basis/electric-return))
+            'font-lock-keyword-face nil more-keywords)))
+  (define-key sql-mode-map (kbd "RET") 'basis/electric-return)
+  (define-key sql-mode-map (kbd "M-n") 'basis/sql-forward-clause)
+  (define-key sql-mode-map (kbd "M-p") 'basis/sql-backward-clause)
+  (define-key sql-mode-map (kbd "C-M-a") 'basis/sql-beginning-of-defun)
+  (define-key sql-mode-map (kbd "C-M-e") 'basis/sql-end-of-defun))
 
 ;; cc-mode ---------------------------------------------------------------------
 
