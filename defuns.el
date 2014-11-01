@@ -1003,8 +1003,8 @@ kill the current session even if there are multiple frames."
 
 (defun basis/in-string-p ()
   "Return non-nil if point is within a string."
-  (let ((ppss (syntax-ppss)))
-    (and (nth 3 ppss) (nth 8 ppss))))
+  (let ((state (syntax-ppss)))
+    (and (nth 3 state) (nth 8 state))))
 
 ;; paredit ---------------------------------------------------------------------
 
@@ -1315,19 +1315,21 @@ many windows."
 ;; sql -------------------------------------------------------------------------
 
 (defvar basis/sql-clause-start-regexp
-  (rx (or "create" "delete" "drop" "from"
+  (rx word-start
+      (or "create" "delete" "drop" "from"
           "having" "insert" "intersect" "into"
           "select" "set" "truncate" "union"
           "update" "where" "with"
           (seq "group" (1+ space) "by")
-          (seq "order" (1+ space) "by")))
+          (seq "order" (1+ space) "by"))
+      word-end)
   "Regexp matching SQL keywords that begin clauses.")
 
 (defun basis/sql-in-string-or-comment-p ()
   "Return non-nil if point is in a string or comment."
-  (let ((parse-state (syntax-ppss)))
-    (or (nth 3 parse-state)
-        (nth 4 parse-state))))
+  (let ((state (syntax-ppss)))
+    (or (nth 3 state)
+        (nth 4 state))))
 
 (defun basis/sql-forward-clause (&optional n)
   "Move to the start of the next clause of the statement.
@@ -1371,12 +1373,12 @@ With arg N, move backward that many times."
   ;; This treats nested statements (e.g. subqueries) as defuns. I find it quite
   ;; convenient at times, but I'm not sure if it's the right thing to do.
   (interactive)
-  (let ((ppss (syntax-ppss)))
-    (when (and (> (car ppss) 0)
+  (let ((state (syntax-ppss)))
+    (when (and (> (car state) 0)
                (looking-at-p sql-ansi-statement-starters))
       (backward-up-list)
-      (setq ppss (syntax-ppss)))
-    (if (= (car ppss) 0)
+      (setq state (syntax-ppss)))
+    (if (= (car state) 0)
         (while (and (progn (forward-line -1)
                            (back-to-indentation)
                            t)
@@ -1387,19 +1389,19 @@ With arg N, move backward that many times."
                                 (looking-at-p  "^[[:space:]]*$")))))
           'keep-going)
       (let ((start (point)))
-        (while (and (cadr ppss)
-                    (goto-char (cadr ppss))
+        (while (and (cadr state)
+                    (goto-char (cadr state))
                     (basis/sql-forward-clause 1)
                     (> (point) start))
-          (goto-char (cadr ppss))
-          (setq ppss (syntax-ppss)))))))
+          (goto-char (cadr state))
+          (setq state (syntax-ppss)))))))
 
 (defun basis/sql-end-of-defun ()
   "Move to the end of the current SQL statement."
   (interactive)
   (let ((start (point))
-        (ppss (syntax-ppss)))
-    (if (= (car ppss) 0)
+        (state (syntax-ppss)))
+    (if (= (car state) 0)
         ;; TODO: Lose the assumption that statements never contain blank lines
         (progn
           (while (and (looking-at "^[[:space:]]*$")
@@ -1411,9 +1413,9 @@ With arg N, move backward that many times."
       ;; Seems a bit unfortunate to have to find the beginning of the defun in
       ;; order to find its end
       (basis/sql-beginning-of-defun)
-      (setq ppss (syntax-ppss))
-      (if (cadr ppss)
-          (progn (goto-char (cadr ppss))
+      (setq state (syntax-ppss))
+      (if (cadr state)
+          (progn (goto-char (cadr state))
                  (forward-sexp))
         (goto-char start)))))
 
