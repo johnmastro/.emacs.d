@@ -252,27 +252,36 @@ whole buffer."
 This will call `upcase-region' or `upcase-word' depending on
 whether the region is active."
   (interactive "p")
-  (if (use-region-p)
-      (upcase-region (region-beginning) (region-end))
-    (upcase-word arg)))
+  (cond ((use-region-p)
+         (upcase-region (region-beginning) (region-end)))
+        ((bound-and-true-p subword-mode)
+         (subword-upcase arg))
+        (t
+         (upcase-word arg))))
 
 (defun basis/downcase-something (&optional arg)
   "Downcase either the region or word(s).
 This will call `downcase-region' or `downcase-word' depending on
 whether the region is active."
   (interactive "p")
-  (if (use-region-p)
-      (downcase-region (region-beginning) (region-end))
-    (downcase-word arg)))
+  (cond ((use-region-p)
+         (downcase-region (region-beginning) (region-end)))
+        ((bound-and-true-p subword-mode)
+         (subword-downcase arg))
+        (t
+         (downcase-word arg))))
 
 (defun basis/capitalize-something (&optional arg)
   "Capitalize either the region or word(s).
 This will call `capitalize-region' or `capitalize-word' depending
 on whether the region is active."
   (interactive "p")
-  (if (use-region-p)
-      (capitalize-region (region-beginning) (region-end))
-    (capitalize-word arg)))
+  (cond ((use-region-p)
+         (capitalize-region (region-beginning) (region-end)))
+        ((bound-and-true-p subword-mode)
+         (subword-capitalize arg))
+        (t
+         (capitalize-word arg))))
 
 ;; mark commands ---------------------------------------------------------------
 
