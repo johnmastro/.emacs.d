@@ -1592,7 +1592,13 @@
     ("M-e"           'basis/maybe-sp-forward-sexp)
     ("M-a"           'basis/maybe-sp-backward-sexp)
     ("]"             'sp-up-sexp)
-    ("C-c ]"         'basis/insert-right-bracket)))
+    ("C-c ]"         'basis/insert-right-bracket))
+
+  (basis/sp-disable-sql-reindent-for
+   '(sp-kill-word
+     sp-backward-kill-word
+     sp-kill-hybrid-sexp
+     basis/sp-kill-region-or-backward-word)))
 
 ;; flycheck --------------------------------------------------------------------
 

@@ -1133,12 +1133,10 @@ used to create Unicode, raw, and byte strings respectively."
         (apply function args))
     (apply function args)))
 
-(advice-add 'sp-kill-word :around #'basis/sp-disable-sql-reindent)
-(advice-add 'sp-backward-kill-word :around #'basis/sp-disable-sql-reindent)
-(advice-add 'sp-kill-hybrid-sexp :around #'basis/sp-disable-sql-reindent)
-(advice-add 'basis/sp-kill-region-or-backward-word
-            :around
-            #'basis/sp-disable-sql-reindent)
+(defun basis/sp-disable-sql-reindent-for (functions)
+  "Disable SP'a automatic reindentation in `sql-mode' for FUNCTION."
+  (dolist (function functions)
+    (advice-add function :around #'basis/sp-disable-sql-reindent)))
 
 ;; scheme/geiser ---------------------------------------------------------------
 
