@@ -944,6 +944,14 @@
 (when (file-exists-p "~/.emacs.d/feeds.el")
   (setq elfeed-feeds (basis/elfeed-load-feeds "~/.emacs.d/feeds.el")))
 
+;; eww -------------------------------------------------------------------------
+
+(with-eval-after-load 'eww
+  (defadvice eww-tag-body (around eww-no-color-please activate)
+    (cl-letf (((symbol-function 'eww-colorize-region)
+               (symbol-function 'ignore)))
+      ad-to-it))
+  (define-key eww-mode-map (kbd "<backtab>") 'shr-previous-link))
 
 ;; w3m -------------------------------------------------------------------------
 
