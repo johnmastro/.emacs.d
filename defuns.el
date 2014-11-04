@@ -1015,6 +1015,17 @@ kill the current session even if there are multiple frames."
   (let ((state (syntax-ppss)))
     (and (nth 3 state) (nth 8 state))))
 
+(defun basis/diff-buffer-with-file (&optional buffer file)
+  "View the differences between BUFFER and FILE.
+With a prefix arg, prompt for both BUFFER and FILE. Otherwise,
+only prompt for BUFFER and use its associated file as FILE."
+  (interactive
+   (list (ido-read-buffer "Buffer: " (buffer-name) t)
+         (when current-prefix-arg
+           (ido-read-file-name "File: " nil nil t))))
+  (with-current-buffer (get-buffer (or buffer (current-buffer)))
+    (diff (or file buffer-file-name) (current-buffer) nil 'noasync)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
