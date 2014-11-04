@@ -1065,6 +1065,10 @@ kill the current session even if there are multiple frames."
 
 ;; smartparens -----------------------------------------------------------------
 
+(defadvice sp-backward-delete-char (before no-special-prefix-arg activate)
+  "Treat a raw prefix arg as numeric prefix arg."
+  (ad-set-arg 0 (prefix-numeric-value (ad-get-arg 0))))
+
 (defun basis/sp-kill-region-or-backward-word (&optional arg)
   "Call `sp-backward-kill-word' or `kill-region'. "
   (interactive "p")
