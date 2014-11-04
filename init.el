@@ -543,6 +543,15 @@
 (global-set-key (kbd "<C-prior>") 'previous-buffer)
 (global-set-key (kbd "<C-next>") 'next-buffer)
 
+;; Operate on the current buffer and file
+(define-prefix-command 'basis/buffer-file-map)
+(global-set-key (kbd "C-c f") 'basis/buffer-file-map)
+
+(basis/define-keys basis/buffer-file-map
+  ("d" 'basis/diff-buffer-with-file)
+  ("r" 'basis/rename-current-buffer-file)
+  ("D" 'basis/delete-current-buffer-file))
+
 ;; h-map -----------------------------------------------------------------------
 
 (define-prefix-command 'basis/h-map)
