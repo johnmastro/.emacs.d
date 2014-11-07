@@ -495,7 +495,8 @@
   ("<M-left>"  'backward-sexp))
 
 ;; M-x shell
-(global-set-key (kbd "C-c RET") 'shell)
+(global-set-key (kbd "C-c <C-return>") 'shell)
+(global-set-key (kbd "C-c C-^") 'shell)
 
 ;; Start eshell or switch to it if it's active
 (global-set-key (kbd "C-x m") 'eshell)
