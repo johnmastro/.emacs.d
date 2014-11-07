@@ -880,6 +880,9 @@
 
 (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
 
+(unless (display-graphic-p)
+  (setq aw-scope 'frame))
+
 ;; message-mode ----------------------------------------------------------------
 
 (defun basis/init-message-mode ()
