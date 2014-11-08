@@ -1260,7 +1260,7 @@
 
 (dolist (f '(try-expand-line try-expand-list try-expand-all-abbrevs))
   (setq hippie-expand-try-functions-list
-        (delete f hippie-expand-try-functions-list)))
+        (remq f hippie-expand-try-functions-list)))
 
 ;; yasnippet -------------------------------------------------------------------
 
