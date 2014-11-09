@@ -896,6 +896,10 @@
 
 ;; mu4e ------------------------------------------------------------------------
 
+(let ((dir "/usr/local/share/emacs/site-lisp/mu4e/"))
+  (when (file-directory-p dir)
+    (add-to-list 'load-path dir)))
+
 (autoload 'mu4e "mu4e" "Launch mu4e" t nil)
 
 ;; Mail
