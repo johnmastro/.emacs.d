@@ -228,6 +228,11 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
+;; Start the server, unless it's already running
+(require 'server)
+(unless (and server-name (server-running-p server-name))
+  (server-start))
+
 ;; Enable some miscellaneous helpful modes
 (size-indication-mode 1)
 (global-hl-line-mode 1)
