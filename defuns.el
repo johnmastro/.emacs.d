@@ -713,6 +713,24 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
                 (font-lock-refresh-defaults))))
           (buffer-list))))
 
+(defun basis/elisp-quote (beg end)
+  "Put the region from BEG to END in Emacs Lisp-style quotes.
+If called interactively without an active region, the symbol at
+point is used instead, if any."
+  (interactive
+   (pcase-let ((`(,beg . ,end)
+                (if (use-region-p)
+                    (cons (region-beginning) (region-end))
+                  (bounds-of-thing-at-point 'symbol))))
+     (list beg end)))
+  (unless (and beg end)
+    (error "Invalid region"))
+  (let ((end (move-marker (make-marker) end)))
+    (goto-char beg)
+    (insert "`")
+    (goto-char end)
+    (insert "'")))
+
 ;; occur -----------------------------------------------------------------------
 
 (defun basis/active-major-modes ()
