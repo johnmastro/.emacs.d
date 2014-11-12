@@ -971,7 +971,7 @@
   (defadvice eww-tag-body (around eww-no-color-please activate)
     (cl-letf (((symbol-function 'eww-colorize-region)
                (symbol-function 'ignore)))
-      ad-to-it))
+      ad-do-it))
   (define-key eww-mode-map (kbd "<backtab>") 'shr-previous-link))
 
 ;; w3m -------------------------------------------------------------------------
