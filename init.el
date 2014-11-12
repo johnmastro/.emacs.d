@@ -9,7 +9,7 @@
       '(menu-bar-mode tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode))
 
 ;; Make sure some directories exist
-(dolist (dir '("var/" "tmp/"))
+(dolist (dir '("var/" "var/autosaves" "tmp/"))
   (let ((path (expand-file-name dir "~/.emacs.d/")))
     (unless (file-exists-p path)
       (make-directory path))))
