@@ -54,6 +54,7 @@
           company
           dash
           dash-functional
+          debbugs
           deft
           diminish
           dired+
@@ -2011,6 +2012,10 @@ two tags."
       gnus-always-read-dribble-file nil
       gnus-read-newsrc-file nil
       gnus-save-newsrc-file nil)
+
+;; debbugs ---------------------------------------------------------------------
+
+(setq debbugs-gnu-persistency-file "~/.emacs.d/var/debbugs")
 
 ;; ssh-config-mode -------------------------------------------------------------
 
