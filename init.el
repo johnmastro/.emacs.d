@@ -910,7 +910,7 @@
 
 ;; Mail
 (setq mu4e-get-mail-command "offlineimap"
-      mu4e-maildir "/home/jbm/.maildir/fastmail"
+      mu4e-maildir (expand-file-name ".maildir/fastmail" (getenv "HOME"))
       mu4e-sent-folder "/sent"
       mu4e-drafts-folder "/drafts"
       mu4e-trash-folder "/trash"
