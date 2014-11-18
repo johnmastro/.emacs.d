@@ -892,7 +892,7 @@
 
 (defun basis/init-message-mode ()
   (setq fill-column 72)
-  (auto-fill-mode 1)
+  (turn-on-auto-fill)
   (basis/maybe-enable-flyspell))
 
 (setq message-auto-save-directory "~/.emacs.d/tmp/"
@@ -955,9 +955,12 @@
       smtpmail-smtp-service 465
       smtpmail-stream-type 'ssl)
 
+(defun basis/init-mu4e-compose-mode ()
+  (turn-on-auto-fill)
+  (basis/maybe-enable-flyspell))
+
 (with-eval-after-load 'mu4e
-  (add-hook 'mu4e-compose-mode-hook 'basis/maybe-enable-flyspell)
-  (add-hook 'mu4e-compose-mode-hook 'turn-on-orgstruct)
+  (add-hook 'mu4e-compose-mode-hook 'basis/init-mu4e-compose-mode)
   (add-to-list 'mu4e-view-actions
                '("View in browser" . basis/mu4e-action-view-in-browser)
                t))
