@@ -942,7 +942,7 @@
       user-mail-address "jbm@jbm.io"
       user-full-name "John Mastro"
       message-signature "jbm"
-      mu4e-sent-messages-behavior 'delete ; they're saved on the server
+      mu4e-sent-messages-behavior 'delete ; They're saved on the server
       message-kill-buffer-on-exit t
       message-dont-reply-to-names (regexp-opt mu4e-user-mail-address-list))
 
@@ -954,6 +954,11 @@
       smtpmail-smtp-user "jbm@fastmail.fm"
       smtpmail-smtp-service 465
       smtpmail-stream-type 'ssl)
+
+;; Retrieving passwords
+(setq auth-sources (if (eq system-type 'darwin)
+                       '(macos-keychain-internet)
+                     '("~/.authinfo.gpg")))
 
 (defun basis/init-mu4e-compose-mode ()
   (turn-on-auto-fill)
