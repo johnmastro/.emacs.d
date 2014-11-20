@@ -590,6 +590,7 @@
   ("i" 'info-apropos)
   ("k" 'find-function-on-key)
   ("l" 'find-library)
+  ("m" 'info-display-manual)
   ("s" 'basis/scratch!)
   ("v" 'find-variable)
   ("V" 'apropos-value)
