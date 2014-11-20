@@ -1808,6 +1808,9 @@
   (define-key sql-mode-map (kbd "C-M-a") 'basis/sql-beginning-of-defun)
   (define-key sql-mode-map (kbd "C-M-e") 'basis/sql-end-of-defun))
 
+;; When using Emacs as $PSQL_EDITOR, open the files in `sql-mode'
+(add-to-list 'auto-mode-alist '("/psql.edit.[0-9]+\\'" . sql-mode))
+
 ;; cc-mode ---------------------------------------------------------------------
 
 (defun basis/init-c-base ()
