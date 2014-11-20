@@ -1694,7 +1694,7 @@
     (flycheck-mode 1))
   (setq fill-column 79)
   (setq tab-width 4)
-  (set (make-local-variable 'whitespace-line-column) 79)
+  (setq-local whitespace-line-column 79)
   (setq-local electric-indent-chars (remove ?: electric-indent-chars))
   (setq basis/eval-defun-function 'python-shell-send-defun
         basis/eval-region-function 'python-shell-send-region
@@ -1722,13 +1722,13 @@
 (defun basis/rust-set-compile-command ()
   (unless (or (file-exists-p "Makefile")
               (file-exists-p "makefile"))
-    (set (make-local-variable 'compile-command)
-         (if (file-exists-p "Cargo.toml")
-             "cargo build"
-           (format "rustc %s"
-                   (if buffer-file-name
-                       (shell-quote-argument buffer-file-name)
-                     ""))))))
+    (setq-local compile-command
+                (if (file-exists-p "Cargo.toml")
+                    "cargo build"
+                  (format "rustc %s"
+                          (if buffer-file-name
+                              (shell-quote-argument buffer-file-name)
+                            ""))))))
 
 (defun basis/init-rust-mode ()
   (subword-mode 1)
@@ -1813,7 +1813,7 @@
 (defun basis/init-c-base ()
   (setq indent-tabs-mode nil
         c-basic-offset 4)
-  (set (make-local-variable 'comment-style) 'extra-line)
+  (setq-local comment-style 'extra-line)
   (c-toggle-auto-newline 1)
   (dolist (cleanup '(brace-else-brace
                      brace-elseif-brace
@@ -1945,8 +1945,8 @@
 ;; html ------------------------------------------------------------------------
 
 (defun basis/init-simplezen ()
-  (set (make-local-variable 'yas-fallback-behavior)
-       '(apply simplezen-expand-or-indent-for-tab)))
+  (setq-local yas-fallback-behavior
+              '(apply simplezen-expand-or-indent-for-tab)))
 
 (defun basis/init-html-mode ()
   (setq tab-width 4)
