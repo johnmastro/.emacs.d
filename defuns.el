@@ -575,6 +575,15 @@ WHAT must be an option in `dired-sorting-options'."
         (dired-sort-other (concat dired-listing-switches opt))
       (error "Don't know how to sort by '%s'" what))))
 
+(defun basis/dired-slurp-files (files buffer)
+  "Insert the contents of marked FILES into BUFFER.
+If it doesn't exist, BUFFER is created automatically."
+  (interactive (list (if (eq major-mode 'dired-mode)
+                         (dired-get-marked-files)
+                       (error "Buffer not in `dired-mode'"))
+                     (ido-read-buffer "Destination buffer: ")))
+  (basis/insert-files files (get-buffer-create buffer)))
+
 ;; direx -----------------------------------------------------------------------
 
 ;; `direx' includes a package `direx-project', which implements its own project
