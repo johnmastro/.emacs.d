@@ -1695,6 +1695,7 @@
   (setq fill-column 79)
   (setq tab-width 4)
   (set (make-local-variable 'whitespace-line-column) 79)
+  (setq-local electric-indent-chars (remove ?: electric-indent-chars))
   (setq basis/eval-defun-function 'python-shell-send-defun
         basis/eval-region-function 'python-shell-send-region
         basis/eval-buffer-function 'python-shell-send-buffer
