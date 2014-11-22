@@ -69,6 +69,9 @@
           geiser
           gist
           git-timemachine
+          gitattributes-mode
+          gitconfig-mode
+          gitignore-mode
           guide-key
           haskell-mode
           helm
