@@ -1631,7 +1631,10 @@
     ("]"             'sp-up-sexp)
     ("C-c ]"         'basis/insert-right-bracket))
 
-  (basis/sp-disable-sql-reindent-for
+  ;; These commands invoke `indent-according-to-mode' but, when
+  ;; `indent-line-function' is `indent-relative', that often doesn't work out
+  ;; too well.
+  (basis/disable-relative-reindent-for
    '(sp-kill-word
      sp-backward-kill-word
      sp-kill-hybrid-sexp

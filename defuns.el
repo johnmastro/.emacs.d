@@ -1180,19 +1180,18 @@ used to create Unicode, raw, and byte strings respectively."
           (and result (not (looking-back raw-string))))
       result)))
 
-(defun basis/sp-disable-sql-reindent (function &rest args)
-  "Advice to disable SP's automatic reindentation in `sql-mode'."
-  (if (and (eq major-mode 'sql-mode)
-           (eq indent-line-function 'indent-relative))
+(defun basis/disable-relative-reindent (function &rest args)
+  "Advice to prevent relative reindentation by FUNCTION."
+  (if (eq indent-line-function 'indent-relative)
       (cl-letf (((symbol-function 'indent-according-to-mode)
                  (symbol-function 'ignore)))
         (apply function args))
     (apply function args)))
 
-(defun basis/sp-disable-sql-reindent-for (functions)
-  "Disable SP'a automatic reindentation in `sql-mode' for FUNCTION."
+(defun basis/disable-relative-reindent-for (functions)
+  "Prevent automatic relative reindentation by FUNCTIONS."
   (dolist (function functions)
-    (advice-add function :around #'basis/sp-disable-sql-reindent)))
+    (advice-add function :around #'basis/disable-relative-reindent)))
 
 ;; scheme/geiser ---------------------------------------------------------------
 
