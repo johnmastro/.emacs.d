@@ -1156,6 +1156,13 @@
   (define-key direx:direx-mode-map (kbd "M-n") 'direx:next-sibling-item)
   (define-key direx:direx-mode-map (kbd "M-p") 'direx:previous-sibling-item))
 
+;; comint ----------------------------------------------------------------------
+
+(with-eval-after-load 'comint
+  ;; Because Paredit and Smartparens both use M-r
+  (define-key comint-mode-map
+    (kbd "C-M-r") 'comint-history-isearch-backward-regexp))
+
 ;; shell-mode ------------------------------------------------------------------
 
 ;; Not sure why comint/dirtrack see junk in front of my prompt with Cygwin's
