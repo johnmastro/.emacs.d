@@ -2023,6 +2023,15 @@ two tags."
     ("C-c r"   'markdown-insert-reference-link-dwim)
     ("C-c C-r" 'markdown-insert-reference-link-dwim)))
 
+;; yaml ------------------------------------------------------------------------
+
+(defun basis/init-yaml-mode ()
+  (basis/maybe-enable-flyspell-prog-mode)
+  (when (basis/yaml-multiple-docs-p)
+    (basis/yaml-multi-doc-mode)))
+
+(add-hook 'yaml-mode-hook 'basis/init-yaml-mode)
+
 ;; deft ------------------------------------------------------------------------
 
 (setq deft-extension "md"

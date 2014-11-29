@@ -614,7 +614,7 @@ If it doesn't exist, BUFFER is created automatically."
 
 (define-minor-mode basis/elisp-display-mode
   "Display pretty-printed output macro expansions."
-  :lighter nil
+  :lighter ""
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "q") 'quit-window)
             map))
@@ -1623,6 +1623,44 @@ used rather than a list of symbols."
 (defun basis/elfeed-load-feeds (file)
   "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
   (-mapcat #'basis/elfeed-parse-group (basis/read-file file)))
+
+;; yaml ------------------------------------------------------------------------
+
+(defun basis/yaml-multiple-docs-p ()
+  "Return non-nil if the buffer contains a multiple-document stream."
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward "^---" nil t)))
+
+(defun basis/yaml-next-document ()
+  "Move forward to the next YAML document in the buffer.
+This is only effective if the current buffer contains a YAML
+multiple-document stream."
+  (interactive)
+  (let ((start (point)))
+    (end-of-line)
+    (if (re-search-forward "^---" nil t)
+        (goto-char (match-beginning 0))
+      (goto-char start))))
+
+(defun basis/yaml-previous-document ()
+  "Move backward to the previous YAML document in the buffer.
+This is only effective if the current buffer contains a YAML
+multiple-document stream."
+  (interactive)
+  (let ((start (point)))
+    (beginning-of-line)
+    (if (re-search-backward "^---" nil t)
+        (goto-char (match-beginning 0))
+      (goto-char start))))
+
+(define-minor-mode basis/yaml-multi-doc-mode
+  "Mode for YAML buffers containing a stream of documents."
+  :lighter ""
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "M-n") 'basis/yaml-next-document)
+            (define-key map (kbd "M-p") 'basis/yaml-previous-document)
+            map))
 
 ;; lorem ipsum -----------------------------------------------------------------
 
