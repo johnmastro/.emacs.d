@@ -404,9 +404,21 @@ If called interactively, use `ido' to read the directory."
                     system-type)))
       (error "File '%s' does not exist" file))))
 
-(defun basis/open-files (&optional files)
-  "Open each of FILES in external programs."
-  (mapc #'basis/open-file files))
+(defun basis/open-files (files)
+  "Open FILES in external programs.
+If in a `dired' buffer, open the marked files. Otherwise, open
+the file associated with the current buffer."
+  (interactive
+   (list (cond ((eq major-mode 'dired-mode)
+                (dired-get-marked-files))
+               ((buffer-file-name)
+                (list (buffer-file-name)))
+               (t
+                (error "No files to open")))))
+  (let ((count (length files)))
+    (when (or (<= count 5)
+              (y-or-n-p (format "Really open %d files?" count)))
+      (mapc #'basis/open-file files))))
 
 (defun basis/windows->unix (path)
   "Convert a path from Windows-style to UNIX-style."
@@ -538,18 +550,6 @@ On OS X, instead define a binding with <kp-enter> as prefix."
   (interactive)
   (end-of-buffer)
   (dired-next-line -1))
-
-(defun basis/dired-open-files ()
-  "Open marked file(s) in external program(s).
-If no files are marked, default to the file under point."
-  (interactive)
-  (if (eq major-mode 'dired-mode)
-      (let* ((files (dired-get-marked-files))
-             (count (length files)))
-        (when (or (<= count 5)
-                  (y-or-n-p (format "Really open %s files?" count)))
-          (basis/open-files files)))
-    (error "Not in a dired-mode buffer")))
 
 (defvar basis/dired-sorting-options
   '(("modification" . "c")

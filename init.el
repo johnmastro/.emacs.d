@@ -560,7 +560,9 @@
 (basis/define-keys basis/buffer-file-map
   ("d" 'basis/diff-buffer-with-file)
   ("r" 'basis/rename-current-buffer-file)
-  ("D" 'basis/delete-current-buffer-file))
+  ("D" 'basis/delete-current-buffer-file)
+  ("m" 'basis/open-file-manager)
+  ("o" 'basis/open-files))
 
 ;; h-map -----------------------------------------------------------------------
 
