@@ -1160,6 +1160,11 @@
 
 ;; comint ----------------------------------------------------------------------
 
+;; Not a `comint' setting, but it does improve results in some comint-derived
+;; modes (e.g. it makes it possible to use Python's help function in
+;; `inferior-python-mode' buffers).
+(setenv "PAGER" "cat")
+
 (with-eval-after-load 'comint
   ;; Because Paredit and Smartparens both use M-r
   (define-key comint-mode-map
