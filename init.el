@@ -967,6 +967,10 @@
                        '(macos-keychain-internet)
                      '("~/.authinfo.gpg")))
 
+;; Temporary fix for bug #19074
+(when (string= emacs-version "24.4.1")
+  (load "~/.emacs.d/auth-source-fix.el"))
+
 (defun basis/init-mu4e-compose-mode ()
   (turn-on-auto-fill)
   (basis/maybe-enable-flyspell))
