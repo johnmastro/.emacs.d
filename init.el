@@ -1403,6 +1403,11 @@
   (when (member (buffer-name) '("*scratch*" "*ielm*"))
     (setq lexical-binding t)))
 
+(defun basis/init-emacs-lisp-mode ()
+  (let ((name buffer-file-name))
+    (unless (and name (string= name (expand-file-name "~/.emacs.d/init.el")))
+      (flycheck-mode))))
+
 (defun basis/init-emacs-lisp-eval-map ()
   (setq basis/eval-defun-function 'eval-defun
         basis/eval-last-sexp-function 'eval-last-sexp
@@ -1413,6 +1418,8 @@
                 lisp-interaction-mode-hook
                 ielm-mode-hook))
   (add-hook hook 'basis/init-emacs-lisp-modes))
+
+(add-hook 'emacs-lisp-mode-hook 'basis/init-emacs-lisp-mode)
 
 (dolist (hook '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
   (add-hook hook 'basis/init-emacs-lisp-eval-map))
