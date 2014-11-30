@@ -694,9 +694,9 @@ Otherwise, insert the result into the current buffer."
 
 (defun basis/eval-last-sexp (&optional arg)
   (interactive "P")
-  (if arg
+  (if (eq arg '-)
       (basis/pp-eval-last-sexp nil)
-    (eval-last-sexp nil)))
+    (eval-last-sexp arg)))
 
 (defmacro basis/with-unique-names (names &rest body)
   "Create unique names for use in a macro definition.
