@@ -1473,7 +1473,16 @@
     ("<C-backspace>"                'basis/paredit-kill-region-or-backward-word)
     ([remap backward-kill-sentence] 'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
-               'basis/paredit-doublequote-space-p))
+               'basis/paredit-doublequote-space-p)
+  ;; Show `eldoc' messages after Paredit motion commands
+  (with-eval-after-load 'eldoc
+    (eldoc-add-command 'paredit-forward
+                       'paredit-forward-up
+                       'paredit-forward-down
+                       'paredit-backward
+                       'paredit-backward-up
+                       'paredit-backward-down
+                       'paredit-newline)))
 
 (put 'paredit-forward-delete 'delete-selection 'supersede)
 (put 'paredit-backward-delete 'delete-selection 'supersede)
