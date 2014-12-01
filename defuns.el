@@ -67,7 +67,7 @@ to use. Otherwise use a default of 80 and char ?-."
 
 (defun basis/eol-maybe-semicolon ()
   (interactive)
-  (move-end-of-line)
+  (move-end-of-line 1)
   (unless (basis/looking-back-p ";")
     (insert ";")))
 
@@ -85,7 +85,7 @@ to use. Otherwise use a default of 80 and char ?-."
 (defun basis/wrap-in-curlies ()
   (interactive)
   (save-excursion
-    (previous-line)
+    (forward-line -1)
     (move-end-of-line 1)
     (unless (basis/looking-back-p " ")
       (insert " "))
@@ -338,18 +338,14 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   (interactive "FDestination: ")
   (let ((name (buffer-name))
         (file (buffer-file-name)))
-    (cond ((not (and file (file-exists-p file)))
-           (error "Buffer '%s' is not visiting a file" file))
-          ((get-buffer destination)
-           (error "A buffer named '%s' already exists"))
-          (t
-           (rename-file file destination 1)
-           (rename-buffer destination)
-           (set-visited-file-name destination)
-           (set-buffer-modified-p nil)
-           (message "File '%s' renamed to '%s'"
-                    name
-                    (file-name-nondirectory destination))))))
+    (if (not (and file (file-exists-p file)))
+        (error "Buffer '%s' is not visiting a file" file)
+      (rename-file file destination 1)
+      (set-visited-file-name destination)
+      (set-buffer-modified-p nil)
+      (message "File '%s' renamed to '%s'"
+               name
+               (file-name-nondirectory destination)))))
 
 (defun basis/delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
@@ -387,7 +383,7 @@ If called interactively, use `ido' to read the directory."
              (pcase system-type
                (`gnu/linux  "nautilus")
                (`darwin     "open")
-               (_ (error "No file manager known for: " system-type)))
+               (_ (error "No file manager known for: '%s'" system-type)))
              dir))))
 
 (defun basis/open-file (file)
@@ -542,13 +538,13 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (defun basis/dired-jump-to-top ()
   "Move point to the first line representing a file."
   (interactive)
-  (beginning-of-buffer)
+  (goto-char (point-min))
   (dired-next-line (if dired-hide-details-mode 1 2)))
 
 (defun basis/dired-jump-to-bottom ()
   "Move point to the last line representing a file."
   (interactive)
-  (end-of-buffer)
+  (goto-char (point-max))
   (dired-next-line -1))
 
 (defvar basis/dired-sorting-options
@@ -629,9 +625,8 @@ If it doesn't exist, BUFFER is created automatically."
     (eval-defun nil)))
 
 (defun basis/display-elisp (string &optional buffer-or-name)
-  (let ((buffer-or-name (or buffer-or-name "*Elisp Display*"))
-        (buffer (get-buffer-create buffer-or-name)))
-    (with-current-buffer buffer
+  (let ((buffer-or-name (or buffer-or-name "*Elisp Display*")))
+    (with-current-buffer (get-buffer-create buffer-or-name)
       (setq buffer-read-only nil)
       (erase-buffer)
       (insert string)
@@ -761,7 +756,7 @@ point is used instead, if any."
 Optional argument CHOICES should, if provided, be a list of
 symbols naming major modes."
   (let ((choices (or choices (basis/active-major-modes))))
-    (intern (ido-completing-read "Mode: "
+    (intern (ido-completing-read prompt
                                  (mapcar #'symbol-name choices)
                                  nil
                                  t))))
@@ -1351,7 +1346,7 @@ many windows."
              (split-string (string-remove-suffix "\n" s) "\n")
              "\n"))
 
-(defun basis/org-babel-execute:clojure (body params)
+(defun basis/org-babel-execute:clojure (body _params)
   (let* ((result (nrepl-send-string-sync body (cider-current-ns)))
          (value (plist-get result :value))
          (stdout (-when-let (s (plist-get result :stdout))
