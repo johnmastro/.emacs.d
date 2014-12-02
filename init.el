@@ -1838,7 +1838,7 @@
 (with-eval-after-load 'sql
   ;; But I also work with other products and it's often easier not to switch
   ;; `sql-product' around.
-  (let ((more-keywords '("elsif" "endif" "while")))
+  (let ((more-keywords '("unload" "elsif" "endif" "while")))
     (add-to-list
      'sql-mode-postgres-font-lock-keywords
      (apply #'sql-font-lock-keywords-builder
