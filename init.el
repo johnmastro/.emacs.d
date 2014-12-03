@@ -1292,7 +1292,8 @@
       helm-ff-search-library-in-sexp t
       helm-buffers-fuzzy-matching t
       helm-man-or-woman-function 'woman
-      helm-quick-update t)
+      helm-quick-update t
+      helm-truncate-lines t)
 
 (with-eval-after-load 'helm
   (require 'helm-utils) ; For the `helm-selection-line' face
