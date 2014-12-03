@@ -76,6 +76,7 @@
           haskell-mode
           helm
           helm-projectile
+          helm-swoop
           ibuffer-vc
           idle-highlight-mode
           ido-at-point
@@ -1280,6 +1281,7 @@
   ("p" 'helm-list-emacs-process)
   ("r" 'helm-regexp)
   ("R" 'helm-resume)
+  ("s" 'helm-swoop)
   ("t" 'helm-top)
   ("y" 'helm-show-kill-ring)
   ("/" 'helm-find))
@@ -1296,6 +1298,15 @@
   (require 'helm-utils) ; For the `helm-selection-line' face
   (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
   (define-key helm-map (kbd "C-z") 'helm-select-action))
+
+;; `helm-swoop' config
+(setq helm-swoop-use-line-number-face t)
+
+(define-key isearch-mode-map (kbd "M-s") 'helm-swoop-from-isearch)
+
+(with-eval-after-load 'helm-swoop
+  ;; I prefer M-s for this
+  (define-key isearch-mode-map (kbd "M-i") nil))
 
 ;; hippie expand ---------------------------------------------------------------
 
