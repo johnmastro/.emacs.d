@@ -1062,6 +1062,27 @@ For use as a `mu4e' message action."
               html))
     (browse-url (format "file://%s" file))))
 
+(defun basis/count-sloc-region (beg end kind)
+  ;; From Stefan Monnier on the help-gnu-emacs list
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end) 'region)
+     (list (point-min) (point-max) 'buffer)))
+  (save-excursion
+    (goto-char beg)
+    (let ((count 0))
+      (while (< (point) end)
+        (if (nth 4 (syntax-ppss))
+            (let ((pos (point)))
+              (goto-char (nth 8 (syntax-ppss)))
+              (forward-comment (point-max))
+              (when (< (point) pos) (goto-char pos)))
+          (forward-comment (point-max)))
+        (setq count (1+ count))
+        (forward-line))
+      (when kind
+        (message "SLOC in %s: %d" kind count)))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
