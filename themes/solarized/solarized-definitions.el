@@ -580,6 +580,11 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
            ;; helm
            (helm-selection ((t (,@bg-base02))))
            (helm-selection-line ((t (,@fg-base02 ,@bg-yellow))))
+           ;; helm-swoop
+           (helm-swoop-target-line-face ((t (,@fg-base02 ,@bg-yellow))))
+           (helm-swoop-target-line-block-face ((t (,@fg-base02 ,@bg-yellow))))
+           (helm-swoop-target-word-face ((t (,@fg-base3 ,@bg-blue))))
+           (helm-swoop-line-number-face ((t (,@fg-base01))))
            ;; company-mode
            (company-tooltip ((t (,@fg-base00 ,@bg-base02))))
            (company-tooltip-selection ((t (,@fg-base1 ,@bg-base02))))
