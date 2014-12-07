@@ -754,15 +754,13 @@
 
 ;; man and woman ---------------------------------------------------------------
 
-;; The man.el library needs to be loaded before making man an alias for woman
-;; (below). Otherwise, when woman loads man it will overwrite the alias.
-(require 'man)
+(defvar basis/system-man-p (executable-find "man")
+  "Non-nil if a \"man\" executable is available on this system.")
 
-;; So I can still get to the original man command
-(fset 'original-man (symbol-function 'man))
-
-;; Easier to type
-(defalias 'man 'woman)
+(unless basis/system-man-p
+  (require 'man)
+  (fset 'original-man #'man)
+  (fset 'man #'woman))
 
 ;; isearch ---------------------------------------------------------------------
 
@@ -1291,9 +1289,11 @@
       helm-ff-file-name-history-use-recentf t
       helm-ff-search-library-in-sexp t
       helm-buffers-fuzzy-matching t
-      helm-man-or-woman-function 'woman
       helm-quick-update t
       helm-truncate-lines t)
+
+(unless basis/system-man-p
+  (setq helm-man-or-woman-function 'woman))
 
 (with-eval-after-load 'helm
   (require 'helm-utils) ; For the `helm-selection-line' face
