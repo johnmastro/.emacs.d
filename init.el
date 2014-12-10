@@ -453,6 +453,9 @@
 (global-set-key (kbd "M-g M-f") 'next-error)
 (global-set-key (kbd "M-g M-b") 'previous-error)
 
+;; imenu
+(global-set-key (kbd "M-i") 'idomenu)
+
 ;; Grep
 (global-set-key (kbd "<f9>") 'rgrep)
 (global-set-key (kbd "<C-f9>") 'lgrep)
