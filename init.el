@@ -426,9 +426,6 @@
   ("<M-f2>" 'basis/kill-ring-save-buffer)
   ("s-w"    'basis/kill-ring-save-indented))
 
-;; Browse the kill ring with M-y
-(browse-kill-ring-default-keybindings)
-
 ;; Join lines
 (global-set-key (kbd "C-c C-j") 'basis/join-next-line)
 (global-set-key (kbd "C-c j") 'basis/join-next-line)
@@ -464,9 +461,6 @@
 (define-key occur-mode-map (kbd "n") 'occur-next)
 (define-key occur-mode-map (kbd "p") 'occur-prev)
 (global-set-key (kbd "<C-f2>") 'basis/multi-occur-this-mode)
-
-;; Jump to the mark without arg
-(global-set-key (kbd "M-`") 'basis/jump-to-mark)
 
 ;; Expand-region
 (global-set-key (kbd "M-=") 'er/expand-region)
@@ -1286,6 +1280,9 @@
   ("t" 'helm-top)
   ("y" 'helm-show-kill-ring)
   ("/" 'helm-find))
+
+(global-set-key (kbd "M-y") 'helm-show-kill-ring)
+(global-set-key (kbd "M-`") 'helm-all-mark-rings)
 
 (setq helm-split-window-default-side 'other
       helm-split-window-in-side-p t
