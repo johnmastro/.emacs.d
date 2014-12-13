@@ -989,7 +989,7 @@
 (with-eval-after-load 'eww
   (defadvice eww-tag-body (around eww-no-color-please activate)
     (cl-letf (((symbol-function 'eww-colorize-region)
-               (symbol-function 'ignore)))
+               #'ignore))
       ad-do-it))
   (define-key eww-mode-map (kbd "<backtab>") 'shr-previous-link))
 

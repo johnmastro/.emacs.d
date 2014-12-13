@@ -1198,9 +1198,9 @@ used to create Unicode, raw, and byte strings respectively."
 
 (defun basis/disable-relative-reindent (function &rest args)
   "Advice to prevent relative reindentation by FUNCTION."
-  (if (eq indent-line-function 'indent-relative)
+  (if (memq indent-line-function '(indent-relative python-indent-line-function))
       (cl-letf (((symbol-function 'indent-according-to-mode)
-                 (symbol-function 'ignore)))
+                 #'ignore))
         (apply function args))
     (apply function args)))
 
