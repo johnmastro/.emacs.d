@@ -886,7 +886,7 @@
 
 (global-set-key (kbd "M-o") 'ace-window)
 
-(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+(setq aw-keys '(?h ?j ?k ?l ?n ?m))
 
 (unless (display-graphic-p)
   (setq aw-scope 'frame))
