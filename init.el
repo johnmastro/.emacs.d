@@ -1278,6 +1278,7 @@
   ("R" 'helm-resume)
   ("s" 'helm-swoop)
   ("t" 'helm-top)
+  ("x" 'helm-M-x)
   ("y" 'helm-show-kill-ring)
   ("/" 'helm-find))
 
