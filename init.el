@@ -1199,13 +1199,13 @@
 
 ;; sh-mode ---------------------------------------------------------------------
 
-(defun basis/maybe-set-shell-to-zsh ()
+(defun basis/init-sh-mode ()
   (setq tab-width 4)
   (when (and buffer-file-name
              (string= (file-name-nondirectory buffer-file-name) ".zshrc"))
     (sh-set-shell "zsh")))
 
-(add-hook 'sh-mode-hook 'basis/maybe-set-shell-to-zsh)
+(add-hook 'sh-mode-hook 'basis/init-sh-mode)
 
 ;; ido -------------------------------------------------------------------------
 
