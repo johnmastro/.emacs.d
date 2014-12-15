@@ -1036,7 +1036,11 @@
     (let ((exe (format "~/emacs/emacs-%s/bin/emacsclientw.exe"
                        emacs-version)))
       (when (file-exists-p exe)
-        (setq magit-emacsclient-executable exe)))))
+        (setq magit-emacsclient-executable exe)))
+    ;; The below seems to be necessary on Cygwin. Magit attempts to detect
+    ;; Cygwin and set it automatically, but I defeat that by installing Cygwin
+    ;; directly into the root directory.
+    (setq magit-process-quote-curly-braces t)))
 
 ;; ibuffer ---------------------------------------------------------------------
 
