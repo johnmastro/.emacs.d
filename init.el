@@ -1656,8 +1656,9 @@
 (smartparens-global-strict-mode)
 
 (with-eval-after-load 'smartparens
-  ;; I still prefer Paredit with lisps
-  (dolist (mode basis/lisp-modes)
+  ;; I still prefer Paredit with Lisps, and having Smartparens enabled messes
+  ;; with argument handling in `magit-key-mode'.
+  (dolist (mode (cons 'magit-key-mode basis/lisp-modes))
     (add-to-list 'sp-ignore-modes-list mode))
 
   (sp-use-paredit-bindings)
