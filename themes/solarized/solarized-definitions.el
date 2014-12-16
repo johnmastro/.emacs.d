@@ -596,7 +596,9 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
            (company-scrollbar-bg ((t (,@bg-base02))))
            (company-preview ((t (,@bg-green))))
            (company-preview-common ((t (,@bg-base02 :underline t))))
-           (company-template-field ((t (,@fg-base03 ,@bg-yellow)))))
+           (company-template-field ((t (,@fg-base03 ,@bg-yellow))))
+           ;; which-func
+           (which-func ((t (,@fg-base1)))))
 
           ((foreground-color . ,(when (<= 16 (display-color-cells)) base0))
            (background-color . ,back)
