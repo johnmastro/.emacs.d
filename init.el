@@ -474,16 +474,6 @@
 (global-set-key (kbd "C-x C-e") 'basis/eval-last-sexp)
 (global-set-key (kbd "C-c C-e") 'basis/eval-and-replace)
 
-;; Eval expression on {meta,super}-hyper
-(-when-let* ((template (pcase system-type
-                         (`gnu/linux  "<%s-menu>")
-                         (`darwin     "<%s-kp-enter>")
-                         (`windows-nt "<%s-apps>")))
-             (meta-hyper (format template "M"))
-             (super-hyper (format template "s")))
-  (global-set-key (read-kbd-macro meta-hyper) 'eval-expression)
-  (global-set-key (read-kbd-macro super-hyper) 'eval-expression))
-
 ;; I use Meta-space for ace-jump-mode
 (global-set-key (kbd "C-c SPC") 'just-one-space)
 
