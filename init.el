@@ -777,9 +777,14 @@
 
 ;; diff-mode -------------------------------------------------------------------
 
+(defun basis/init-diff-mode ()
+  (setq buffer-read-only t))
+
 (with-eval-after-load 'diff-mode
   ;; `diff-goto-source' is still available on C-c C-c.
   (define-key diff-mode-map (kbd "M-o") nil))
+
+(add-hook 'diff-mode-hook 'basis/init-diff-mode)
 
 ;; discover-mode ---------------------------------------------------------------
 
