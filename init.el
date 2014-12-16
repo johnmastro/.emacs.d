@@ -1477,8 +1477,6 @@
 
 (with-eval-after-load 'paredit
   (basis/define-keys paredit-mode-map
-    ("["                            'basis/paredit-open-something)
-    ("C-c ["                        'paredit-open-square)
     ("M-)"                          'basis/paredit-wrap-round-from-behind)
     ("M-e"                          'paredit-forward)
     ("<M-right>"                    'paredit-forward)
