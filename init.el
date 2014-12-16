@@ -496,12 +496,6 @@
 (global-set-key (kbd "C-c <C-return>") 'shell)
 (global-set-key (kbd "C-c C-^") 'shell)
 
-;; Start eshell or switch to it if it's active
-(global-set-key (kbd "C-x m") 'eshell)
-
-;; Start a new eshell even if one is active
-(global-set-key (kbd "C-x M") (lambda () (interactive) (eshell t)))
-
 ;; M-x without meta, when necessary
 (global-set-key (kbd "C-c x") 'smex)
 (global-set-key (kbd "C-c m") 'execute-extended-command)
@@ -908,6 +902,8 @@
     (add-to-list 'load-path dir)))
 
 (autoload 'mu4e "mu4e" "Launch mu4e" t nil)
+
+(global-set-key (kbd "C-x m") 'mu4e)
 
 ;; Mail
 (setq mu4e-get-mail-command "offlineimap"
