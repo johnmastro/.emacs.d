@@ -246,6 +246,7 @@
 (auto-compression-mode 1)
 (delete-selection-mode 1)
 (global-page-break-lines-mode 1)
+(which-function-mode 1)
 
 ;; Safe local variables
 (add-to-list 'safe-local-variable-values '(lexical-binding . t))
