@@ -776,12 +776,8 @@
 
 ;; ispell ----------------------------------------------------------------------
 
-(let ((aspell (or (executable-find "aspell")
-                  (and (eq system-type 'windows-nt)
-                       (executable-find
-                        "c:\\Program Files (x86)\\Aspell\\bin\\aspell.exe")))))
-  (setq ispell-program-name aspell
-        ispell-personal-dictionary "~/.aspell.en.pws"))
+(setq ispell-program-name (executable-find "aspell")
+      ispell-personal-dictionary "~/.aspell.en.pws")
 
 ;; prog-mode -------------------------------------------------------------------
 
