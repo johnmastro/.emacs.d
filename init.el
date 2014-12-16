@@ -1093,7 +1093,6 @@
       ad-do-it))
   (basis/define-keys company-active-map
     ("C-t"    'company-complete-selection)
-    ("C-c"    'company-abort)
     ("C-l"    'company-show-location)
     ("C-w"    nil)
     ("RET"    nil)
