@@ -433,16 +433,16 @@ the file associated with the current buffer."
 (defmacro basis/define-hyper (keymap key def)
   "Define a Hyper- modified key binding.
 On OS X, instead define a binding with <kp-enter> as prefix."
+  (declare (indent defun))
   `(define-key ,keymap
      (kbd ,(if (eq system-type 'darwin)
                (concat "<kp-enter> " key)
              (concat "H-" key)))
      ,def))
 
-(put 'basis/define-hyper 'lisp-indent-function 'defun)
-
 (defmacro basis/define-keys (keymap &rest keydefs)
   "Define multiple key bindings for KEYMAP."
+  (declare (indent defun))
   `(progn
      ,@(mapcar (lambda (keydef)
                  (let ((key (if (vectorp (car keydef))
@@ -452,27 +452,23 @@ On OS X, instead define a binding with <kp-enter> as prefix."
                    `(define-key ,keymap ,key ,def)))
                keydefs)))
 
-(put 'basis/define-keys 'lisp-indent-function 'defun)
-
 (defmacro basis/define-hyper-keys (keymap &rest keydefs)
   "Define multiple hyper-modified key bindings for KEYMAP."
+  (declare (indent defun))
   `(progn
      ,@(mapcar (lambda (keydef)
                  (pcase-let ((`(,key ,def) keydef))
                    `(basis/define-hyper ,keymap ,key ,def)))
                keydefs)))
 
-(put 'basis/define-hyper-keys 'lisp-indent-function 'defun)
-
 (defmacro basis/define-key-translations (&rest keydefs)
   "Define multiple bindings in `key-translation-map'."
+  (declare (indent defun))
   `(progn
      ,@(mapcar (lambda (keydef)
                  (pcase-let ((`(,key ,def) keydef))
                    `(define-key key-translation-map (kbd ,key) (kbd ,def))))
                keydefs)))
-
-(put 'basis/define-key-translations 'lisp-indent-function 'defun)
 
 (defmacro basis/create-simple-keybinding-command (name key)
   `(defun ,name (def &optional keymap)
@@ -696,12 +692,11 @@ Otherwise, insert the result into the current buffer."
 (defmacro basis/with-unique-names (names &rest body)
   "Create unique names for use in a macro definition.
 This idea also goes by the name `with-gensyms` in Common Lisp."
+  (declare (indent 1))
   `(let ,(mapcar (lambda (sym)
                    `(,sym (make-symbol (symbol-name ',sym))))
                  names)
      ,@body))
-
-(put 'basis/with-unique-names 'lisp-indent-function 1)
 
 (defun basis/add-elisp-font-lock-keywords (keywords)
   "Highlight KEYWORDS with `font-lock-keyword-face'."
