@@ -88,7 +88,6 @@
           js2-mode
           js2-refactor
           jump-char
-          key-chord
           leuven-theme
           magit
           markdown-mode
@@ -805,26 +804,6 @@
         (dired-mode "*" "C-t")
         (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
         (calc-mode "V")))
-
-;; key-chord -------------------------------------------------------------------
-
-(key-chord-mode 1)
-
-(pcase-dolist (`(,key . ,cmd) '(("jk" . ace-jump-word-mode)
-                                (",." . ido-switch-buffer)
-                                ("l;" . ibuffer)
-                                ("`1" . delete-other-windows)
-                                ("0-" . delete-window)
-                                ("j2" . split-window-below)
-                                ("j3" . split-window-right)
-                                (" 9" . "(")))
-  (key-chord-define-global key cmd))
-
-(defun basis/define-more-bracket-chords (&optional keymap)
-  (interactive)
-  (let ((keymap (or keymap global-map)))
-    (key-chord-define keymap " [" "{")
-    (key-chord-define keymap " ," "<")))
 
 ;; undo-tree -------------------------------------------------------------------
 
