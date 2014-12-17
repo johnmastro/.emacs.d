@@ -549,6 +549,9 @@
   ("m" 'basis/open-file-manager)
   ("o" 'basis/open-files))
 
+;; Emacs Lisp-style quotes
+(global-set-key (kbd "C-c q") 'basis/elisp-quote)
+
 ;; h-map -----------------------------------------------------------------------
 
 (define-prefix-command 'basis/h-map)
