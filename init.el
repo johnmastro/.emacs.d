@@ -590,56 +590,35 @@
   ("V" 'apropos-value)
   ("a" 'helm-apropos))
 
-;; eval map --------------------------------------------------------------------
+;; eval keys -------------------------------------------------------------------
 
-(defvar-local basis/eval-defun-function nil
-  "Function to eval the defun at point.")
+(defvar basis/eval-keys
+  '((last-sexp  . "C-x C-e")
+    (definition . "C-M-x")
+    (region     . "C-c C-r")
+    (buffer     . "C-c C-b")
+    (something  . "C-c C-c")
+    (file       . "C-c C-f")
+    (expand     . "<f7>"))
+  "Key bindings used to evaluate various units of code.")
 
-(defvar-local basis/eval-last-sexp-function nil
-  "Function to eval the sexp before point.")
+(defvar basis/replaced-eval-keys '()
+  "Key bindings replaced by `basis/bind-eval-keys'.")
 
-(defvar-local basis/eval-region-function nil
-  "Function to eval the active region.")
-
-(defvar-local basis/eval-buffer-function nil
-  "Function to eval the current buffer.")
-
-(defvar-local basis/eval-file-function nil
-  "Function to eval and load the current buffer's file.")
-
-(defun basis/do-eval (thing)
-  "Call an appropriate function to evaluate THING."
-  (let* ((sym (intern (format "basis/eval-%s-function" thing)))
-         (val (symbol-value sym)))
-    (if val
-        (call-interactively val)
-      (error "No function to eval '%s' for %s" thing major-mode))))
-
-(defmacro basis/def-eval-map (&rest defs)
-  (cl-flet ((make-eval-name (thing)
-              (intern (format "basis/do-eval-%s" thing)))
-            (keyword->symbol (keyword)
-              (intern (substring (symbol-name keyword) 1))))
-    (let ((map (make-symbol "map")))
-      `(defvar basis/eval-map
-         (let ((,map (make-sparse-keymap)))
-           ,@(mapcar (lambda (def)
-                       (let ((thing (keyword->symbol (car def)))
-                             (key (cadr def)))
-                         `(progn
-                            (defun ,(make-eval-name thing) ()
-                              (interactive)
-                              (basis/do-eval ',thing))
-                            (define-key ,map ,key ',(make-eval-name thing)))))
-                     (-partition 2 defs))
-           ,map)))))
-
-(basis/def-eval-map
- :last-sexp "l"
- :defun     "d"
- :buffer    "b"
- :region    "r"
- :file      "f")
+(defun basis/bind-eval-keys (keymap commands)
+  "Add bindings for COMMANDS to KEYMAP.
+COMMANDS should be an association list mapping symbols
+designating units of code (as those in `basis/eval-keys') to the
+command to use for evaluating that unit of code."
+  (declare (indent 1))
+  (pcase-dolist (`(,thing . ,command) commands)
+    (let ((key (cdr (assq thing basis/eval-keys))))
+      (if key
+          (let ((old (lookup-key keymap (kbd key))))
+            (unless (or (null old) (eq old command))
+              (push (cons key old) basis/replaced-eval-keys))
+            (define-key keymap (kbd key) command))
+        (error "No eval key defined for '%s'" thing)))))
 
 ;; tmux ------------------------------------------------------------------------
 
@@ -1398,12 +1377,6 @@
     (unless (and name (string= name (expand-file-name "~/.emacs.d/init.el")))
       (flycheck-mode))))
 
-(defun basis/init-emacs-lisp-eval-map ()
-  (setq basis/eval-defun-function 'eval-defun
-        basis/eval-last-sexp-function 'eval-last-sexp
-        basis/eval-region-function 'eval-region
-        basis/eval-buffer-function 'eval-buffer))
-
 (dolist (hook '(emacs-lisp-mode-hook
                 lisp-interaction-mode-hook
                 ielm-mode-hook))
@@ -1411,17 +1384,18 @@
 
 (add-hook 'emacs-lisp-mode-hook 'basis/init-emacs-lisp-mode)
 
-(dolist (hook '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
-  (add-hook hook 'basis/init-emacs-lisp-eval-map))
-
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
-(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (basis/define-keys map
-    ("<f5>" 'basis/eval-last-sexp)
-    ("<f6>" 'basis/eval-something)
-    ("<f7>" 'basis/expand-sexp-at-point)
-    ("<f8>" 'eval-buffer)))
+(with-eval-after-load 'lisp-mode
+  (let ((commands '((last-sexp  . basis/eval-last-sexp)
+                    (definition . eval-defun)
+                    (region     . eval-region)
+                    (buffer     . eval-buffer)
+                    (something  . basis/eval-something)
+                    (file       . load-file)
+                    (expand     . basis/expand-sexp-at-point))))
+    (basis/bind-eval-keys emacs-lisp-mode-map commands)
+    (basis/bind-eval-keys lisp-interaction-mode-map commands)))
 
 ;; paredit ---------------------------------------------------------------------
 
@@ -1492,15 +1466,14 @@
 ;; (add-hook 'slime-mode-hook 'basis/start-slime)
 
 (with-eval-after-load 'slime
-  (basis/define-keys slime-mode-map
-    ("<f5>"   'slime-eval-last-expression)
-    ("<M-f5>" 'slime-eval-last-expression-in-repl)
-    ("<C-f5>" 'slime-pprint-eval-last-expression)
-    ("<f6>"   'basis/slime-eval-something)
-    ("<M-f6>" 'slime-compile-defun)
-    ("<C-f6>" 'slime-pprint-region)
-    ("<f7>"   'slime-expand-1)
-    ("<f8>"   'slime-compile-and-load-file))
+  (basis/bind-eval-keys slime-mode-map
+    '((last-sexp  . slime-eval-last-expression)
+      (definition . slime-eval-defun)
+      (region     . slime-eval-region)
+      (buffer     . slime-eval-buffer)
+      (something  . basis/slime-eval-something)
+      (file       . slime-compile-and-load-file)
+      (expand     . slime-expand-1)))
   (global-set-key (kbd "<f12>") 'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
@@ -1520,11 +1493,6 @@
   (cider-turn-on-eldoc-mode))
 
 (defun basis/init-cider-mode ()
-  (setq basis/eval-defun-function 'cider-eval-defun-at-point
-        basis/eval-last-sexp-function 'cider-eval-last-sexp
-        basis/eval-buffer-function 'cider-eval-buffer
-        basis/eval-region-function 'cider-eval-region
-        basis/eval-file-function 'cider-eval-load-file)
   (cider-turn-on-eldoc-mode))
 
 (defun basis/set-lein-command-for-mac ()
@@ -1581,13 +1549,14 @@
 
   (define-key cider-repl-mode-map (kbd "RET") 'cider-repl-return)
 
-  (basis/define-keys cider-mode-map
-    ("<f5>"    'cider-eval-last-expression)
-    ("<f6>"    'basis/cider-eval-something)
-    ("<f7>"    'cider-macroexpand-1)
-    ("<M-f7>"  'cider-macroexpand-all)
-    ("<f8>"    'cider-eval-buffer)
-    ("<M-f8>"  'cider-load-current-buffer)))
+  (basis/bind-eval-keys cider-mode-map
+    '((last-sexp  . cider-eval-last-sexp)
+      (definition . cider-eval-defun-at-point)
+      (region     . cider-eval-region)
+      (buffer     . cider-eval-buffer)
+      (something  . basis/cider-eval-something)
+      (file       . cider-load-current-buffer)
+      (expand     . cider-macroexpand-1))))
 
 ;; scheme ----------------------------------------------------------------------
 
@@ -1598,24 +1567,25 @@
 
 (with-eval-after-load 'scheme
   (require 'quack)
-  (basis/define-keys scheme-mode-map
-    ("<f5>"   'scheme-send-last-sexp)
-    ("<f6>"   'basis/scheme-send-something)
-    ("<C-f6>" 'scheme-compile-definition-and-go)
-    ("<f8>"   'scheme-compile-file)
-    ("<C-f8>" 'scheme-load-file)))
+  (basis/bind-eval-keys scheme-mode-map
+    '((last-sexp  . scheme-send-last-sexp)
+      (definition . scheme-send-definition)
+      (region     . scheme-send-region)
+      (something  . basis/scheme-send-something)
+      (file       . scheme-load-file)
+      (expand     . scheme-expand-current-form))))
 
 (defun basis/geiser-map-keys ()
   ;; Can't do this until the REPL is started because otherwise
   ;; `geiser-mode-map' is null.
-  (basis/define-keys geiser-mode-map
-    ("<f5>"   'geiser-eval-last-sexp)
-    ("<f6>"   'basis/geiser-eval-something)
-    ("<C-f6>" 'basis/geiser-eval-something-and-go)
-    ("<f7>"   'basis/geiser-expand-something)
-    ("<C-f7>" 'geiser-expand-definition)
-    ("<f8>"   'geiser-eval-buffer)
-    ("<C-f8>" 'geiser-eval-buffer-and-go)))
+  (basis/bind-eval-keys geiser-mode-map
+    '((last-sexp  . geiser-eval-last-sexp)
+      (definition . geiser-eval-definition)
+      (region     . geiser-eval-region)
+      (buffer     . geiser-eval-buffer)
+      (file       . geiser-load-file)
+      (something  . basis/geiser-eval-something)
+      (expand     . basis/geiser-expand-something))))
 
 (add-hook 'geiser-repl-mode-hook 'basis/geiser-map-keys)
 
@@ -1700,16 +1670,16 @@
 ;; python ----------------------------------------------------------------------
 
 (with-eval-after-load 'python
+  (basis/bind-eval-keys python-mode-map
+    '((definition . python-shell-send-defun)
+      (buffer     . python-shell-send-buffer)
+      (region     . python-shell-send-region)
+      (something  . basis/python-send-something)
+      (file       . python-shell-send-file)))
   (basis/define-keys python-mode-map
-    ("C-c C-c"  'basis/python-send-something)
-    ("<f6>"     'basis/python-send-something)
-    ("C-c C-k"  'python-shell-send-file)
-    ("<f8>"     'python-shell-send-file)
-    ("C-c M-k"  'python-shell-send-buffer)
-    ("<M-f8>"   'python-shell-send-buffer)
-    ("RET"      'basis/electric-return)
-    ("DEL"      'basis/sp-python-backspace)
-    ("C-h C-p"  'basis/insert-python-docstring-quotes))
+    ("RET"     'basis/electric-return)
+    ("DEL"     'basis/sp-python-backspace)
+    ("C-h C-p" 'basis/insert-python-docstring-quotes))
   (setq python-fill-docstring-style 'pep-257-nn))
 
 (when (basis/jedi-installed-p)
@@ -1725,11 +1695,7 @@
   (setq fill-column 79)
   (setq tab-width 4)
   (setq-local whitespace-line-column 79)
-  (setq-local electric-indent-chars (remove ?: electric-indent-chars))
-  (setq basis/eval-defun-function 'python-shell-send-defun
-        basis/eval-region-function 'python-shell-send-region
-        basis/eval-buffer-function 'python-shell-send-buffer
-        basis/eval-file-function 'python-shell-send-file))
+  (setq-local electric-indent-chars (remove ?: electric-indent-chars)))
 
 (defun basis/init-inferior-python-mode ()
   (subword-mode 1)
@@ -1740,9 +1706,12 @@
 
 ;; haskell ---------------------------------------------------------------------
 
+(with-eval-after-load 'haskell
+  (basis/bind-eval-keys haskell-mode-map
+    '((definition . inferior-haskell-send-decl)
+      (file       . inferior-haskell-load-file))))
+
 (defun basis/init-haskell-mode ()
-  (setq basis/eval-defun-function 'inferior-haskell-send-decl
-        basis/eval-file-function 'inferior-haskell-load-file)
   (turn-on-haskell-indentation))
 
 (add-hook 'haskell-mode-hook 'basis/init-haskell-mode)
@@ -1798,10 +1767,10 @@
 (skewer-setup) ; hook into js2, html, and css modes
 
 (with-eval-after-load 'skewer-mode
-  (basis/define-keys skewer-mode-map
-    ("<f5>" 'skewer-eval-last-expression)
-    ("<f6>" 'skewer-eval-defun)
-    ("<f8>" 'skewer-load-buffer)))
+  (basis/bind-eval-keys skewer-mode-map
+    '((last-sexp  . skewer-eval-last-sexp)
+      (definition . skewer-eval-defun)
+      (buffer     . skewer-load-buffer))))
 
 (with-eval-after-load 'skewer-repl
   (define-key skewer-repl-mode-map (kbd "TAB") 'hippie-expand))
@@ -1810,10 +1779,10 @@
   (define-key skewer-html-mode-map (kbd "<f6>") 'skewer-html-eval-tag))
 
 (with-eval-after-load 'skewer-css
-  (basis/define-keys skewer-css-mode-map
-    ("<f5>" 'skewer-css-eval-current-declaration)
-    ("<f6>" 'skewer-css-eval-current-rule)
-    ("<f8>" 'skewer-css-eval-buffer)))
+  (basis/bind-eval-keys skewer-css-mode-map
+    '((last-sexp  . skewer-css-eval-current-declaration)
+      (definition . skewer-css-eval-current-rule)
+      (buffer     . skewer-css-eval-buffer))))
 
 ;; sql -------------------------------------------------------------------------
 
