@@ -1687,6 +1687,7 @@ command to use for evaluating that unit of code."
   (basis/define-keys python-mode-map
     ("RET"     'basis/electric-return)
     ("DEL"     'basis/sp-python-backspace)
+    ("C-c C-D" 'python-eldoc-at-point)
     ("C-h C-p" 'basis/insert-python-docstring-quotes))
   (setq python-fill-docstring-style 'pep-257-nn))
 
