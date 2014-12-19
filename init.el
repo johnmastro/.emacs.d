@@ -994,6 +994,13 @@ command to use for evaluating that unit of code."
     ;; directly into the root directory.
     (setq magit-process-quote-curly-braces t)))
 
+;; (with-eval-after-load 'git-commit-mode
+;;   (basis/define-keys git-commit-mode-map
+;;     ("M-n"   nil)
+;;     ("M-p"   nil)
+;;     ("C-M-n" 'git-commit-next-message)
+;;     ("C-M-p" 'git-commit-prev-message)))
+
 ;; ibuffer ---------------------------------------------------------------------
 
 (defalias 'ls 'ibuffer)
@@ -1631,6 +1638,7 @@ command to use for evaluating that unit of code."
   (basis/disable-relative-reindent-for
    '(sp-kill-word
      sp-backward-kill-word
+     sp-kill-sexp
      sp-kill-hybrid-sexp
      basis/sp-kill-region-or-backward-word)))
 
