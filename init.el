@@ -1036,8 +1036,9 @@ command to use for evaluating that unit of code."
               " "
               filename-and-process)
         (mark " "
-              (name 16 -1)
-              " " filename)))
+              (name 18 18 :left :elide)
+              " "
+              filename)))
 
 (setq ibuffer-show-empty-filter-groups nil)
 
