@@ -965,6 +965,7 @@ command to use for evaluating that unit of code."
 
 ;; magit -----------------------------------------------------------------------
 
+(global-set-key (kbd "C-x g") #'magit-status)
 (global-set-key (kbd "<f10>") #'magit-status)
 
 (defadvice magit-status (around magit-fullscreen activate)
