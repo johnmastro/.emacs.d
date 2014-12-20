@@ -375,7 +375,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 (defun basis/open-file-manager (dir)
   "Open a system file manager at DIR.
 If called interactively, use `ido' to read the directory."
-  (interactive (list (ido-read-directory-name "Dir: " nil nil t)))
+  (interactive "DDirectory: ")
   (if (eq system-type 'windows-nt)
       (w32-shell-execute "explore" dir)
     (shell-command
