@@ -430,19 +430,9 @@ the file associated with the current buffer."
 
 ;; key binding utilities -------------------------------------------------------
 
-(defmacro basis/define-hyper (keymap key def)
-  "Define a Hyper- modified key binding.
-On OS X, instead define a binding with <kp-enter> as prefix."
-  (declare (indent defun))
-  `(define-key ,keymap
-     (kbd ,(if (eq system-type 'darwin)
-               (concat "<kp-enter> " key)
-             (concat "H-" key)))
-     ,def))
-
 (defmacro basis/define-keys (keymap &rest keydefs)
   "Define multiple key bindings for KEYMAP."
-  (declare (indent defun))
+  (declare (indent 1))
   `(progn
      ,@(mapcar (lambda (keydef)
                  (let ((key (if (vectorp (car keydef))
@@ -452,9 +442,33 @@ On OS X, instead define a binding with <kp-enter> as prefix."
                    `(define-key ,keymap ,key ,def)))
                keydefs)))
 
+(defmacro basis/define-eval-keys (keymap &rest keydefs)
+  "Define evaluation key bindings for various units of code.
+See `basis/eval-keys'."
+  (declare (indent 1))
+  `(progn
+     ,@(mapcar (lambda (keydef)
+                 (let* ((sym (car keydef))
+                        (def (cadr keydef))
+                        (key (cdr (assq sym basis/eval-keys))))
+                   (if key
+                       `(define-key ,keymap (kbd ,key) ,def)
+                     (error "No eval key for '%s'" sym))))
+               keydefs)))
+
+(defmacro basis/define-hyper (keymap key def)
+  "Define a Hyper- modified key binding.
+On OS X, instead define a binding with <kp-enter> as prefix."
+  (declare (indent 1))
+  `(define-key ,keymap
+     (kbd ,(if (eq system-type 'darwin)
+               (concat "<kp-enter> " key)
+             (concat "H-" key)))
+     ,def))
+
 (defmacro basis/define-hyper-keys (keymap &rest keydefs)
   "Define multiple hyper-modified key bindings for KEYMAP."
-  (declare (indent defun))
+  (declare (indent 1))
   `(progn
      ,@(mapcar (lambda (keydef)
                  (pcase-let ((`(,key ,def) keydef))

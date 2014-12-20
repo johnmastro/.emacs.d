@@ -601,25 +601,8 @@
     (something  . "C-c C-c")
     (file       . "C-c C-f")
     (expand     . "<f7>"))
-  "Key bindings used to evaluate various units of code.")
-
-(defvar basis/replaced-eval-keys '()
-  "Key bindings replaced by `basis/bind-eval-keys'.")
-
-(defun basis/bind-eval-keys (keymap commands)
-  "Add bindings for COMMANDS to KEYMAP.
-COMMANDS should be an association list mapping symbols
-designating units of code (as those in `basis/eval-keys') to the
-command to use for evaluating that unit of code."
-  (declare (indent 1))
-  (pcase-dolist (`(,thing . ,command) commands)
-    (let ((key (cdr (assq thing basis/eval-keys))))
-      (if key
-          (let ((old (lookup-key keymap (kbd key))))
-            (unless (or (null old) (eq old command))
-              (push (cons key old) basis/replaced-eval-keys))
-            (define-key keymap (kbd key) command))
-        (error "No eval key defined for '%s'" thing)))))
+  "Key bindings used to evaluate various units of code.
+See `basis/define-eval-keys'.")
 
 ;; tmux ------------------------------------------------------------------------
 
@@ -1401,15 +1384,22 @@ command to use for evaluating that unit of code."
 (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
 
 (with-eval-after-load 'lisp-mode
-  (let ((commands '((last-sexp  . basis/eval-last-sexp)
-                    (definition . eval-defun)
-                    (region     . eval-region)
-                    (buffer     . eval-buffer)
-                    (something  . basis/eval-something)
-                    (file       . load-file)
-                    (expand     . basis/expand-sexp-at-point))))
-    (basis/bind-eval-keys emacs-lisp-mode-map commands)
-    (basis/bind-eval-keys lisp-interaction-mode-map commands)))
+  (basis/define-eval-keys emacs-lisp-mode-map
+    (last-sexp  #'basis/eval-last-sexp)
+    (definition #'eval-defun)
+    (region     #'eval-region)
+    (buffer     #'eval-buffer)
+    (something  #'basis/eval-something)
+    (file       #'load-file)
+    (expand     #'basis/expand-sexp-at-point))
+  (basis/define-eval-keys lisp-interaction-mode-map
+    (last-sexp  #'basis/eval-last-sexp)
+    (definition #'eval-defun)
+    (region     #'eval-region)
+    (buffer     #'eval-buffer)
+    (something  #'basis/eval-something)
+    (file       #'load-file)
+    (expand     #'basis/expand-sexp-at-point)))
 
 ;; paredit ---------------------------------------------------------------------
 
@@ -1480,14 +1470,14 @@ command to use for evaluating that unit of code."
 ;; (add-hook 'slime-mode-hook 'basis/start-slime)
 
 (with-eval-after-load 'slime
-  (basis/bind-eval-keys slime-mode-map
-    '((last-sexp  . slime-eval-last-expression)
-      (definition . slime-eval-defun)
-      (region     . slime-eval-region)
-      (buffer     . slime-eval-buffer)
-      (something  . basis/slime-eval-something)
-      (file       . slime-compile-and-load-file)
-      (expand     . slime-expand-1)))
+  (basis/define-eval-keys slime-mode-map
+    (last-sexp  #'slime-eval-last-expression)
+    (definition #'slime-eval-defun)
+    (region     #'slime-eval-region)
+    (buffer     #'slime-eval-buffer)
+    (something  #'basis/slime-eval-something)
+    (file       #'slime-compile-and-load-file)
+    (expand     #'slime-expand-1))
   (global-set-key (kbd "<f12>") #'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
@@ -1563,14 +1553,14 @@ command to use for evaluating that unit of code."
 
   (define-key cider-repl-mode-map (kbd "RET") #'cider-repl-return)
 
-  (basis/bind-eval-keys cider-mode-map
-    '((last-sexp  . cider-eval-last-sexp)
-      (definition . cider-eval-defun-at-point)
-      (region     . cider-eval-region)
-      (buffer     . cider-eval-buffer)
-      (something  . basis/cider-eval-something)
-      (file       . cider-load-current-buffer)
-      (expand     . cider-macroexpand-1))))
+  (basis/define-eval-keys cider-mode-map
+    (last-sexp  #'cider-eval-last-sexp)
+    (definition #'cider-eval-defun-at-point)
+    (region     #'cider-eval-region)
+    (buffer     #'cider-eval-buffer)
+    (something  #'basis/cider-eval-something)
+    (file       #'cider-load-current-buffer)
+    (expand     #'cider-macroexpand-1)))
 
 ;; scheme ----------------------------------------------------------------------
 
@@ -1581,25 +1571,25 @@ command to use for evaluating that unit of code."
 
 (with-eval-after-load 'scheme
   (require 'quack)
-  (basis/bind-eval-keys scheme-mode-map
-    '((last-sexp  . scheme-send-last-sexp)
-      (definition . scheme-send-definition)
-      (region     . scheme-send-region)
-      (something  . basis/scheme-send-something)
-      (file       . scheme-load-file)
-      (expand     . scheme-expand-current-form))))
+  (basis/define-eval-keys scheme-mode-map
+    (last-sexp  #'scheme-send-last-sexp)
+    (definition #'scheme-send-definition)
+    (region     #'scheme-send-region)
+    (something  #'basis/scheme-send-something)
+    (file       #'scheme-load-file)
+    (expand     #'scheme-expand-current-form)))
 
 (defun basis/geiser-map-keys ()
   ;; Can't do this until the REPL is started because otherwise
   ;; `geiser-mode-map' is null.
-  (basis/bind-eval-keys geiser-mode-map
-    '((last-sexp  . geiser-eval-last-sexp)
-      (definition . geiser-eval-definition)
-      (region     . geiser-eval-region)
-      (buffer     . geiser-eval-buffer)
-      (file       . geiser-load-file)
-      (something  . basis/geiser-eval-something)
-      (expand     . basis/geiser-expand-something))))
+  (basis/define-eval-keys geiser-mode-map
+    (last-sexp  #'geiser-eval-last-sexp)
+    (definition #'geiser-eval-definition)
+    (region     #'geiser-eval-region)
+    (buffer     #'geiser-eval-buffer)
+    (file       #'geiser-load-file)
+    (something  #'basis/geiser-eval-something)
+    (expand     #'basis/geiser-expand-something)))
 
 (add-hook 'geiser-repl-mode-hook #'basis/geiser-map-keys)
 
@@ -1685,12 +1675,12 @@ command to use for evaluating that unit of code."
 ;; python ----------------------------------------------------------------------
 
 (with-eval-after-load 'python
-  (basis/bind-eval-keys python-mode-map
-    '((definition . python-shell-send-defun)
-      (buffer     . python-shell-send-buffer)
-      (region     . python-shell-send-region)
-      (something  . basis/python-send-something)
-      (file       . python-shell-send-file)))
+  (basis/define-eval-keys python-mode-map
+    (definition #'python-shell-send-defun)
+    (buffer     #'python-shell-send-buffer)
+    (region     #'python-shell-send-region)
+    (something  #'basis/python-send-something)
+    (file       #'python-shell-send-file))
   (basis/define-keys python-mode-map
     ("RET"     #'basis/electric-return)
     ("DEL"     #'basis/sp-python-backspace)
@@ -1723,9 +1713,9 @@ command to use for evaluating that unit of code."
 ;; haskell ---------------------------------------------------------------------
 
 (with-eval-after-load 'haskell
-  (basis/bind-eval-keys haskell-mode-map
-    '((definition . inferior-haskell-send-decl)
-      (file       . inferior-haskell-load-file))))
+  (basis/define-eval-keys haskell-mode-map
+    (definition #'inferior-haskell-send-decl)
+    (file       #'inferior-haskell-load-file)))
 
 (defun basis/init-haskell-mode ()
   (turn-on-haskell-indentation))
@@ -1783,10 +1773,10 @@ command to use for evaluating that unit of code."
 (skewer-setup) ; hook into js2, html, and css modes
 
 (with-eval-after-load 'skewer-mode
-  (basis/bind-eval-keys skewer-mode-map
-    '((last-sexp  . skewer-eval-last-sexp)
-      (definition . skewer-eval-defun)
-      (buffer     . skewer-load-buffer))))
+  (basis/define-eval-keys skewer-mode-map
+    (last-sexp  #'skewer-eval-last-sexp)
+    (definition #'skewer-eval-defun)
+    (buffer     #'skewer-load-buffer)))
 
 (with-eval-after-load 'skewer-repl
   (define-key skewer-repl-mode-map (kbd "TAB") #'hippie-expand))
@@ -1795,10 +1785,10 @@ command to use for evaluating that unit of code."
   (define-key skewer-html-mode-map (kbd "<f6>") #'skewer-html-eval-tag))
 
 (with-eval-after-load 'skewer-css
-  (basis/bind-eval-keys skewer-css-mode-map
-    '((last-sexp  . skewer-css-eval-current-declaration)
-      (definition . skewer-css-eval-current-rule)
-      (buffer     . skewer-css-eval-buffer))))
+  (basis/define-eval-keys skewer-css-mode-map
+    (last-sexp  #'skewer-css-eval-current-declaration)
+    (definition #'skewer-css-eval-current-rule)
+    (buffer     #'skewer-css-eval-buffer)))
 
 ;; sql -------------------------------------------------------------------------
 
