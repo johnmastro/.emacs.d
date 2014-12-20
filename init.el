@@ -553,6 +553,9 @@
 ;; Emacs Lisp-style quotes
 (global-set-key (kbd "C-c q") #'basis/elisp-quote)
 
+;; Narrowing can be quite handy
+(put 'narrow-to-region 'disabled nil)
+
 ;; h-map -----------------------------------------------------------------------
 
 (define-prefix-command 'basis/h-map)
