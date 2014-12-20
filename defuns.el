@@ -140,11 +140,11 @@ If PATTERN is non-nil, only include matching files (via
         (basis/insert-files files nil)
       (message "No files matching '%s' in '%s'" pattern dir))))
 
-(defalias 'basis/concat-directory-files 'basis/insert-directory-files)
+(defalias 'basis/concat-directory-files #'basis/insert-directory-files)
 
 ;; kill commands ---------------------------------------------------------------
 
-(defun basis/kill-region-or-backward-word (arg)
+(defun basis/kill-something (arg)
   "Kill the region, or one or more words backward.
 If `subword-mode' is active, use `subword-backward-kill'."
   (interactive "p")
@@ -608,7 +608,7 @@ If it doesn't exist, BUFFER is created automatically."
   "Display pretty-printed output macro expansions."
   :lighter ""
   :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "q") 'quit-window)
+            (define-key map (kbd "q") #'quit-window)
             map))
 
 (defun basis/eval-something ()
@@ -774,7 +774,7 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
 (defun basis/transpose-windows (arg)
   "Transpose the relative positions of two or more windows."
   (interactive "p")
-  (let ((selector (if (>= arg 0) 'next-window 'previous-window)))
+  (let ((selector (if (>= arg 0) #'next-window #'previous-window)))
     (dotimes (_ (abs arg))
       (let ((this-win  (window-buffer))
             (next-win (window-buffer (funcall selector))))
@@ -797,8 +797,8 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
            (splitter
             (if (= (car this-win-edges)
                    (car (window-edges (next-window))))
-                'split-window-horizontally
-              'split-window-vertically)))
+                #'split-window-horizontally
+              #'split-window-vertically)))
       (delete-other-windows)
       (let ((first-win (selected-window)))
         (funcall splitter)
@@ -1015,7 +1015,7 @@ FRAME defaults to the selected frame."
 
 (defun basis/enable-company-clang ()
   "Enable `company-clang' for the current buffer."
-  (add-to-list 'company-backends 'company-clang))
+  (add-to-list 'company-backends #'company-clang))
 
 (defun basis/kill-frame-or-terminal (&optional arg)
   "Kill the current frame or session.
@@ -1101,7 +1101,7 @@ For use as a `mu4e' message action."
        #'paredit-open-square
      #'paredit-open-round)))
 
-(defun basis/paredit-kill-region-or-backward-word ()
+(defun basis/paredit-kill-something ()
   (interactive)
   (if (use-region-p)
       (kill-region (region-beginning) (region-end))
@@ -1132,7 +1132,7 @@ For use as a `mu4e' message action."
   "Treat a raw prefix arg as numeric prefix arg."
   (ad-set-arg 0 (prefix-numeric-value (ad-get-arg 0))))
 
-(defun basis/sp-kill-region-or-backward-word (&optional arg)
+(defun basis/sp-kill-something (&optional arg)
   "Call `sp-backward-kill-word' or `kill-region'. "
   (interactive "p")
   (if (use-region-p)
@@ -1671,8 +1671,8 @@ multiple-document stream."
   "Mode for YAML buffers containing a stream of documents."
   :lighter ""
   :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "M-n") 'basis/yaml-next-document)
-            (define-key map (kbd "M-p") 'basis/yaml-previous-document)
+            (define-key map (kbd "M-n") #'basis/yaml-next-document)
+            (define-key map (kbd "M-p") #'basis/yaml-previous-document)
             map))
 
 ;; lorem ipsum -----------------------------------------------------------------

@@ -209,8 +209,8 @@
       mouse-yank-at-point t
       whitespace-style '(face trailing lines-tail tabs)
       whitespace-line-column 80
-      ediff-window-setup-function 'ediff-setup-windows-plain
-      ediff-split-window-function 'split-window-horizontally
+      ediff-window-setup-function #'ediff-setup-windows-plain
+      ediff-split-window-function #'split-window-horizontally
       line-number-mode t
       column-number-mode t
       imenu-auto-rescan t
@@ -268,7 +268,7 @@
     (set-buffer-file-coding-system 'utf-8-unix)))
 
 (when (eq system-type 'windows-nt)
-  (add-hook 'before-save-hook 'basis/maybe-set-coding))
+  (add-hook 'before-save-hook #'basis/maybe-set-coding))
 
 ;; Backups, autosaves, and temporary files
 (setq backup-by-copying t
@@ -290,7 +290,7 @@
 ;; No blinking please
 (blink-cursor-mode -1)
 
-(defalias 'yes-or-no-p 'y-or-n-p)
+(defalias 'yes-or-no-p #'y-or-n-p)
 
 ;; interface -------------------------------------------------------------------
 
@@ -356,7 +356,7 @@
 ;; key bindings ----------------------------------------------------------------
 
 (defun basis/init-modifiers-for-linux ()
-  (define-key key-translation-map (kbd "<menu>") 'event-apply-hyper-modifier))
+  (define-key key-translation-map (kbd "<menu>") #'event-apply-hyper-modifier))
 
 (defun basis/init-modifiers-for-os-x ()
   (setq mac-command-modifier 'meta
@@ -373,7 +373,7 @@
         w32-pass-rwindow-to-system nil
         w32-lwindow-modifier 'super
         w32-rwindow-modifier 'super)
-  (define-key key-translation-map (kbd "<apps>") 'event-apply-hyper-modifier))
+  (define-key key-translation-map (kbd "<apps>") #'event-apply-hyper-modifier))
 
 (pcase system-type
   (`gnu/linux  (basis/init-modifiers-for-linux))
@@ -385,172 +385,172 @@
 
 ;; Newlines
 (basis/define-keys global-map
-  ("RET"          'newline-and-indent)
-  ("S-RET"        'basis/open-line-below)
-  ("<S-return>"   'basis/open-line-below)
-  ("C-S-RET"      'basis/open-line-above)
-  ("<C-S-return>" 'basis/open-line-above))
+  ("RET"          #'newline-and-indent)
+  ("S-RET"        #'basis/open-line-below)
+  ("<S-return>"   #'basis/open-line-below)
+  ("C-S-RET"      #'basis/open-line-above)
+  ("<C-S-return>" #'basis/open-line-above))
 
 ;; Whitespace
-(global-set-key (kbd "M-\\") 'cycle-spacing)
+(global-set-key (kbd "M-\\") #'cycle-spacing)
 
 ;; Clever C-a
-(global-set-key (kbd "C-a") 'basis/beginning-of-line-or-indentation)
+(global-set-key (kbd "C-a") #'basis/beginning-of-line-or-indentation)
 
 ;; Movement by sentence (I use the forward- and backward-sexp commands from
 ;; Paredit and Smartparens on M-a and M-e).
-(global-set-key (kbd "C-M-f") 'forward-sentence)
-(global-set-key (kbd "C-M-b") 'backward-sentence)
+(global-set-key (kbd "C-M-f") #'forward-sentence)
+(global-set-key (kbd "C-M-b") #'backward-sentence)
 
 ;; Movement by paragraph
-(global-set-key (kbd "M-n") 'forward-paragraph)
-(global-set-key (kbd "M-p") 'backward-paragraph)
+(global-set-key (kbd "M-n") #'forward-paragraph)
+(global-set-key (kbd "M-p") #'backward-paragraph)
 
 ;; Kill stuff
 (basis/define-keys global-map
-  ("M-k"                   'kill-sexp)
-  ("C-w"                   'basis/kill-region-or-backward-word)
-  ("M-DEL"                 'basis/kill-region-or-backward-word)
-  ("C-DEL"                 'basis/kill-region-or-backward-word)
-  ("<C-backspace>"         'basis/kill-region-or-backward-word)
-  ([remap kill-whole-line] 'basis/kill-line-backward)
-  ("<C-delete>"            'basis/smart-kill-whole-line)
-  ("<M-delete>"            'basis/smart-kill-almost-whole-line)
-  ("ESC C-DEL"             'backward-kill-sexp)
-  ("ESC M-DEL"             'backward-kill-sexp))
+  ("M-k"                   #'kill-sexp)
+  ("C-w"                   #'basis/kill-something)
+  ("M-DEL"                 #'basis/kill-something)
+  ("C-DEL"                 #'basis/kill-something)
+  ("<C-backspace>"         #'basis/kill-something)
+  ([remap kill-whole-line] #'basis/kill-line-backward)
+  ("<C-delete>"            #'basis/smart-kill-whole-line)
+  ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
+  ("ESC C-DEL"             #'backward-kill-sexp)
+  ("ESC M-DEL"             #'backward-kill-sexp))
 
 ;; Copy stuff
 (basis/define-keys global-map
-  ("M-w"    'basis/kill-ring-save-something)
-  ("<f2>"   'basis/clipboard-save-something)
-  ("<M-f2>" 'basis/kill-ring-save-buffer)
-  ("s-w"    'basis/kill-ring-save-indented))
+  ("M-w"    #'basis/kill-ring-save-something)
+  ("<f2>"   #'basis/clipboard-save-something)
+  ("<M-f2>" #'basis/kill-ring-save-buffer)
+  ("s-w"    #'basis/kill-ring-save-indented))
 
 ;; Join lines
-(global-set-key (kbd "C-c C-j") 'basis/join-next-line)
-(global-set-key (kbd "C-c j") 'basis/join-next-line)
+(global-set-key (kbd "C-c C-j") #'basis/join-next-line)
+(global-set-key (kbd "C-c j") #'basis/join-next-line)
 
 ;; Moves lines or regions
-(global-set-key (kbd "<M-s-up>") 'move-text-up)
-(global-set-key (kbd "<M-s-down>") 'move-text-down)
+(global-set-key (kbd "<M-s-up>") #'move-text-up)
+(global-set-key (kbd "<M-s-down>") #'move-text-down)
 
 ;; Transpose stuff with M-t
 (define-prefix-command 'basis/transposition-map)
 (global-set-key (kbd "M-t") 'basis/transposition-map)
 
 (basis/define-keys basis/transposition-map
-  ("l"   'transpose-lines)
-  ("w"   'transpose-words)
-  ("s"   'transpose-sexps)
-  ("c"   'transpose-chars)
-  ("M-w" 'basis/transpose-windows)
-  ("M-s" 'basis/toggle-window-split))
+  ("l"   #'transpose-lines)
+  ("w"   #'transpose-words)
+  ("s"   #'transpose-sexps)
+  ("c"   #'transpose-chars)
+  ("M-w" #'basis/transpose-windows)
+  ("M-s" #'basis/toggle-window-split))
 
 ;; More comfortable {next,previous}-error
-(global-set-key (kbd "M-g M-f") 'next-error)
-(global-set-key (kbd "M-g M-b") 'previous-error)
+(global-set-key (kbd "M-g M-f") #'next-error)
+(global-set-key (kbd "M-g M-b") #'previous-error)
 
 ;; imenu
-(global-set-key (kbd "M-i") 'idomenu)
+(global-set-key (kbd "M-i") #'idomenu)
 
 ;; Grep
-(global-set-key (kbd "<f9>") 'rgrep)
-(global-set-key (kbd "<C-f9>") 'lgrep)
+(global-set-key (kbd "<f9>") #'rgrep)
+(global-set-key (kbd "<C-f9>") #'lgrep)
 
 ;; Occur
-(define-key occur-mode-map (kbd "n") 'occur-next)
-(define-key occur-mode-map (kbd "p") 'occur-prev)
-(global-set-key (kbd "<C-f2>") 'basis/multi-occur-this-mode)
+(define-key occur-mode-map (kbd "n") #'occur-next)
+(define-key occur-mode-map (kbd "p") #'occur-prev)
+(global-set-key (kbd "<C-f2>") #'basis/multi-occur-this-mode)
 
 ;; Expand-region
-(global-set-key (kbd "M-=") 'er/expand-region)
+(global-set-key (kbd "M-=") #'er/expand-region)
 
 ;; Comment/uncomment stuff
-(global-set-key (kbd "s-;") 'basis/comment-or-uncomment)
-(global-set-key (kbd "C-c ;") 'basis/comment-or-uncomment)
+(global-set-key (kbd "s-;") #'basis/comment-or-uncomment)
+(global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
 
 ;; Eval
-(global-set-key (kbd "C-x C-e") 'basis/eval-last-sexp)
-(global-set-key (kbd "C-c C-e") 'basis/eval-and-replace)
+(global-set-key (kbd "C-x C-e") #'basis/eval-last-sexp)
+(global-set-key (kbd "C-c C-e") #'basis/eval-and-replace)
 
 ;; I use Meta-space for ace-jump-mode
-(global-set-key (kbd "C-c SPC") 'just-one-space)
+(global-set-key (kbd "C-c SPC") #'just-one-space)
 
 ;; jump-char
-(global-set-key (kbd "M-m") 'jump-char-forward)
-(global-set-key (kbd "M-M") 'jump-char-backward)
+(global-set-key (kbd "M-m") #'jump-char-forward)
+(global-set-key (kbd "M-M") #'jump-char-backward)
 
 ;; goto-line, with line numbers
-(global-set-key (kbd "M-g g") 'basis/goto-line-with-numbers)
-(global-set-key (kbd "M-g M-g") 'basis/goto-line-with-numbers)
+(global-set-key (kbd "M-g g") #'basis/goto-line-with-numbers)
+(global-set-key (kbd "M-g M-g") #'basis/goto-line-with-numbers)
 
 ;; Movement by sexp
 (basis/define-keys global-map
-  ("M-e"       'forward-sexp)
-  ("M-a"       'backward-sexp)
-  ("<M-right>" 'forward-sexp)
-  ("<M-left>"  'backward-sexp))
+  ("M-e"       #'forward-sexp)
+  ("M-a"       #'backward-sexp)
+  ("<M-right>" #'forward-sexp)
+  ("<M-left>"  #'backward-sexp))
 
 ;; M-x shell
-(global-set-key (kbd "C-c <C-return>") 'shell)
-(global-set-key (kbd "C-c C-^") 'shell)
+(global-set-key (kbd "C-c <C-return>") #'shell)
+(global-set-key (kbd "C-c C-^") #'shell)
 
 ;; M-x without meta, when necessary
-(global-set-key (kbd "C-c x") 'smex)
-(global-set-key (kbd "C-c m") 'execute-extended-command)
+(global-set-key (kbd "C-c x") #'smex)
+(global-set-key (kbd "C-c m") #'execute-extended-command)
 
 ;; recetf+ido
-(global-set-key (kbd "C-x C-r") 'basis/ido-recentf)
+(global-set-key (kbd "C-x C-r") #'basis/ido-recentf)
 
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including, the ARGth occurrence of CHAR.")
-(global-set-key (kbd "M-z") 'zap-up-to-char)
-(global-set-key (kbd "M-Z") 'zap-to-char)
+(global-set-key (kbd "M-z") #'zap-up-to-char)
+(global-set-key (kbd "M-Z") #'zap-to-char)
 
 ;; Change word case
 (basis/define-keys global-map
-  ("M-u" 'basis/upcase-something)
-  ("M-l" 'basis/downcase-something)
-  ("M-c" 'basis/capitalize-something))
+  ("M-u" #'basis/upcase-something)
+  ("M-l" #'basis/downcase-something)
+  ("M-c" #'basis/capitalize-something))
 
 ;; DWIM C-x C-c
-(global-set-key (kbd "C-x C-c") 'basis/kill-frame-or-terminal)
+(global-set-key (kbd "C-x C-c") #'basis/kill-frame-or-terminal)
 ;; Kill Emacs with M-x sayonara
-(defalias 'sayonara 'save-buffers-kill-terminal)
+(defalias 'sayonara #'save-buffers-kill-terminal)
 
 ;; Google stuff
-(global-set-key (kbd "C-c g") 'basis/google)
+(global-set-key (kbd "C-c g") #'basis/google)
 
 ;; Proced
-(global-set-key (kbd "C-x p") 'proced)
+(global-set-key (kbd "C-x p") #'proced)
 
 ;; C-v et al. are uncomfortable on my MBP
 (basis/define-keys global-map
-  ("<s-up>"     'scroll-up-command)
-  ("<s-down>"   'scroll-down-command)
-  ("<M-s-up>"   'scroll-other-window)
-  ("<M-s-down>" 'scroll-other-window-down))
+  ("<s-up>"     #'scroll-up-command)
+  ("<s-down>"   #'scroll-down-command)
+  ("<M-s-up>"   #'scroll-other-window)
+  ("<M-s-down>" #'scroll-other-window-down))
 
 ;; Previous/next buffer
-(global-set-key (kbd "<C-prior>") 'previous-buffer)
-(global-set-key (kbd "<C-next>") 'next-buffer)
+(global-set-key (kbd "<C-prior>") #'previous-buffer)
+(global-set-key (kbd "<C-next>") #'next-buffer)
 
 ;; File operations
 (define-prefix-command 'basis/buffer-file-map)
 (global-set-key (kbd "C-c f") 'basis/buffer-file-map)
 
 (basis/define-keys basis/buffer-file-map
-  ("d" 'basis/diff-buffer-with-file)
-  ("r" 'basis/rename-current-buffer-file)
-  ("D" 'basis/delete-current-buffer-file)
-  ("f" 'find-name-dired)
-  ("F" 'find-dired)
-  ("G" 'find-grep-dired)
-  ("m" 'basis/open-file-manager)
-  ("o" 'basis/open-files))
+  ("d" #'basis/diff-buffer-with-file)
+  ("r" #'basis/rename-current-buffer-file)
+  ("D" #'basis/delete-current-buffer-file)
+  ("f" #'find-name-dired)
+  ("F" #'find-dired)
+  ("G" #'find-grep-dired)
+  ("m" #'basis/open-file-manager)
+  ("o" #'basis/open-files))
 
 ;; Emacs Lisp-style quotes
-(global-set-key (kbd "C-c q") 'basis/elisp-quote)
+(global-set-key (kbd "C-c q") #'basis/elisp-quote)
 
 ;; h-map -----------------------------------------------------------------------
 
@@ -561,9 +561,9 @@
 (global-set-key (kbd "M-h") 'basis/h-map)
 
 (basis/define-keys basis/h-map
-  ("C-k" 'basis/kill-this-buffer)
-  ("i"   'idomenu)
-  ("C-h" 'mark-paragraph))
+  ("C-k" #'basis/kill-this-buffer)
+  ("i"   #'idomenu)
+  ("C-h" #'mark-paragraph))
 
 ;; find elisp map --------------------------------------------------------------
 
@@ -577,18 +577,18 @@
   (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
 
 (basis/define-keys lisp-find-map
-  ("c" 'finder-commentary)
-  ("e" 'view-echo-area-messages)
-  ("f" 'find-function)
-  ("F" 'find-face-definition)
-  ("i" 'info-apropos)
-  ("k" 'find-function-on-key)
-  ("l" 'find-library)
-  ("m" 'info-display-manual)
-  ("s" 'basis/scratch!)
-  ("v" 'find-variable)
-  ("V" 'apropos-value)
-  ("a" 'helm-apropos))
+  ("c" #'finder-commentary)
+  ("e" #'view-echo-area-messages)
+  ("f" #'find-function)
+  ("F" #'find-face-definition)
+  ("i" #'info-apropos)
+  ("k" #'find-function-on-key)
+  ("l" #'find-library)
+  ("m" #'info-display-manual)
+  ("s" #'basis/scratch!)
+  ("v" #'find-variable)
+  ("V" #'apropos-value)
+  ("a" #'helm-apropos))
 
 ;; eval keys -------------------------------------------------------------------
 
@@ -713,10 +713,10 @@ command to use for evaluating that unit of code."
 
 (with-eval-after-load 'help-mode
   (basis/define-keys help-mode-map
-    ("n" 'next-line)
-    ("p" 'previous-line)
-    ("b" 'help-go-back)
-    ("f" 'help-go-forward)))
+    ("n" #'next-line)
+    ("p" #'previous-line)
+    ("b" #'help-go-back)
+    ("f" #'help-go-forward)))
 
 ;; man and woman ---------------------------------------------------------------
 
@@ -732,13 +732,13 @@ command to use for evaluating that unit of code."
 
 ;; Regexp search by default
 (basis/define-keys global-map
-  ("C-s"   'isearch-forward-regexp)
-  ("C-r"   'isearch-backward-regexp)
-  ("C-M-s" 'isearch-forward)
-  ("C-M-r" 'isearch-backward))
+  ("C-s"   #'isearch-forward-regexp)
+  ("C-r"   #'isearch-backward-regexp)
+  ("C-M-s" #'isearch-forward)
+  ("C-M-r" #'isearch-backward))
 
 ;; Like C-w but the current region or symbol
-(define-key isearch-mode-map (kbd "C-t") 'basis/isearch-yank-something)
+(define-key isearch-mode-map (kbd "C-t") #'basis/isearch-yank-something)
 
 ;; ispell ----------------------------------------------------------------------
 
@@ -747,8 +747,8 @@ command to use for evaluating that unit of code."
 
 ;; prog-mode -------------------------------------------------------------------
 
-(add-hook 'prog-mode-hook 'basis/maybe-enable-whitespace-mode)
-(add-hook 'prog-mode-hook 'basis/maybe-enable-flyspell-prog-mode)
+(add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
+(add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode)
 
 ;; diff-mode -------------------------------------------------------------------
 
@@ -759,7 +759,7 @@ command to use for evaluating that unit of code."
   ;; `diff-goto-source' is still available on C-c C-c.
   (define-key diff-mode-map (kbd "M-o") nil))
 
-(add-hook 'diff-mode-hook 'basis/init-diff-mode)
+(add-hook 'diff-mode-hook #'basis/init-diff-mode)
 
 ;; discover-mode ---------------------------------------------------------------
 
@@ -798,15 +798,15 @@ command to use for evaluating that unit of code."
 ;; multiple-cursors ------------------------------------------------------------
 
 (basis/define-keys global-map
-  ("M-]" 'mc/mark-next-like-this)
-  ("C->" 'mc/mark-next-like-this)
-  ("C-<" 'mc/mark-previous-like-this))
+  ("M-]" #'mc/mark-next-like-this)
+  ("C->" #'mc/mark-next-like-this)
+  ("C-<" #'mc/mark-previous-like-this))
 
 (setq mc/list-file "~/.emacs.d/var/mc-lists.el")
 
 (with-eval-after-load 'multiple-cursors-core
   ;; Make RET exit multiple-cursors-mode in the terminal too
-  (define-key mc/keymap (kbd "RET") 'multiple-cursors-mode))
+  (define-key mc/keymap (kbd "RET") #'multiple-cursors-mode))
 
 ;; saveplace -------------------------------------------------------------------
 
@@ -831,13 +831,13 @@ command to use for evaluating that unit of code."
   (ace-jump-mode-enable-mark-sync))
 
 (basis/define-keys global-map
-  ("M-SPC"   'ace-jump-mode)
-  ("s-SPC"   'ace-jump-mode)
-  ("C-h SPC" 'ace-jump-mode-pop-mark))
+  ("M-SPC"   #'ace-jump-mode)
+  ("s-SPC"   #'ace-jump-mode)
+  ("C-h SPC" #'ace-jump-mode-pop-mark))
 
 ;; ace-window ------------------------------------------------------------------
 
-(global-set-key (kbd "M-o") 'ace-window)
+(global-set-key (kbd "M-o") #'ace-window)
 
 (setq aw-keys '(?h ?j ?k ?l ?n ?m))
 
@@ -854,7 +854,7 @@ command to use for evaluating that unit of code."
 (setq message-auto-save-directory "~/.emacs.d/tmp/"
       message-subject-trailing-was-query nil)
 
-(add-hook 'message-mode-hook 'basis/init-message-mode)
+(add-hook 'message-mode-hook #'basis/init-message-mode)
 
 ;; mu4e ------------------------------------------------------------------------
 
@@ -864,7 +864,7 @@ command to use for evaluating that unit of code."
 
 (autoload 'mu4e "mu4e" "Launch mu4e" t nil)
 
-(global-set-key (kbd "C-x m") 'mu4e)
+(global-set-key (kbd "C-x m") #'mu4e)
 
 ;; Mail
 (setq mu4e-get-mail-command "offlineimap"
@@ -905,8 +905,8 @@ command to use for evaluating that unit of code."
       message-dont-reply-to-names (regexp-opt mu4e-user-mail-address-list))
 
 ;; SMTP
-(setq send-mail-function 'smtpmail-send-it
-      message-send-mail-function 'smtpmail-send-it
+(setq send-mail-function #'smtpmail-send-it
+      message-send-mail-function #'smtpmail-send-it
       smtp-default-smtp-server "mail.messagingengine.com"
       smtpmail-smtp-server "mail.messagingengine.com"
       smtpmail-smtp-user "jbm@fastmail.fm"
@@ -927,9 +927,9 @@ command to use for evaluating that unit of code."
   (basis/maybe-enable-flyspell))
 
 (with-eval-after-load 'mu4e
-  (add-hook 'mu4e-compose-mode-hook 'basis/init-mu4e-compose-mode)
+  (add-hook 'mu4e-compose-mode-hook #'basis/init-mu4e-compose-mode)
   (add-to-list 'mu4e-view-actions
-               '("View in browser" . basis/mu4e-action-view-in-browser)
+               (cons "View in browser" #'basis/mu4e-action-view-in-browser)
                t))
 
 ;; elfeed ----------------------------------------------------------------------
@@ -946,21 +946,21 @@ command to use for evaluating that unit of code."
     (cl-letf (((symbol-function 'eww-colorize-region)
                #'ignore))
       ad-do-it))
-  (define-key eww-mode-map (kbd "<backtab>") 'shr-previous-link))
+  (define-key eww-mode-map (kbd "<backtab>") #'shr-previous-link))
 
 ;; w3m -------------------------------------------------------------------------
 
 (when (and (not (display-graphic-p))
            (executable-find "w3m"))
-  (setq browse-url-browser-function 'w3m-browse-url))
+  (setq browse-url-browser-function #'w3m-browse-url))
 
 (with-eval-after-load 'w3m
-  (define-key w3m-mode-map "n" 'w3m-next-anchor)
-  (define-key w3m-mode-map "p" 'w3m-previous-anchor))
+  (define-key w3m-mode-map "n" #'w3m-next-anchor)
+  (define-key w3m-mode-map "p" #'w3m-previous-anchor))
 
 ;; magit -----------------------------------------------------------------------
 
-(global-set-key (kbd "<f10>") 'magit-status)
+(global-set-key (kbd "<f10>") #'magit-status)
 
 (defadvice magit-status (around magit-fullscreen activate)
   (window-configuration-to-register :magit-fullscreen)
@@ -977,11 +977,11 @@ command to use for evaluating that unit of code."
   (turn-on-auto-fill)
   (setq fill-column 72))
 
-(add-hook 'magit-log-edit-mode-hook 'basis/init-magit-log-edit)
+(add-hook 'magit-log-edit-mode-hook #'basis/init-magit-log-edit)
 
 (with-eval-after-load 'magit
-  (define-key magit-status-mode-map (kbd "q") 'basis/magit-quit-session)
-  (setq magit-completing-read-function 'magit-ido-completing-read)
+  (define-key magit-status-mode-map (kbd "q") #'basis/magit-quit-session)
+  (setq magit-completing-read-function #'magit-ido-completing-read)
   (setq magit-repo-dirs '("~/code/"))
   ;; Tell magit where to find emacsclientw.exe on Windows
   (when (eq system-type 'windows-nt)
@@ -998,21 +998,21 @@ command to use for evaluating that unit of code."
 ;;   (basis/define-keys git-commit-mode-map
 ;;     ("M-n"   nil)
 ;;     ("M-p"   nil)
-;;     ("C-M-n" 'git-commit-next-message)
-;;     ("C-M-p" 'git-commit-prev-message)))
+;;     ("C-M-n" #'git-commit-next-message)
+;;     ("C-M-p" #'git-commit-prev-message)))
 
 ;; ibuffer ---------------------------------------------------------------------
 
-(defalias 'ls 'ibuffer)
+(defalias 'ls #'ibuffer)
 
-(global-set-key [remap list-buffers] 'ibuffer)
+(global-set-key [remap list-buffers] #'ibuffer)
 
 (with-eval-after-load 'ibuffer
   (require 'ibuffer-vc)
   (basis/define-keys ibuffer-mode-map
     ("M-o"   nil) ;; don't shadow ace-window
-    ("C-M-o" 'ibuffer-visit-buffer-1-window)
-    ("\\"    'basis/ibuffer-toggle-vc-grouping))
+    ("C-M-o" #'ibuffer-visit-buffer-1-window)
+    ("\\"    #'basis/ibuffer-toggle-vc-grouping))
 
   (define-ibuffer-column size-h
     ;; a more readable size column
@@ -1044,7 +1044,7 @@ command to use for evaluating that unit of code."
 
 ;; company ---------------------------------------------------------------------
 
-(add-hook 'after-init-hook 'global-company-mode)
+(add-hook 'after-init-hook #'global-company-mode)
 
 (with-eval-after-load 'company
   (defadvice company-auto-begin (around no-freeze activate)
@@ -1053,8 +1053,8 @@ command to use for evaluating that unit of code."
                  (basis/in-string-p))
       ad-do-it))
   (basis/define-keys company-active-map
-    ("C-t"    'company-complete-selection)
-    ("C-l"    'company-show-location)
+    ("C-t"    #'company-complete-selection)
+    ("C-l"    #'company-show-location)
     ("C-w"    nil)
     ("RET"    nil)
     ([return] nil))
@@ -1070,7 +1070,7 @@ command to use for evaluating that unit of code."
     (-when-let (args (basis/build-clang-args 'c))
       (require 'company-clang)
       (setq company-clang-arguments args)
-      (add-hook 'c-mode-hook 'basis/enable-company-clang))))
+      (add-hook 'c-mode-hook #'basis/enable-company-clang))))
 
 ;; dired -----------------------------------------------------------------------
 
@@ -1078,20 +1078,20 @@ command to use for evaluating that unit of code."
   (require 'dired+)
   (require 'find-dired)
   (basis/define-keys dired-mode-map
-    ("RET"                       'dired-find-alternate-file)
-    ("M-RET"                     'dired-find-file)
-    ("e"                         'basis/dired-open-files)
-    ("-"                         'diredp-up-directory-reuse-dir-buffer)
-    ("^"                         'diredp-up-directory-reuse-dir-buffer)
-    ("M-^"                       'diredp-up-directory)
-    ("M-m"                       'dired-omit-mode)
-    ("M-n"                       'diredp-next-subdir)
-    ("M-p"                       'diredp-prev-subdir)
-    ("M-e"                       'dired-next-dirline)
-    ("M-a"                       'dired-prev-dirline)
+    ("RET"                       #'dired-find-alternate-file)
+    ("M-RET"                     #'dired-find-file)
+    ("e"                         #'basis/dired-open-files)
+    ("-"                         #'diredp-up-directory-reuse-dir-buffer)
+    ("^"                         #'diredp-up-directory-reuse-dir-buffer)
+    ("M-^"                       #'diredp-up-directory)
+    ("M-m"                       #'dired-omit-mode)
+    ("M-n"                       #'diredp-next-subdir)
+    ("M-p"                       #'diredp-prev-subdir)
+    ("M-e"                       #'dired-next-dirline)
+    ("M-a"                       #'dired-prev-dirline)
     ("M-o"                       nil)
-    ([remap beginning-of-buffer] 'basis/dired-jump-to-top)
-    ([remap end-of-buffer]       'basis/dired-jump-to-bottom))
+    ([remap beginning-of-buffer] #'basis/dired-jump-to-top)
+    ([remap end-of-buffer]       #'basis/dired-jump-to-bottom))
   (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
         dired-recursive-deletes 'top
         dired-listing-switches "-alh"
@@ -1108,21 +1108,21 @@ command to use for evaluating that unit of code."
                (eq major-mode 'dired-mode))))
     ad-do-it))
 
-(add-hook 'dired-mode-hook 'dired-omit-mode)
+(add-hook 'dired-mode-hook #'dired-omit-mode)
 
 (autoload 'dired-jump "dired-x"
   "Jump to dired buffer corresponding to current buffer." t)
 
-(global-set-key (kbd "C-h C-j") 'dired-jump)
+(global-set-key (kbd "C-h C-j") #'dired-jump)
 
 ;; direx -----------------------------------------------------------------------
 
-(global-set-key (kbd "C-h j") 'direx:jump-to-directory)
-(global-set-key (kbd "C-h p C-j") 'basis/direx-jump-to-project-root)
+(global-set-key (kbd "C-h j") #'direx:jump-to-directory)
+(global-set-key (kbd "C-h p C-j") #'basis/direx-jump-to-project-root)
 
 (with-eval-after-load 'direx
-  (define-key direx:direx-mode-map (kbd "M-n") 'direx:next-sibling-item)
-  (define-key direx:direx-mode-map (kbd "M-p") 'direx:previous-sibling-item))
+  (define-key direx:direx-mode-map (kbd "M-n") #'direx:next-sibling-item)
+  (define-key direx:direx-mode-map (kbd "M-p") #'direx:previous-sibling-item))
 
 ;; comint ----------------------------------------------------------------------
 
@@ -1134,7 +1134,7 @@ command to use for evaluating that unit of code."
 (with-eval-after-load 'comint
   ;; Because Paredit and Smartparens both use M-r
   (define-key comint-mode-map
-    (kbd "C-M-r") 'comint-history-isearch-backward-regexp))
+    (kbd "C-M-r") #'comint-history-isearch-backward-regexp))
 
 ;; shell-mode ------------------------------------------------------------------
 
@@ -1150,7 +1150,7 @@ command to use for evaluating that unit of code."
   (shell-dirtrack-mode -1)
   (dirtrack-mode +1))
 
-(add-hook 'shell-mode-hook 'basis/init-shell-mode)
+(add-hook 'shell-mode-hook #'basis/init-shell-mode)
 
 ;; eshell ----------------------------------------------------------------------
 
@@ -1158,10 +1158,10 @@ command to use for evaluating that unit of code."
 
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map
-    ("S-DEL"   'basis/eshell-kill-line-backward)
-    ("C-S-DEL" 'basis/eshell-kill-whole-line)))
+    ("S-DEL"   #'basis/eshell-kill-line-backward)
+    ("C-S-DEL" #'basis/eshell-kill-whole-line)))
 
-(add-hook 'eshell-mode-hook 'basis/init-eshell)
+(add-hook 'eshell-mode-hook #'basis/init-eshell)
 
 ;; sh-mode ---------------------------------------------------------------------
 
@@ -1171,7 +1171,7 @@ command to use for evaluating that unit of code."
              (string= (file-name-nondirectory buffer-file-name) ".zshrc"))
     (sh-set-shell "zsh")))
 
-(add-hook 'sh-mode-hook 'basis/init-sh-mode)
+(add-hook 'sh-mode-hook #'basis/init-sh-mode)
 
 ;; ido -------------------------------------------------------------------------
 
@@ -1195,8 +1195,8 @@ command to use for evaluating that unit of code."
 (ido-at-point-mode)
 
 ;; For ido-powered completion at point. Need a better key binding for this.
-(global-set-key (kbd "C-c TAB") 'completion-at-point)
-(global-set-key (kbd "C-c <C-tab>") 'completion-at-point)
+(global-set-key (kbd "C-c TAB") #'completion-at-point)
+(global-set-key (kbd "C-c <C-tab>") #'completion-at-point)
 
 (unless (eq system-type 'darwin)
   ;; No offense to OS X; my Mac is just old
@@ -1204,20 +1204,20 @@ command to use for evaluating that unit of code."
 
 (defun basis/init-ido-keys ()
   (basis/define-keys ido-file-completion-map
-    ("C-w"   'ido-delete-backward-updir)
-    ("M-w"   'ido-copy-current-file-name)
-    ("C-M-e" 'basis/ido-sort-files-by-modtime)))
+    ("C-w"   #'ido-delete-backward-updir)
+    ("M-w"   #'ido-copy-current-file-name)
+    ("C-M-e" #'basis/ido-sort-files-by-modtime)))
 
-(add-hook 'ido-setup-hook 'basis/init-ido-keys)
+(add-hook 'ido-setup-hook #'basis/init-ido-keys)
 
 ;; smex ------------------------------------------------------------------------
 
 (setq smex-save-file "~/.emacs.d/var/smex-items")
 
 (basis/define-keys global-map
-  ("M-x"     'smex)
-  ("M-X"     'smex-major-mode-commands)
-  ("C-h M-x" 'execute-extended-command))
+  ("M-x"     #'smex)
+  ("M-X"     #'smex-major-mode-commands)
+  ("C-h M-x" #'execute-extended-command))
 
 ;; helm ------------------------------------------------------------------------
 
@@ -1226,28 +1226,28 @@ command to use for evaluating that unit of code."
 (global-set-key (kbd "C-c h") 'basis/helm-map)
 
 (basis/define-keys basis/helm-map
-  ("a" 'helm-apropos)
-  ("b" 'helm-buffers-list)
-  ("c" 'helm-colors)
-  ("e" 'helm-register)
-  ("f" 'helm-find-files)
-  ("g" 'helm-do-grep)
-  ("i" 'helm-semantic-or-imenu)
-  ("k" 'helm-man-woman)
-  ("m" 'helm-all-mark-rings)
-  ("o" 'helm-occur)
-  ("O" 'helm-multi-occur)
-  ("p" 'helm-list-emacs-process)
-  ("r" 'helm-regexp)
-  ("R" 'helm-resume)
-  ("s" 'helm-swoop)
-  ("t" 'helm-top)
-  ("x" 'helm-M-x)
-  ("y" 'helm-show-kill-ring)
-  ("/" 'helm-find))
+  ("a" #'helm-apropos)
+  ("b" #'helm-buffers-list)
+  ("c" #'helm-colors)
+  ("e" #'helm-register)
+  ("f" #'helm-find-files)
+  ("g" #'helm-do-grep)
+  ("i" #'helm-semantic-or-imenu)
+  ("k" #'helm-man-woman)
+  ("m" #'helm-all-mark-rings)
+  ("o" #'helm-occur)
+  ("O" #'helm-multi-occur)
+  ("p" #'helm-list-emacs-process)
+  ("r" #'helm-regexp)
+  ("R" #'helm-resume)
+  ("s" #'helm-swoop)
+  ("t" #'helm-top)
+  ("x" #'helm-M-x)
+  ("y" #'helm-show-kill-ring)
+  ("/" #'helm-find))
 
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "M-`") 'helm-all-mark-rings)
+(global-set-key (kbd "M-y") #'helm-show-kill-ring)
+(global-set-key (kbd "M-`") #'helm-all-mark-rings)
 
 (setq helm-split-window-default-side 'other
       helm-split-window-in-side-p t
@@ -1258,17 +1258,17 @@ command to use for evaluating that unit of code."
       helm-truncate-lines t)
 
 (unless basis/system-man-p
-  (setq helm-man-or-woman-function 'woman))
+  (setq helm-man-or-woman-function #'woman))
 
 (with-eval-after-load 'helm
   (require 'helm-utils) ; For the `helm-selection-line' face
-  (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-z") 'helm-select-action))
+  (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
+  (define-key helm-map (kbd "C-z") #'helm-select-action))
 
 ;; `helm-swoop' config
 (setq helm-swoop-use-line-number-face t)
 
-(define-key isearch-mode-map (kbd "M-s") 'helm-swoop-from-isearch)
+(define-key isearch-mode-map (kbd "M-s") #'helm-swoop-from-isearch)
 
 (with-eval-after-load 'helm-swoop
   ;; I prefer M-s for this
@@ -1276,7 +1276,7 @@ command to use for evaluating that unit of code."
 
 ;; hippie expand ---------------------------------------------------------------
 
-(global-set-key (kbd "M-/") 'hippie-expand)
+(global-set-key (kbd "M-/") #'hippie-expand)
 
 (dolist (f '(try-expand-line try-expand-list try-expand-all-abbrevs))
   (setq hippie-expand-try-functions-list
@@ -1290,10 +1290,10 @@ command to use for evaluating that unit of code."
   ;; Steal C-t for expanding snippets. `transpose-chars' is still available on
   ;; M-t c
   (basis/define-keys yas-minor-mode-map
-    ("C-t"   'basis/yas-expand-or-insert)
+    ("C-t"   #'basis/yas-expand-or-insert)
     ("TAB"   nil)
     ([(tab)] nil))
-  (define-key yas-keymap (kbd "RET") 'yas-exit-all-snippets)
+  (define-key yas-keymap (kbd "RET") #'yas-exit-all-snippets)
   (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
         yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
         yas-wrap-around-region t))
@@ -1354,7 +1354,7 @@ command to use for evaluating that unit of code."
                      inferior-scheme-mode-hook
                      geiser-repl-mode-hook)))
   (dolist (hook lispy-hooks)
-    (add-hook hook 'basis/init-lisp-generic)))
+    (add-hook hook #'basis/init-lisp-generic)))
 
 (setq lisp-lambda-list-keyword-alignment t
       lisp-lambda-list-keyword-parameter-alignment t
@@ -1365,9 +1365,9 @@ command to use for evaluating that unit of code."
 (defun basis/set-up-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in Hippie Expand."
   (make-local-variable 'hippie-expand-try-functions-list)
-  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol t)
+  (add-to-list 'hippie-expand-try-functions-list #'try-complete-lisp-symbol t)
   (add-to-list 'hippie-expand-try-functions-list
-               'try-complete-lisp-symbol-partially t))
+               #'try-complete-lisp-symbol-partially t))
 
 (defun basis/init-emacs-lisp-modes ()
   "Enable features useful when working with Emacs Lisp."
@@ -1388,11 +1388,11 @@ command to use for evaluating that unit of code."
 (dolist (hook '(emacs-lisp-mode-hook
                 lisp-interaction-mode-hook
                 ielm-mode-hook))
-  (add-hook hook 'basis/init-emacs-lisp-modes))
+  (add-hook hook #'basis/init-emacs-lisp-modes))
 
-(add-hook 'emacs-lisp-mode-hook 'basis/init-emacs-lisp-mode)
+(add-hook 'emacs-lisp-mode-hook #'basis/init-emacs-lisp-mode)
 
-(add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
+(add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
 
 (with-eval-after-load 'lisp-mode
   (let ((commands '((last-sexp  . basis/eval-last-sexp)
@@ -1414,9 +1414,9 @@ command to use for evaluating that unit of code."
                                                inferior-scheme-mode
                                                geiser-repl-mode
                                                cider-repl-mode)))
-    (local-set-key (kbd "RET") 'paredit-newline)))
+    (local-set-key (kbd "RET") #'paredit-newline)))
 
-(add-hook 'paredit-mode-hook 'basis/maybe-map-paredit-newline)
+(add-hook 'paredit-mode-hook #'basis/maybe-map-paredit-newline)
 
 (defun basis/maybe-enable-paredit-mode ()
   "Enable Paredit during Lisp-related minibuffer commands."
@@ -1427,23 +1427,23 @@ command to use for evaluating that unit of code."
     (when (memq this-command paredit-minibuffer-commands)
       (enable-paredit-mode))))
 
-(add-hook 'minibuffer-setup-hook 'basis/maybe-enable-paredit-mode)
+(add-hook 'minibuffer-setup-hook #'basis/maybe-enable-paredit-mode)
 
 (with-eval-after-load 'paredit
   (basis/define-keys paredit-mode-map
-    ("M-)"                          'basis/paredit-wrap-round-from-behind)
-    ("M-e"                          'paredit-forward)
-    ("<M-right>"                    'paredit-forward)
-    ("M-a"                          'paredit-backward)
-    ("<M-left>"                     'paredit-backward)
-    ("M-k"                          'kill-sexp)
-    ("C-w"                          'basis/paredit-kill-region-or-backward-word)
-    ("M-DEL"                        'basis/paredit-kill-region-or-backward-word)
-    ("C-DEL"                        'basis/paredit-kill-region-or-backward-word)
-    ("<C-backspace>"                'basis/paredit-kill-region-or-backward-word)
-    ([remap backward-kill-sentence] 'backward-kill-sexp))
+    ("M-)"                          #'basis/paredit-wrap-round-from-behind)
+    ("M-e"                          #'paredit-forward)
+    ("<M-right>"                    #'paredit-forward)
+    ("M-a"                          #'paredit-backward)
+    ("<M-left>"                     #'paredit-backward)
+    ("M-k"                          #'kill-sexp)
+    ("C-w"                          #'basis/paredit-kill-something)
+    ("M-DEL"                        #'basis/paredit-kill-something)
+    ("C-DEL"                        #'basis/paredit-kill-something)
+    ("<C-backspace>"                #'basis/paredit-kill-something)
+    ([remap backward-kill-sentence] #'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
-               'basis/paredit-doublequote-space-p)
+               #'basis/paredit-doublequote-space-p)
   ;; Show `eldoc' messages after Paredit motion commands
   (with-eval-after-load 'eldoc
     (eldoc-add-command 'paredit-forward
@@ -1482,7 +1482,7 @@ command to use for evaluating that unit of code."
       (something  . basis/slime-eval-something)
       (file       . slime-compile-and-load-file)
       (expand     . slime-expand-1)))
-  (global-set-key (kbd "<f12>") 'slime-selector)
+  (global-set-key (kbd "<f12>") #'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
 ;; redshank --------------------------------------------------------------------
@@ -1531,7 +1531,7 @@ command to use for evaluating that unit of code."
   "Additional form indentation settings for `clojure-mode'.")
 
 (with-eval-after-load 'clojure-mode
-  (add-hook 'clojure-mode-hook 'basis/init-clojure-mode)
+  (add-hook 'clojure-mode-hook #'basis/init-clojure-mode)
 
   ;; Indentation tweaks
   (pcase-dolist (`(,sym ,n) basis/clojure-indent-specs)
@@ -1547,15 +1547,15 @@ command to use for evaluating that unit of code."
         (basis/cygwin-p
          (basis/set-lein-command-for-cygwin)))
 
-  (add-hook 'cider-repl-mode-hook 'basis/init-cider-repl-mode)
-  (add-hook 'cider-mode-hook 'basis/init-cider-mode)
+  (add-hook 'cider-repl-mode-hook #'basis/init-cider-repl-mode)
+  (add-hook 'cider-mode-hook #'basis/init-cider-mode)
 
   (setq cider-repl-use-pretty-printing t
         nrepl-log-messages t)
 
-  (global-set-key (kbd "<f11>") 'cider-selector)
+  (global-set-key (kbd "<f11>") #'cider-selector)
 
-  (define-key cider-repl-mode-map (kbd "RET") 'cider-repl-return)
+  (define-key cider-repl-mode-map (kbd "RET") #'cider-repl-return)
 
   (basis/bind-eval-keys cider-mode-map
     '((last-sexp  . cider-eval-last-sexp)
@@ -1595,7 +1595,7 @@ command to use for evaluating that unit of code."
       (something  . basis/geiser-eval-something)
       (expand     . basis/geiser-expand-something))))
 
-(add-hook 'geiser-repl-mode-hook 'basis/geiser-map-keys)
+(add-hook 'geiser-repl-mode-hook #'basis/geiser-map-keys)
 
 ;; smartparens -----------------------------------------------------------------
 
@@ -1623,15 +1623,15 @@ command to use for evaluating that unit of code."
     (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
 
   (basis/define-keys sp-keymap
-    ("M-DEL"         'basis/sp-kill-region-or-backward-word)
-    ("C-DEL"         'basis/sp-kill-region-or-backward-word)
-    ("<C-backspace>" 'basis/sp-kill-region-or-backward-word)
-    ("C-w"           'basis/sp-kill-region-or-backward-word)
-    ("M-k"           'sp-kill-sexp)
-    ("M-e"           'basis/maybe-sp-forward-sexp)
-    ("M-a"           'basis/maybe-sp-backward-sexp)
-    ("]"             'sp-up-sexp)
-    ("C-c ]"         'basis/insert-right-bracket))
+    ("M-DEL"         #'basis/sp-kill-something)
+    ("C-DEL"         #'basis/sp-kill-something)
+    ("<C-backspace>" #'basis/sp-kill-something)
+    ("C-w"           #'basis/sp-kill-something)
+    ("M-k"           #'sp-kill-sexp)
+    ("M-e"           #'basis/maybe-sp-forward-sexp)
+    ("M-a"           #'basis/maybe-sp-backward-sexp)
+    ("]"             #'sp-up-sexp)
+    ("C-c ]"         #'basis/insert-right-bracket))
 
   ;; These commands invoke `indent-according-to-mode' but, when
   ;; `indent-line-function' is `indent-relative', that often doesn't work out
@@ -1641,20 +1641,20 @@ command to use for evaluating that unit of code."
      sp-backward-kill-word
      sp-kill-sexp
      sp-kill-hybrid-sexp
-     basis/sp-kill-region-or-backward-word)))
+     basis/sp-kill-something)))
 
 ;; flycheck --------------------------------------------------------------------
 
 (defvar basis/flycheck-map
   (let ((map (make-sparse-keymap)))
     (basis/define-keys map
-      ("c"   'flycheck-buffer)
-      ("n"   'flycheck-next-error)
-      ("p"   'flycheck-previous-error)
-      ("l"   'flycheck-list-errors)
-      ("s"   'flycheck-select-checker)
-      ("C"   'flycheck-clear)
-      ("SPC" 'basis/flycheck-check-and-list-errors))
+      ("c"   #'flycheck-buffer)
+      ("n"   #'flycheck-next-error)
+      ("p"   #'flycheck-previous-error)
+      ("l"   #'flycheck-list-errors)
+      ("s"   #'flycheck-select-checker)
+      ("C"   #'flycheck-clear)
+      ("SPC" #'basis/flycheck-check-and-list-errors))
     map)
   "Custom keybindings for Flycheck.")
 
@@ -1662,19 +1662,19 @@ command to use for evaluating that unit of code."
   (setq flycheck-check-syntax-automatically nil)
 
   (unless (basis/libxml-available-p)
-    (setq flycheck-xml-parser 'flycheck-parse-xml-region))
+    (setq flycheck-xml-parser #'flycheck-parse-xml-region))
 
   ;; Check buffers with errors more frequently than ones without
   (make-variable-buffer-local 'flycheck-idle-change-delay)
   (add-hook 'flycheck-after-syntax-check-hook
-            'basis/adjust-flycheck-idle-change-delay)
+            #'basis/adjust-flycheck-idle-change-delay)
 
   (global-set-key (kbd "C-h l") basis/flycheck-map)
 
   ;; Keys for the errors buffer
   (basis/define-keys flycheck-error-list-mode-map
-    ("n" 'flycheck-error-list-next-error)
-    ("p" 'flycheck-error-list-previous-error)))
+    ("n" #'flycheck-error-list-next-error)
+    ("p" #'flycheck-error-list-previous-error)))
 
 ;; python ----------------------------------------------------------------------
 
@@ -1686,17 +1686,17 @@ command to use for evaluating that unit of code."
       (something  . basis/python-send-something)
       (file       . python-shell-send-file)))
   (basis/define-keys python-mode-map
-    ("RET"     'basis/electric-return)
-    ("DEL"     'basis/sp-python-backspace)
-    ("C-c C-D" 'python-eldoc-at-point)
-    ("C-h C-p" 'basis/insert-python-docstring-quotes))
+    ("RET"     #'basis/electric-return)
+    ("DEL"     #'basis/sp-python-backspace)
+    ("C-c C-D" #'python-eldoc-at-point)
+    ("C-h C-p" #'basis/insert-python-docstring-quotes))
   (setq python-fill-docstring-style 'pep-257-nn))
 
 (when (basis/jedi-installed-p)
   ;; Jedi has 2 Python dependencies: jedi and epc
   (setq jedi:setup-keys t
         jedi:tooltip-method nil)
-  (add-hook 'python-mode-hook 'jedi:setup))
+  (add-hook 'python-mode-hook #'jedi:setup))
 
 (defun basis/init-python-mode ()
   (subword-mode 1)
@@ -1711,8 +1711,8 @@ command to use for evaluating that unit of code."
   (subword-mode 1)
   (setq tab-width 4))
 
-(add-hook 'python-mode-hook 'basis/init-python-mode)
-(add-hook 'inferior-python-mode-hook 'basis/init-inferior-python-mode)
+(add-hook 'python-mode-hook #'basis/init-python-mode)
+(add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
 
 ;; haskell ---------------------------------------------------------------------
 
@@ -1724,7 +1724,7 @@ command to use for evaluating that unit of code."
 (defun basis/init-haskell-mode ()
   (turn-on-haskell-indentation))
 
-(add-hook 'haskell-mode-hook 'basis/init-haskell-mode)
+(add-hook 'haskell-mode-hook #'basis/init-haskell-mode)
 
 ;; rust ------------------------------------------------------------------------
 
@@ -1743,10 +1743,10 @@ command to use for evaluating that unit of code."
   (subword-mode 1)
   (basis/rust-set-compile-command))
 
-(add-hook 'rust-mode-hook 'basis/init-rust-mode)
+(add-hook 'rust-mode-hook #'basis/init-rust-mode)
 
 (with-eval-after-load 'rust-mode
-  (define-key rust-mode-map (kbd "RET") 'basis/electric-return))
+  (define-key rust-mode-map (kbd "RET") #'basis/electric-return))
 
 ;; javascript ------------------------------------------------------------------
 
@@ -1763,14 +1763,14 @@ command to use for evaluating that unit of code."
 
 (with-eval-after-load 'js2-mode
   (js2r-add-keybindings-with-prefix "C-h m")
-  (define-key js2-mode-map (kbd "C-;") 'basis/eol-maybe-semicolon))
+  (define-key js2-mode-map (kbd "C-;") #'basis/eol-maybe-semicolon))
 
 (defun basis/init-js2-mode ()
   (setq tab-width 4)
   (subword-mode 1)
   (js2-imenu-extras-setup))
 
-(add-hook 'js2-mode-hook 'basis/init-js2-mode)
+(add-hook 'js2-mode-hook #'basis/init-js2-mode)
 
 ;; skewer ----------------------------------------------------------------------
 
@@ -1783,10 +1783,10 @@ command to use for evaluating that unit of code."
       (buffer     . skewer-load-buffer))))
 
 (with-eval-after-load 'skewer-repl
-  (define-key skewer-repl-mode-map (kbd "TAB") 'hippie-expand))
+  (define-key skewer-repl-mode-map (kbd "TAB") #'hippie-expand))
 
 (with-eval-after-load 'skewer-html
-  (define-key skewer-html-mode-map (kbd "<f6>") 'skewer-html-eval-tag))
+  (define-key skewer-html-mode-map (kbd "<f6>") #'skewer-html-eval-tag))
 
 (with-eval-after-load 'skewer-css
   (basis/bind-eval-keys skewer-css-mode-map
@@ -1801,7 +1801,7 @@ command to use for evaluating that unit of code."
   (setq tab-width 4)
   (basis/modify-sql-syntax-table))
 
-(add-hook 'sql-mode-hook 'basis/init-sql-mode)
+(add-hook 'sql-mode-hook #'basis/init-sql-mode)
 
 (with-eval-after-load 'sql
   ;; But I also work with other products and it's often easier not to switch
@@ -1811,11 +1811,11 @@ command to use for evaluating that unit of code."
      'sql-mode-postgres-font-lock-keywords
      (apply #'sql-font-lock-keywords-builder
             'font-lock-keyword-face nil more-keywords)))
-  (define-key sql-mode-map (kbd "RET") 'basis/electric-return)
-  (define-key sql-mode-map (kbd "M-n") 'basis/sql-forward-clause)
-  (define-key sql-mode-map (kbd "M-p") 'basis/sql-backward-clause)
-  (define-key sql-mode-map (kbd "C-M-a") 'basis/sql-beginning-of-defun)
-  (define-key sql-mode-map (kbd "C-M-e") 'basis/sql-end-of-defun))
+  (define-key sql-mode-map (kbd "RET") #'basis/electric-return)
+  (define-key sql-mode-map (kbd "M-n") #'basis/sql-forward-clause)
+  (define-key sql-mode-map (kbd "M-p") #'basis/sql-backward-clause)
+  (define-key sql-mode-map (kbd "C-M-a") #'basis/sql-beginning-of-defun)
+  (define-key sql-mode-map (kbd "C-M-e") #'basis/sql-end-of-defun))
 
 ;; When using Emacs as $PSQL_EDITOR, open the files in `sql-mode'
 (add-to-list 'auto-mode-alist '("/psql.edit.[0-9]+\\'" . sql-mode))
@@ -1848,31 +1848,31 @@ command to use for evaluating that unit of code."
   (c-set-style "java")
   (basis/init-c-base))
 
-(add-hook 'c-mode-hook    'basis/init-c)
-(add-hook 'c++-mode-hook  'basis/init-c++)
-(add-hook 'java-mode-hook 'basis/init-java)
+(add-hook 'c-mode-hook    #'basis/init-c)
+(add-hook 'c++-mode-hook  #'basis/init-c++)
+(add-hook 'java-mode-hook #'basis/init-java)
 
 (with-eval-after-load 'cc-mode
-  (define-key c-mode-base-map (kbd "C-j") 'c-context-line-break))
+  (define-key c-mode-base-map (kbd "C-j") #'c-context-line-break))
 
 ;; ack and a half --------------------------------------------------------------
 
-(defalias 'ack 'ack-and-a-half)
-(defalias 'ack-same 'ack-and-a-half-same)
-(defalias 'ack-find-file 'ack-and-a-half-find-file)
-(defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
+(defalias 'ack #'ack-and-a-half)
+(defalias 'ack-same #'ack-and-a-half-same)
+(defalias 'ack-find-file #'ack-and-a-half-find-file)
+(defalias 'ack-find-file-same #'ack-and-a-half-find-file-same)
 
-(global-set-key (kbd "<M-f9>") 'ack-and-a-half)
+(global-set-key (kbd "<M-f9>") #'ack-and-a-half)
 
 (when (file-exists-p "~/bin/ack")
   (setq ack-and-a-half-executable "~/bin/ack"))
 
 (with-eval-after-load 'ack-and-a-half
   (basis/define-keys ack-and-a-half-mode-map
-    ("n" 'compilation-next-error)
-    ("p" 'compilation-previous-error)
-    ("]" 'compilation-next-file)
-    ("[" 'compilation-previous-file))
+    ("n" #'compilation-next-error)
+    ("p" #'compilation-previous-error)
+    ("]" #'compilation-next-file)
+    ("[" #'compilation-previous-file))
   (setq ack-and-a-half-use-ido t)
   ;; Make Cygwin happy
   (when (and basis/cygwin-p
@@ -1927,12 +1927,12 @@ command to use for evaluating that unit of code."
 
 ;; Keys
 (basis/define-keys global-map
-  ("C-c a" 'org-agenda)
-  ("C-c b" 'org-iswitchb)
-  ("C-c c" 'org-capture)
-  ("C-c l" 'org-store-link))
+  ("C-c a" #'org-agenda)
+  ("C-c b" #'org-iswitchb)
+  ("C-c c" #'org-capture)
+  ("C-c l" #'org-store-link))
 
-(add-hook 'org-mode-hook 'basis/maybe-enable-flyspell)
+(add-hook 'org-mode-hook #'basis/maybe-enable-flyspell)
 
 ;; org-babel + clojure ---------------------------------------------------------
 
@@ -1952,7 +1952,7 @@ command to use for evaluating that unit of code."
 
   ;; The `org-babel-execute:clojure' in `ob-clojure' is for SLIME so we replace
   ;; it with one for Cider.
-  (fset 'org-babel-execute:clojure 'basis/org-babel-execute:clojure))
+  (fset 'org-babel-execute:clojure #'basis/org-babel-execute:clojure))
 
 ;; html ------------------------------------------------------------------------
 
@@ -1964,20 +1964,20 @@ command to use for evaluating that unit of code."
   (setq tab-width 4)
   (tagedit-mode 1))
 
-(add-hook 'sgml-mode-hook 'basis/init-simplezen)
-(add-hook 'html-mode-hook 'basis/init-html-mode)
+(add-hook 'sgml-mode-hook #'basis/init-simplezen)
+(add-hook 'html-mode-hook #'basis/init-html-mode)
 
 (with-eval-after-load 'sgml-mode
   (require 'tagedit)
   (require 'simplezen)
   (basis/define-keys html-mode-map
-    ([remap forward-paragraph]  'basis/move-to-next-blank-line)
-    ([remap backward-paragraph] 'basis/move-to-previous-blank-line)
-    ("RET"                      'basis/html-newline-and-indent)
-    ("M-RET"                    'basis/html-multiline-expand)
-    ("C-c C-w"                  'basis/html-wrap-in-tag)
-    ("C-c w"                    'basis/html-wrap-in-tag)
-    ("<f8>"                     'browse-url-of-buffer))
+    ([remap forward-paragraph]  #'basis/move-to-next-blank-line)
+    ([remap backward-paragraph] #'basis/move-to-previous-blank-line)
+    ("RET"                      #'basis/html-newline-and-indent)
+    ("M-RET"                    #'basis/html-multiline-expand)
+    ("C-c C-w"                  #'basis/html-wrap-in-tag)
+    ("C-c w"                    #'basis/html-wrap-in-tag)
+    ("<f8>"                     #'browse-url-of-buffer))
   (tagedit-add-paredit-like-keybindings)
   (tagedit-add-experimental-features))
 
@@ -2015,15 +2015,15 @@ two tags."
     (turn-on-auto-fill))
   (basis/maybe-enable-flyspell))
 
-(add-hook 'markdown-mode-hook 'basis/init-markdown-mode)
+(add-hook 'markdown-mode-hook #'basis/init-markdown-mode)
 
 (with-eval-after-load 'markdown-mode
   (basis/define-keys markdown-mode-map
-    ("DEL"     'basis/sp-markdown-backspace)
-    ("M-n"     'forward-paragraph)
-    ("M-p"     'backward-paragraph)
-    ("C-c r"   'markdown-insert-reference-link-dwim)
-    ("C-c C-r" 'markdown-insert-reference-link-dwim)))
+    ("DEL"     #'basis/sp-markdown-backspace)
+    ("M-n"     #'forward-paragraph)
+    ("M-p"     #'backward-paragraph)
+    ("C-c r"   #'markdown-insert-reference-link-dwim)
+    ("C-c C-r" #'markdown-insert-reference-link-dwim)))
 
 ;; yaml ------------------------------------------------------------------------
 
@@ -2032,7 +2032,7 @@ two tags."
   (when (basis/yaml-multiple-docs-p)
     (basis/yaml-multi-doc-mode)))
 
-(add-hook 'yaml-mode-hook 'basis/init-yaml-mode)
+(add-hook 'yaml-mode-hook #'basis/init-yaml-mode)
 
 ;; deft ------------------------------------------------------------------------
 
