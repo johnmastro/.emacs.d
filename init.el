@@ -106,6 +106,7 @@
           slime-company
           smartparens
           smex
+          sx
           ssh-config-mode
           tagedit
           undo-tree
@@ -957,6 +958,10 @@ command to use for evaluating that unit of code."
 (with-eval-after-load 'w3m
   (define-key w3m-mode-map "n" #'w3m-next-anchor)
   (define-key w3m-mode-map "p" #'w3m-previous-anchor))
+
+;; sx --------------------------------------------------------------------------
+
+(setq sx-cache-directory "~/.emacs.d/var/sx/")
 
 ;; magit -----------------------------------------------------------------------
 
