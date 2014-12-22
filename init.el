@@ -9,7 +9,7 @@
       '(menu-bar-mode tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode))
 
 ;; Make sure some directories exist
-(dolist (dir '("var/" "var/autosaves" "tmp/"))
+(dolist (dir '("var/" "var/autosaves/" "tmp/"))
   (let ((path (expand-file-name dir "~/.emacs.d/")))
     (unless (file-exists-p path)
       (make-directory path))))
@@ -95,6 +95,7 @@
           multiple-cursors
           page-break-lines
           paredit
+          persistent-soft
           projectile
           pyvenv
           redshank
@@ -110,6 +111,7 @@
           ssh-config-mode
           tagedit
           undo-tree
+          unicode-fonts
           writegood-mode
           yaml-mode
           yasnippet
@@ -293,6 +295,20 @@
 
 (defalias 'yes-or-no-p #'y-or-n-p)
 
+;; fonts -----------------------------------------------------------------------
+
+;; See the commentary in `unicode-fonts' for the "minimum useful fonts" to
+;; install
+(unicode-fonts-setup)
+
+(let ((default-font
+        (pcase system-type
+          (`gnu/linux  "Inconsolata-11")
+          (`darwin     "Andale Mono-12")
+          (`windows-nt "Consolas-10"))))
+  (when default-font
+    (set-face-attribute 'default nil :font default-font)))
+
 ;; interface -------------------------------------------------------------------
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized/")
@@ -314,18 +330,7 @@
     "%b"))
 
 (when (display-graphic-p)
-  (setq frame-title-format
-        '((:eval (basis/get-frame-title))))
-  (-when-let (default-font
-               (pcase system-type
-                 (`gnu/linux  "Inconsolata-11")
-                 (`darwin     "Andale Mono-12")
-                 (`windows-nt "Consolas-10")))
-    (set-face-attribute 'default nil :font default-font))
-  (when (member "Symbola" (font-family-list))
-    ;; (set-fontset-font t 'unicode "Symbola" nil 'prepend)
-    (let ((symbola (font-spec :size 20 :name "Symbola")))
-      (set-fontset-font "fontset-default" nil symbola))))
+  (setq frame-title-format '((:eval (basis/get-frame-title)))))
 
 (pcase-dolist (`(,feature ,mode) '((elisp-slime-nav   elisp-slime-nav-mode)
                                    (eldoc             eldoc-mode)
