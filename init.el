@@ -765,10 +765,7 @@ See `basis/define-eval-keys'.")
 
 ;; guide-key -------------------------------------------------------------------
 
-(unless (eq system-type 'windows-nt)
-  ;; Disable on Windows for now because of `guide-key' issue #32
-  ;; https://github.com/kai2nenobu/guide-key/issues/32
-  (guide-key-mode 1))
+(guide-key-mode 1)
 
 (setq guide-key/popup-window-position 'bottom
       guide-key/idle-delay 0.0)
