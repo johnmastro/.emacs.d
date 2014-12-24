@@ -1238,7 +1238,8 @@ See `basis/define-eval-keys'.")
   ("t" #'helm-top)
   ("x" #'helm-M-x)
   ("y" #'helm-show-kill-ring)
-  ("/" #'helm-find))
+  ("/" #'helm-find)
+  (":" #'helm-eval-expression-with-eldoc))
 
 (global-set-key (kbd "M-y") #'helm-show-kill-ring)
 (global-set-key (kbd "M-`") #'helm-all-mark-rings)
@@ -1424,7 +1425,8 @@ See `basis/define-eval-keys'.")
   (let ((paredit-minibuffer-commands '(eval-expression
                                        pp-eval-expression
                                        eval-expression-with-eldoc
-                                       slime-interactive-eval)))
+                                       slime-interactive-eval
+                                       helm-eval-expression-with-eldoc)))
     (when (memq this-command paredit-minibuffer-commands)
       (enable-paredit-mode))))
 
