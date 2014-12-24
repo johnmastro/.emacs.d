@@ -959,10 +959,12 @@ See `basis/define-eval-keys'.")
   (delete-other-windows))
 
 (defun basis/magit-quit-session ()
-  "Restores the previous window configuration and kills the magit buffer."
+  "Kill the `magit' buffer and restore the previous window configuration."
   (interactive)
   (kill-buffer)
-  (jump-to-register :magit-fullscreen))
+  (condition-case nil
+      (jump-to-register :magit-fullscreen)
+    (error (message "Previous window configuration could not be restored"))))
 
 (defun basis/init-magit-log-edit ()
   (turn-on-auto-fill)
