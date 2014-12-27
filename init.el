@@ -1182,7 +1182,8 @@ See `basis/define-eval-keys'.")
       ido-use-faces nil
       ido-max-prospects 10
       ido-ignore-extensions t
-      ido-save-directory-list-file "~/.emacs.d/var/ido.last")
+      ido-save-directory-list-file "~/.emacs.d/var/ido.last"
+      flx-ido-threshhold 10000)
 
 (ido-everywhere 1)
 (ido-ubiquitous-mode 1)
@@ -1193,10 +1194,6 @@ See `basis/define-eval-keys'.")
 ;; For ido-powered completion at point. Need a better key binding for this.
 (global-set-key (kbd "C-c TAB") #'completion-at-point)
 (global-set-key (kbd "C-c <C-tab>") #'completion-at-point)
-
-(unless (eq system-type 'darwin)
-  ;; No offense to OS X; my Mac is just old
-  (setq flx-ido-threshhold 10000))
 
 (defun basis/init-ido-keys ()
   (basis/define-keys ido-file-completion-map
