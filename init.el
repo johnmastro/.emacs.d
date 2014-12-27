@@ -576,7 +576,7 @@
 
 (global-set-key (kbd "<f1> e") 'lisp-find-map)
 
-(defun basis/scratch! ()
+(defun basis/scratch ()
   "Switch to the scratch buffer, creating it if necessary."
   (interactive)
   (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
@@ -590,7 +590,7 @@
   ("k" #'find-function-on-key)
   ("l" #'find-library)
   ("m" #'info-display-manual)
-  ("s" #'basis/scratch!)
+  ("s" #'basis/scratch)
   ("v" #'find-variable)
   ("V" #'apropos-value)
   ("a" #'helm-apropos))
@@ -1370,18 +1370,17 @@ See `basis/define-eval-keys'.")
 
 ;; emacs lisp ------------------------------------------------------------------
 
-(defun basis/set-up-hippie-expand-for-elisp ()
-  "Enable Lisp symbol completion in Hippie Expand."
-  (make-local-variable 'hippie-expand-try-functions-list)
-  (add-to-list 'hippie-expand-try-functions-list #'try-complete-lisp-symbol t)
-  (add-to-list 'hippie-expand-try-functions-list
-               #'try-complete-lisp-symbol-partially t))
+(defun basis/init-hippie-expand-for-elisp ()
+  "Enable Lisp symbol completion in `hippie-exp'."
+  (let ((functions (make-local-variable 'hippie-expand-try-functions-list)))
+    (add-to-list functions #'try-complete-lisp-symbol t)
+    (add-to-list functions #'try-complete-lisp-symbol-partially t)))
 
 (defun basis/init-emacs-lisp-modes ()
   "Enable features useful when working with Emacs Lisp."
   ;; Paredit is enabled by `basis/init-lisp-generic'
   (elisp-slime-nav-mode t)
-  (basis/set-up-hippie-expand-for-elisp)
+  (basis/init-hippie-expand-for-elisp)
   (turn-on-eldoc-mode)
   ;; Normally `lexical-binding' should be set within a file, but that doesn't
   ;; work for *scratch* and *ielm*

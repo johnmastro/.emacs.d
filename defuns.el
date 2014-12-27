@@ -17,13 +17,13 @@ there, to the beginning of the line."
     (when (= (point) start)
       (move-beginning-of-line nil))))
 
-(defun basis/comment-or-uncomment ()
+(defun basis/comment-or-uncomment (beg end)
   "Comment or uncomment the active region or current line."
-  (interactive)
-  (let ((reg-p (use-region-p)))
-    (comment-or-uncomment-region
-     (if reg-p (region-beginning) (line-beginning-position))
-     (if reg-p (region-end) (line-end-position)))))
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (line-beginning-position) (line-end-position))))
+  (comment-or-uncomment-region beg end))
 
 (defun basis/insert-enough-dashes (&optional goal char)
   "Insert enough dashes to reach a specific column.
@@ -70,17 +70,6 @@ to use. Otherwise use a default of 80 and char ?-."
   (move-end-of-line 1)
   (unless (basis/looking-back-p ";")
     (insert ";")))
-
-(defun basis/java-insert-class ()
-  (interactive)
-  (-if-let (name (buffer-file-name))
-      (let ((classname (file-name-sans-extension (file-name-base name))))
-        (insert (format "public class %s {" classname))
-        (newline 2)
-        (insert "}")
-        (previous-line)
-        (indent-for-tab-command))
-    (message "Buffer not visiting a file")))
 
 (defun basis/wrap-in-curlies ()
   (interactive)
@@ -629,10 +618,9 @@ If it doesn't exist, BUFFER is created automatically."
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
   (if (use-region-p)
-      (prog1 (eval-region (region-beginning)
-                          (region-end))
+      (prog1 (call-interactively #'eval-region)
         (setq deactivate-mark t))
-    (eval-defun nil)))
+    (call-interactively #'eval-defun)))
 
 (defun basis/display-elisp (string &optional buffer-or-name)
   (let ((buffer-or-name (or buffer-or-name "*Elisp Display*")))
@@ -958,6 +946,7 @@ If no keymap is found, return nil."
   (mapc #'disable-theme (or themes custom-enabled-themes)))
 
 (defun basis/libxml-available-p ()
+  "Return non-nil if libxml is available."
   (and (fboundp 'libxml-parse-html-region)
        (with-temp-buffer
          (insert "<html></html>")
@@ -1124,9 +1113,9 @@ For use as a `mu4e' message action."
 
 (defun basis/paredit-kill-something ()
   (interactive)
-  (if (use-region-p)
-      (kill-region (region-beginning) (region-end))
-    (paredit-backward-kill-word)))
+  (call-interactively (if (use-region-p)
+                          #'kill-region
+                        #'paredit-backward-kill-word)))
 
 (defun basis/paredit-wrap-from-behind (wrapper &optional spacep)
   (paredit-backward)
@@ -1153,12 +1142,12 @@ For use as a `mu4e' message action."
   "Treat a raw prefix arg as numeric prefix arg."
   (ad-set-arg 0 (prefix-numeric-value (ad-get-arg 0))))
 
-(defun basis/sp-kill-something (&optional arg)
+(defun basis/sp-kill-something ()
   "Call `sp-backward-kill-word' or `kill-region'. "
-  (interactive "p")
-  (if (use-region-p)
-      (kill-region (region-beginning) (region-end))
-    (sp-backward-kill-word arg)))
+  (interactive)
+  (call-interactively (if (use-region-p)
+                          #'kill-region
+                        #'sp-backward-kill-word)))
 
 (defmacro basis/with-sp-backward-delete (&rest body)
   "Execute BODY with `sp-backward-delete-char' overriding
@@ -1231,41 +1220,36 @@ used to create Unicode, raw, and byte strings respectively."
 
 (defun basis/scheme-send-something ()
   (interactive)
-  (if (use-region-p)
-      (scheme-send-region (region-beginning)
-                          (region-end))
-    (scheme-send-definition)))
+  (call-interactively (if (use-region-p)
+                          #'scheme-send-region
+                        #'scheme-send-definition)))
 
 (defun basis/geiser-eval-something ()
   (interactive)
-  (if (use-region-p)
-      (geiser-eval-region (region-beginning)
-                          (region-end))
-    (geiser-eval-definition)))
+  (call-interactively (if (use-region-p)
+                          #'geiser-eval-region
+                        #'geiser-eval-definition)))
 
 (defun basis/geiser-eval-something-and-go ()
   (interactive)
-  (if (use-region-p)
-      (geiser-eval-region-and-go (region-beginning)
-                                 (region-end))
-    (geiser-eval-definition-and-go)))
+  (call-interactively (if (use-region-p)
+                          #'geiser-eval-region-and-go
+                        #'geiser-eval-definition-and-go)))
 
 (defun basis/geiser-expand-something ()
   (interactive)
-  (if (use-region-p)
-      (geiser-expand-region (region-beginning)
-                            (region-end))
-    (geiser-expand-last-sexp)))
+  (call-interactively (if (use-region-p)
+                          #'geiser-expand-region
+                        #'geiser-expand-last-sexp)))
 
 ;; python ----------------------------------------------------------------------
 
 (defun basis/python-send-something ()
   "Send the active region or the current defun."
   (interactive)
-  (if (use-region-p)
-      (python-shell-send-region (region-beginning)
-                                (region-end))
-    (python-shell-send-defun nil)))
+  (call-interactively (if (use-region-p)
+                          #'python-shell-send-region
+                        #'python-shell-send-defun)))
 
 (defun basis/python-nav-backward-sexp (&optional arg)
   "Move backward by one sexp."
@@ -1302,10 +1286,9 @@ used to create Unicode, raw, and byte strings respectively."
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
-  (if (use-region-p)
-      (slime-eval-region (region-beginning)
-                         (region-end))
-    (slime-eval-defun)))
+  (call-interactively (if (use-region-p)
+                          #'slime-eval-region
+                        #'slime-eval-defun)))
 
 (defun basis/slime-expand-defun (&optional repeatedly)
   "Display the macro expansion of the form surrounding point.
@@ -1329,11 +1312,11 @@ Use `slime-expand-1' to produce the expansion."
              (lambda () t)))
     (call-interactively #'cider-jack-in)))
 
-(defun basis/cider-eval-something (&optional prefix)
-  (interactive "P")
-  (if (use-region-p)
-      (cider-eval-region (region-beginning) (region-end))
-    (cider-eval-expression-at-point prefix)))
+(defun basis/cider-eval-something ()
+  (interactive)
+  (call-interactively (if (use-region-p)
+                          #'cider-eval-region
+                        #'cider-eval-expression-at-point)))
 
 (defun basis/helm-clj-headlines ()
   (interactive)
