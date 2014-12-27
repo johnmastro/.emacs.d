@@ -1202,6 +1202,7 @@ See `basis/define-eval-keys'.")
   (basis/define-keys ido-file-completion-map
     ("C-w"   #'ido-delete-backward-updir)
     ("M-w"   #'ido-copy-current-file-name)
+    ("M-m"   #'basis/ido-magit-status)
     ("C-M-e" #'basis/ido-sort-files-by-modtime)))
 
 (add-hook 'ido-setup-hook #'basis/init-ido-keys)

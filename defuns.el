@@ -932,6 +932,13 @@ If no keymap is found, return nil."
   (interactive)
   (kill-buffer (current-buffer)))
 
+(defun basis/ido-magit-status ()
+  "Invoke `magit-status' on the current directory during `ido' completion."
+  (interactive)
+  (setq fallback 'magit-status
+        ido-exit 'fallback)
+  (exit-minibuffer))
+
 (defun basis/ido-sort-files-by-modtime ()
   "Sort ido matches my modification time, descending."
   (interactive)
