@@ -459,10 +459,6 @@
 ;; imenu
 (global-set-key (kbd "M-i") #'idomenu)
 
-;; Grep
-(global-set-key (kbd "<f9>") #'rgrep)
-(global-set-key (kbd "<C-f9>") #'lgrep)
-
 ;; Occur
 (define-key occur-mode-map (kbd "n") #'occur-next)
 (define-key occur-mode-map (kbd "p") #'occur-prev)
@@ -728,6 +724,23 @@ See `basis/define-eval-keys'.")
 
 ;; Like C-w but the current region or symbol
 (define-key isearch-mode-map (kbd "C-t") #'basis/isearch-yank-something)
+
+;; grep ------------------------------------------------------------------------
+
+(global-set-key (kbd "<f9>") #'rgrep)
+(global-set-key (kbd "<C-f9>") #'lgrep)
+
+(with-eval-after-load 'grep
+  (let ((aliases (mapcar #'car grep-files-aliases)))
+    (pcase-dolist (`(,alias . ,files) '(("py"  . "*.py")
+                                        ("sql" . "*.sql")
+                                        ("clj" . "*.clj *.cljs")
+                                        ("cl"  . "*.lisp *.cl")
+                                        ("org" . "*.org")
+                                        ("csv" . "*.csv")
+                                        ("txt" . "*.txt")))
+      (unless (member alias aliases)
+        (add-to-list 'grep-files-aliases (cons alias files))))))
 
 ;; ispell ----------------------------------------------------------------------
 
