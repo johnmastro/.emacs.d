@@ -1088,6 +1088,17 @@ For use as a `mu4e' message action."
       (when kind
         (message "SLOC in %s: %d" kind count)))))
 
+(defun basis/helm-backspace (n)
+  "Delete N chars backwards.
+If already at the beginning of the field, call
+`helm-keyboard-quit'."
+  (interactive "p")
+  (if (= n 1)
+      (condition-case nil
+          (backward-delete-char 1)
+        (error (helm-keyboard-quit)))
+    (backward-delete-char n)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)

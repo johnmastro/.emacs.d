@@ -1276,7 +1276,8 @@ See `basis/define-eval-keys'.")
 (with-eval-after-load 'helm
   (require 'helm-utils) ; For the `helm-selection-line' face
   (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-z") #'helm-select-action))
+  (define-key helm-map (kbd "C-z") #'helm-select-action)
+  (define-key helm-map (kbd "DEL") #'basis/helm-backspace))
 
 ;; `helm-swoop' config
 (setq helm-swoop-use-line-number-face t)
