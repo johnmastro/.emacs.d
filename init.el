@@ -1,4 +1,4 @@
-;;; init.el        -*- coding: utf-8; lexical-binding: t -*-
+;;; init.el      -*- coding: utf-8; lexical-binding: t; no-byte-compile: t -*-
 
 (eval-when-compile (require 'cl-lib))
 
@@ -16,6 +16,12 @@
 
 ;; Set up the load path
 (add-to-list 'load-path "~/.emacs.d/site-lisp/")
+
+;; Enable auto-compile
+(setq load-prefer-newer t)
+(require 'auto-compile)
+(auto-compile-on-load-mode 1)
+(auto-compile-on-save-mode 1)
 
 ;; So e.g. `find-function' works on C functions
 (let ((source (format "~/src/emacs/emacs-%s/" emacs-version)))
@@ -225,8 +231,7 @@
       server-auth-dir "~/.emacs.d/var/server/"
       bookmark-default-file "~/.emacs.d/var/bookmarks"
       url-configuration-directory "~/.emacs.d/var/url/"
-      gc-cons-threshold 20000000 ; 20MB
-      load-prefer-newer t)
+      gc-cons-threshold 20000000) ; 20MB
 
 (setq-default indent-tabs-mode nil
               fill-column 80
