@@ -461,9 +461,6 @@
 (global-set-key (kbd "M-g M-f") #'next-error)
 (global-set-key (kbd "M-g M-b") #'previous-error)
 
-;; imenu
-(global-set-key (kbd "M-i") #'idomenu)
-
 ;; Occur
 (define-key occur-mode-map (kbd "n") #'occur-next)
 (define-key occur-mode-map (kbd "p") #'occur-prev)
@@ -572,7 +569,6 @@
 
 (basis/define-keys basis/h-map
   ("C-k" #'basis/kill-this-buffer)
-  ("i"   #'idomenu)
   ("C-h" #'mark-paragraph))
 
 ;; find elisp map --------------------------------------------------------------
@@ -1233,6 +1229,10 @@ See `basis/define-eval-keys'.")
 
 ;; helm ------------------------------------------------------------------------
 
+(global-set-key (kbd "M-i") #'helm-imenu)
+(global-set-key (kbd "M-y") #'helm-show-kill-ring)
+(global-set-key (kbd "M-`") #'helm-all-mark-rings)
+
 (define-prefix-command 'basis/helm-map)
 
 (global-set-key (kbd "C-c h") 'basis/helm-map)
@@ -1259,16 +1259,14 @@ See `basis/define-eval-keys'.")
   ("/" #'helm-find)
   (":" #'helm-eval-expression-with-eldoc))
 
-(global-set-key (kbd "M-y") #'helm-show-kill-ring)
-(global-set-key (kbd "M-`") #'helm-all-mark-rings)
-
 (setq helm-split-window-default-side 'other
       helm-split-window-in-side-p t
       helm-ff-file-name-history-use-recentf t
       helm-ff-search-library-in-sexp t
       helm-buffers-fuzzy-matching t
       helm-quick-update t
-      helm-truncate-lines t)
+      helm-truncate-lines t
+      helm-imenu-execute-action-at-once-if-one nil)
 
 (unless basis/system-man-p
   (setq helm-man-or-woman-function #'woman))
