@@ -835,18 +835,18 @@ Default to `default-directory'."
   (let ((hook (intern (concat (symbol-name mode) "-hook"))))
     (add-hook hook (lambda () (setq mode-name name)))))
 
-(defun basis/google ()
+(defun basis/google (string)
   "Run a Google search.
-Use the selected region as the search string if any, otherwise
-display a prompt."
-  (interactive)
+Use the active region or symbol at point, if any, as initial
+input."
+  (interactive
+   (list (let ((default (if (use-region-p)
+                            (buffer-substring (region-beginning) (region-end))
+                          (thing-at-point 'symbol))))
+           (read-string "Google: " default))))
   (browse-url
-   (concat
-    "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
-    (url-hexify-string
-     (if mark-active
-         (buffer-substring (region-beginning) (region-end))
-       (read-string "Google: "))))))
+   (concat "https://www.google.com/search?ie=utf-8&oe=utf-8&q="
+           (url-hexify-string string))))
 
 (defun basis/eval-and-replace ()
   "Replace the preceding sexp with its value."
