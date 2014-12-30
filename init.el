@@ -499,13 +499,6 @@
 (global-set-key (kbd "C-c <C-return>") #'shell)
 (global-set-key (kbd "C-c C-^") #'shell)
 
-;; M-x without meta, when necessary
-(global-set-key (kbd "C-c x") #'smex)
-(global-set-key (kbd "C-c m") #'execute-extended-command)
-
-;; recetf+ido
-(global-set-key (kbd "C-x C-r") #'basis/ido-recentf)
-
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including, the ARGth occurrence of CHAR.")
 (global-set-key (kbd "M-z") #'zap-up-to-char)
@@ -746,7 +739,8 @@ See `basis/define-eval-keys'.")
 ;; ispell ----------------------------------------------------------------------
 
 (setq ispell-program-name (executable-find "aspell")
-      ispell-personal-dictionary "~/.aspell.en.pws")
+      ispell-personal-dictionary "~/.aspell.en.pws"
+      ispell-extra-args '("--sug-mode=ultra"))
 
 ;; prog-mode -------------------------------------------------------------------
 
@@ -1203,7 +1197,9 @@ See `basis/define-eval-keys'.")
 (ido-ubiquitous-mode 1)
 (flx-ido-mode 1)
 (ido-vertical-mode 1)
-(ido-at-point-mode)
+(ido-at-point-mode 1)
+
+(global-set-key (kbd "C-x C-r") #'basis/ido-recentf)
 
 ;; For ido-powered completion at point. Need a better key binding for this.
 (global-set-key (kbd "C-c TAB") #'completion-at-point)
