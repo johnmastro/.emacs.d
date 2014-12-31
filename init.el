@@ -1341,37 +1341,44 @@ See `basis/define-eval-keys'.")
     scheme-mode
     inferior-scheme-mode
     geiser-repl-mode)
-  "List of all Lisp modes used. Useful for e.g. setting Paredit
-  as opposed to Smartparens.")
+  "List of Lisp modes to configure.")
 
-(-when-let (sbcl (executable-find "sbcl"))
-  (setq inferior-lisp-program sbcl))
+(defvar basis/lisp-hooks
+  (mapcar (lambda (mode)
+            (intern (format "%s-hook" mode)))
+          basis/lisp-modes)
+  "List of Lisp mode hooks.")
+
+(setq inferior-lisp-program (or (executable-find "sbcl")
+                                (executable-find "ccl")
+                                "lisp"))
 
 (add-to-list 'auto-mode-alist '("\\.sbclrc\\'" . lisp-mode))
 
 (defun basis/init-lisp-generic ()
-  "Enable features useful in any Lisp mode."
+  "Enable features useful in all Lisp modes."
   (paredit-mode +1))
 
-(let ((lispy-hooks '(emacs-lisp-mode-hook
-                     lisp-interaction-mode-hook
-                     ielm-mode-hook
-                     lisp-mode-hook
-                     slime-repl-mode-hook
-                     clojure-mode-hook
-                     cider-repl-mode-hook
-                     inferior-lisp-mode-hook
-                     scheme-mode-hook
-                     inferior-scheme-mode-hook
-                     geiser-repl-mode-hook)))
-  (dolist (hook lispy-hooks)
-    (add-hook hook #'basis/init-lisp-generic)))
+(dolist (hook basis/lisp-hooks)
+  (add-hook hook #'basis/init-lisp-generic))
 
 (setq lisp-lambda-list-keyword-alignment t
       lisp-lambda-list-keyword-parameter-alignment t
       lisp-loop-forms-indentation 6)
 
 ;; emacs lisp ------------------------------------------------------------------
+
+(defvar basis/emacs-lisp-modes
+  '(emacs-lisp-mode
+    lisp-interaction-mode
+    inferior-emacs-lisp-mode)
+  "List of Emacs Lisp modes to configure.")
+
+(defvar basis/emacs-lisp-hooks
+  (mapcar (lambda (mode)
+            (intern (format "%s-hook" mode)))
+          basis/emacs-lisp-modes)
+  "List of Emacs Lisp mode hooks.")
 
 (defun basis/init-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in `hippie-exp'."
@@ -1395,9 +1402,7 @@ See `basis/define-eval-keys'.")
     (unless (and name (string= name (expand-file-name "~/.emacs.d/init.el")))
       (flycheck-mode))))
 
-(dolist (hook '(emacs-lisp-mode-hook
-                lisp-interaction-mode-hook
-                ielm-mode-hook))
+(dolist (hook basis/emacs-lisp-hooks)
   (add-hook hook #'basis/init-emacs-lisp-modes))
 
 (add-hook 'emacs-lisp-mode-hook #'basis/init-emacs-lisp-mode)
