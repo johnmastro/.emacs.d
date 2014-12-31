@@ -46,88 +46,91 @@
                    always (file-exists-p dir))
     (package-refresh-contents)))
 
-;; Ensure that everything specified here is installed
-(let* ((required-packages
-        '(ace-jump-mode
-          ace-window
-          ack-and-a-half
-          batch-mode
-          browse-kill-ring
-          cider
-          clj-refactor
-          clojure-cheatsheet
-          clojure-mode
-          company
-          dash
-          dash-functional
-          debbugs
-          deft
-          diminish
-          dired+
-          direx
-          discover
-          elfeed
-          elisp-slime-nav
-          exec-path-from-shell
-          expand-region
-          flx-ido
-          flycheck
-          geiser
-          gist
-          git-timemachine
-          gitattributes-mode
-          gitconfig-mode
-          gitignore-mode
-          guide-key
-          haskell-mode
-          helm
-          helm-projectile
-          helm-swoop
-          ibuffer-vc
-          idle-highlight-mode
-          ido-at-point
-          ido-ubiquitous
-          ido-vertical-mode
-          idomenu
-          jedi
-          js-comint
-          js2-mode
-          js2-refactor
-          jump-char
-          leuven-theme
-          magit
-          markdown-mode
-          move-text
-          multiple-cursors
-          page-break-lines
-          paredit
-          persistent-soft
-          projectile
-          pyvenv
-          redshank
-          rust-mode
-          s
-          simplezen
-          skewer-mode
-          slime
-          slime-company
-          smartparens
-          smex
-          sx
-          ssh-config-mode
-          tagedit
-          undo-tree
-          unicode-fonts
-          writegood-mode
-          yaml-mode
-          yasnippet
-          ))
-       (install-packages
-        (cl-loop for pkg in required-packages
-                 unless (package-installed-p pkg) collect pkg)))
-  (when install-packages
-    (package-refresh-contents)
-    (mapc #'package-install install-packages)))
+(defvar basis/package-list
+  '(ace-jump-mode
+    ace-window
+    ack-and-a-half
+    batch-mode
+    browse-kill-ring
+    cider
+    clj-refactor
+    clojure-cheatsheet
+    clojure-mode
+    company
+    dash
+    dash-functional
+    debbugs
+    deft
+    diminish
+    dired+
+    direx
+    discover
+    elfeed
+    elisp-slime-nav
+    exec-path-from-shell
+    expand-region
+    flx-ido
+    flycheck
+    geiser
+    gist
+    git-timemachine
+    gitattributes-mode
+    gitconfig-mode
+    gitignore-mode
+    guide-key
+    haskell-mode
+    helm
+    helm-projectile
+    helm-swoop
+    ibuffer-vc
+    idle-highlight-mode
+    ido-at-point
+    ido-ubiquitous
+    ido-vertical-mode
+    idomenu
+    jedi
+    js-comint
+    js2-mode
+    js2-refactor
+    jump-char
+    leuven-theme
+    magit
+    markdown-mode
+    move-text
+    multiple-cursors
+    page-break-lines
+    paredit
+    persistent-soft
+    projectile
+    pyvenv
+    redshank
+    rust-mode
+    s
+    simplezen
+    skewer-mode
+    slime
+    slime-company
+    smartparens
+    smex
+    sx
+    ssh-config-mode
+    tagedit
+    undo-tree
+    unicode-fonts
+    writegood-mode
+    yaml-mode
+    yasnippet)
+  "List of packages to automatically install.")
+
+(defun basis/install-packages (packages)
+  "Install any of PACKAGES that aren't already installed."
+  (let ((packages (cl-loop for pkg in packages
+                           unless (package-installed-p pkg) collect pkg)))
+    (when packages
+      (package-refresh-contents)
+      (mapc #'package-install packages))))
+
+(basis/install-packages basis/package-list)
 
 ;; load some code --------------------------------------------------------------
 
