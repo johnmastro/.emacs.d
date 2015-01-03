@@ -427,7 +427,6 @@
 (basis/define-keys global-map
   ("M-w"    #'basis/kill-ring-save-something)
   ("<f2>"   #'basis/clipboard-save-something)
-  ("<M-f2>" #'basis/kill-ring-save-buffer)
   ("s-w"    #'basis/kill-ring-save-indented))
 
 ;; Join lines
@@ -457,7 +456,7 @@
 ;; Occur
 (define-key occur-mode-map (kbd "n") #'occur-next)
 (define-key occur-mode-map (kbd "p") #'occur-prev)
-(global-set-key (kbd "<C-f2>") #'basis/multi-occur-this-mode)
+(global-set-key (kbd "C-c <f9>") #'basis/multi-occur-this-mode)
 
 ;; Expand-region
 (global-set-key (kbd "M-=") #'er/expand-region)
@@ -1798,9 +1797,6 @@ See `basis/define-eval-keys'.")
 (with-eval-after-load 'skewer-repl
   (define-key skewer-repl-mode-map (kbd "TAB") #'hippie-expand))
 
-(with-eval-after-load 'skewer-html
-  (define-key skewer-html-mode-map (kbd "<f6>") #'skewer-html-eval-tag))
-
 (with-eval-after-load 'skewer-css
   (basis/define-eval-keys skewer-css-mode-map
     (last-sexp  #'skewer-css-eval-current-declaration)
@@ -1876,6 +1872,7 @@ See `basis/define-eval-keys'.")
 (defalias 'ack-find-file-same #'ack-and-a-half-find-file-same)
 
 (global-set-key (kbd "<M-f9>") #'ack-and-a-half)
+(global-set-key (kbd "ESC <f9>") #'ack-and-a-half)
 
 (when (file-exists-p "~/bin/ack")
   (setq ack-and-a-half-executable "~/bin/ack"))
@@ -1989,8 +1986,7 @@ See `basis/define-eval-keys'.")
     ("RET"                      #'basis/html-newline-and-indent)
     ("M-RET"                    #'basis/html-multiline-expand)
     ("C-c C-w"                  #'basis/html-wrap-in-tag)
-    ("C-c w"                    #'basis/html-wrap-in-tag)
-    ("<f8>"                     #'browse-url-of-buffer))
+    ("C-c w"                    #'basis/html-wrap-in-tag))
   (tagedit-add-paredit-like-keybindings)
   (tagedit-add-experimental-features))
 
