@@ -1470,6 +1470,10 @@ See `basis/define-eval-keys'.")
 (put 'paredit-backward-delete 'delete-selection 'supersede)
 (put 'paredit-newline 'delete-selection t)
 
+;; redshank --------------------------------------------------------------------
+
+(redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t)
+
 ;; slime -----------------------------------------------------------------------
 
 (setq slime-lisp-implementations
@@ -1494,12 +1498,15 @@ See `basis/define-eval-keys'.")
     (something  #'basis/slime-eval-something)
     (file       #'slime-compile-and-load-file)
     (expand     #'slime-expand-1))
-  (global-set-key (kbd "<f12>") #'slime-selector)
   (setq slime-autodoc-use-multiline-p t))
 
-;; redshank --------------------------------------------------------------------
+;; cider-or-slime selector -----------------------------------------------------
 
-(redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t)
+(with-eval-after-load 'slime
+  (global-set-key (kbd "<f12>") #'basis/lisp-selector))
+
+(with-eval-after-load 'cider
+  (global-set-key (kbd "<f12>") #'basis/lisp-selector))
 
 ;; clojure ---------------------------------------------------------------------
 
@@ -1564,8 +1571,6 @@ See `basis/define-eval-keys'.")
 
   (setq cider-repl-use-pretty-printing t
         nrepl-log-messages t)
-
-  (global-set-key (kbd "<f11>") #'cider-selector)
 
   (define-key cider-repl-mode-map (kbd "RET") #'cider-repl-return)
 

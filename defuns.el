@@ -1340,6 +1340,37 @@ Use `slime-expand-1' to produce the expansion."
                     (volatile)
                     (headline "^[;(]")))))
 
+;; cider-or-slime selector -----------------------------------------------------
+
+(defun basis/guess-cider-or-slime ()
+  (catch 'return
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (let ((mode (symbol-name major-mode)))
+          (cond ((string-match-p "\\`\\(slime\\|lisp\\)" mode)
+                 (throw 'return 'slime))
+                ((string-match-p "\\`\\(cider\\|clojure\\|nrepl\\)" mode)
+                 (throw 'return 'cider))))))))
+
+(defun basis/read-cider-or-slime ()
+  (let ((char (read-char "[C]ider or [S]lime: ")))
+    (pcase char
+      ((or ?c ?C) 'cider)
+      ((or ?s ?S) 'slime)
+      (_ (message "Unrecognized option '%c'" char)))))
+
+(defun basis/lisp-selector (system)
+  (interactive
+   (list (if current-prefix-arg
+             (basis/read-cider-or-slime)
+           (basis/guess-cider-or-slime))))
+  (cond ((eq system 'cider)
+         (call-interactively #'cider-selector))
+        ((eq system 'slime)
+         (call-interactively #'slime-selector))
+        (system
+         (message "No selector for '%s'" system))))
+
 ;; gdb -------------------------------------------------------------------------
 
 (defun basis/gdb-a-few-windows ()
