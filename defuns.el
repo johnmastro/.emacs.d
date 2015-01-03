@@ -198,41 +198,25 @@ its full path."
 Do not save the string to the the kill ring."
   (funcall interprogram-cut-function str))
 
-(defun basis/clipboard-save-something ()
+(defun basis/clipboard-save-something (beg end &optional region)
   "Save the region or buffer to the system clipboard."
-  (interactive)
-  (if (use-region-p)
-      (let ((s (buffer-substring-no-properties (region-beginning)
-                                               (region-end))))
-        (basis/clipboard-save-string s)
-        (setq deactivate-mark t))
-    (let ((s (buffer-substring-no-properties (point-min) (point-max))))
-      (basis/clipboard-save-string s))))
+  (interactive (if (use-region-p)
+                   (list (region-beginning) (region-end) t)
+                 (list (point-min) (point-max) nil)))
+  (basis/clipboard-save-string (buffer-substring-no-properties beg end))
+  (when region
+    (setq deactivate-mark t)))
 
-(defun basis/s-add-indent (s &optional spaces pattern)
-  (let ((spaces (or spaces 4))
-        (pattern (or pattern "\\S-")))
-    (mapconcat (lambda (line)
-                 (if (string-match-p pattern line)
-                     (concat (make-string spaces ? ) line)
-                   line))
-               (split-string s "\n")
-               "\n")))
-
-(defun basis/buffer-substring-indented (beg end)
-  (basis/s-add-indent (buffer-substring-no-properties beg end)))
-
-(defun basis/kill-ring-save-indented ()
-  "Save text to the kill ring with four spaces of indentation added.
-Save the region if one is currently active, otherwise save the
-whole buffer."
-  (interactive)
-  (if (use-region-p)
-      (let ((s (basis/buffer-substring-indented (region-beginning)
-                                                (region-end))))
-        (kill-new s)
-        (setq deactivate-mark t))
-    (kill-new (basis/buffer-substring-indented (point-min) (point-max)))))
+(defun basis/kill-ring-save-indented (beg end arg)
+  "Save region to the kill ring with ARG spaces of indentation added.
+Interactively, default to four spaces of indentation."
+  (interactive "r\nP")
+  (let ((arg (or arg 4))
+        (buf (current-buffer)))
+    (with-temp-buffer
+      (insert-buffer-substring-no-properties buf beg end)
+      (indent-rigidly (point-min) (point-max) arg)
+      (kill-ring-save (point-min) (point-max)))))
 
 ;; case changing ---------------------------------------------------------------
 
