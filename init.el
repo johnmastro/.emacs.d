@@ -36,16 +36,6 @@
 
 (package-initialize)
 
-;; Make sure every archive is present in the elpa/archives/ directory
-(let* ((archive-root "~/.emacs.d/elpa/archives/")
-       (archive-dirs (mapcar (lambda (archive)
-                               (let ((name (car archive)))
-                                 (expand-file-name name archive-root)))
-                             package-archives)))
-  (unless (cl-loop for dir in archive-dirs
-                   always (file-exists-p dir))
-    (package-refresh-contents)))
-
 (defvar basis/package-list
   '(ace-jump-mode
     ace-window
