@@ -734,12 +734,17 @@ point is used instead, if any."
 
 ;; occur -----------------------------------------------------------------------
 
-(defun basis/active-major-modes ()
-  "Return a list of major modes for which a buffer is active."
-  (-distinct (mapcar (lambda (buffer)
-                       (with-current-buffer buffer
-                         major-mode))
-                     (buffer-list))))
+(defun basis/active-major-modes (&optional files-only)
+  "Return a list of major modes for which a buffer is active.
+If FILES-ONLY is non-nil, only include major modes for which at
+least one buffer is visiting a file."
+  (let ((modes '()))
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (unless (or (and files-only (not buffer-file-name))
+                    (memq major-mode modes))
+          (push major-mode modes))))
+    (nreverse modes)))
 
 (defun basis/find-mode-buffers (mode)
   "Return a list of the buffers whose major mode is MODE."
@@ -761,7 +766,7 @@ symbols naming major modes."
 (defun basis/multi-occur-by-mode (mode regexp &optional nlines)
   "Run `multi-occur' on all buffers in MODE.
 REGEXP and NLINES are passed on to `multi-occur' unchanged."
-  (interactive (cons (basis/ido-read-mode "Mode: ")
+  (interactive (cons (basis/ido-read-mode "Mode: " (basis/active-major-modes t))
                      (occur-read-primary-args)))
   (multi-occur (basis/find-mode-buffers mode)
                regexp
