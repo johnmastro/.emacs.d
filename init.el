@@ -641,7 +641,11 @@ See `basis/define-eval-keys'.")
       ((format "M-[ 31 ; %d ~" n) (format "%s<f17>" k))
       ((format "M-[ 32 ; %d ~" n) (format "%s<f18>" k))
       ((format "M-[ 33 ; %d ~" n) (format "%s<f19>" k))
-      ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k)))))
+      ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k))))
+  (basis/define-key-translations
+    ("M-[ 1 ; 5 k" "C-=")
+    ("M-[ 1 ; 6 k" "C-+")
+    ("M-[ 1 ; 7 k" "C-M-=")))
 
 ;; mintty ----------------------------------------------------------------------
 
