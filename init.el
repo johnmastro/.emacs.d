@@ -1633,6 +1633,8 @@ See `basis/define-eval-keys'.")
   (setq sp-cancel-autoskip-on-backward-movement nil
         sp-autoescape-string-quote nil)
 
+  (setq-default sp-autoskip-closing-pair 'always)
+
   (sp-pair "'"
            nil
            :unless '(basis/sp-point-after-word-p)
