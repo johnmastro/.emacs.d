@@ -866,16 +866,27 @@ If `linum-mode' was already enabled just call `goto-line'."
       (when (file-exists-p elc)
         (delete-file elc)))))
 
+(autoload 'tramp-tramp-file-p "tramp"
+  "Return t if NAME is a string with Tramp file name syntax.")
+
+(defun basis/file-remote-p (name)
+  (and name (or (file-remote-p name) (tramp-tramp-file-p name))))
+
+(defun basis/maybe-enable-flycheck ()
+  "Enable `flycheck-mode', except for remote files."
+  (unless (basis/file-remote-p buffer-file-name)
+    (flycheck-mode)))
+
 (defun basis/maybe-enable-flyspell ()
-  "Enable `flyspell-mode' if aspell is installed."
-  (when ispell-program-name  ; Set to nil if aspell isn't installed
-    (flyspell-mode 1)))
+  "Enable `flyspell-mode', except for remote files."
+  (when (and ispell-program-name
+             (not (basis/file-remote-p buffer-file-name)))
+    (flyspell-mode)))
 
 (defun basis/maybe-enable-flyspell-prog-mode ()
-  "Enable `flyspell-prog-mode' in programming modes for local files."
+  "Enable `flyspell-prog-mode', except for remote files."
   (when (and ispell-program-name
-             buffer-file-name
-             (not (file-remote-p buffer-file-name)))
+             (not (basis/file-remote-p buffer-file-name)))
     (flyspell-prog-mode)))
 
 (defun basis/maybe-enable-whitespace-mode ()
