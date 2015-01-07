@@ -1595,6 +1595,8 @@ See `basis/define-eval-keys'.")
           "racket"
         "guile"))
 
+(setq quack-fontify-style 'emacs)
+
 (with-eval-after-load 'scheme
   (require 'quack)
   (basis/define-eval-keys scheme-mode-map
@@ -1605,9 +1607,7 @@ See `basis/define-eval-keys'.")
     (file       #'scheme-load-file)
     (expand     #'scheme-expand-current-form)))
 
-(defun basis/geiser-map-keys ()
-  ;; Can't do this until the REPL is started because otherwise
-  ;; `geiser-mode-map' is null.
+(with-eval-after-load 'geiser-mode
   (basis/define-eval-keys geiser-mode-map
     (last-sexp  #'geiser-eval-last-sexp)
     (definition #'geiser-eval-definition)
@@ -1616,8 +1616,6 @@ See `basis/define-eval-keys'.")
     (file       #'geiser-load-file)
     (something  #'basis/geiser-eval-something)
     (expand     #'basis/geiser-expand-something)))
-
-(add-hook 'geiser-repl-mode-hook #'basis/geiser-map-keys)
 
 ;; smartparens -----------------------------------------------------------------
 
