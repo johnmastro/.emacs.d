@@ -131,6 +131,13 @@ If PATTERN is non-nil, only include matching files (via
 
 (defalias 'basis/concat-directory-files #'basis/insert-directory-files)
 
+(defun basis/snip (beg end)
+  "Remove selected lines and replace them with [snip (n lines)]."
+  (interactive "r")
+  (let ((n (count-lines beg end)))
+    (delete-region beg end)
+    (insert (format "[snip (%d line%s)]\n" n (if (= n 1) "" "s")))))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun basis/kill-something (arg)
