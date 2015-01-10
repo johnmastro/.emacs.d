@@ -224,7 +224,8 @@
       server-auth-dir "~/.emacs.d/var/server/"
       bookmark-default-file "~/.emacs.d/var/bookmarks"
       url-configuration-directory "~/.emacs.d/var/url/"
-      gc-cons-threshold 20000000) ; 20MB
+      gc-cons-threshold 20000000 ; 20MB
+      bookmark-save-flag 1)
 
 (setq-default indent-tabs-mode nil
               fill-column 80
