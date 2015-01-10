@@ -468,7 +468,7 @@
 
 ;; Eval
 (global-set-key (kbd "C-x C-e") #'basis/eval-last-sexp)
-(global-set-key (kbd "C-c C-e") #'basis/eval-and-replace)
+(global-set-key (kbd "C-c M-e") #'basis/eval-and-replace)
 
 ;; I use Meta-space for ace-jump-mode
 (global-set-key (kbd "C-c SPC") #'just-one-space)
@@ -591,7 +591,7 @@
     (buffer     . "C-c C-b")
     (something  . "C-c C-c")
     (file       . "C-c C-f")
-    (expand     . "<f7>"))
+    (expand     . "C-c C-e"))
   "Key bindings used to evaluate various units of code.
 See `basis/define-eval-keys'.")
 
