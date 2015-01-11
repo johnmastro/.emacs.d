@@ -976,11 +976,12 @@ See `basis/define-eval-keys'.")
       (jump-to-register :magit-fullscreen)
     (error (message "Previous window configuration could not be restored"))))
 
-(defun basis/init-magit-log-edit ()
+(defun basis/init-git-commit-mode ()
   (turn-on-auto-fill)
-  (setq fill-column 72))
+  (setq fill-column 72)
+  (basis/maybe-enable-flyspell))
 
-(add-hook 'magit-log-edit-mode-hook #'basis/init-magit-log-edit)
+(add-hook 'git-commit-mode-hook #'basis/init-git-commit-mode)
 
 (with-eval-after-load 'magit
   (define-key magit-status-mode-map (kbd "q") #'basis/magit-quit-session)
