@@ -841,8 +841,7 @@ See `basis/define-eval-keys'.")
   (setq fill-column 72)
   (turn-on-auto-fill)
   (basis/maybe-enable-flyspell)
-  (setq-local org-footnote-tag-for-non-org-mode-files nil)
-  (setq-local org-footnote-auto-label 'plain))
+  (setq-local org-footnote-tag-for-non-org-mode-files nil))
 
 (setq message-auto-save-directory "~/.emacs.d/tmp/"
       message-subject-trailing-was-query nil)
@@ -850,6 +849,7 @@ See `basis/define-eval-keys'.")
 (add-hook 'message-mode-hook #'basis/init-message-mode)
 
 (with-eval-after-load 'message
+  (require 'org)
   (define-key message-mode-map (kbd "C-c n") #'org-footnote-action))
 
 ;; mu4e ------------------------------------------------------------------------
