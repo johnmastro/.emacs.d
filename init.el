@@ -832,8 +832,7 @@ See `basis/define-eval-keys'.")
 
 (setq aw-keys '(?h ?j ?k ?l ?n ?m))
 
-(unless (display-graphic-p)
-  (setq aw-scope 'frame))
+(setq aw-scope 'frame)
 
 ;; message-mode ----------------------------------------------------------------
 
