@@ -1636,7 +1636,8 @@ See `basis/define-eval-keys'.")
   (sp-use-paredit-bindings)
 
   (setq sp-cancel-autoskip-on-backward-movement nil
-        sp-autoescape-string-quote nil)
+        sp-autoescape-string-quote nil
+        sp-use-subword t)
 
   (setq-default sp-autoskip-closing-pair 'always)
 
