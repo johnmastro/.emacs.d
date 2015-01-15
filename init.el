@@ -1658,9 +1658,7 @@ See `basis/define-eval-keys'.")
     ("C-w"           #'basis/sp-kill-something)
     ("M-k"           #'sp-kill-sexp)
     ("M-e"           #'basis/maybe-sp-forward-sexp)
-    ("M-a"           #'basis/maybe-sp-backward-sexp)
-    ("]"             #'sp-up-sexp)
-    ("C-c ]"         #'basis/insert-right-bracket))
+    ("M-a"           #'basis/maybe-sp-backward-sexp))
 
   ;; These commands invoke `indent-according-to-mode' but, when
   ;; `indent-line-function' is `indent-relative', that often doesn't work out

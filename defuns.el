@@ -1190,10 +1190,6 @@ If already at the beginning of the field, call
 
 (put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
 
-(defun basis/insert-right-bracket ()
-  (interactive)
-  (insert "]"))
-
 (defun basis/maybe-sp-forward-sexp (&optional arg)
   (interactive "p")
   (let ((arg (or arg 1)))
