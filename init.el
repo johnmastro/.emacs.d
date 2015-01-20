@@ -211,8 +211,6 @@
       mouse-yank-at-point t
       whitespace-style '(face trailing lines-tail tabs)
       whitespace-line-column 80
-      ediff-window-setup-function #'ediff-setup-windows-plain
-      ediff-split-window-function #'split-window-horizontally
       line-number-mode t
       column-number-mode t
       imenu-auto-rescan t
@@ -956,6 +954,33 @@ See `basis/define-eval-keys'.")
 ;; sx --------------------------------------------------------------------------
 
 (setq sx-cache-directory "~/.emacs.d/var/sx/")
+
+;; ediff -----------------------------------------------------------------------
+
+(setq ediff-window-setup-function #'ediff-setup-windows-plain
+      ediff-split-window-function #'split-window-horizontally)
+
+(when (eq system-type 'windows-nt)
+  (defadvice ediff-make-empty-tmp-file (before expand-proposed-name activate)
+    (let ((name (ad-get-arg 0)))
+      (ad-set-arg 0 (expand-file-name name)))))
+
+(defadvice ediff-setup (before ediff-restore-windows activate)
+  (window-configuration-to-register :ediff-restore-windows))
+
+(defun basis/ediff-quit ()
+  "Quit `ediff' and restore the previous window configuration."
+  (interactive)
+  (call-interactively #'ediff-quit)
+  (condition-case nil
+      (jump-to-register :ediff-restore-windows)
+    (error (message "Previous window configuration could not be restored"))))
+
+(defun basis/init-ediff ()
+  (ediff-setup-keymap)
+  (define-key ediff-mode-map "q" #'basis/ediff-quit))
+
+(add-hook 'ediff-mode-hook #'basis/init-ediff)
 
 ;; magit -----------------------------------------------------------------------
 
