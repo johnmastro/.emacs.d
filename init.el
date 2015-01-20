@@ -1231,6 +1231,7 @@ See `basis/define-eval-keys'.")
 (global-set-key (kbd "M-i") #'helm-imenu)
 (global-set-key (kbd "M-y") #'helm-show-kill-ring)
 (global-set-key (kbd "M-`") #'helm-all-mark-rings)
+(global-set-key (kbd "<f1> SPC") #'helm-apropos)
 
 (define-prefix-command 'basis/helm-map)
 
