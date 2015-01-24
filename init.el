@@ -170,7 +170,6 @@
   "Directories to add to PATH on Cygwin.")
 
 (defun basis/init-for-cygwin ()
-  (require 'cygwin-mount)
   (let* ((dirs (seq-filter #'file-directory-p basis/cygwin-path-directories))
          (home (getenv "HOME"))
          (home/bin (when home
