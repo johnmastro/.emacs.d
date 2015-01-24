@@ -225,13 +225,20 @@
       gc-cons-threshold 20000000 ; 20MB
       bookmark-save-flag 1)
 
-(setq-default indent-tabs-mode nil
+(setq-default major-mode 'text-mode
+              indent-tabs-mode nil
               fill-column 80
               truncate-lines t
               require-final-newline t)
 
 (when (file-exists-p custom-file)
   (load custom-file))
+
+(defun basis/set-default-input-method (&optional method)
+  (setq default-input-method (or method "TeX")))
+
+;; Haven't yet bothered looking into why this needs to be done after init
+(add-hook 'after-init-hook #'basis/set-default-input-method)
 
 ;; Start the server, unless it's already running
 (require 'server)
