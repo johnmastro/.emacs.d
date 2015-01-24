@@ -739,10 +739,10 @@ least one buffer is visiting a file."
 
 (defun basis/find-mode-buffers (mode)
   "Return a list of the buffers whose major mode is MODE."
-  (-filter (lambda (buffer)
-             (with-current-buffer buffer
-               (eq mode major-mode)))
-           (buffer-list)))
+  (seq-filter (lambda (buffer)
+                (with-current-buffer buffer
+                  (eq mode major-mode)))
+              (buffer-list)))
 
 (defun basis/ido-read-mode (prompt &optional choices)
   "Read the name of a major mode.
@@ -995,9 +995,10 @@ FRAME defaults to the selected frame."
 (defun basis/find-clang-includes-path (&optional language)
   "Return clang's #include <...> search path."
   ;; This isn't a very satisfactory solution but it's "good enough"
-  (-filter #'file-directory-p
-           (pcase (or language 'c)
-             (`c (let* ((cmd "clang -v -xc -")
+  (seq-filter #'file-directory-p
+              (pcase (or language 'c)
+                (`c
+                 (let* ((cmd "clang -v -xc -")
                         (str (ignore-errors (shell-command-to-string cmd)))
                         (str (or str ""))
                         (lines (split-string str "\n" t "[[:space:]]+"))
@@ -1011,14 +1012,15 @@ FRAME defaults to the selected frame."
                                    (throw 'return (nreverse result))
                                  (push path result)))
                            (setq lines more)))))))
-             ;; Hardcoded based on an Ubuntu 12.04 box...
-             (`c++ '("/usr/include/c++/4.6"
-                     "/usr/include/c++/4.6/i686-linux-gnu"
-                     "/usr/include/c++/4.6/backward"
-                     "/usr/local/include"
-                     "/usr/include/clang/3.3/include"
-                     "/usr/include/i386-linux-gnu"
-                     "/usr/include")))))
+                ;; Hardcoded based on an Ubuntu 12.04 box...
+                (`c++
+                 '("/usr/include/c++/4.6"
+                   "/usr/include/c++/4.6/i686-linux-gnu"
+                   "/usr/include/c++/4.6/backward"
+                   "/usr/local/include"
+                   "/usr/include/clang/3.3/include"
+                   "/usr/include/i386-linux-gnu"
+                   "/usr/include")))))
 
 (defun basis/build-clang-args (&optional language)
   (let* ((language (or language 'c))
@@ -1684,7 +1686,10 @@ used rather than a list of symbols."
 
 (defun basis/elfeed-load-feeds (file)
   "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
-  (-mapcat #'basis/elfeed-parse-group (basis/read-file file)))
+  (->> file
+    (basis/read-file)
+    (mapcar #'basis/elfeed-parse-group)
+    (apply #'nconc)))
 
 ;; yaml ------------------------------------------------------------------------
 
@@ -1747,5 +1752,5 @@ multiple-document stream."
                      ((consp arg) (car arg))
                      (t arg))))
       (insert (mapconcat #'identity
-                         (-take arg basis/lorem-ipsum)
+                         (seq-take basis/lorem-ipsum arg)
                          "\n\n")))))

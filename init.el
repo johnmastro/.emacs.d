@@ -96,14 +96,15 @@
     redshank
     rust-mode
     s
+    seq
     simplezen
     skewer-mode
     slime
     slime-company
     smartparens
     smex
-    sx
     ssh-config-mode
+    sx
     tagedit
     undo-tree
     unicode-fonts
@@ -126,6 +127,7 @@
 
 (require 'pcase)
 (require 'subr-x)
+(require 'seq)
 (require 'dash)
 (require 'dash-functional)
 (require 's)
@@ -161,10 +163,13 @@
                             (file-directory-p "c:/bin"))
   "True if this is a Windows system with Cygwin installed.")
 
+(defvar basis/cygwin-path-directories
+  '("/bin" "/usr/bin" "/Python27" "/Python27/Scripts")
+  "Directories to add to PATH on Cygwin.")
+
 (defun basis/init-for-cygwin ()
   (require 'cygwin-mount)
-  (let* ((dirs (->> '("/bin" "/usr/bin" "/Python27" "/Python27/Scripts")
-                 (-filter #'file-directory-p)))
+  (let* ((dirs (seq-filter #'file-directory-p basis/cygwin-path-directories))
          (home (getenv "HOME"))
          (home/bin (when home
                      (concat (basis/windows->unix home)
@@ -1936,7 +1941,8 @@ See `basis/define-eval-keys'.")
 (setq org-directory "~/Dropbox/org/"
       org-default-notes-file (expand-file-name "refile.org" org-directory)
       org-archive-location "%s.archive::"
-      org-agenda-files (mapcar (-rpartial #'expand-file-name org-directory)
+      org-agenda-files (mapcar (lambda (name)
+                                 (expand-file-name name org-directory))
                                '("todo.org" "work.org")))
 
 ;; Misc. options
