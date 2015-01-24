@@ -132,6 +132,9 @@
 (require 'dash-functional)
 (require 's)
 
+(autoload 'tramp-tramp-file-p "tramp"
+  "Return t if NAME is a string with Tramp file name syntax.")
+
 (load "~/.emacs.d/defuns.el")
 
 ;; Why not? Idea taken from `dash-enable-font-lock', although I think that
@@ -269,9 +272,7 @@
 ;; Don't use CRLF on remote Unix machines
 (defun basis/maybe-set-coding ()
   (when (and (eq system-type 'windows-nt)
-             buffer-file-name
-             (or (string-match-p "\\`/sshx?:" buffer-file-name)
-                 (string-match-p "\\`/plinkx?:" buffer-file-name)))
+             (tramp-tramp-file-p buffer-file-name))
     (set-buffer-file-coding-system 'utf-8-unix)))
 
 (when (eq system-type 'windows-nt)

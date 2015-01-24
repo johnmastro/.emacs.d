@@ -873,9 +873,6 @@ If `linum-mode' was already enabled just call `goto-line'."
       (when (file-exists-p elc)
         (delete-file elc)))))
 
-(autoload 'tramp-tramp-file-p "tramp"
-  "Return t if NAME is a string with Tramp file name syntax.")
-
 (defun basis/file-remote-p (name)
   (and name (or (file-remote-p name) (tramp-tramp-file-p name))))
 
