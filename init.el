@@ -176,7 +176,7 @@
          (home/bin (when home
                      (concat (basis/windows->unix home)
                              "/bin"))))
-    (when (and home (file-directory-p home))
+    (when (and home (file-directory-p home) (not after-init-time))
       (cd home))
     (when (and home/bin (file-directory-p home/bin))
       (push home/bin dirs))
