@@ -164,7 +164,9 @@
   "True if this is a Windows system with Cygwin installed.")
 
 (defvar basis/cygwin-path-directories
-  '("/bin" "/usr/bin" "/Python27" "/Python27/Scripts")
+  (append '("/bin" "/usr/bin" "/usr/local/bin")
+          '("/Python27" "/Python27/Scripts")
+          '("/ProgramData/Oracle/Java/javapath"))
   "Directories to add to PATH on Cygwin.")
 
 (defun basis/init-for-cygwin ()
@@ -173,17 +175,11 @@
          (home (getenv "HOME"))
          (home/bin (when home
                      (concat (basis/windows->unix home)
-                             "/bin")))
-         (jdk-path (let* ((regexp (regexp-quote "Java\\jdk"))
-                          (dir (-first (lambda (dir)
-                                         (string-match-p regexp dir))
-                                       (split-string (getenv "PATH") ";"))))
-                     (when dir (basis/windows->unix dir)))))
+                             "/bin"))))
     (when (and home (file-directory-p home))
       (cd home))
-    (dolist (path (list jdk-path home/bin))
-      (when (and path (file-directory-p path))
-        (push path dirs)))
+    (when (and home/bin (file-directory-p home/bin))
+      (push home/bin dirs))
     ;; Set paths
     (setenv "PATH" (mapconcat #'identity dirs ":"))
     (setq exec-path (mapcar (lambda (dir) (concat "c:" dir)) dirs))
