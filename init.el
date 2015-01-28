@@ -91,6 +91,7 @@
     page-break-lines
     paredit
     persistent-soft
+    php-mode
     projectile
     pyvenv
     redshank
