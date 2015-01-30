@@ -47,6 +47,7 @@
     clojure-cheatsheet
     clojure-mode
     company
+    company-statistics
     dash
     dash-functional
     debbugs
@@ -1086,6 +1087,9 @@ See `basis/define-eval-keys'.")
 ;; company ---------------------------------------------------------------------
 
 (add-hook 'after-init-hook #'global-company-mode)
+(add-hook 'after-init-hook #'company-statistics-mode t)
+
+(setq company-statistics-file "~/.emacs.d/var/company-statistics-cache.el")
 
 (with-eval-after-load 'company
   (defadvice company-auto-begin (around no-freeze activate)
