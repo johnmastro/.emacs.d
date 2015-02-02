@@ -318,9 +318,6 @@
 
 ;; interface -------------------------------------------------------------------
 
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized/")
-(load-theme 'solarized-dark t)
-
 (defun basis/less-italic (theme &rest args)
   "Don't italicize comments and docstrings in Solarized."
   (when (memq theme '(solarized-dark solarized-light))
@@ -330,6 +327,10 @@
       (set-face-attribute face nil :slant 'normal))))
 
 (advice-add 'load-theme :after #'basis/less-italic)
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized/")
+
+(load-theme 'solarized-dark t)
 
 (defun basis/get-frame-title ()
   "Return a frame title including the current project directory."
@@ -1035,13 +1036,6 @@ See `basis/define-eval-keys'.")
     ;; Cygwin and set it automatically, but I defeat that by installing Cygwin
     ;; directly into the root directory.
     (setq magit-process-quote-curly-braces t)))
-
-;; (with-eval-after-load 'git-commit-mode
-;;   (basis/define-keys git-commit-mode-map
-;;     ("M-n"   nil)
-;;     ("M-p"   nil)
-;;     ("C-M-n" #'git-commit-next-message)
-;;     ("C-M-p" #'git-commit-prev-message)))
 
 ;; ibuffer ---------------------------------------------------------------------
 
@@ -1821,12 +1815,11 @@ See `basis/define-eval-keys'.")
 
 (add-to-list 'auto-mode-alist (cons "\\.js\\'" 'js2-mode))
 
-(setq-default
- js2-show-parse-errors nil
- js2-allow-rhino-new-expr-initializer nil
- js2-strict-inconsistent-return-warning nil
- js2-strict-missing-semi-warning nil
- js2-strict-trailing-comma-warning t)
+(setq-default js2-show-parse-errors nil
+              js2-allow-rhino-new-expr-initializer nil
+              js2-strict-inconsistent-return-warning nil
+              js2-strict-missing-semi-warning nil
+              js2-strict-trailing-comma-warning t)
 
 (setq js2-basic-offset 2)
 
@@ -1877,11 +1870,12 @@ See `basis/define-eval-keys'.")
      'sql-mode-postgres-font-lock-keywords
      (apply #'sql-font-lock-keywords-builder
             'font-lock-keyword-face nil more-keywords)))
-  (define-key sql-mode-map (kbd "RET") #'basis/electric-return)
-  (define-key sql-mode-map (kbd "M-n") #'basis/sql-forward-clause)
-  (define-key sql-mode-map (kbd "M-p") #'basis/sql-backward-clause)
-  (define-key sql-mode-map (kbd "C-M-a") #'basis/sql-beginning-of-defun)
-  (define-key sql-mode-map (kbd "C-M-e") #'basis/sql-end-of-defun))
+  (basis/define-keys sql-mode-map
+    ("RET"   #'basis/electric-return)
+    ("M-n"   #'basis/sql-forward-clause)
+    ("M-p"   #'basis/sql-backward-clause)
+    ("C-M-a" #'basis/sql-beginning-of-defun)
+    ("C-M-e" #'basis/sql-end-of-defun)))
 
 ;; When using Emacs as $PSQL_EDITOR, open the files in `sql-mode'
 (add-to-list 'auto-mode-alist '("/psql.edit.[0-9]+\\'" . sql-mode))
