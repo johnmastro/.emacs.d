@@ -1112,6 +1112,12 @@ If already at the beginning of the field, call
     (erase-buffer)
     (shr-insert-document dom)))
 
+(defun basis/visit-tags-file-auto ()
+  "Automatically find and visit a TAGS file."
+  (-when-let* ((file (buffer-file-name))
+               (tags (locate-dominating-file file "TAGS")))
+    (visit-tags-table (expand-file-name "TAGS" tags) t)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)

@@ -757,6 +757,12 @@ See `basis/define-eval-keys'.")
 (add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
 (add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode)
 
+(defun basis/prog-mode-visit-tags-file-auto ()
+  (when (derived-mode-p 'prog-mode)
+    (basis/visit-tags-file-auto)))
+
+(add-hook 'find-file-hook #'basis/prog-mode-visit-tags-file-auto)
+
 ;; diff-mode -------------------------------------------------------------------
 
 (defun basis/init-diff-mode ()
