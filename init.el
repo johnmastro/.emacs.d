@@ -897,7 +897,7 @@ See `basis/define-eval-keys'.")
 ;; Convert HTML->text if no text version is available
 (setq mu4e-html2text-command (if (executable-find "html2text")
                                  "html2text -utf8 -width 72"
-                               #'html2text))
+                               #'basis/shr-html2text))
 
 ;; Where to save attachments
 (let ((dir (-first #'file-directory-p '("~/downloads" "~/Downloads" "~/"))))

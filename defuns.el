@@ -1105,6 +1105,13 @@ If already at the beginning of the field, call
         (error (helm-keyboard-quit)))
     (backward-delete-char n)))
 
+(defun basis/shr-html2text ()
+  "Convert HTML to plain text in the current buffer using `shr'."
+  (interactive)
+  (let ((dom (libxml-parse-html-region (point-min) (point-max))))
+    (erase-buffer)
+    (shr-insert-document dom)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
