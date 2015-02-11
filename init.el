@@ -976,6 +976,11 @@ See `basis/define-eval-keys'.")
 
 (setq sx-cache-directory "~/.emacs.d/var/sx/")
 
+(defun basis/init-sx-question-mode ()
+  (toggle-truncate-lines -1))
+
+(add-hook 'sx-question-mode-hook #'basis/init-sx-question-mode)
+
 ;; ediff -----------------------------------------------------------------------
 
 (setq ediff-window-setup-function #'ediff-setup-windows-plain
