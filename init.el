@@ -139,6 +139,15 @@
 
 (load "~/.emacs.d/defuns.el")
 
+(defun basis/maybe-load-local-init ()
+  "Load \"~/.emacs.d/local.el\" if it exists."
+  (let ((local "~/.emacs.d/local.el"))
+    (when (file-exists-p local)
+      (load local))))
+
+;; Do this after init so that it can override anything set here
+(add-hook 'after-init-hook #'basis/maybe-load-local-init)
+
 ;; Why not? Idea taken from `dash-enable-font-lock', although I think that
 ;; overdoes it a bit
 (basis/add-elisp-font-lock-keywords '("pcase-dolist"
