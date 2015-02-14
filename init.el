@@ -223,8 +223,6 @@
       indicate-empty-lines t
       shift-select-mode nil
       mouse-yank-at-point t
-      whitespace-style '(face trailing lines-tail tabs)
-      whitespace-line-column 80
       line-number-mode t
       column-number-mode t
       imenu-auto-rescan t
@@ -267,10 +265,6 @@
 (delete-selection-mode 1)
 (global-page-break-lines-mode 1)
 (which-function-mode 1)
-
-;; Safe local variables
-(add-to-list 'safe-local-variable-values '(lexical-binding . t))
-(add-to-list 'safe-local-variable-values '(whitespace-line-column . 80))
 
 ;; UTF-8 everywhere
 (prefer-coding-system 'utf-8)
@@ -379,6 +373,13 @@
 
 (setq uniquify-buffer-name-style 'forward
       uniquify-ignore-buffers-re "^\\*")
+
+;; whitespace-mode -------------------------------------------------------------
+
+(setq whitespace-style '(face trailing lines-tail tabs)
+      whitespace-line-column 80)
+
+(put 'whitespace-line-column 'safe-local-variable #'integerp)
 
 ;; key bindings ----------------------------------------------------------------
 
@@ -1848,6 +1849,10 @@ See `basis/define-eval-keys'.")
   (js2-imenu-extras-setup))
 
 (add-hook 'js2-mode-hook #'basis/init-js2-mode)
+
+;; css-mode --------------------------------------------------------------------
+
+(put 'css-indent-offset 'safe-local-variable #'integerp)
 
 ;; skewer ----------------------------------------------------------------------
 
