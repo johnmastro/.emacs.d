@@ -1114,6 +1114,7 @@ If already at the beginning of the field, call
 
 (defun basis/visit-tags-file-auto ()
   "Automatically find and visit a TAGS file."
+  (interactive)
   (-when-let* ((file (buffer-file-name))
                (tags (locate-dominating-file file "TAGS")))
     (visit-tags-table (expand-file-name "TAGS" tags) t)))
@@ -1124,15 +1125,12 @@ If already at the beginning of the field, call
   "Don't insert an extraneous space when entering a CL pathname."
   ;; If any of `paredit-space-for-delimiter-predicates' returns nil
   ;; a space isn't inserted.
-  (let* ((double-quote 34)
-         (pathname-opening-p
-          (and (not endp)
-               (eql delimiter double-quote)
-               (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
-               (save-excursion
-                 (backward-char 2)
-                 (looking-at-p "#p")))))
-    (not pathname-opening-p)))
+  (not (and (not endp)
+            (eql delimiter ?\")
+            (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
+            (save-excursion
+              (backward-char 2)
+              (looking-at-p "#p")))))
 
 (defun basis/paredit-open-something ()
   (interactive)
@@ -1292,8 +1290,7 @@ used to create Unicode, raw, and byte strings respectively."
 (defun basis/insert-python-docstring-quotes ()
   "Insert the 6 double quotes for a Python docstring."
   (interactive)
-  (let ((double-quote 34))
-    (insert (make-string 6 double-quote)))
+  (insert (make-string 6 ?\"))
   (backward-char 3))
 
 (defun basis/run-python ()
@@ -1596,7 +1593,7 @@ strings."
        ;; This doesn't work correctly if run immediately, I think because the
        ;; syntax table for the particular SQL product isn't initialized yet.
        (with-current-buffer buffer
-         (modify-syntax-entry 34 "\""))))))
+         (modify-syntax-entry ?\" "\""))))))
 
 ;; html utilities --------------------------------------------------------------
 
