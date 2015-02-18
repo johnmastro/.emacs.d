@@ -2085,6 +2085,10 @@ two tags."
 (dolist (ext '("f" "fs" "fth"))
   (add-to-list 'auto-mode-alist `(,(format "\\.%s\\'" ext) . forth-mode)))
 
+;; rst-mode --------------------------------------------------------------------
+
+(add-hook 'rst-mode-hook #'basis/maybe-enable-flyspell)
+
 ;; markdown --------------------------------------------------------------------
 
 (dolist (ext (list "markdown" "mkd" "md"))
