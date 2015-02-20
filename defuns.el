@@ -767,6 +767,19 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
   (interactive (occur-read-primary-args))
   (basis/multi-occur-by-mode major-mode regexp nlines))
 
+(defun basis/occur-dwim (regexp nlines)
+  "Like `occur', but REGEXP defaults to the text at point."
+  (interactive
+   (list (let ((str (if (use-region-p)
+                        (buffer-substring-no-properties (region-beginning)
+                                                        (region-end))
+                      (thing-at-point 'symbol))))
+           (read-regexp
+            (format "Occur (default %s): " (or str (car regexp-history)))
+            (and (not str) 'regexp-history-last)))
+         (prefix-numeric-value current-prefix-arg)))
+  (occur regexp nlines))
+
 ;; window utilities ------------------------------------------------------------
 
 (defun basis/transpose-windows (arg)
