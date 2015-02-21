@@ -1795,13 +1795,20 @@ See `basis/define-eval-keys'.")
 
 ;; haskell ---------------------------------------------------------------------
 
-(with-eval-after-load 'haskell
-  (basis/define-eval-keys haskell-mode-map
-    (definition #'inferior-haskell-send-decl)
-    (file       #'inferior-haskell-load-file)))
+(with-eval-after-load 'interactive-haskell-mode
+  (basis/define-keys interactive-haskell-mode-map
+    ("C-c C-z" #'haskell-interactive-bring)
+    ("C-c C-l" #'haskell-process-load-or-reload)
+    ("C-c C-k" #'haskell-interactive-mode-clear)
+    ("C-c C-c" #'haskell-process-cabal-build)
+    ("C-c c"   #'haskell-process-cabal)
+    ("M-."     #'haskell-mode-goto-loc)
+    ("M-?"     #'haskell-mode-find-uses)
+    ("C-c C-t" #'haskell-mode-show-type-at)))
 
 (defun basis/init-haskell-mode ()
-  (turn-on-haskell-indentation))
+  (turn-on-haskell-indentation)
+  (interactive-haskell-mode))
 
 (add-hook 'haskell-mode-hook #'basis/init-haskell-mode)
 
