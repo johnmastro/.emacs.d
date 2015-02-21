@@ -67,6 +67,7 @@
     gitattributes-mode
     gitconfig-mode
     gitignore-mode
+    god-mode
     guide-key
     haskell-mode
     helm
@@ -616,6 +617,46 @@
     (expand     . "C-c C-e"))
   "Key bindings used to evaluate various units of code.
 See `basis/define-eval-keys'.")
+
+;; god-mode --------------------------------------------------------------------
+
+(defun basis/god-update-cursor ()
+  "Toggle the cursor type to signal whether `god-mode' is active."
+  (setq cursor-type
+        (if (bound-and-true-p god-local-mode)
+            'box
+          'bar)))
+
+(defun basis/god-toggle-on-overwrite ()
+  "Pause `god-mode' when `overwrite-mode' is active."
+  (if (bound-and-true-p overwrite-mode)
+      (god-local-mode-pause)
+    (god-local-mode-resume)))
+
+(with-eval-after-load 'god-mode
+  (require 'god-mode-isearch)
+  (define-key god-local-mode-map "." #'repeat)
+  (define-key god-local-mode-map "i" #'god-local-mode)
+  (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
+  (add-to-list 'god-exempt-major-modes 'debugger-mode)
+  (add-hook 'god-mode-enabled-hook #'basis/god-update-cursor)
+  (add-hook 'god-mode-disabled-hook #'basis/god-update-cursor))
+
+(defun basis/enable-god-mode ()
+  (interactive)
+  (setq god-global-mode t)
+  (god-local-mode 1)
+  (global-set-key (kbd "<escape>") #'god-mode-all)
+  (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
+  (add-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite))
+
+(defun basis/disable-god-mode ()
+  (interactive)
+  (setq god-global-mode nil)
+  (god-local-mode -1)
+  (global-set-key (kbd "<escape>") nil)
+  (define-key isearch-mode-map (kbd "<escape>") nil)
+  (remove-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite))
 
 ;; tmux ------------------------------------------------------------------------
 
