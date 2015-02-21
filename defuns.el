@@ -138,6 +138,30 @@ If PATTERN is non-nil, only include matching files (via
     (delete-region beg end)
     (insert "[snip]\n")))
 
+(defun basis/smart-hyphen (n)
+  "Conditionally insert a hyphen or upcase the next char."
+  (interactive "p")
+  (if (memq (get-text-property (point) 'face)
+            '(font-lock-doc-face
+              font-lock-comment-face
+              font-lock-string-face))
+      (self-insert-command n)
+    (insert "-")
+    (let ((command (key-binding (vector (read-event)))))
+      (if (eq command 'self-insert-command)
+          (insert (let ((next (elt (this-command-keys) 1)))
+                    (if (and (eq ?w (char-syntax next))
+                             ;; TODO: Do these next two conditions always make
+                             ;; sense?
+                             (not (eq (upcase next) next))
+                             (not (save-excursion
+                                    (forward-char -2)
+                                    (looking-at-p "[0-9]"))))
+                        (progn (delete-char -1)
+                               (upcase next))
+                      next)))
+        (call-interactively command)))))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun basis/kill-something (arg)
