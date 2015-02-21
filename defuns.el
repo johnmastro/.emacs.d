@@ -505,6 +505,72 @@ On OS X, instead define a binding with <kp-enter> as prefix."
 (basis/create-simple-keybinding-command f11 "<f11>")
 (basis/create-simple-keybinding-command f12 "<f12>")
 
+;; escape mode -----------------------------------------------------------------
+
+;; ESC->escape translation based on that in evil-core.el from `evil-mode'
+
+(defvar basis/esc-mode nil)
+
+(defvar basis/esc-delay 0.01)
+
+(defvar basis/intercept-esc
+  (memq (terminal-live-p (frame-terminal)) '(t pc)))
+
+(defvar basis/inhibit-esc nil)
+
+(defun basis/esc-mode (&optional arg)
+  "Toggle interception of \\e (escape).
+Enable with positive ARG and disable with negative ARG."
+  (cond
+   ((or (null arg) (eq arg 0))
+    (basis/esc-mode (if basis/esc-mode -1 +1)))
+   ((> arg 0)
+    (unless basis/esc-mode
+      (setq basis/esc-mode t)
+      (add-hook 'after-make-frame-functions #'basis/init-esc)
+      (mapc #'basis/init-esc (frame-list))))
+   ((< arg 0)
+    (when basis/esc-mode
+      (remove-hook 'after-make-frame-functions #'basis/init-esc)
+      (mapc #'basis/deinit-esc (frame-list))
+      (setq basis/esc-mode nil)))))
+
+(defun basis/init-esc (frame)
+  "Update `input-decode-map' in terminal."
+  (with-selected-frame frame
+    (let ((term (frame-terminal frame)))
+      (when (and
+             (or (eq basis/intercept-esc 'always)
+                 (and basis/intercept-esc
+                      (eq (terminal-live-p term) t))) ; only patch tty
+             (not (terminal-parameter term 'basis/esc-map)))
+        (let ((basis/esc-map (lookup-key input-decode-map [?\e])))
+          (set-terminal-parameter term 'basis/esc-map basis/esc-map)
+          (define-key input-decode-map [?\e]
+            `(menu-item "" ,basis/esc-map :filter ,#'basis/esc-filter)))))))
+
+(defun basis/deinit-esc (frame)
+  "Restore `input-decode-map' in terminal."
+  (with-selected-frame frame
+    (let ((term (frame-terminal frame)))
+      (when (terminal-live-p term)
+        (let ((basis/esc-map (terminal-parameter term 'basis/esc-map)))
+          (when basis/esc-map
+            (define-key input-decode-map [?\e] basis/esc-map)
+            (set-terminal-parameter term 'basis/esc-map nil)))))))
+
+(defun basis/esc-filter (map)
+  "Translate \\e to 'escape if no further event arrives."
+  (if (and (not basis/inhibit-esc)
+           (equal (this-single-command-keys) [?\e])
+           (sit-for basis/esc-delay))
+      (prog1 [escape]
+        (when defining-kbd-macro
+          (end-kbd-macro)
+          (setq last-kbd-macro (vconcat last-kbd-macro [escape]))
+          (start-kbd-macro t t)))
+    map))
+
 ;; ibuffer ---------------------------------------------------------------------
 
 (defadvice ibuffer-vc-root (around exclude-emacs-buffers activate)
