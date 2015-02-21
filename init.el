@@ -1812,6 +1812,12 @@ See `basis/define-eval-keys'.")
 
 (add-hook 'haskell-mode-hook #'basis/init-haskell-mode)
 
+(autoload 'ghci-script-mode "ghci-script-mode"
+  "Major mode for working with .ghci files."
+  t)
+
+(add-to-list 'auto-mode-alist '("\\.ghci\\'" . ghci-script-mode))
+
 ;; rust ------------------------------------------------------------------------
 
 (defun basis/rust-set-compile-command ()
