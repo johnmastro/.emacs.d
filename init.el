@@ -39,7 +39,6 @@
 (defvar basis/package-list
   '(ace-jump-mode
     ace-window
-    ack-and-a-half
     batch-mode
     browse-kill-ring
     cider
