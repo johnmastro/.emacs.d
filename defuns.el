@@ -1481,6 +1481,22 @@ Use `slime-expand-1' to produce the expansion."
         (system
          (message "No selector for '%s'" system))))
 
+;; comint ----------------------------------------------------------------------
+
+(defun basis/comint-previous-input (arg)
+  "Move to the input area and call `comint-previous-input'."
+  (interactive "*p")
+  (when comint-scroll-to-bottom-on-input
+    (goto-char (point-max)))
+  (comint-previous-input arg))
+
+(defun basis/comint-next-input (arg)
+  "Move to the input area and call `comint-next-input'."
+  (interactive "*p")
+  (when comint-scroll-to-bottom-on-input
+    (goto-char (point-max)))
+  (comint-next-input arg))
+
 ;; gdb -------------------------------------------------------------------------
 
 (defun basis/gdb-a-few-windows ()

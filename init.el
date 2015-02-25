@@ -1232,9 +1232,16 @@ See `basis/define-eval-keys'.")
 (setenv "PAGER" "cat")
 
 (with-eval-after-load 'comint
-  ;; Because Paredit and Smartparens both use M-r
-  (define-key comint-mode-map
-    (kbd "C-M-r") #'comint-history-isearch-backward-regexp))
+  (basis/define-keys comint-mode-map
+    ("M-p"   #'basis/comint-previous-input)
+    ("M-n"   #'basis/comint-next-input)
+    ;; Because Paredit and Smartparens both use M-r
+    ("C-M-r" #'comint-history-isearch-backward-regexp)))
+
+(defun basis/init-comint-mode ()
+  (setq comint-scroll-to-bottom-on-input 'this))
+
+(add-hook 'comint-mode-hook #'basis/init-comint-mode)
 
 ;; shell-mode ------------------------------------------------------------------
 
