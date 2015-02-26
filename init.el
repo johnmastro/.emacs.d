@@ -568,6 +568,13 @@
 ;; Narrowing can be quite handy
 (put 'narrow-to-region 'disabled nil)
 
+;; These are mostly useful with `god-mode'
+(basis/define-keys global-map
+  ("C-x C-0" #'delete-window)
+  ("C-x C-1" #'delete-other-windows)
+  ("C-x C-2" #'split-window-below)
+  ("C-x C-3" #'split-window-right))
+
 ;; h-map -----------------------------------------------------------------------
 
 (define-prefix-command 'basis/h-map)
