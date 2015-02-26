@@ -25,6 +25,23 @@ there, to the beginning of the line."
      (list (line-beginning-position) (line-end-position))))
   (comment-or-uncomment-region beg end))
 
+(defun basis/comment-region-lines (beg end &optional arg)
+  "Comment out the lines from BEG to END.
+With optional prefix ARG, uncomment instead."
+  (interactive "*r\nP")
+  (pcase-let ((`(,beg . ,end)  ; Rotate if "upside-down"
+               (if (> beg end)
+                   (cons end beg)
+                 (cons beg end))))
+    ;; Always comment whole lines
+    (let ((beg (save-excursion (goto-char beg)
+                               (line-beginning-position)))
+          (end (save-excursion (goto-char end)
+                               (if (bolp)
+                                   (point)
+                                 (line-end-position)))))
+      (comment-region beg end arg))))
+
 (defun basis/insert-enough-dashes (&optional goal char)
   "Insert enough dashes to reach a specific column.
 With a prefix arg, prompt for the target column and the character

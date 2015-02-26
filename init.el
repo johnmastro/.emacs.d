@@ -486,8 +486,8 @@
 (global-set-key (kbd "M-=") #'er/expand-region)
 
 ;; Comment/uncomment stuff
-(global-set-key (kbd "s-;") #'basis/comment-or-uncomment)
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
+(global-set-key (kbd "C-x ;") #'basis/comment-region-lines)
 
 ;; Eval
 (global-set-key (kbd "C-x C-e") #'basis/eval-last-sexp)
