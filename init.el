@@ -1694,10 +1694,7 @@ See `basis/define-eval-keys'.")
   ;; Indentation tweaks
   (pcase-dolist (`(,sym ,n) basis/clojure-indent-specs)
     (put-clojure-indent sym n))
-  (put 'macrolet 'clojure-backtracking-indent '((2) 2))
-
-  ;; Command completion for lein in eshell
-  (require 'pcmpl-lein))
+  (put 'macrolet 'clojure-backtracking-indent '((2) 2)))
 
 (with-eval-after-load 'cider
   (cond ((eq system-type 'darwin)
