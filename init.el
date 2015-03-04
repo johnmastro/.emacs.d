@@ -95,6 +95,7 @@
     php-mode
     projectile
     pyvenv
+    quack
     redshank
     rust-mode
     s
