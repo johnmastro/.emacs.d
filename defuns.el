@@ -1423,15 +1423,36 @@ used to create Unicode, raw, and byte strings respectively."
   (insert (make-string 6 ?\"))
   (backward-char 3))
 
-(defun basis/run-python ()
-  "Adjust the frame's configuration and run Python."
-  (interactive)
+(defun basis/python-find-venv ()
+  (when (and (bound-and-true-p projectile-mode)
+             (projectile-project-p))
+    (let* ((prj (projectile-project-root))
+           (env (expand-file-name "env" prj)))
+      (and (or (file-exists-p (expand-file-name "bin/activate" env))
+               (file-exists-p (expand-file-name "Scripts/activate" env)))
+           env))))
+
+(defun basis/pyvenv-activate (dir)
+  "Like `pyvenv-activate' but try to guess the directory."
+  (interactive
+   (list (read-directory-name
+          "Activate venv: "
+          (or (basis/python-find-venv)
+              (ignore-errors (projectile-project-root))))))
+  (if (eq major-mode 'python-mode)
+      (pyvenv-activate dir)
+    (error "Not in a python-mode buffer")))
+
+(defun basis/run-python (&optional _arg)
+  "Run an inferior Python process.
+If a virtualenv associated with the project is found, prompt to
+activate it."
+  (interactive "P")
   (unless (eq major-mode 'python-mode)
     (error "Not in a python-mode buffer"))
-  (delete-other-windows)
-  (let ((frame (selected-frame)))
-    (when (< (frame-width frame) 165)
-      (set-frame-width frame 165)))
+  (let ((env (basis/python-find-venv)))
+    (when (and env (y-or-n-p (format "Activate venv (%s)? " env)))
+      (pyvenv-activate env)))
   (call-interactively #'run-python))
 
 ;; slime -----------------------------------------------------------------------
