@@ -730,6 +730,8 @@ If it doesn't exist, BUFFER is created automatically."
       (basis/elisp-display-mode 1)
       (setq buffer-read-only t)
       (goto-char (point-min))
+      (when (bound-and-true-p god-local-mode)
+        (god-local-mode -1))
       (pop-to-buffer (current-buffer)))))
 
 (defun basis/pp-eval-form (form &optional insert)
