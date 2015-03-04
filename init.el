@@ -565,8 +565,8 @@
 ;; Emacs Lisp-style quotes
 (global-set-key (kbd "C-c q") #'basis/elisp-quote)
 
-;; Narrowing can be quite handy
-(put 'narrow-to-region 'disabled nil)
+;; Get a count of lines, words, and characters
+(global-set-key (kbd "C-c r") #'basis/count-words)
 
 ;; These are mostly useful with `god-mode'
 (basis/define-keys global-map
@@ -574,6 +574,9 @@
   ("C-x C-1" #'delete-other-windows)
   ("C-x C-2" #'split-window-below)
   ("C-x C-3" #'split-window-right))
+
+;; Narrowing can be quite handy
+(put 'narrow-to-region 'disabled nil)
 
 ;; h-map -----------------------------------------------------------------------
 

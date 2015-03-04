@@ -1239,6 +1239,14 @@ If already at the beginning of the field, call
                (tags (locate-dominating-file file "TAGS")))
     (visit-tags-table (expand-file-name "TAGS" tags) t)))
 
+(defun basis/count-words ()
+  "Count the lines, words, and characters in the active region.
+Like `count-words-region', but operate on the current buffer if
+the region isn't active."
+  (interactive)
+  (let ((current-prefix-arg (not (use-region-p))))
+    (call-interactively #'count-words-region)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
