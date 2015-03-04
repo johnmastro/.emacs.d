@@ -910,6 +910,20 @@ See `basis/define-eval-keys'.")
 
 (setq aw-scope 'frame)
 
+;; Because of how it displays its labels, `ace-window' can't jump to a window
+;; whose buffer is both empty and read-only. However, if there are only two
+;; windows up anyway (a common case) we can simply fall back to `other-window'.
+(defun basis/ace-window-kludge (function arg)
+  (if (and (eq aw-scope 'frame)
+           (= (length (window-list)) 2))
+      (pcase arg
+        (4  (basis/transpose-windows 1))
+        (16 (delete-other-windows))
+        (_  (other-window 1)))
+    (funcall function arg)))
+
+(advice-add 'ace-window :around #'basis/ace-window-kludge)
+
 ;; message-mode ----------------------------------------------------------------
 
 (defun basis/init-message-mode ()
