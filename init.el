@@ -444,8 +444,8 @@
   ([remap kill-whole-line] #'basis/kill-line-backward)
   ("<C-delete>"            #'basis/smart-kill-whole-line)
   ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
-  ("ESC C-DEL"             #'backward-kill-sexp)
-  ("ESC M-DEL"             #'backward-kill-sexp))
+  ("<C-M-backspace>"       #'backward-kill-sexp)
+  ("C-M-_"                 #'backward-kill-sexp))
 
 ;; Copy stuff
 (basis/define-keys global-map
@@ -1567,17 +1567,18 @@ See `basis/define-eval-keys'.")
 
 (with-eval-after-load 'paredit
   (basis/define-keys paredit-mode-map
-    ("M-)"                          #'basis/paredit-wrap-round-from-behind)
-    ("M-e"                          #'paredit-forward)
-    ("<M-right>"                    #'paredit-forward)
-    ("M-a"                          #'paredit-backward)
-    ("<M-left>"                     #'paredit-backward)
-    ("M-k"                          #'kill-sexp)
-    ("C-w"                          #'basis/paredit-kill-something)
-    ("M-DEL"                        #'basis/paredit-kill-something)
-    ("C-DEL"                        #'basis/paredit-kill-something)
-    ("<C-backspace>"                #'basis/paredit-kill-something)
-    ([remap backward-kill-sentence] #'backward-kill-sexp))
+    ("M-)"             #'basis/paredit-wrap-round-from-behind)
+    ("M-e"             #'paredit-forward)
+    ("<M-right>"       #'paredit-forward)
+    ("M-a"             #'paredit-backward)
+    ("<M-left>"        #'paredit-backward)
+    ("M-k"             #'kill-sexp)
+    ("C-w"             #'basis/paredit-kill-something)
+    ("M-DEL"           #'basis/paredit-kill-something)
+    ("C-DEL"           #'basis/paredit-kill-something)
+    ("<C-backspace>"   #'basis/paredit-kill-something)
+    ("<C-M-backspace>" #'backward-kill-sexp)
+    ("C-M-_"           #'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
                #'basis/paredit-doublequote-space-p)
   ;; Show `eldoc' messages after Paredit motion commands
@@ -1765,13 +1766,15 @@ See `basis/define-eval-keys'.")
     (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
 
   (basis/define-keys sp-keymap
-    ("M-DEL"         #'basis/sp-kill-something)
-    ("C-DEL"         #'basis/sp-kill-something)
-    ("<C-backspace>" #'basis/sp-kill-something)
-    ("C-w"           #'basis/sp-kill-something)
-    ("M-k"           #'sp-kill-sexp)
-    ("M-e"           #'basis/maybe-sp-forward-sexp)
-    ("M-a"           #'basis/maybe-sp-backward-sexp))
+    ("M-DEL"           #'basis/sp-kill-something)
+    ("C-DEL"           #'basis/sp-kill-something)
+    ("<C-backspace>"   #'basis/sp-kill-something)
+    ("C-w"             #'basis/sp-kill-something)
+    ("M-k"             #'sp-kill-sexp)
+    ("M-e"             #'basis/maybe-sp-forward-sexp)
+    ("M-a"             #'basis/maybe-sp-backward-sexp)
+    ("<C-M-backspace>" #'sp-backward-kill-sexp)
+    ("C-M-_"           #'sp-backward-kill-sexp))
 
   ;; These commands invoke `indent-according-to-mode' but, when
   ;; `indent-line-function' is `indent-relative', that often doesn't work out
