@@ -566,8 +566,14 @@
 ;; Emacs Lisp-style quotes
 (global-set-key (kbd "C-c q") #'basis/elisp-quote)
 
-;; Get a count of lines, words, and characters
-(global-set-key (kbd "C-c r") #'basis/count-words)
+;; Random operations on regions
+(define-prefix-command 'basis/region-map)
+(global-set-key (kbd "C-c r") 'basis/region-map)
+
+(basis/define-keys basis/region-map
+  ("c" #'basis/count-words)
+  ("l" #'basis/count-sloc-region)
+  ("s" #'sort-lines))
 
 ;; These are mostly useful with `god-mode'
 (basis/define-keys global-map
