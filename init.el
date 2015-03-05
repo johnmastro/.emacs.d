@@ -637,6 +637,13 @@ See `basis/define-eval-keys'.")
 
 ;; god-mode --------------------------------------------------------------------
 
+(defvar basis/god-exempt-major-modes
+  '(debugger-mode
+    Info-mode
+    completion-list-mode
+    ack-and-a-half-mode
+    cider-repl-mode))
+
 (with-eval-after-load 'god-mode
   (require 'god-mode-isearch)
   (define-key god-local-mode-map "." #'repeat)
@@ -644,7 +651,7 @@ See `basis/define-eval-keys'.")
   (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
   (add-hook 'god-mode-enabled-hook #'basis/god-update-cursor)
   (add-hook 'god-mode-disabled-hook #'basis/god-update-cursor)
-  (dolist (mode '(debugger-mode ack-and-a-half-mode))
+  (dolist (mode basis/god-exempt-major-modes)
     (add-to-list 'god-exempt-major-modes mode)))
 
 ;; tmux ------------------------------------------------------------------------
