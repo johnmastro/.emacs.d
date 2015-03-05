@@ -588,6 +588,57 @@ Enable with positive ARG and disable with negative ARG."
           (start-kbd-macro t t)))
     map))
 
+;; god-mode --------------------------------------------------------------------
+
+(defun basis/god-update-cursor ()
+  "Toggle the cursor type to signal whether `god-mode' is active."
+  (setq cursor-type
+        (if (bound-and-true-p god-local-mode)
+            'box
+          'bar)))
+
+(defun basis/god-toggle-on-overwrite ()
+  "Pause `god-mode' when `overwrite-mode' is active."
+  (if (bound-and-true-p overwrite-mode)
+      (god-local-mode-pause)
+    (god-local-mode-resume)))
+
+(defun basis/god-maybe-enable ()
+  "Conditionally enable `god-local-mode'.
+Enable `god-local-mode' if `god-global-mode' is active and the
+current buffer is not exempt. Intended for us in
+`focus-out-hook'."
+  (when (and (bound-and-true-p god-global-mode)
+             (not god-local-mode)
+             (god-passes-predicates-p))
+    (god-local-mode 1)))
+
+(defun basis/enable-god-mode ()
+  "Enable `god-mode'.
+Enable `god-global-mode' and `god-local-mode', add related hooks,
+and define related key bindings."
+  (interactive)
+  (setq god-global-mode t)
+  (god-local-mode 1)
+  (basis/esc-mode 1)
+  (global-set-key (kbd "<escape>") #'god-mode-all)
+  (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
+  (add-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
+  (add-hook 'focus-out-hook #'basis/god-maybe-enable))
+
+(defun basis/disable-god-mode ()
+  "Disable `god-mode'.
+Disable `god-global-mode' and `god-local-mode'. Also remove
+related hooks and key bindings."
+  (interactive)
+  (setq god-global-mode nil)
+  (god-local-mode -1)
+  (basis/esc-mode -1)
+  (global-set-key (kbd "<escape>") nil)
+  (define-key isearch-mode-map (kbd "<escape>") nil)
+  (remove-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
+  (remove-hook 'focus-out-hook #'basis/god-maybe-enable))
+
 ;; ibuffer ---------------------------------------------------------------------
 
 (defadvice ibuffer-vc-root (around exclude-emacs-buffers activate)
