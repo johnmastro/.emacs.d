@@ -650,6 +650,16 @@ See `basis/define-eval-keys'.")
       (god-local-mode-pause)
     (god-local-mode-resume)))
 
+(defun basis/god-maybe-enable ()
+  "Conditionally enable `god-local-mode'.
+Enable `god-local-mode' if `god-global-mode' is active and the
+current buffer is not exempt. Intended for us in
+`focus-out-hook'."
+  (when (and (bound-and-true-p god-global-mode)
+             (not god-local-mode)
+             (god-passes-predicates-p))
+    (god-local-mode 1)))
+
 (with-eval-after-load 'god-mode
   (require 'god-mode-isearch)
   (define-key god-local-mode-map "." #'repeat)
@@ -667,7 +677,9 @@ See `basis/define-eval-keys'.")
   (basis/esc-mode 1)
   (global-set-key (kbd "<escape>") #'god-mode-all)
   (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
-  (add-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite))
+  (add-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
+  (when (display-graphic-p)
+    (add-hook 'focus-out-hook #'basis/god-maybe-enable)))
 
 (defun basis/disable-god-mode ()
   (interactive)
@@ -676,7 +688,8 @@ See `basis/define-eval-keys'.")
   (basis/esc-mode -1)
   (global-set-key (kbd "<escape>") nil)
   (define-key isearch-mode-map (kbd "<escape>") nil)
-  (remove-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite))
+  (remove-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
+  (remove-hook 'focus-out-hook #'basis/god-maybe-enable))
 
 ;; tmux ------------------------------------------------------------------------
 
