@@ -561,7 +561,8 @@
   ("F" #'find-dired)
   ("G" #'find-grep-dired)
   ("m" #'basis/open-file-manager)
-  ("o" #'basis/open-files))
+  ("o" #'basis/open-files)
+  ("+" #'make-directory))
 
 ;; Emacs Lisp-style quotes
 (global-set-key (kbd "C-c q") #'basis/elisp-quote)
