@@ -603,15 +603,22 @@ Enable with positive ARG and disable with negative ARG."
       (god-local-mode-pause)
     (god-local-mode-resume)))
 
-(defun basis/god-maybe-enable ()
+(defun basis/god-mode-all ()
+  "Enable `god-mode' in all buffers."
+  (interactive)
+  (setq god-global-mode t)
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+            (god-mode-maybe-activate 1)))
+        (buffer-list)))
+
+(defun basis/god-maybe-all ()
   "Conditionally enable `god-local-mode'.
 Enable `god-local-mode' if `god-global-mode' is active and the
 current buffer is not exempt. Intended for us in
 `focus-out-hook'."
-  (when (and (bound-and-true-p god-global-mode)
-             (not god-local-mode)
-             (god-passes-predicates-p))
-    (god-local-mode 1)))
+  (when (bound-and-true-p god-global-mode)
+    (basis/god-mode-all)))
 
 (defun basis/enable-god-mode ()
   "Enable `god-mode'.
@@ -621,10 +628,10 @@ and define related key bindings."
   (setq god-global-mode t)
   (god-local-mode 1)
   (basis/esc-mode 1)
-  (global-set-key (kbd "<escape>") #'god-mode-all)
+  (global-set-key (kbd "<escape>") #'basis/god-mode-all)
   (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
   (add-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
-  (add-hook 'focus-out-hook #'basis/god-maybe-enable))
+  (add-hook 'focus-out-hook #'basis/god-maybe-all))
 
 (defun basis/disable-god-mode ()
   "Disable `god-mode'.
