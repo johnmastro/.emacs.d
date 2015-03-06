@@ -380,8 +380,17 @@ This is the same as using \\[set-mark-command] with the prefix argument."
         (kill-buffer buffer)
         (message "File '%s' successfully deleted" filename)))))
 
+(defvar basis/git-file-regexp "[/\\]\\.git[/\\]"
+  "Regexp matching files under a .git/ directory.")
+
+(defun basis/git-file-p (file)
+  "Return non-nil if FILE is within a \".git/\" directory.
+Make the determination via `basis/git-file-regexp' (do not
+touch the filesystem)."
+  (string-match-p basis/git-file-regexp file))
+
 (defun basis/git-commit-msg-p (file)
-  "Return true if FILE is a git \"COMMIT_EDITMSG\" file."
+  "Return non-nil if FILE is a git \"COMMIT_EDITMSG\" file."
   ;; Used in `recentf-exclude'
   (string= "COMMIT_EDITMSG" (file-name-nondirectory file)))
 
@@ -1054,7 +1063,7 @@ If `linum-mode' was already enabled just call `goto-line'."
         (delete-file elc)))))
 
 (defun basis/file-remote-p (name)
-  (and name (or (file-remote-p name) (tramp-tramp-file-p name))))
+  (and name (or (tramp-tramp-file-p name) (file-remote-p name))))
 
 (defun basis/maybe-enable-flycheck ()
   "Enable `flycheck-mode', except for remote files."
