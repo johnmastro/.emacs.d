@@ -1334,7 +1334,7 @@ See `basis/define-eval-keys'.")
 (setq smex-save-file "~/.emacs.d/var/smex-items")
 
 (basis/define-keys global-map
-  ("M-x"     #'smex)
+  ;; ("M-x"     #'smex)
   ("M-X"     #'smex-major-mode-commands)
   ("C-h M-x" #'execute-extended-command))
 
@@ -1345,6 +1345,8 @@ See `basis/define-eval-keys'.")
 (global-unset-key (kbd helm-command-prefix-key))
 
 (basis/define-keys global-map
+  ("C-x b"    #'helm-mini)
+  ("M-x"      #'helm-M-x)
   ("M-i"      #'helm-imenu)
   ("M-y"      #'helm-show-kill-ring)
   ("M-`"      #'helm-all-mark-rings)
