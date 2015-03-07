@@ -1340,10 +1340,15 @@ See `basis/define-eval-keys'.")
 
 ;; helm ------------------------------------------------------------------------
 
-(global-set-key (kbd "M-i") #'helm-imenu)
-(global-set-key (kbd "M-y") #'helm-show-kill-ring)
-(global-set-key (kbd "M-`") #'helm-all-mark-rings)
-(global-set-key (kbd "<f1> SPC") #'helm-apropos)
+(require 'helm-config)
+
+(global-unset-key (kbd helm-command-prefix-key))
+
+(basis/define-keys global-map
+  ("M-i"      #'helm-imenu)
+  ("M-y"      #'helm-show-kill-ring)
+  ("M-`"      #'helm-all-mark-rings)
+  ("<f1> SPC" #'helm-apropos))
 
 (define-prefix-command 'basis/helm-map)
 
@@ -1377,6 +1382,8 @@ See `basis/define-eval-keys'.")
       helm-ff-file-name-history-use-recentf t
       helm-ff-search-library-in-sexp t
       helm-buffers-fuzzy-matching t
+      helm-apropos-fuzzy-match t
+      helm-imenu-fuzzy-match t
       helm-quick-update t
       helm-truncate-lines t
       helm-imenu-execute-action-at-once-if-one nil)
@@ -1386,9 +1393,10 @@ See `basis/define-eval-keys'.")
 
 (with-eval-after-load 'helm
   (require 'helm-utils) ; For the `helm-selection-line' face
-  (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-z") #'helm-select-action)
   (define-key helm-map (kbd "DEL") #'basis/helm-backspace))
+
+(with-eval-after-load 'helm-files
+  (define-key helm-find-files-map (kbd "DEL") #'basis/helm-backspace))
 
 ;; `helm-swoop' config
 (setq helm-swoop-use-line-number-face t)
