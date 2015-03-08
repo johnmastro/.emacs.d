@@ -1408,6 +1408,10 @@ See `basis/define-eval-keys'.")
   ;; I prefer M-s for this
   (define-key isearch-mode-map (kbd "M-i") nil))
 
+;; To prevent a delay the first time I use M-x
+(when (eq (key-binding (kbd "M-x")) #'helm-M-x)
+  (require 'helm-command))
+
 ;; hippie expand ---------------------------------------------------------------
 
 (global-set-key (kbd "M-/") #'hippie-expand)
