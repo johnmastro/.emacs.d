@@ -71,6 +71,7 @@
     guide-key
     haskell-mode
     helm
+    helm-descbinds
     helm-projectile
     helm-swoop
     ibuffer-vc
@@ -1349,7 +1350,8 @@ See `basis/define-eval-keys'.")
   ("M-i"      #'helm-imenu)
   ("M-y"      #'helm-show-kill-ring)
   ("M-`"      #'helm-all-mark-rings)
-  ("<f1> SPC" #'helm-apropos))
+  ("<f1> SPC" #'helm-apropos)
+  ("<f1> b"   #'helm-descbinds))
 
 (define-prefix-command 'basis/helm-map)
 
