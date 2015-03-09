@@ -1154,11 +1154,6 @@ See `basis/define-eval-keys'.")
 (setq company-statistics-file "~/.emacs.d/var/company-statistics-cache.el")
 
 (with-eval-after-load 'company
-  (defadvice company-auto-begin (around no-freeze activate)
-    ;; Kludge to work around a problem I haven't figured out yet
-    (unless (and (eq major-mode 'python-mode)
-                 (basis/in-string-p))
-      ad-do-it))
   (basis/define-keys company-active-map
     ("TAB"    #'company-complete)
     ([tab]    #'company-complete)
@@ -1176,6 +1171,13 @@ See `basis/define-eval-keys'.")
      company-dabbrev))
   (setq company-minimum-prefix-length 2
         company-tooltip-flip-when-above t)
+  (advice-add 'company-auto-begin
+              :around
+              #'basis/company-no-completion-in-docstring)
+  (when (eq system-type 'windows-nt)
+    (advice-add 'company-auto-begin
+                :around
+                #'basis/company-no-tramp-completion))
   (with-eval-after-load 'cc-mode
     (-when-let (args (basis/build-clang-args 'c))
       (require 'company-clang)

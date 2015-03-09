@@ -1316,6 +1316,24 @@ the region isn't active."
   (let ((current-prefix-arg (not (use-region-p))))
     (call-interactively #'count-words-region)))
 
+(defun basis/company-no-completion-in-docstring (function)
+  ;; Advice for `company-auto-begin', to work around a bug I haven't figured
+  ;; out yet.
+  (unless (and (eq major-mode 'python-mode)
+               (basis/in-string-p))
+    (funcall function)))
+
+(defun basis/company-no-tramp-completion (function)
+  ;; Advice for `company-auto-begin', to work around TRAMP freezes on my Windows
+  ;; machine at work.
+  (unless (and (eq major-mode 'shell-mode)
+               ;; Skip backward to whitespace and see if we end up on something
+               ;; that looks like a TRAMP file name.
+               (save-excursion
+                 (skip-syntax-backward "^ ")
+                 (looking-at-p "\\w+@\\w+:/")))
+    (funcall function)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
