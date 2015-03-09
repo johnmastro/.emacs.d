@@ -1384,12 +1384,18 @@ See `basis/define-eval-keys'.")
       helm-split-window-in-side-p t
       helm-ff-file-name-history-use-recentf t
       helm-ff-search-library-in-sexp t
-      helm-buffers-fuzzy-matching t
-      helm-apropos-fuzzy-match t
-      helm-imenu-fuzzy-match t
       helm-quick-update t
       helm-truncate-lines t
       helm-imenu-execute-action-at-once-if-one nil)
+
+(setq helm-M-x-fuzzy-match t
+      helm-apropos-fuzzy-match t
+      helm-buffers-fuzzy-matching t
+      helm-imenu-fuzzy-match t
+      helm-lisp-fuzzy-completion t
+      helm-projectile-fuzzy-match t
+      helm-recentf-fuzzy-match t
+      helm-locate-fuzzy-match nil)
 
 (unless basis/system-man-p
   (setq helm-man-or-woman-function #'woman))
