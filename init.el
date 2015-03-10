@@ -1420,6 +1420,9 @@ See `basis/define-eval-keys'.")
   ;; I prefer M-s for this
   (define-key isearch-mode-map (kbd "M-i") nil))
 
+(when (eq system-type 'windows-nt)
+  (advice-add 'helm-open-file-externally :override #'basis/helm-open-file-w32))
+
 ;; To prevent a delay the first time I use M-x
 (when (eq (key-binding (kbd "M-x")) #'helm-M-x)
   (require 'helm-command))

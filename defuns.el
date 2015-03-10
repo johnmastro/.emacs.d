@@ -697,6 +697,47 @@ related hooks and key bindings."
   (kill-region (save-excursion (eshell-bol) (point))
                (save-excursion (move-end-of-line 1) (point))))
 
+;; helm ------------------------------------------------------------------------
+
+(defun basis/helm-backspace (n)
+  "Delete N chars backwards.
+If already at the beginning of the field, call
+`helm-keyboard-quit'."
+  (interactive "p")
+  (if (= n 1)
+      (condition-case nil
+          (backward-delete-char 1)
+        (error (helm-keyboard-quit)))
+    (backward-delete-char n)))
+
+(defvar basis/helm-w32-shell-operations
+  '("open"
+    "opennew"
+    "openas"
+    "print"
+    "printto"
+    "explore"
+    "edit"
+    "find"
+    "runas"
+    "properties"
+    "default")
+  "List of possible OPERATION arguments to `w32-shell-execute'.")
+
+(defun basis/helm-open-file-w32 (file)
+  ;; Used as :override advice to `helm-open-file-externally' on Windows
+  (let* ((operation (and helm-current-prefix-arg
+                         (helm-comp-read
+                          "Operation: "
+                          basis/helm-w32-shell-operations
+                          :must-match t
+                          :name "Open file externally"
+                          :del-input nil)))
+         (operation (if (string= operation "default")
+                        nil
+                      operation)))
+    (w32-shell-execute operation (expand-file-name file))))
+
 ;; dired -----------------------------------------------------------------------
 
 (defun basis/dired-jump-to-top ()
@@ -1282,17 +1323,6 @@ For use as a `mu4e' message action."
         (forward-line))
       (when kind
         (message "SLOC in %s: %d" kind count)))))
-
-(defun basis/helm-backspace (n)
-  "Delete N chars backwards.
-If already at the beginning of the field, call
-`helm-keyboard-quit'."
-  (interactive "p")
-  (if (= n 1)
-      (condition-case nil
-          (backward-delete-char 1)
-        (error (helm-keyboard-quit)))
-    (backward-delete-char n)))
 
 (defun basis/shr-html2text ()
   "Convert HTML to plain text in the current buffer using `shr'."
