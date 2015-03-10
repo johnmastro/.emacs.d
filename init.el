@@ -640,7 +640,8 @@ See `basis/define-eval-keys'.")
 ;; god-mode --------------------------------------------------------------------
 
 (defvar basis/god-exempt-major-modes
-  '(debugger-mode
+  '(compilation-mode
+    debugger-mode
     Info-mode
     completion-list-mode
     ack-and-a-half-mode
