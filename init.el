@@ -445,6 +445,7 @@
   ([remap kill-whole-line] #'basis/kill-line-backward)
   ("<C-delete>"            #'basis/smart-kill-whole-line)
   ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
+  ("ESC <deletechar>"      #'basis/smart-kill-almost-whole-line)
   ("<C-M-backspace>"       #'backward-kill-sexp)
   ("C-M-_"                 #'backward-kill-sexp))
 
