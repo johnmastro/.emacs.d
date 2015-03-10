@@ -561,9 +561,10 @@
   ("f" #'find-name-dired)
   ("F" #'find-dired)
   ("G" #'find-grep-dired)
-  ("m" #'basis/open-file-manager)
-  ("o" #'basis/open-files)
-  ("+" #'make-directory))
+  ("m" #'make-directory))
+
+;; Open one or more files externally, using the `helm-external' machinery
+(global-set-key (kbd "C-c C-x") #'basis/open-file-externally)
 
 ;; Emacs Lisp-style quotes
 (global-set-key (kbd "C-c q") #'basis/elisp-quote)

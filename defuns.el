@@ -402,50 +402,6 @@ touch the filesystem)."
     (when file
       (find-file file))))
 
-(defun basis/open-file-manager (dir)
-  "Open a system file manager at DIR.
-If called interactively, use `ido' to read the directory."
-  (interactive "DDirectory: ")
-  (if (eq system-type 'windows-nt)
-      (w32-shell-execute "explore" dir)
-    (shell-command
-     (format "%s %s"
-             (pcase system-type
-               (`gnu/linux  "nautilus")
-               (`darwin     "open")
-               (_ (error "No file manager known for: '%s'" system-type)))
-             dir))))
-
-(defun basis/open-file (file)
-  "Open FILE in an external program."
-  (let ((file (expand-file-name file)))
-    (if (file-exists-p file)
-        (pcase system-type
-          (`windows-nt (let ((f (replace-regexp-in-string "/" "\\" file t t)))
-                         (w32-shell-execute "open" f)))
-          (`darwin     (shell-command (format "open \"%s\"" file)))
-          (`gnu/linux  (let ((process-connection-type nil))
-                         (start-process "" nil "xdg-open" file)))
-          (_ (error "Don't know how to open files on system type '%s'"
-                    system-type)))
-      (error "File '%s' does not exist" file))))
-
-(defun basis/open-files (files)
-  "Open FILES in external programs.
-If in a `dired' buffer, open the marked files. Otherwise, open
-the file associated with the current buffer."
-  (interactive
-   (list (cond ((eq major-mode 'dired-mode)
-                (dired-get-marked-files))
-               ((buffer-file-name)
-                (list (buffer-file-name)))
-               (t
-                (error "No files to open")))))
-  (let ((count (length files)))
-    (when (or (<= count 5)
-              (y-or-n-p (format "Really open %d files?" count)))
-      (mapc #'basis/open-file files))))
-
 (defun basis/windows->unix (path)
   "Convert a path from Windows-style to UNIX-style."
   (->> path
@@ -738,6 +694,24 @@ If already at the beginning of the field, call
                       operation)))
     (w32-shell-execute operation (expand-file-name file))))
 
+(defun basis/open-file-externally (files)
+  "Open FILES externally.
+In `dired-mode', open the marked files; in `direx:direx-mode',
+open the file at point; otherwise, prompt for the file to open
+with `read-file-name'."
+  (interactive
+   (list (pcase major-mode
+           (`dired-mode
+            (dired-get-marked-files))
+           (`direx:direx-mode
+            (basis/direx-file-name-at-point))
+           (_
+            (read-file-name "File: ")))))
+  (require 'helm-external)
+  (let ((helm-current-prefix-arg current-prefix-arg))
+    (mapc #'helm-open-file-externally
+          (if (listp files) files (list files)))))
+
 ;; dired -----------------------------------------------------------------------
 
 (defun basis/dired-jump-to-top ()
@@ -810,6 +784,13 @@ If it doesn't exist, BUFFER is created automatically."
 (defun basis/direx-jump-to-project-root-other-window ()
   (interactive)
   (switch-to-buffer-other-window (basis/direx-jump-to-project-root-noselect)))
+
+(defun basis/direx-file-name-at-point (&optional point)
+  "Return the absolute file name of the item at POINT."
+  (ignore-errors
+    (-> (direx:item-at-point point)
+        (direx:item-name)
+        (direx:canonical-filename))))
 
 ;; emacs lisp ------------------------------------------------------------------
 
