@@ -1096,7 +1096,12 @@ See `basis/define-eval-keys'.")
 (with-eval-after-load 'magit
   (define-key magit-status-mode-map (kbd "q") #'basis/magit-quit-session)
   (setq magit-completing-read-function #'magit-ido-completing-read)
-  (setq magit-repo-dirs '("~/code/"))
+  (setq magit-repo-dirs
+        (->> (projectile-relevant-known-projects)
+          (seq-filter (lambda (dir)
+                        (file-directory-p (expand-file-name ".git" dir))))
+          (cons "~/code/")
+          (mapcar (lambda (dir) (substring dir 0 -1)))))
   ;; Tell magit where to find emacsclientw.exe on Windows
   (when (eq system-type 'windows-nt)
     (let ((exe (format "~/emacs/emacs-%s/bin/emacsclientw.exe"
