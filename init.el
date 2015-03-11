@@ -1419,7 +1419,10 @@ See `basis/define-eval-keys'.")
   (basis/define-keys helm-map
     ("TAB" #'helm-execute-persistent-action)
     ("M-s" #'helm-select-action)
-    ("DEL" #'basis/helm-backspace)))
+    ("DEL" #'basis/helm-backspace))
+  (setq helm-adaptive-history-file "~/.emacs.d/var/helm-adaptive-history")
+  (require 'helm-adaptive)
+  (helm-adaptive-mode))
 
 (with-eval-after-load 'helm-files
   (basis/define-keys helm-find-files-map
