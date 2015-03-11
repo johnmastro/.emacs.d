@@ -166,6 +166,9 @@
                                       "-let"
                                       "-lambda"))
 
+(dolist (sym '(-> ->> -->))
+  (put sym 'lisp-indent-function 1))
+
 ;; os x ------------------------------------------------------------------------
 
 ;; A graphical Emacs on OS X doesn't automatically inherit $PATH
