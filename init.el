@@ -1407,10 +1407,16 @@ See `basis/define-eval-keys'.")
 
 (with-eval-after-load 'helm
   (require 'helm-utils) ; For the `helm-selection-line' face
-  (define-key helm-map (kbd "DEL") #'basis/helm-backspace))
+  (basis/define-keys helm-map
+    ("TAB" #'helm-execute-persistent-action)
+    ("M-s" #'helm-select-action)
+    ("DEL" #'basis/helm-backspace)))
 
 (with-eval-after-load 'helm-files
-  (define-key helm-find-files-map (kbd "DEL") #'basis/helm-backspace))
+  (basis/define-keys helm-find-files-map
+    ("TAB"   #'helm-execute-persistent-action)
+    ("M-s"   #'helm-select-action)
+    ("DEL"   #'basis/helm-backspace)))
 
 ;; `helm-swoop' config
 (setq helm-swoop-use-line-number-face t)
