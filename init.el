@@ -558,6 +558,7 @@
 (global-set-key (kbd "C-c f") 'basis/buffer-file-map)
 
 (basis/define-keys basis/buffer-file-map
+  ("c" #'helm-locate)
   ("d" #'basis/diff-buffer-with-file)
   ("r" #'basis/rename-current-buffer-file)
   ("D" #'basis/delete-current-buffer-file)
