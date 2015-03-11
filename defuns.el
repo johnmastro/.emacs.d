@@ -712,6 +712,12 @@ with `read-file-name'."
     (mapc #'helm-open-file-externally
           (if (listp files) files (list files)))))
 
+(defun basis/helm-ff-run-magit-status ()
+  "Run `magit-status' from `helm-source-find-files'."
+  (interactive)
+  (with-helm-alive-p
+    (helm-quit-and-execute-action #'magit-status)))
+
 ;; dired -----------------------------------------------------------------------
 
 (defun basis/dired-jump-to-top ()

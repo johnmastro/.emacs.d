@@ -1416,7 +1416,8 @@ See `basis/define-eval-keys'.")
   (basis/define-keys helm-find-files-map
     ("TAB"   #'helm-execute-persistent-action)
     ("M-s"   #'helm-select-action)
-    ("DEL"   #'basis/helm-backspace)))
+    ("DEL"   #'basis/helm-backspace)
+    ("C-x g" #'basis/helm-ff-run-magit-status)))
 
 ;; `helm-swoop' config
 (setq helm-swoop-use-line-number-face t)
