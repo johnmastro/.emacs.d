@@ -1647,40 +1647,6 @@ Use `slime-expand-1' to produce the expansion."
     (goto-char (point-max)))
   (comint-next-input arg))
 
-;; gdb -------------------------------------------------------------------------
-
-(defun basis/gdb-a-few-windows ()
-  "Create a three-window GDB configuration.
-The three buffers are the GUD buffer, the source buffer, and the
-locals buffer. Based on `gdb-many-windows', but without quite so
-many windows."
-  (interactive)
-  (when (and gud-comint-buffer
-             (buffer-name gud-comint-buffer))
-    (ignore-errors
-      (basis/gdb-setup-windows))))
-
-(defun basis/gdb-setup-windows ()
-  ;; Based on `gdb-setup-windows', but creating a simpler configuration with
-  ;; fewer windows (just GUD, source, and locals).
-  (switch-to-buffer gud-comint-buffer)
-  (delete-other-windows)
-  (let* ((win0 (selected-window))
-         (win1 (split-window-right))
-         (win2 (with-selected-window win1 (split-window-below))))
-    (gdb-set-window-buffer (gdb-locals-buffer-name) nil win2)
-    (set-window-buffer
-     win1
-     (cond (gud-last-last-frame
-            (gud-find-file (car gud-last-last-frame)))
-           (gdb-main-file
-            (gud-find-file gdb-main-file))
-           (t
-            ;; Put buffer list in window if we can't find a source file.
-            (list-buffers-noselect))))
-    (setq gdb-source-window win1)
-    (select-window win0)))
-
 ;; org-mode --------------------------------------------------------------------
 
 (defun basis/process-clojure-output (s)
