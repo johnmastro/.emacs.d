@@ -136,7 +136,7 @@ If BUFFER is nil, use the current buffer."
 If PATTERN is non-nil, only include matching files (via
 `file-expand-wildcards')."
   (interactive
-   (list (ido-read-directory-name "Directory: " nil nil t)
+   (list (read-directory-name "Directory: " nil nil t)
          (when current-prefix-arg
            (read-string "Pattern: "))))
   (let ((files (file-expand-wildcards (expand-file-name (or pattern "*")
@@ -227,13 +227,13 @@ If `subword-mode' is active, use `subword-backward-kill'."
 If BASENAME is non-nil, save only its base name. Otherwise save
 its full path."
   (interactive
-   (list (ido-completing-read "Buffer: "
-                              (delq nil (mapcar (lambda (buf)
-                                                  (when (buffer-file-name buf)
-                                                    (buffer-name buf)))
-                                                (buffer-list)))
-                              nil
-                              t)
+   (list (completing-read "Buffer: "
+                          (delq nil (mapcar (lambda (buf)
+                                              (when (buffer-file-name buf)
+                                                (buffer-name buf)))
+                                            (buffer-list)))
+                          nil
+                          t)
          current-prefix-arg))
   (let ((filename (buffer-file-name (get-buffer buffer))))
     (basis/kill-ring-save-string
@@ -394,11 +394,11 @@ touch the filesystem)."
   ;; Used in `recentf-exclude'
   (string= "COMMIT_EDITMSG" (file-name-nondirectory file)))
 
-(defun basis/ido-recentf ()
+(defun basis/find-file-recentf ()
   "Find recently open files using ido and recentf."
   (interactive)
   (let* ((list (mapcar #'abbreviate-file-name recentf-list))
-         (file (ido-completing-read "Recent file: " list nil t)))
+         (file (completing-read "Recent file: " list nil t)))
     (when file
       (find-file file))))
 
@@ -744,10 +744,10 @@ with `read-file-name'."
   "Sort this `dired-mode' buffer by WHAT.
 WHAT must be an option in `dired-sorting-options'."
   (interactive
-   (list (ido-completing-read "Sort by: "
-                              (mapcar #'car basis/dired-sorting-options)
-                              nil
-                              t)))
+   (list (completing-read "Sort by: "
+                          (mapcar #'car basis/dired-sorting-options)
+                          nil
+                          t)))
   ;; This assumes we can slap the sort option on the end of
   ;; `dired-listing-switches'. It works with my current setup (and the default
   ;; value) but is fragile and unsatisfactory.
@@ -762,7 +762,7 @@ If it doesn't exist, BUFFER is created automatically."
   (interactive (list (if (eq major-mode 'dired-mode)
                          (dired-get-marked-files)
                        (error "Buffer not in `dired-mode'"))
-                     (ido-read-buffer "Destination buffer: ")))
+                     (read-buffer "Destination buffer: ")))
   (basis/insert-files files (get-buffer-create buffer)))
 
 ;; direx -----------------------------------------------------------------------
@@ -948,20 +948,20 @@ least one buffer is visiting a file."
                   (eq mode major-mode)))
               (buffer-list)))
 
-(defun basis/ido-read-mode (prompt &optional choices)
+(defun basis/read-mode (prompt &optional choices)
   "Read the name of a major mode.
 Optional argument CHOICES should, if provided, be a list of
 symbols naming major modes."
   (let ((choices (or choices (basis/active-major-modes))))
-    (intern (ido-completing-read prompt
-                                 (mapcar #'symbol-name choices)
-                                 nil
-                                 t))))
+    (intern (completing-read prompt
+                             (mapcar #'symbol-name choices)
+                             nil
+                             t))))
 
 (defun basis/multi-occur-by-mode (mode regexp &optional nlines)
   "Run `multi-occur' on all buffers in MODE.
 REGEXP and NLINES are passed on to `multi-occur' unchanged."
-  (interactive (cons (basis/ido-read-mode "Mode: " (basis/active-major-modes t))
+  (interactive (cons (basis/read-mode "Mode: " (basis/active-major-modes t))
                      (occur-read-primary-args)))
   (multi-occur (basis/find-mode-buffers mode)
                regexp
@@ -1034,7 +1034,7 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
                         (not ack-and-a-half-regexp-search)
                       ack-and-a-half-regexp-search))
          (pattern   (read-from-minibuffer "Ack: "))
-         (directory (ido-read-directory-name "Directory: " default-dir nil t)))
+         (directory (read-directory-name "Directory: " default-dir nil t)))
     (ack-and-a-half pattern regexp-p directory)))
 
 (defun basis/ack-here (&optional arg)
@@ -1270,9 +1270,9 @@ kill the current session even if there are multiple frames."
 With a prefix arg, prompt for both BUFFER and FILE. Otherwise,
 only prompt for BUFFER and use its associated file as FILE."
   (interactive
-   (list (ido-read-buffer "Buffer: " (buffer-name) t)
+   (list (read-buffer "Buffer: " (buffer-name) t)
          (unless current-prefix-arg
-           (ido-read-file-name "File: " nil nil t))))
+           (read-file-name "File: " nil nil t))))
   (with-current-buffer (get-buffer (or buffer (current-buffer)))
     (diff (or file buffer-file-name) (current-buffer) nil 'noasync)))
 
@@ -1790,7 +1790,7 @@ With arg N, move backward that many times."
 (defun basis/recapitalize-sql-buffer (style)
   "Recapitalize the current buffer to STYLE (caps or none)."
   (interactive
-   (list (intern (ido-completing-read  "Style: " '("caps" "none") nil t))))
+   (list (intern (completing-read  "Style: " '("caps" "none") nil t))))
   (unless (memq style '(caps none))
     (error "Unknown capitalization style '%s'" style))
   (when (or (eq major-mode 'sql-mode)

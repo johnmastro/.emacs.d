@@ -1328,7 +1328,7 @@ See `basis/define-eval-keys'.")
 (ido-vertical-mode 1)
 (ido-at-point-mode 1)
 
-(global-set-key (kbd "C-x C-r") #'basis/ido-recentf)
+(global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
 
 ;; For ido-powered completion at point. Need a better key binding for this.
 (global-set-key (kbd "C-c TAB") #'completion-at-point)
