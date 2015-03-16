@@ -582,6 +582,10 @@
   ("l" #'basis/count-sloc-region)
   ("s" #'sort-lines))
 
+;; Mnemonic: "top" and "end"
+(global-set-key (kbd "C-c t") #'beginning-of-buffer)
+(global-set-key (kbd "C-c e") #'end-of-buffer)
+
 ;; These are mostly useful with `god-mode'
 (basis/define-keys global-map
   ("C-x C-0" #'delete-window)
