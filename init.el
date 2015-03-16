@@ -654,7 +654,8 @@ See `basis/define-eval-keys'.")
     Info-mode
     completion-list-mode
     ack-and-a-half-mode
-    cider-repl-mode))
+    cider-repl-mode
+    Man-mode))
 
 (with-eval-after-load 'god-mode
   (require 'god-mode-isearch)
