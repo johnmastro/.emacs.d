@@ -108,6 +108,7 @@
     smartparens
     smex
     ssh-config-mode
+    swiper
     sx
     tagedit
     undo-tree
@@ -1456,6 +1457,10 @@ See `basis/define-eval-keys'.")
 ;; To prevent a delay the first time I use M-x
 (when (eq (key-binding (kbd "M-x")) #'helm-M-x)
   (require 'helm-command))
+
+;; swiper ----------------------------------------------------------------------
+
+(global-set-key (kbd "C-s") #'swiper)
 
 ;; hippie expand ---------------------------------------------------------------
 
