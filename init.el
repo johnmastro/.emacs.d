@@ -1186,6 +1186,9 @@ See `basis/define-eval-keys'.")
   (advice-add 'company-auto-begin
               :around
               #'basis/company-no-completion-in-docstring)
+  (advice-add 'company-auto-begin
+              :around
+              #'basis/company-sh-no-complete-fi)
   (when (eq system-type 'windows-nt)
     (advice-add 'company-auto-begin
                 :around

@@ -1351,6 +1351,15 @@ the region isn't active."
                  (looking-at-p "\\w+@\\w+:/")))
     (funcall function)))
 
+(defun basis/company-sh-no-complete-fi (function)
+  ;; Advice for `company-auto-begin' to prevent completion on "fi" in `sh-mode'.
+  ;; I find the interaction between this and electric indentation annoying.
+  (unless (and (eq major-mode 'sh-mode)
+               (save-excursion
+                 (forward-char -2)
+                 (looking-at-p "\\_<fi\\_>")))
+    (funcall function)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
