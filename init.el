@@ -1408,7 +1408,8 @@ See `basis/define-eval-keys'.")
       helm-ff-search-library-in-sexp t
       helm-quick-update t
       helm-truncate-lines t
-      helm-imenu-execute-action-at-once-if-one nil)
+      helm-imenu-execute-action-at-once-if-one nil
+      helm-display-header-line nil)
 
 (setq helm-M-x-fuzzy-match t
       helm-apropos-fuzzy-match t
@@ -1428,6 +1429,7 @@ See `basis/define-eval-keys'.")
     ("TAB" #'helm-execute-persistent-action)
     ("M-s" #'helm-select-action)
     ("DEL" #'basis/helm-backspace))
+  (set-face-attribute 'helm-source-header nil :height 1.0)
   (setq helm-adaptive-history-file "~/.emacs.d/var/helm-adaptive-history")
   (require 'helm-adaptive)
   (helm-adaptive-mode))
