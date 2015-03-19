@@ -92,6 +92,7 @@
     multiple-cursors
     page-break-lines
     paredit
+    pcre2el
     persistent-soft
     php-mode
     projectile
