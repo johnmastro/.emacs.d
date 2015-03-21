@@ -580,6 +580,7 @@
 (global-set-key (kbd "C-c r") 'basis/region-map)
 
 (basis/define-keys basis/region-map
+  ("a" #'align)
   ("c" #'basis/count-words)
   ("l" #'basis/count-sloc-region)
   ("s" #'sort-lines))
