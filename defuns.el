@@ -941,6 +941,14 @@ point is used instead, if any."
   (browse-url (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                       number)))
 
+(defun basis/upgrade-emacs-packages ()
+  "Upgrade all installed ELPA packages."
+  (interactive)
+  (save-window-excursion
+    (package-list-packages)
+    (package-menu-mark-upgrades)
+    (package-menu-execute t)))
+
 ;; occur -----------------------------------------------------------------------
 
 (defun basis/active-major-modes (&optional files-only)
