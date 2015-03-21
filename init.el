@@ -8,14 +8,35 @@
           (funcall mode -1)))
       '(menu-bar-mode tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode))
 
+(defconst basis/emacs-dir
+  (file-name-directory (file-chase-links load-file-name))
+  "This Emacs's configuration directory.")
+
+(defun basis/emacs-dir (name &optional create)
+  "Return directory NAME expanded in `basis/emacs-dir'.
+If CREATE is non-nil, create the directory (including parents) if
+it doesn't exist."
+  (if (string-suffix-p "/" name)
+      (let ((dir (expand-file-name name basis/emacs-dir)))
+        (when (and create (not (file-directory-p dir)))
+          (make-directory dir t))
+        dir)
+    ;; This isn't actually necessary but will catch places I meant to use
+    ;; `basis/emacs-file' instead
+    (error "Directory name should end with a slash")))
+
+(defun basis/emacs-file (name)
+  "Return file NAME expanded in `basis/emacs-dir'."
+  (if (not (string-suffix-p "/" name))
+      (expand-file-name name basis/emacs-dir)
+    (error "File name should not end with a slash")))
+
 ;; Make sure some directories exist
 (dolist (dir '("var/" "var/autosaves/" "tmp/"))
-  (let ((path (expand-file-name dir "~/.emacs.d/")))
-    (unless (file-exists-p path)
-      (make-directory path))))
+  (basis/emacs-dir dir 'create))
 
 ;; Set up the load path
-(add-to-list 'load-path "~/.emacs.d/site-lisp/")
+(add-to-list 'load-path (basis/emacs-dir "site-lisp/" 'create))
 
 ;; Enable auto-compile
 (setq load-prefer-newer t)
@@ -29,6 +50,8 @@
     (setq source-directory source)))
 
 ;; package ---------------------------------------------------------------------
+
+(setq package-user-dir (basis/emacs-dir "elpa/"))
 
 (require 'package)
 
@@ -141,11 +164,11 @@
 (autoload 'tramp-tramp-file-p "tramp"
   "Return t if NAME is a string with Tramp file name syntax.")
 
-(load "~/.emacs.d/defuns.el")
+(load (basis/emacs-file "defuns.el"))
 
 (defun basis/maybe-load-local-init ()
-  "Load \"~/.emacs.d/local.el\" if it exists."
-  (let ((local "~/.emacs.d/local.el"))
+  "Load \"local.el\" if it exists."
+  (let ((local (basis/emacs-file "local.el")))
     (when (file-exists-p local)
       (load local))))
 
@@ -235,12 +258,12 @@
       imenu-auto-rescan t
       next-line-add-newlines t
       apropos-do-all t
-      custom-file "~/.emacs.d/custom.el"
+      custom-file (basis/emacs-file "custom.el")
       scroll-preserve-screen-position t
       delete-by-moving-to-trash t
-      server-auth-dir "~/.emacs.d/var/server/"
-      bookmark-default-file "~/.emacs.d/var/bookmarks"
-      url-configuration-directory "~/.emacs.d/var/url/"
+      server-auth-dir (basis/emacs-dir "var/server/")
+      bookmark-default-file (basis/emacs-file "var/bookmarks")
+      url-configuration-directory (basis/emacs-dir "var/url/")
       gc-cons-threshold 20000000 ; 20MB
       bookmark-save-flag 1)
 
@@ -290,11 +313,14 @@
   (add-hook 'before-save-hook #'basis/maybe-set-coding))
 
 ;; Backups, autosaves, and temporary files
-(setq backup-by-copying t
-      backup-directory-alist `((".*" . "~/.emacs.d/var/backups/"))
-      auto-save-file-name-transforms `((".*" "~/.emacs.d/var/autosaves/" t))
-      auto-save-list-file-prefix "~/.emacs.d/var/auto-save-list/.saves-"
-      temporary-file-directory "~/.emacs.d/tmp/")
+(setq backup-by-copying t)
+(setq backup-directory-alist
+      `((".*" . ,(basis/emacs-dir "var/backups/"))))
+(setq auto-save-file-name-transforms
+      `((".*" ,(basis/emacs-dir "var/autosaves/") t)))
+(setq auto-save-list-file-prefix
+      (concat (basis/emacs-dir "var/auto-save-list/") ".saves-"))
+(setq temporary-file-directory (basis/emacs-dir "tmp/"))
 
 ;; Automatically refresh buffers
 (global-auto-revert-mode 1)
@@ -337,7 +363,7 @@
 
 (advice-add 'load-theme :after #'basis/less-italic)
 
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized/")
+(add-to-list 'custom-theme-load-path (basis/emacs-dir "themes/solarized/"))
 
 (load-theme 'solarized-dark t)
 
@@ -371,8 +397,8 @@
 ;; info ------------------------------------------------------------------------
 
 (with-eval-after-load 'info
-  (let ((info-path "~/.emacs.d/doc/info"))
-    (when (file-exists-p info-path)
+  (let ((info-path (basis/emacs-dir "doc/info/")))
+    (when (file-directory-p info-path)
       (add-to-list 'Info-additional-directory-list info-path))))
 
 ;; uniquify --------------------------------------------------------------------
@@ -741,7 +767,7 @@ See `basis/define-eval-keys'.")
 (recentf-mode 1)
 
 (setq recentf-max-saved-items 50
-      recentf-save-file "~/.emacs.d/var/recentf"
+      recentf-save-file (basis/emacs-file "var/recentf")
       recentf-exclude (list #'tramp-tramp-file-p
                             #'basis/git-file-p
                             #'file-remote-p))
@@ -754,7 +780,7 @@ See `basis/define-eval-keys'.")
           "plinkx"
         "sshx"))
 
-(setq tramp-persistency-file-name "~/.emacs.d/var/tramp/")
+(setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
 
 ;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
 (when basis/cygwin-p
@@ -870,7 +896,7 @@ See `basis/define-eval-keys'.")
   ("C->" #'mc/mark-next-like-this)
   ("C-<" #'mc/mark-previous-like-this))
 
-(setq mc/list-file "~/.emacs.d/var/mc-lists.el")
+(setq mc/list-file (basis/emacs-file "var/mc-lists.el"))
 
 (with-eval-after-load 'multiple-cursors-core
   ;; Make RET exit multiple-cursors-mode in the terminal too
@@ -882,14 +908,14 @@ See `basis/define-eval-keys'.")
 
 (setq-default save-place t)
 
-(setq save-place-file "~/.emacs.d/var/places")
+(setq save-place-file (basis/emacs-file "var/places"))
 
 ;; savehist --------------------------------------------------------------------
 
 (require 'savehist)
 
 (setq savehist-additional-variables '(search-ring regexp-search-ring)
-      savehist-file "~/.emacs.d/var/history")
+      savehist-file (basis/emacs-file "var/history"))
 
 (savehist-mode t)
 
@@ -933,7 +959,7 @@ See `basis/define-eval-keys'.")
   (basis/maybe-enable-flyspell)
   (setq-local org-footnote-tag-for-non-org-mode-files nil))
 
-(setq message-auto-save-directory "~/.emacs.d/tmp/"
+(setq message-auto-save-directory (basis/emacs-dir "tmp/")
       message-subject-trailing-was-query nil)
 
 (add-hook 'message-mode-hook #'basis/init-message-mode)
@@ -1006,7 +1032,7 @@ See `basis/define-eval-keys'.")
 
 ;; Temporary fix for bug #19074
 (when (string= emacs-version "24.4.1")
-  (load "~/.emacs.d/auth-source-fix.el"))
+  (load (basis/emacs-file "auth-source-fix.el")))
 
 (defun basis/init-mu4e-compose-mode ()
   (turn-on-auto-fill)
@@ -1020,10 +1046,10 @@ See `basis/define-eval-keys'.")
 
 ;; elfeed ----------------------------------------------------------------------
 
-(setq elfeed-db-directory "~/.emacs.d/var/elfeed/")
+(setq elfeed-db-directory (basis/emacs-dir "var/elfeed/"))
 
-(when (file-exists-p "~/.emacs.d/feeds.el")
-  (setq elfeed-feeds (basis/elfeed-load-feeds "~/.emacs.d/feeds.el")))
+(when (file-exists-p (basis/emacs-file "feeds.el"))
+  (setq elfeed-feeds (basis/elfeed-load-feeds (basis/emacs-file "feeds.el"))))
 
 ;; eww -------------------------------------------------------------------------
 
@@ -1046,7 +1072,7 @@ See `basis/define-eval-keys'.")
 
 ;; sx --------------------------------------------------------------------------
 
-(setq sx-cache-directory "~/.emacs.d/var/sx/")
+(setq sx-cache-directory (basis/emacs-dir "var/sx/"))
 
 (defun basis/init-sx-question-mode ()
   (toggle-truncate-lines -1))
@@ -1171,7 +1197,8 @@ See `basis/define-eval-keys'.")
 (add-hook 'after-init-hook #'global-company-mode)
 (add-hook 'after-init-hook #'company-statistics-mode t)
 
-(setq company-statistics-file "~/.emacs.d/var/company-statistics-cache.el")
+(setq company-statistics-file
+      (basis/emacs-file "var/company-statistics-cache.el"))
 
 (with-eval-after-load 'company
   (basis/define-keys company-active-map
@@ -1298,7 +1325,7 @@ See `basis/define-eval-keys'.")
 
 ;; eshell ----------------------------------------------------------------------
 
-(setq eshell-directory-name "~/.emacs.d/var/eshell/")
+(setq eshell-directory-name (basis/emacs-dir "var/eshell/"))
 
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map
@@ -1330,7 +1357,7 @@ See `basis/define-eval-keys'.")
       ido-use-faces nil
       ido-max-prospects 10
       ido-ignore-extensions t
-      ido-save-directory-list-file "~/.emacs.d/var/ido.last"
+      ido-save-directory-list-file (basis/emacs-file "var/ido.last")
       flx-ido-threshhold 10000)
 
 (ido-everywhere 1)
@@ -1356,7 +1383,7 @@ See `basis/define-eval-keys'.")
 
 ;; smex ------------------------------------------------------------------------
 
-(setq smex-save-file "~/.emacs.d/var/smex-items")
+(setq smex-save-file (basis/emacs-file "var/smex-items"))
 
 (basis/define-keys global-map
   ;; ("M-x"     #'smex)
@@ -1434,7 +1461,8 @@ See `basis/define-eval-keys'.")
     ("M-s" #'helm-select-action)
     ("DEL" #'basis/helm-backspace))
   (set-face-attribute 'helm-source-header nil :height 1.0)
-  (setq helm-adaptive-history-file "~/.emacs.d/var/helm-adaptive-history")
+  (setq helm-adaptive-history-file
+        (basis/emacs-file "var/helm-adaptive-history"))
   (require 'helm-adaptive)
   (helm-adaptive-mode))
 
@@ -1485,16 +1513,18 @@ See `basis/define-eval-keys'.")
     ("TAB"   nil)
     ([(tab)] nil))
   (define-key yas-keymap (kbd "RET") #'yas-exit-all-snippets)
-  (setq yas-snippet-dirs '("~/.emacs.d/snippets/")
+  (setq yas-snippet-dirs (list (basis/emacs-dir "snippets/"))
         yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
         yas-wrap-around-region t))
 
 ;; projectile ------------------------------------------------------------------
 
 (setq projectile-keymap-prefix (kbd "C-h p")
-      projectile-completion-system 'ido
-      projectile-known-projects-file "~/.emacs.d/var/projectile-bookmarks.eld"
-      projectile-cache-file "~/.emacs.d/var/projectile.cache")
+      projectile-completion-system 'ido)
+
+(setq projectile-known-projects-file
+      (basis/emacs-file "var/projectile-bookmarks.eld"))
+(setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
 
 ;; Projectile defaults to native indexing on Windows, but if we have Cygwin
 ;; set up we can use "alien".
@@ -1579,7 +1609,7 @@ See `basis/define-eval-keys'.")
 
 (defun basis/init-emacs-lisp-mode ()
   (let ((name buffer-file-name))
-    (unless (and name (string= name (expand-file-name "~/.emacs.d/init.el")))
+    (unless (and name (string= name (basis/emacs-file "init.el")))
       (basis/maybe-enable-flycheck))))
 
 (dolist (hook basis/emacs-lisp-hooks)
@@ -2274,7 +2304,7 @@ two tags."
 
 ;; debbugs ---------------------------------------------------------------------
 
-(setq debbugs-gnu-persistency-file "~/.emacs.d/var/debbugs")
+(setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs"))
 
 ;; ssh-config-mode -------------------------------------------------------------
 

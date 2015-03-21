@@ -2009,7 +2009,7 @@ multiple-document stream."
 ;; lorem ipsum -----------------------------------------------------------------
 
 (defvar basis/lorem-ipsum-file
-  (let ((filename (expand-file-name "~/.emacs.d/lorem-ipsum.txt")))
+  (let ((filename (expand-file-name (basis/emacs-file "lorem-ipsum.txt"))))
     (when (file-exists-p filename)
       filename)))
 
