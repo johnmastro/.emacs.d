@@ -1086,8 +1086,7 @@ input."
            (insert (current-kill 0)))))
 
 (defun basis/goto-line-with-numbers ()
-  "Invoke `goto-line' with `linum-mode' temporarily enabled.
-If `linum-mode' was already enabled just call `goto-line'."
+  "Invoke `goto-line' with `linum-mode' temporarily enabled."
   (interactive)
   (let ((linum-enabled-p (bound-and-true-p linum-mode)))
     (unwind-protect
@@ -1373,6 +1372,19 @@ the region isn't active."
                  (forward-char -2)
                  (looking-at-p "\\_<fi\\_>")))
     (funcall function)))
+
+(defun basis/visit-pull-request-url ()
+  "Visit the current branch's PR on GitHub."
+  (interactive)
+  (browse-url
+   (format "https://github.com/%s/compare/%s"
+           (replace-regexp-in-string
+            "\\`.+github\\.com:\\(.+\\)\\.git\\'"
+            "\\1"
+            (magit-get "remote"
+                       (magit-get-current-remote)
+                       "url"))
+           (magit-get-current-branch))))
 
 ;; paredit ---------------------------------------------------------------------
 
