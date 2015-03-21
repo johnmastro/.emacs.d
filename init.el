@@ -1407,6 +1407,7 @@ See `basis/define-eval-keys'.")
 
 (setq helm-split-window-default-side 'other
       helm-split-window-in-side-p t
+      helm-ff-newfile-prompt-p nil
       helm-ff-file-name-history-use-recentf t
       helm-ff-search-library-in-sexp t
       helm-quick-update t
