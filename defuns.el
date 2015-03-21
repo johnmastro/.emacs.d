@@ -927,6 +927,20 @@ point is used instead, if any."
     (goto-char end)
     (insert "'")))
 
+(defun basis/bug-number-at-point ()
+  "Return the bug number at point, if any, as a string."
+  (save-excursion
+    (skip-syntax-backward "^ " (line-beginning-position))
+    (when (looking-at "#?\\([0-9]+\\)")
+      (match-string 1))))
+
+(defun basis/browse-emacs-bug (&optional number)
+  "Load Emacs bug NUMBER in a web browser."
+  (interactive (list (or (basis/bug-number-at-point)
+                         (read-string "Bug number: "))))
+  (browse-url (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
+                      number)))
+
 ;; occur -----------------------------------------------------------------------
 
 (defun basis/active-major-modes (&optional files-only)
