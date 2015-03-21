@@ -95,6 +95,7 @@ it doesn't exist."
     haskell-mode
     helm
     helm-descbinds
+    helm-make
     helm-projectile
     helm-swoop
     ibuffer-vc
