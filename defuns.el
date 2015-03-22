@@ -155,27 +155,41 @@ If PATTERN is non-nil, only include matching files (via
     (delete-region beg end)
     (insert "[snip]\n")))
 
+(defvar-local basis/smart-hyphen-code-only t
+  "Whether to only perform hyphen substitutions in code.")
+
+(defvar-local basis/smart-hyphen-style 'snake
+  "The style of substitutions to perform: snake or camel.")
+
 (defun basis/smart-hyphen (n)
   "Conditionally insert a hyphen or upcase the next char."
   (interactive "p")
-  (if (memq (get-text-property (point) 'face)
-            '(font-lock-doc-face
-              font-lock-comment-face
-              font-lock-string-face))
+  (if (or (not basis/smart-hyphen-style)
+          (and basis/smart-hyphen-code-only
+               (memq (get-text-property (point) 'face)
+                     '(font-lock-doc-face
+                       font-lock-comment-face
+                       font-lock-string-face))))
       (self-insert-command n)
     (insert "-")
     (let ((command (key-binding (vector (read-event)))))
       (if (eq command 'self-insert-command)
           (insert (let ((next (elt (this-command-keys) 1)))
                     (if (and (eq ?w (char-syntax next))
-                             ;; TODO: Do these next two conditions always make
-                             ;; sense?
-                             (not (eq (upcase next) next))
+                             ;; TODO: Do these next conditions make sense?
+                             (>= ?z next ?A)
                              (not (save-excursion
                                     (forward-char -2)
                                     (looking-at-p "[0-9]"))))
-                        (progn (delete-char -1)
-                               (upcase next))
+                        (pcase basis/smart-hyphen-style
+                          (`camel
+                           (delete-char -1)
+                           (upcase next))
+                          (`snake
+                           (delete-char -1)
+                           (format "_%c" next))
+                          (other
+                           (error "Unknown smart hyphen style: %s" other)))
                       next)))
         (call-interactively command)))))
 
@@ -1599,6 +1613,16 @@ activate it."
     (when (and env (y-or-n-p (format "Activate venv (%s)? " env)))
       (pyvenv-activate env)))
   (call-interactively #'run-python))
+
+(defun basis/reformat-docstring (beg end)
+  "Reformat the region from BEG to END as a Python docstring."
+  (interactive "r")
+  (unless (use-region-p)
+    (user-error "No active region"))
+  ;; TODO: Handle the module name and underline specially
+  (let ((fill-column 68))
+    (fill-region beg end))
+  (indent-rigidly beg end 4))
 
 ;; slime -----------------------------------------------------------------------
 
