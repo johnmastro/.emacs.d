@@ -193,6 +193,12 @@ If PATTERN is non-nil, only include matching files (via
                       next)))
         (call-interactively command)))))
 
+(defun basis/swiper-helm ()
+  (interactive)
+  (require 'swiper-helm)
+  (let ((helm-move-to-line-cycle-in-source t))
+    (call-interactively #'swiper-helm)))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun basis/kill-something (arg)

@@ -134,6 +134,7 @@ it doesn't exist."
     smex
     ssh-config-mode
     swiper
+    swiper-helm
     sx
     tagedit
     undo-tree
@@ -1496,6 +1497,7 @@ See `basis/define-eval-keys'.")
 (setq swiper-min-highlight 1)
 
 (global-set-key (kbd "C-s") #'swiper)
+(global-set-key (kbd "C-r") #'basis/swiper-helm)
 
 ;; hippie expand ---------------------------------------------------------------
 
