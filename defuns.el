@@ -1189,6 +1189,26 @@ If no keymap is found, return nil."
         ido-exit 'fallback)
   (exit-minibuffer))
 
+(defun basis/ido-selected-file ()
+  "Return the current selection during `ido' file completion.
+Return the current directory if no text is entered or there are
+no matches."
+  (if (or (string= ido-text "")
+          (null ido-matches))
+      default-directory
+    (expand-file-name (car ido-matches) default-directory)))
+
+(defun basis/ido-open-file-externally-internal (file)
+  (interactive (list (basis/ido-selected-file)))
+  (helm-open-file-externally file))
+
+(defun basis/ido-open-file-externally ()
+  "Open a file externally during `ido' completion."
+  (interactive)
+  (setq fallback 'basis/ido-open-file-externally-internal
+        ido-exit 'fallback)
+  (exit-minibuffer))
+
 (defun basis/ido-sort-files-by-modtime ()
   "Sort ido matches my modification time, descending."
   (interactive)
