@@ -811,13 +811,6 @@ See `basis/define-eval-keys'.")
 
 ;; isearch ---------------------------------------------------------------------
 
-;; Regexp search by default
-(basis/define-keys global-map
-  ("C-s"   #'isearch-forward-regexp)
-  ("C-r"   #'isearch-backward-regexp)
-  ("C-M-s" #'isearch-forward)
-  ("C-M-r" #'isearch-backward))
-
 ;; Like C-w but the current region or symbol
 (define-key isearch-mode-map (kbd "C-t") #'basis/isearch-yank-something)
 
