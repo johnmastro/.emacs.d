@@ -698,6 +698,8 @@ See `basis/define-eval-keys'.")
   (dolist (mode basis/god-exempt-major-modes)
     (add-to-list 'god-exempt-major-modes mode)))
 
+(basis/enable-god-mode)
+
 ;; tmux ------------------------------------------------------------------------
 
 ;; A number of non-alphanumeric keys don't work by default when Emacs is
