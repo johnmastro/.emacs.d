@@ -1493,6 +1493,11 @@ See `basis/define-eval-keys'.")
 (global-set-key (kbd "C-s") #'swiper)
 (global-set-key (kbd "C-r") #'basis/swiper-helm)
 
+(with-eval-after-load 'swiper
+  ;; M-q is nicer, but M-% is more forgiving to my muscle memory
+  (define-key swiper-map (kbd "M-q") #'basis/swiper-query-replace)
+  (define-key swiper-map (kbd "M-%") #'basis/swiper-query-replace))
+
 ;; hippie expand ---------------------------------------------------------------
 
 (global-set-key (kbd "M-/") #'hippie-expand)
