@@ -578,13 +578,59 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
            ;; guide-key
            (guide-key/key-face ((t (,@fg-blue))))
            ;; helm
+           (helm-source-header ((t (,@bg-blue ,@fg-base03 ,@fmt-none))))
+           (helm-visible-mark ((t (,@bg-green ,@fg-base3))))
            (helm-selection ((t (,@bg-base02))))
            (helm-selection-line ((t (,@fg-base02 ,@bg-yellow))))
+           (helm-candidate-number ((t (:inherit mode-line))))
+           (helm-match ((t (:inherit match))))
+           ;; helm-M-x
+           (helm-M-x-key ((t (,@fg-yellow ,@fmt-undr))))
+           ;; helm-files
+           (helm-ff-prefix ((t (,@bg-yellow ,@fg-base03))))
+           (helm-ff-file ((t (@,fg-base0))))
+           (helm-ff-executable ((t (,@fg-green))))
+           (helm-ff-directory ((t (,@fg-blue))))
+           (helm-ff-dotted-directory ((t (,@fg-blue))))
+           (helm-ff-symlink ((t (,@fg-cyan))))
+           (helm-ff-invalid-symlink ((t (,@bg-base03 ,@fg-orange))))
+           (helm-history-deleted ((t (,@fg-magenta))))
+           (helm-history-remote ((t (,@fg-violet))))
+           ;; helm-locate
+           (helm-locate-finish ((t (:inherit mode-line))))
+           ;; helm-buffers
+           (helm-buffer-not-saved ((t (,@fg-orange))))
+           (helm-buffer-saved-out ((t (,@bg-base03 ,@fg-red))))
+           (helm-buffer-file ((t (:inherit helm-ff-file))))
+           (helm-buffer-directory ((t (:inherit helm-ff-directory))))
+           (helm-buffer-size ((t (:inherit font-lock-comment-face))))
+           (helm-buffer-process ((t (,@fg-orange))))
+           ;; helm-bookmark
+           (helm-bookmark-directory ((t (:inherit helm-ff-directory))))
+           (helm-bookmark-file ((t (:inherit helm-ff-file))))
+           (helm-bookmark-gnus ((t (,@fg-cyan))))
+           (helm-bookmark-info ((t (,@fg-green))))
+           (helm-bookmark-man ((t (,@fg-violet))))
+           (helm-bookmark-w3m ((t (,@fg-yellow))))
+           (helm-bookmark-su ((t (,@fg-orange))))
+           ;; helm-grep
+           (helm-grep-match ((t (:inherit match))))
+           (helm-grep-file ((t (:inherit compilation-info))))
+           (helm-grep-lineno ((t (:inherit compilation-info))))
+           (helm-grep-running ((t (,@fg-red))))
+           (helm-grep-finish ((t (:inherit mode-line))))
+           (helm-moccur-buffer ((t (,@fg-cyan ,@fmt-undr))))
            ;; helm-swoop
            (helm-swoop-target-line-face ((t (,@fg-base02 ,@bg-yellow))))
            (helm-swoop-target-line-block-face ((t (,@fg-base02 ,@bg-yellow))))
            (helm-swoop-target-word-face ((t (,@fg-base3 ,@bg-blue))))
-           (helm-swoop-line-number-face ((t (,@fg-base01))))
+           (helm-swoop-line-number-face ((t (:inherit font-lock-comment-face))))
+           ;; helm-time-zone
+           (helm-time-zone-current ((t (,@fg-green))))
+           (helm-time-zone-home ((t (,@fg-red))))
+           ;; helm-apt
+           (helm-apt-installed ((t (,@fg-green))))
+           (helm-apt-deinstalled ((t (,@fg-base01))))
            ;; company-mode
            (company-tooltip ((t (,@fg-base00 ,@bg-base02))))
            (company-tooltip-selection ((t (,@fg-base1 ,@bg-base02))))
