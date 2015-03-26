@@ -1395,6 +1395,7 @@ See `basis/define-eval-keys'.")
 (global-unset-key (kbd helm-command-prefix-key))
 
 (basis/define-keys global-map
+  ("C-x C-f"  #'helm-find-files)
   ("C-x b"    #'helm-mini)
   ("M-x"      #'helm-M-x)
   ("M-i"      #'helm-imenu)
