@@ -1485,6 +1485,14 @@ See `basis/define-eval-keys'.")
 (when (eq (key-binding (kbd "M-x")) #'helm-M-x)
   (require 'helm-command))
 
+(with-eval-after-load 'helm-grep
+  ;; On OS X, prefer GNU grep if it's available
+  (when (and (eq system-type 'darwin)
+             (executable-find "ggrep"))
+    (dolist (sym '(helm-grep-default-command helm-grep-default-recurse-command))
+      (let ((cmd (symbol-value sym)))
+        (set sym (replace-regexp-in-string "\\`grep" "ggrep" cmd))))))
+
 ;; swiper ----------------------------------------------------------------------
 
 (setq ivy-wrap t)
