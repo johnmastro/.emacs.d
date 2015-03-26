@@ -1,0 +1,33 @@
+#    -*- mode: org -*-
+
+* SGR codes (for use in e.g. =GREP_COLORS= and =dircolors=)
+** Attribute codes
+   | Code | Meaning    | Where      |
+   |------+------------+------------|
+   |   00 | None       |            |
+   |   01 | Bold       |            |
+   |   04 | Underscore |            |
+   |   05 | Blink      |            |
+   |   07 | Reverse    |            |
+   |   08 | Concealed  |            |
+   |------+------------+------------|
+   |   30 | Black      | Foreground |
+   |   31 | Red        | Foreground |
+   |   32 | Green      | Foreground |
+   |   33 | Yellow     | Foreground |
+   |   34 | Blue       | Foreground |
+   |   35 | Magenta    | Foreground |
+   |   36 | Cyan       | Foreground |
+   |   37 | White      | Foreground |
+   |------+------------+------------|
+   |   40 | Black      | Background |
+   |   41 | Red        | Background |
+   |   42 | Green      | Background |
+   |   43 | Yellow     | Background |
+   |   44 | Blue       | Background |
+   |   45 | Magenta    | Background |
+   |   46 | Cyan       | Background |
+   |   47 | White      | Background |
+* See also
+  - [[https://en.wikipedia.org/wiki/ANSI_escape_code][Wikipedia on ANSI escape codes]]
+  - [[https://www.gnu.org/software/grep/manual/html_node/Environment-Variables.html][The Grep manual on environment variables]]
