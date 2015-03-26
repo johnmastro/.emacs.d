@@ -579,6 +579,9 @@ it doesn't exist."
   ("<M-s-up>"   #'scroll-other-window)
   ("<M-s-down>" #'scroll-other-window-down))
 
+;; Re-open recent files
+(global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
+
 ;; Previous/next buffer
 (global-set-key (kbd "<C-prior>") #'previous-buffer)
 (global-set-key (kbd "<C-next>") #'next-buffer)
@@ -1359,8 +1362,6 @@ See `basis/define-eval-keys'.")
 (flx-ido-mode 1)
 (ido-vertical-mode 1)
 (ido-at-point-mode 1)
-
-(global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
 
 ;; For ido-powered completion at point. Need a better key binding for this.
 (global-set-key (kbd "C-c TAB") #'completion-at-point)
