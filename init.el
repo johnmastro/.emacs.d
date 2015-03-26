@@ -1343,8 +1343,6 @@ See `basis/define-eval-keys'.")
 
 ;; ido -------------------------------------------------------------------------
 
-(ido-mode 1)
-
 (setq ido-enable-prefix nil
       ido-enable-flex-matching t
       ido-auto-merge-work-directories-length -1
@@ -1357,8 +1355,7 @@ See `basis/define-eval-keys'.")
       ido-save-directory-list-file (basis/emacs-file "var/ido.last")
       flx-ido-threshhold 10000)
 
-(ido-everywhere 1)
-(ido-ubiquitous-mode 1)
+(require 'ido)
 (flx-ido-mode 1)
 (ido-vertical-mode 1)
 (ido-at-point-mode 1)
@@ -1393,6 +1390,11 @@ See `basis/define-eval-keys'.")
 (require 'helm-config)
 
 (global-unset-key (kbd helm-command-prefix-key))
+
+(require 'helm)
+(require 'helm-mode)
+
+(helm-mode 1)
 
 (basis/define-keys global-map
   ("C-x C-f"  #'helm-find-files)
