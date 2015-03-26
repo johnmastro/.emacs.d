@@ -1391,6 +1391,8 @@ See `basis/define-eval-keys'.")
 
 (global-unset-key (kbd helm-command-prefix-key))
 
+(setq helm-mode-handle-completion-in-region nil)
+
 (require 'helm)
 (require 'helm-mode)
 
