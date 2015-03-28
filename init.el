@@ -1518,8 +1518,7 @@ See `basis/define-eval-keys'.")
 
 (with-eval-after-load 'swiper
   ;; M-q is nicer, but M-% is more forgiving to my muscle memory
-  (define-key swiper-map (kbd "M-q") #'basis/swiper-query-replace)
-  (define-key swiper-map (kbd "M-%") #'basis/swiper-query-replace))
+  (define-key swiper-map (kbd "M-%") #'swiper-query-replace))
 
 ;; hippie expand ---------------------------------------------------------------
 

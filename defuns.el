@@ -193,11 +193,6 @@ If PATTERN is non-nil, only include matching files (via
                       next)))
         (call-interactively command)))))
 
-(defun basis/swiper-query-replace ()
-  (interactive)
-  (let ((enable-recursive-minibuffers t))
-    (call-interactively #'swiper-query-replace)))
-
 (defun basis/swiper-helm ()
   (interactive)
   (let ((helm-move-to-line-cycle-in-source t))
