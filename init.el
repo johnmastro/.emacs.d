@@ -950,6 +950,20 @@ See `basis/define-eval-keys'.")
 
 ;; zop-to-char -----------------------------------------------------------------
 
+(defun basis/zop-no-help ()
+  "Return the empty (help) string."
+  "")
+
+;; Because I have `zop-to-char' on M-z, it's convenient to continue using meta
+;; for its actions rather than switching to control
+(with-eval-after-load 'zop-to-char
+  (add-to-list 'zop-to-char-kill-keys ?\M-k)
+  (add-to-list 'zop-to-char-next-keys ?\M-f)
+  (add-to-list 'zop-to-char-prec-keys ?\M-b)
+  (add-to-list 'zop-to-char-erase-keys ?\M-d)
+  (add-to-list 'zop-to-char-quit-at-point-keys ?\M-q)
+  (advice-add 'zop-to-char-help-string :override #'basis/zop-no-help))
+
 (global-set-key (kbd "M-z") #'zop-up-to-char)
 (global-set-key (kbd "M-Z") #'zop-to-char)
 
