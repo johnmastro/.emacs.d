@@ -141,7 +141,8 @@ it doesn't exist."
     unicode-fonts
     writegood-mode
     yaml-mode
-    yasnippet)
+    yasnippet
+    zop-to-char)
   "List of packages to automatically install.")
 
 (defun basis/install-packages (packages)
@@ -550,11 +551,6 @@ it doesn't exist."
 (global-set-key (kbd "C-c <C-return>") #'shell)
 (global-set-key (kbd "C-c C-^") #'shell)
 
-(autoload 'zap-up-to-char "misc"
-  "Kill up to, but not including, the ARGth occurrence of CHAR.")
-(global-set-key (kbd "M-z") #'zap-up-to-char)
-(global-set-key (kbd "M-Z") #'zap-to-char)
-
 ;; Change word case
 (basis/define-keys global-map
   ("M-u" #'basis/upcase-something)
@@ -950,6 +946,11 @@ See `basis/define-eval-keys'.")
     (funcall function arg)))
 
 (advice-add 'ace-window :around #'basis/ace-window-kludge)
+
+;; zop-to-char -----------------------------------------------------------------
+
+(global-set-key (kbd "M-z") #'zop-up-to-char)
+(global-set-key (kbd "M-Z") #'zop-to-char)
 
 ;; message-mode ----------------------------------------------------------------
 
