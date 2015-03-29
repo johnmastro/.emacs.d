@@ -1167,6 +1167,13 @@ See `basis/define-eval-keys'.")
     ;; directly into the root directory.
     (setq magit-process-quote-curly-braces t)))
 
+;; text-mode -------------------------------------------------------------------
+
+(defun basis/init-text-mode ()
+  (basis/maybe-enable-flyspell))
+
+(add-hook 'text-mode-hook #'basis/init-text-mode)
+
 ;; ibuffer ---------------------------------------------------------------------
 
 (defalias 'ls #'ibuffer)
