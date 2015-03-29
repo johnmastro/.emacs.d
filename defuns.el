@@ -1181,13 +1181,6 @@ If no keymap is found, return nil."
   (interactive)
   (kill-buffer (current-buffer)))
 
-(defun basis/ido-magit-status ()
-  "Invoke `magit-status' on the current directory during `ido' completion."
-  (interactive)
-  (setq fallback 'magit-status
-        ido-exit 'fallback)
-  (exit-minibuffer))
-
 (defun basis/ido-selected-file ()
   "Return the current selection during `ido' file completion.
 Return the current directory if no text is entered or there are

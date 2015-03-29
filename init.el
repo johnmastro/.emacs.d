@@ -110,7 +110,6 @@ it doesn't exist."
     js2-refactor
     jump-char
     leuven-theme
-    magit
     markdown-mode
     move-text
     multiple-cursors
@@ -683,6 +682,8 @@ See `basis/define-eval-keys'.")
     debugger-mode
     Info-mode
     completion-list-mode
+    magit-popup-mode
+    magit-popup-sequence-mode
     ack-and-a-half-mode
     cider-repl-mode
     Man-mode
@@ -1124,48 +1125,31 @@ See `basis/define-eval-keys'.")
 
 ;; magit -----------------------------------------------------------------------
 
+(cond ((file-directory-p "~/code/magit/")
+       (add-to-list 'load-path "~/code/magit/"))
+      ((file-directory-p "~/src/magit/")
+       (add-to-list 'load-path "~/src/magit/")))
+
+(autoload 'magit-status "magit"
+  "Show the status of the current Git repository in a buffer."
+  t)
+
 (global-set-key (kbd "C-x g") #'magit-status)
 (global-set-key (kbd "<f10>") #'magit-status)
 
-(defadvice magit-status (around magit-fullscreen activate)
-  (window-configuration-to-register :magit-fullscreen)
-  ad-do-it
+(defun basis/magit-status-fullscreen (&rest _args)
   (delete-other-windows))
 
-(defun basis/magit-quit-session ()
-  "Kill the `magit' buffer and restore the previous window configuration."
-  (interactive)
-  (kill-buffer)
-  (condition-case nil
-      (jump-to-register :magit-fullscreen)
-    (error (message "Previous window configuration could not be restored"))))
-
-(defun basis/init-git-commit-mode ()
-  (turn-on-auto-fill)
-  (setq fill-column 72)
-  (basis/maybe-enable-flyspell))
-
-(add-hook 'git-commit-mode-hook #'basis/init-git-commit-mode)
+(advice-add 'magit-status :after #'basis/magit-status-fullscreen)
 
 (with-eval-after-load 'magit
-  (define-key magit-status-mode-map (kbd "q") #'basis/magit-quit-session)
   (setq magit-completing-read-function #'magit-ido-completing-read)
-  (setq magit-repo-dirs
+  (setq magit-repository-directories
         (->> (projectile-relevant-known-projects)
           (seq-filter (lambda (dir)
                         (file-directory-p (expand-file-name ".git" dir))))
           (cons "~/code/")
-          (mapcar (lambda (dir) (substring dir 0 -1)))))
-  ;; Tell magit where to find emacsclientw.exe on Windows
-  (when (eq system-type 'windows-nt)
-    (let ((exe (format "~/emacs/emacs-%s/bin/emacsclientw.exe"
-                       emacs-version)))
-      (when (file-exists-p exe)
-        (setq magit-emacsclient-executable exe)))
-    ;; The below seems to be necessary on Cygwin. Magit attempts to detect
-    ;; Cygwin and set it automatically, but I defeat that by installing Cygwin
-    ;; directly into the root directory.
-    (setq magit-process-quote-curly-braces t)))
+          (mapcar (lambda (dir) (substring dir 0 -1))))))
 
 ;; text-mode -------------------------------------------------------------------
 
