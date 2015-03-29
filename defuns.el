@@ -1750,7 +1750,7 @@ Use `slime-expand-1' to produce the expansion."
              "\n"))
 
 (defun basis/org-babel-execute:clojure (body _params)
-  (let* ((result (nrepl-send-string-sync body (cider-current-ns)))
+  (let* ((result (nrepl-sync-request:eval body (cider-current-ns)))
          (value (plist-get result :value))
          (stdout (-when-let (s (plist-get result :stdout))
                    (basis/process-clojure-output s)))
