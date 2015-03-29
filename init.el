@@ -1158,6 +1158,7 @@ See `basis/define-eval-keys'.")
   (setq magit-completing-read-function #'magit-ido-completing-read)
   (setq magit-repository-directories
         (->> (projectile-relevant-known-projects)
+          (seq-remove #'tramp-tramp-file-p)
           (seq-filter (lambda (dir)
                         (file-directory-p (expand-file-name ".git" dir))))
           (cons "~/code/")
