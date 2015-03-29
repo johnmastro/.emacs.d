@@ -823,6 +823,18 @@ See `basis/define-eval-keys'.")
 (global-set-key (kbd "<C-f9>") #'lgrep)
 
 (with-eval-after-load 'grep
+  ;; On OS X, prefer GNU Grep if it's available
+  (when (and (eq system-type 'darwin)
+             (executable-find "ggrep"))
+    (let ((cmd (cl-flet ((get (alist key)
+                           (cdr (assoc key alist))))
+                 (-> (grep-compute-defaults)
+                   (get 'localhost)
+                   (get 'grep-command)
+                   car))))
+      (when (and cmd (string-match "\\`grep" cmd))
+        (setq grep-command (replace-match "ggrep" nil nil cmd)))))
+  ;; Add some more file aliases
   (let ((aliases (mapcar #'car grep-files-aliases)))
     (pcase-dolist (`(,alias . ,files) '(("py"  . "*.py")
                                         ("sql" . "*.sql")
