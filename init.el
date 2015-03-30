@@ -682,6 +682,7 @@ See `basis/define-eval-keys'.")
     debugger-mode
     Info-mode
     completion-list-mode
+    wdired-mode
     magit-popup-mode
     magit-popup-sequence-mode
     ack-and-a-half-mode
