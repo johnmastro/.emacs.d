@@ -1503,6 +1503,8 @@ See `basis/define-eval-keys'.")
 (define-key isearch-mode-map (kbd "M-s") #'helm-swoop-from-isearch)
 
 (with-eval-after-load 'helm-swoop
+  (define-key helm-swoop-map (kbd "C-s") #'helm-next-line)
+  (define-key helm-swoop-map (kbd "C-r") #'helm-previous-line)
   ;; I prefer M-s for this
   (define-key isearch-mode-map (kbd "M-i") nil))
 
