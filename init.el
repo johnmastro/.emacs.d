@@ -362,7 +362,11 @@ it doesn't exist."
 (setq solarized-termcolors 256
       solarized-italic nil)
 
+;; Some additional faces I've assembled
+(add-to-list 'custom-theme-load-path (basis/emacs-dir "themes/solarized-moar/"))
+
 (load-theme 'solarized t)
+(load-theme 'solarized-moar t)
 
 (defun basis/get-frame-title ()
   "Return a frame title including the current project directory."
