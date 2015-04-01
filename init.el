@@ -984,8 +984,6 @@ See `basis/define-eval-keys'.")
 
 (defun basis/init-message-mode ()
   (setq fill-column 72)
-  (turn-on-auto-fill)
-  (basis/maybe-enable-flyspell)
   (setq-local org-footnote-tag-for-non-org-mode-files nil))
 
 (setq message-auto-save-directory (basis/emacs-dir "tmp/")
@@ -1063,12 +1061,7 @@ See `basis/define-eval-keys'.")
 (when (string= emacs-version "24.4.1")
   (load (basis/emacs-file "auth-source-fix.el")))
 
-(defun basis/init-mu4e-compose-mode ()
-  (turn-on-auto-fill)
-  (basis/maybe-enable-flyspell))
-
 (with-eval-after-load 'mu4e
-  (add-hook 'mu4e-compose-mode-hook #'basis/init-mu4e-compose-mode)
   (add-to-list 'mu4e-view-actions
                (cons "View in browser" #'basis/mu4e-action-view-in-browser)
                t))
@@ -1167,6 +1160,7 @@ See `basis/define-eval-keys'.")
 ;; text-mode -------------------------------------------------------------------
 
 (defun basis/init-text-mode ()
+  (auto-fill-mode 1)
   (basis/maybe-enable-flyspell))
 
 (add-hook 'text-mode-hook #'basis/init-text-mode)
@@ -2232,8 +2226,6 @@ See `basis/define-eval-keys'.")
   ("C-c c" #'org-capture)
   ("C-c l" #'org-store-link))
 
-(add-hook 'org-mode-hook #'basis/maybe-enable-flyspell)
-
 ;; org-babel + clojure ---------------------------------------------------------
 
 (with-eval-after-load 'org
@@ -2303,10 +2295,6 @@ two tags."
 (dolist (ext '("f" "fs" "fth"))
   (add-to-list 'auto-mode-alist `(,(format "\\.%s\\'" ext) . forth-mode)))
 
-;; rst-mode --------------------------------------------------------------------
-
-(add-hook 'rst-mode-hook #'basis/maybe-enable-flyspell)
-
 ;; markdown --------------------------------------------------------------------
 
 (dolist (ext (list "markdown" "mkd" "md"))
@@ -2314,9 +2302,8 @@ two tags."
 
 (defun basis/init-markdown-mode ()
   (setq tab-width 4)
-  (unless (eq major-mode 'gfm-mode)
-    (turn-on-auto-fill))
-  (basis/maybe-enable-flyspell))
+  (when (eq major-mode 'gfm-mode)
+    (auto-fill-mode -1)))
 
 (add-hook 'markdown-mode-hook #'basis/init-markdown-mode)
 
