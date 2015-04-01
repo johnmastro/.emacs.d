@@ -68,6 +68,7 @@ it doesn't exist."
     clj-refactor
     clojure-cheatsheet
     clojure-mode
+    color-theme-solarized
     company
     company-statistics
     dash
@@ -355,19 +356,13 @@ it doesn't exist."
 
 ;; interface -------------------------------------------------------------------
 
-(defun basis/less-italic (theme &rest args)
-  "Don't italicize comments and docstrings in Solarized."
-  (when (memq theme '(solarized-dark solarized-light))
-    (dolist (face '(font-lock-comment-face
-                    font-lock-comment-delimiter-face
-                    font-lock-doc-face))
-      (set-face-attribute face nil :slant 'normal))))
+(set-frame-parameter nil 'background-mode 'dark)
+(set-terminal-parameter nil 'background-mode 'dark)
 
-(advice-add 'load-theme :after #'basis/less-italic)
+(setq solarized-termcolors 256
+      solarized-italic nil)
 
-(add-to-list 'custom-theme-load-path (basis/emacs-dir "themes/solarized/"))
-
-(load-theme 'solarized-dark t)
+(load-theme 'solarized t)
 
 (defun basis/get-frame-title ()
   "Return a frame title including the current project directory."
