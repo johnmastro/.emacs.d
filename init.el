@@ -262,6 +262,7 @@ it doesn't exist."
       next-line-add-newlines t
       apropos-do-all t
       custom-file (basis/emacs-file "custom.el")
+      recenter-positions '(top middle bottom)
       scroll-preserve-screen-position t
       delete-by-moving-to-trash t
       server-auth-dir (basis/emacs-dir "var/server/")
