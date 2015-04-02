@@ -271,6 +271,11 @@ it doesn't exist."
       gc-cons-threshold 20000000 ; 20MB
       bookmark-save-flag 1)
 
+;; Prevent point from entering the minibuffer prompt
+(setq minibuffer-prompt-properties
+      (append minibuffer-prompt-properties
+              '(point-entered minibuffer-avoid-prompt)))
+
 (setq-default major-mode 'text-mode
               indent-tabs-mode nil
               fill-column 80
