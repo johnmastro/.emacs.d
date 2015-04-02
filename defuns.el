@@ -1401,7 +1401,7 @@ the region isn't active."
                ;; that looks like a TRAMP file name.
                (save-excursion
                  (skip-syntax-backward "^ ")
-                 (looking-at-p "\\w+@\\w+:/")))
+                 (looking-at-p "\\(\\w+@\\)?\\w+:/")))
     (funcall function)))
 
 (defun basis/company-sh-no-complete-fi (function)
