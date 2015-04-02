@@ -1422,7 +1422,7 @@ the region isn't active."
             "\\`.+github\\.com:\\(.+\\)\\.git\\'"
             "\\1"
             (magit-get "remote"
-                       (magit-get-current-remote)
+                       (magit-get-remote)
                        "url"))
            (magit-get-current-branch))))
 
