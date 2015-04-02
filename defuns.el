@@ -1219,6 +1219,20 @@ no matches."
   (interactive)
   (mapc #'disable-theme (or themes custom-enabled-themes)))
 
+(defun basis/reload-solarized (&optional background-mode)
+  "Load (or reload) the Solarized theme.
+If provided, BACKGROUND-MODE specifies which variant to use:
+`dark' or `light'."
+  (interactive
+   (list (and current-prefix-arg
+              (intern (completing-read "Background: " '(dark light) nil t)))))
+  (basis/disable-themes)
+  (when background-mode
+    (set-frame-parameter nil 'background-mode background-mode)
+    (set-terminal-parameter nil 'background-mode background-mode))
+  (load-theme 'solarized t)
+  (load-theme 'solarized-moar t))
+
 (defun basis/libxml-available-p ()
   "Return non-nil if libxml is available."
   (and (fboundp 'libxml-parse-html-region)
