@@ -464,22 +464,11 @@ it doesn't exist."
 ;; Clever C-a
 (global-set-key (kbd "C-a") #'basis/beginning-of-line-or-indentation)
 
-;; Movement by sentence (I use the forward- and backward-sexp commands from
-;; Paredit and Smartparens on M-a and M-e).
-(global-set-key (kbd "C-M-f") #'forward-sentence)
-(global-set-key (kbd "C-M-b") #'backward-sentence)
-
-;; Movement by paragraph
-(global-set-key (kbd "M-n") #'forward-paragraph)
-(global-set-key (kbd "M-p") #'backward-paragraph)
-
 ;; Kill stuff
 (basis/define-keys global-map
   ("M-k"                   #'kill-sexp)
   ("C-w"                   #'basis/kill-something)
   ("M-DEL"                 #'basis/kill-something)
-  ("C-DEL"                 #'basis/kill-something)
-  ("<C-backspace>"         #'basis/kill-something)
   ([remap kill-whole-line] #'basis/kill-line-backward)
   ("<C-delete>"            #'basis/smart-kill-whole-line)
   ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
@@ -541,15 +530,12 @@ it doesn't exist."
 (global-set-key (kbd "M-M") #'jump-char-backward)
 
 ;; goto-line, with line numbers
-(global-set-key (kbd "M-g g") #'basis/goto-line-with-numbers)
 (global-set-key (kbd "M-g M-g") #'basis/goto-line-with-numbers)
 
 ;; Movement by sexp
 (basis/define-keys global-map
-  ("M-e"       #'forward-sexp)
-  ("M-a"       #'backward-sexp)
-  ("<M-right>" #'forward-sexp)
-  ("<M-left>"  #'backward-sexp))
+  ("M-e" #'forward-sexp)
+  ("M-a" #'backward-sexp))
 
 ;; M-x shell
 (global-set-key (kbd "C-c <C-return>") #'shell)
@@ -571,13 +557,6 @@ it doesn't exist."
 
 ;; Proced
 (global-set-key (kbd "C-x p") #'proced)
-
-;; C-v et al. are uncomfortable on my MBP
-(basis/define-keys global-map
-  ("<s-up>"     #'scroll-up-command)
-  ("<s-down>"   #'scroll-down-command)
-  ("<M-s-up>"   #'scroll-other-window)
-  ("<M-s-down>" #'scroll-other-window-down))
 
 ;; Re-open recent files
 (global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
@@ -615,10 +594,6 @@ it doesn't exist."
   ("c" #'basis/count-words)
   ("l" #'basis/count-sloc-region)
   ("s" #'sort-lines))
-
-;; Mnemonic: "top" and "end"
-(global-set-key (kbd "C-c t") #'beginning-of-buffer)
-(global-set-key (kbd "C-c e") #'end-of-buffer)
 
 ;; These are mostly useful with `god-mode'
 (basis/define-keys global-map
@@ -1714,14 +1689,10 @@ See `basis/define-eval-keys'.")
   (basis/define-keys paredit-mode-map
     ("M-)"             #'basis/paredit-wrap-round-from-behind)
     ("M-e"             #'paredit-forward)
-    ("<M-right>"       #'paredit-forward)
     ("M-a"             #'paredit-backward)
-    ("<M-left>"        #'paredit-backward)
     ("M-k"             #'kill-sexp)
     ("C-w"             #'basis/paredit-kill-something)
     ("M-DEL"           #'basis/paredit-kill-something)
-    ("C-DEL"           #'basis/paredit-kill-something)
-    ("<C-backspace>"   #'basis/paredit-kill-something)
     ("<C-M-backspace>" #'backward-kill-sexp)
     ("C-M-_"           #'backward-kill-sexp))
   (add-to-list 'paredit-space-for-delimiter-predicates
@@ -1974,7 +1945,8 @@ See `basis/define-eval-keys'.")
     ("RET"     #'basis/electric-return)
     ("DEL"     #'basis/sp-python-backspace)
     ("C-c C-D" #'python-eldoc-at-point)
-    ("C-h C-p" #'basis/insert-python-docstring-quotes))
+    ("C-h C-p" #'basis/insert-python-docstring-quotes)
+    ("C-c C-j" nil))
   (setq python-fill-docstring-style 'pep-257-nn))
 
 (when (basis/jedi-installed-p)
