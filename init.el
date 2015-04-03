@@ -506,11 +506,6 @@ it doesn't exist."
 (global-set-key (kbd "M-g M-f") #'next-error)
 (global-set-key (kbd "M-g M-b") #'previous-error)
 
-;; Occur
-(define-key occur-mode-map (kbd "n") #'occur-next)
-(define-key occur-mode-map (kbd "p") #'occur-prev)
-(global-set-key (kbd "C-c <f9>") #'basis/multi-occur-this-mode)
-
 ;; Expand-region
 (global-set-key (kbd "M-=") #'er/expand-region)
 
@@ -800,8 +795,16 @@ See `basis/define-eval-keys'.")
 
 ;; grep ------------------------------------------------------------------------
 
-(global-set-key (kbd "<f9>") #'rgrep)
-(global-set-key (kbd "<C-f9>") #'lgrep)
+(define-prefix-command 'basis/grep-map)
+
+(global-set-key (kbd "<f9>") 'basis/grep-map)
+
+(basis/define-keys basis/grep-map
+  ("g" #'grep)
+  ("s" #'lgrep)
+  ("r" #'rgrep)
+  ("z" #'zrgrep)
+  ("f" #'grep-find))
 
 (with-eval-after-load 'grep
   ;; On OS X, prefer GNU Grep if it's available
@@ -826,6 +829,13 @@ See `basis/define-eval-keys'.")
                                         ("txt" . "*.txt")))
       (unless (member alias aliases)
         (add-to-list 'grep-files-aliases (cons alias files))))))
+
+;; occur -----------------------------------------------------------------------
+
+(define-key basis/grep-map "o" #'basis/multi-occur-this-mode)
+
+(define-key occur-mode-map (kbd "n") #'occur-next)
+(define-key occur-mode-map (kbd "p") #'occur-prev)
 
 ;; ispell ----------------------------------------------------------------------
 
@@ -2132,8 +2142,7 @@ See `basis/define-eval-keys'.")
 (defalias 'ack-find-file #'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same #'ack-and-a-half-find-file-same)
 
-(global-set-key (kbd "<M-f9>") #'ack-and-a-half)
-(global-set-key (kbd "ESC <f9>") #'ack-and-a-half)
+(define-key basis/grep-map "a" #'ack-and-a-half)
 
 (when (file-exists-p "~/bin/ack")
   (setq ack-and-a-half-executable "~/bin/ack"))
