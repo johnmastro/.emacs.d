@@ -1129,14 +1129,13 @@ See `basis/define-eval-keys'.")
 
 ;; magit -----------------------------------------------------------------------
 
-(cond ((file-directory-p "~/code/magit/")
-       (add-to-list 'load-path "~/code/magit/"))
-      ((file-directory-p "~/src/magit/")
-       (add-to-list 'load-path "~/src/magit/")))
-
-(autoload 'magit-status "magit"
-  "Show the status of the current Git repository in a buffer."
-  t)
+(let ((dir (->> '("~/code/magit/" "~/src/magit/")
+             (seq-filter #'file-directory-p)
+             car)))
+  (add-to-list 'load-path dir)
+  (let ((autoloads (expand-file-name "magit-autoloads.el" dir)))
+    (when (file-readable-p autoloads)
+      (load autoloads))))
 
 (global-set-key (kbd "C-x g") #'magit-status)
 (global-set-key (kbd "<f10>") #'magit-status)
