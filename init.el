@@ -811,6 +811,21 @@ See `basis/define-eval-keys'.")
   (when (and (eq system-type 'darwin)
              (executable-find "ggrep"))
     (setq grep-program "ggrep"))
+  ;; Use POSIX extended regexps
+  (unless (bound-and-true-p grep-template)
+    (grep-compute-defaults))
+  (dolist (sym '(grep-command grep-template grep-find-template))
+    (let ((cmd (symbol-value sym)))
+      (when (string-match "\\_<-nH\\_>" cmd)
+        (grep-apply-setting sym (replace-match "-nHE" t t cmd)))))
+  (pcase grep-find-command
+    ((and `(,cmd . ,n)
+          (guard (string-match "\\_<-nH\\_>" cmd)))
+     (grep-apply-setting 'grep-find-command
+                         (cons (replace-match "-nHE" t t cmd)
+                               (1+ n))))
+    ((and cmd (guard (string-match "\\_<-nH\\_>" cmd)))
+     (grep-apply-setting 'grep-find-command (replace-match "-nHE" t t cmd))))
   ;; Add some more file aliases
   (let ((aliases (mapcar #'car grep-files-aliases)))
     (pcase-dolist (`(,alias . ,files) '(("py"  . "*.py")
