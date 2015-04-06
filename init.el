@@ -346,6 +346,9 @@ it doesn't exist."
 
 (defalias 'yes-or-no-p #'y-or-n-p)
 
+;; Keep popping the mark until point actually moves
+(advice-add 'pop-to-mark-command :around #'basis/pop-to-mark-ensure-new-pos)
+
 ;; fonts -----------------------------------------------------------------------
 
 ;; See the commentary in `unicode-fonts' for the "minimum useful fonts" to

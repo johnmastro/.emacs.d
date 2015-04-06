@@ -360,6 +360,17 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   (exchange-point-and-mark)
   (deactivate-mark nil))
 
+(defun basis/pop-to-mark-ensure-new-pos (function)
+  "Advice for `pop-to-mark-command' to repeat until point moves."
+  (let ((p (point))
+        (n 10))
+    ;; (when (eq last-command 'kill-ring-save)
+    ;;   (dotimes (_ 3)
+    ;;     (funcall function)))
+    (while (and (> n 0) (= (point) p))
+      (funcall function)
+      (setq n (1- n)))))
+
 ;; buffer cleanup --------------------------------------------------------------
 
 (defun basis/untabify-buffer ()
