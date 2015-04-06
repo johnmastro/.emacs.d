@@ -663,7 +663,8 @@ See `basis/define-eval-keys'.")
     ack-and-a-half-mode
     cider-repl-mode
     Man-mode
-    Custom-mode))
+    Custom-mode
+    special-mode))
 
 (with-eval-after-load 'god-mode
   (require 'god-mode-isearch)
