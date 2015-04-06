@@ -1467,6 +1467,14 @@ the region isn't active."
                        "url"))
            (magit-get-current-branch))))
 
+(defun basis/magit-expand-top-dir (function &optional directory)
+  "Advice for `magit-get-top-dir'.
+Call `expand-file-name' on its result, to make sure its in the
+form c:/path/to/somewhere. This can be important when using a
+Cygwin shell and git with a W32 build of Emacs."
+  (let ((result (funcall function directory)))
+    (and result (expand-file-name result))))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)

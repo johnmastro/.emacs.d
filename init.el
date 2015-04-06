@@ -208,7 +208,7 @@ it doesn't exist."
 (defvar basis/cygwin-p (and (eq system-type 'windows-nt)
                             (directory-files "c:/" nil "Cygwin")
                             (file-directory-p "c:/bin"))
-  "True if this is a Windows system with Cygwin installed.")
+  "Non-nil if this is a Windows system with Cygwin installed.")
 
 (defvar basis/cygwin-path-directories
   (append '("/bin" "/usr/bin" "/usr/local/bin")
@@ -1159,6 +1159,10 @@ See `basis/define-eval-keys'.")
                         (file-directory-p (expand-file-name ".git" dir))))
           (cons "~/code/")
           (mapcar (lambda (dir) (substring dir 0 -1))))))
+
+(when (and (eq system-type 'windows-nt)
+           basis/cygwin-p)
+  (advice-add 'magit-get-top-dir :around #'basis/magit-expand-top-dir))
 
 ;; text-mode -------------------------------------------------------------------
 
