@@ -198,6 +198,22 @@ If PATTERN is non-nil, only include matching files (via
   (let ((helm-move-to-line-cycle-in-source t))
     (call-interactively #'swiper-helm)))
 
+(defun basis/swiper-maybe-yank-something ()
+  "Conditionally insert the symbol at point.
+If the search text is empty, insert the symbol at point where the
+search started. Otherwise, call the command the key is bound to
+in the global map."
+  (interactive)
+  (if (string= ivy-text "")
+      (-when-let (str (save-window-excursion
+                        (with-selected-window swiper--window
+                          (goto-char swiper--opoint)
+                          (thing-at-point 'symbol))))
+        (insert str))
+    (-when-let (cmd (and (called-interactively-p 'any)
+                         (lookup-key global-map (this-command-keys))))
+      (call-interactively cmd))))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun basis/kill-something (arg)
