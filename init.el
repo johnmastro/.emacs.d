@@ -665,6 +665,7 @@ See `basis/define-eval-keys'.")
     magit-popup-sequence-mode
     ack-and-a-half-mode
     cider-repl-mode
+    slime-repl-mode
     Man-mode
     Custom-mode
     special-mode))
