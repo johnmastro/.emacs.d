@@ -743,8 +743,8 @@ If already at the beginning of the field, call
 (defun basis/open-file-externally (files)
   "Open FILES externally.
 In `dired-mode', open the marked files; in `direx:direx-mode',
-open the file at point; otherwise, prompt for the file to open
-with `read-file-name'."
+open the file at point; otherwise, prompt for the file(s) to open
+with `helm-read-file-name'."
   (interactive
    (list (pcase major-mode
            (`dired-mode
@@ -752,7 +752,14 @@ with `read-file-name'."
            (`direx:direx-mode
             (basis/direx-file-name-at-point))
            (_
-            (read-file-name "File: ")))))
+            (helm-read-file-name
+             "Open externally: "
+             :must-match t
+             :marked-candidates t
+             :preselect (-when-let* ((file (buffer-file-name))
+                                     (base (file-name-nondirectory file)))
+                          (format "^%s$" (regexp-quote base)))
+             :persistent-action #'helm-open-file-externally)))))
   (require 'helm-external)
   (let ((helm-current-prefix-arg current-prefix-arg))
     (mapc #'helm-open-file-externally
