@@ -1079,11 +1079,14 @@ See `basis/define-eval-keys'.")
 
 ;; eww -------------------------------------------------------------------------
 
+(defun basis/eww-tag-body-no-color (function &rest args)
+  "Advice for `eww-tag-body'; don't colorize the region."
+  (cl-letf (((symbol-function 'eww-colorize-region)
+             #'ignore))
+    (apply function args)))
+
 (with-eval-after-load 'eww
-  (defadvice eww-tag-body (around eww-no-color-please activate)
-    (cl-letf (((symbol-function 'eww-colorize-region)
-               #'ignore))
-      ad-do-it))
+  (advice-add 'eww-tag-body :around #'basis/eww-tag-body-no-color)
   (define-key eww-mode-map (kbd "<backtab>") #'shr-previous-link))
 
 ;; w3m -------------------------------------------------------------------------
@@ -1110,12 +1113,13 @@ See `basis/define-eval-keys'.")
 (setq ediff-window-setup-function #'ediff-setup-windows-plain
       ediff-split-window-function #'split-window-horizontally)
 
-(when (eq system-type 'windows-nt)
-  (defadvice ediff-make-empty-tmp-file (before expand-proposed-name activate)
-    (let ((name (ad-get-arg 0)))
-      (ad-set-arg 0 (expand-file-name name)))))
+(defun basis/ediff-expand-tmp-name (args)
+  "Advice for `ediff-make-empty-tmp-file'."
+  (pcase-let ((`(,proposed-name . ,rest) args))
+    (cons (expand-file-name proposed-name) rest)))
 
-(defadvice ediff-setup (before ediff-restore-windows activate)
+(defun basis/ediff-save-window-config (&rest _ignore)
+  "Advice for `ediff-setup'."
   (window-configuration-to-register :ediff-restore-windows))
 
 (defun basis/ediff-quit ()
@@ -1130,7 +1134,13 @@ See `basis/define-eval-keys'.")
   (ediff-setup-keymap)
   (define-key ediff-mode-map "q" #'basis/ediff-quit))
 
-(add-hook 'ediff-mode-hook #'basis/init-ediff)
+(with-eval-after-load 'ediff
+  (when (eq system-type 'windows-nt)
+    (advice-add 'ediff-make-empty-tmp-file
+                :filter-args
+                #'basis/ediff-expand-tmp-name))
+  (advice-add 'ediff-setup :before #'basis/ediff-save-window-config)
+  (add-hook 'ediff-mode-hook #'basis/init-ediff))
 
 ;; magit -----------------------------------------------------------------------
 
@@ -1157,7 +1167,9 @@ See `basis/define-eval-keys'.")
   (advice-add 'magit-status :after #'basis/magit-status-fullscreen)
   (when (and (eq system-type 'windows-nt)
              basis/cygwin-p)
-    (advice-add 'magit-get-top-dir :around #'basis/magit-expand-top-dir)))
+    (advice-add 'magit-get-top-dir
+                :filter-return
+                #'basis/magit-expand-top-dir)))
 
 ;; text-mode -------------------------------------------------------------------
 
@@ -1189,6 +1201,9 @@ See `basis/define-eval-keys'.")
            (format "%7.1fk" (/ (buffer-size) 1000.0)))
           (t
            (format "%8d" (buffer-size))))))
+
+(with-eval-after-load 'ibuffer-vc
+  (advice-add 'ibuffer-vc-root :around #'basis/ibuffer-vc-root-files-only))
 
 (setq ibuffer-formats
       '((mark modified read-only " "
@@ -1252,6 +1267,15 @@ See `basis/define-eval-keys'.")
 
 ;; dired -----------------------------------------------------------------------
 
+(defun basis/dired-omit-expunge-quietly (function &rest args)
+  "Advice for `dired-omit-expunge'.
+Only print messages if the selected window contains a `dired'
+buffer."
+  (cl-letf (((symbol-value 'dired-omit-verbose)
+             (with-current-buffer (window-buffer (selected-window))
+               (eq major-mode 'dired-mode))))
+    (apply function args)))
+
 (with-eval-after-load 'dired
   (require 'dired+)
   (require 'find-dired)
@@ -1275,19 +1299,9 @@ See `basis/define-eval-keys'.")
         dired-recursive-deletes 'top
         dired-listing-switches "-alh"
         find-ls-options '("-exec ls -ldh {} +" . "-ldh"))
-  (put 'dired-find-alternate-file 'disabled nil))
-
-(defadvice dired-omit-expunge (around maybe-omit-verbose activate)
-  ;; I only want to see messages about files being omitted when I'm actually in
-  ;; a Dired window. It's can be annoying to get one of those messages while
-  ;; you're e.g. in the minibuffer because some buried Dired buffer has
-  ;; auto-reverted.
-  (cl-letf (((symbol-value 'dired-omit-verbose)
-             (with-current-buffer (window-buffer (selected-window))
-               (eq major-mode 'dired-mode))))
-    ad-do-it))
-
-(add-hook 'dired-mode-hook #'dired-omit-mode)
+  (put 'dired-find-alternate-file 'disabled nil)
+  (add-hook 'dired-mode-hook #'dired-omit-mode)
+  (advice-add 'dired-omit-expunge :around #'basis/dired-omit-expunge-quietly))
 
 (autoload 'dired-jump "dired-x"
   "Jump to dired buffer corresponding to current buffer." t)
@@ -1919,7 +1933,12 @@ See `basis/define-eval-keys'.")
      sp-backward-kill-word
      sp-kill-sexp
      sp-kill-hybrid-sexp
-     basis/sp-kill-something)))
+     basis/sp-kill-something))
+
+  ;; Treat raw prefix arguments like numeric arguments
+  (advice-add 'sp-backward-delete-char
+              :filter-args
+              #'basis/sp-backward-delete-no-prefix))
 
 ;; flycheck --------------------------------------------------------------------
 
@@ -2258,6 +2277,10 @@ See `basis/define-eval-keys'.")
 (add-hook 'sgml-mode-hook #'basis/init-simplezen)
 (add-hook 'html-mode-hook #'basis/init-html-mode)
 
+(defun basis/sgml-delete-tag-reindent (&rest _ignore)
+  "Advice for `sgml-delete-region' to reindent the buffer."
+  (indent-region (point-min) (point-max)))
+
 (with-eval-after-load 'sgml-mode
   (require 'tagedit)
   (require 'simplezen)
@@ -2269,19 +2292,22 @@ See `basis/define-eval-keys'.")
     ("C-c C-w"                  #'basis/html-wrap-in-tag)
     ("C-c w"                    #'basis/html-wrap-in-tag))
   (tagedit-add-paredit-like-keybindings)
-  (tagedit-add-experimental-features))
+  (tagedit-add-experimental-features)
+  (advice-add 'sgml-delete-tag :after #'basis/sgml-delete-tag-reindent))
 
-(defadvice sgml-delete-tag (after reindent activate)
-  (indent-region (point-min) (point-max)))
-
-(defadvice tagedit-toggle-multiline-tag (around maybe-forward activate)
-  "Move forward by a line and indent if invoked directly between
-two tags."
+(defun basis/tagedit-toggle-multiline-maybe-forward (function &rest args)
+  "Advice for `tagedit-toggle-multiline-tag'.
+Move forward by a line and indent if invoked directly between."
   (let ((move-forward-p (and (looking-at-p "<") (basis/looking-back-p ">"))))
-    ad-do-it
+    (apply function args)
     (when move-forward-p
       (forward-line 1)
       (indent-according-to-mode))))
+
+(with-eval-after-load 'tagedit
+  (advice-add 'tagedit-toggle-multiline-tag
+              :around
+              #'basis/tagedit-toggle-multiline-maybe-forward))
 
 ;; forth -----------------------------------------------------------------------
 
@@ -2347,14 +2373,21 @@ two tags."
 
 ;; idle-highlight-mode ---------------------------------------------------------
 
-(defadvice idle-highlight-mode (after handle-mc-disable-list activate)
-  ;; Add/remove `idle-highlight-mode' from `mc/temporarily-disabled-minor-modes'
-  ;; as it's enabled/disabled. The idea to is to keep mc from enabling
-  ;; idle-highlight unless it was really enabled to begin with.
+(defun basis/idle-highlight-juggle-mc-disable-list (&rest _ignore)
+  "Advice for `idle-highlight-mode'.
+Add/remove `idle-highlight-mode' from
+`mc/temporarily-disabled-minor-modes' as it's enabled/disabled.
+This keeps mc from enabling idle-highlight unless it was enabled
+to begin with."
   (if (bound-and-true-p idle-highlight-mode)
       (add-to-list 'mc/temporarily-disabled-minor-modes 'idle-highlight-mode)
     (setq mc/temporarily-disabled-minor-modes
           (remq 'idle-highlight-mode mc/temporarily-disabled-minor-modes))))
+
+(with-eval-after-load 'idle-highlight-mode
+  (advice-add 'idle-highlight-mode
+              :after
+              #'basis/idle-highlight-juggle-mc-disable-list))
 
 ;; batch-mode ------------------------------------------------------------------
 

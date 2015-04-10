@@ -659,11 +659,11 @@ related hooks and key bindings."
 
 ;; ibuffer ---------------------------------------------------------------------
 
-(defadvice ibuffer-vc-root (around exclude-emacs-buffers activate)
-  "Only associate a buffer with a VC if it's visiting a file."
-  (let ((buf (ad-get-arg 0)))
-    (when (buffer-file-name buf)
-      ad-do-it)))
+(defun basis/ibuffer-vc-root-files-only (function buf)
+  "Advice for `ibuffer-vc-root'.
+Only group a buffer with a VC if its visiting a file."
+  (when (buffer-file-name buf)
+    (funcall function buf)))
 
 (defvar basis/ibuffer-grouped-by-vc-p nil
   "Non-nil is grouping by VC root is enabled.")
@@ -1478,13 +1478,12 @@ the region isn't active."
   "Advice for `magit-status', to make it use the full screen."
   (delete-other-windows))
 
-(defun basis/magit-expand-top-dir (function &optional directory)
+(defun basis/magit-expand-top-dir (result)
   "Advice for `magit-get-top-dir'.
-Call `expand-file-name' on its result, to make sure its in the
-form c:/path/to/somewhere. This can be important when using a
-Cygwin shell and git with a W32 build of Emacs."
-  (let ((result (funcall function directory)))
-    (and result (expand-file-name result))))
+For use with Cygwin. Call `expand-file-name' on its result, to
+make sure its in the same form that Emacs uses (i.e.
+\"c:/path/to/somewhere\")."
+  (and result (expand-file-name result)))
 
 ;; paredit ---------------------------------------------------------------------
 
@@ -1533,9 +1532,12 @@ Cygwin shell and git with a W32 build of Emacs."
 
 ;; smartparens -----------------------------------------------------------------
 
-(defadvice sp-backward-delete-char (before no-special-prefix-arg activate)
-  "Treat a raw prefix arg as numeric prefix arg."
-  (ad-set-arg 0 (prefix-numeric-value (ad-get-arg 0))))
+(defun basis/sp-backward-delete-no-prefix (args)
+  "Advice for `sp-backward-delete-char'.
+Do not treat raw universal arguments specially (treat it as a
+numeric argument)."
+  (pcase-let ((`(,prefix . ,rest) args))
+    (cons (prefix-numeric-value prefix) rest)))
 
 (defun basis/sp-kill-something ()
   "Call `sp-backward-kill-word' or `kill-region'. "
