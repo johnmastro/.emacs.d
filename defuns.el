@@ -1847,19 +1847,24 @@ With arg N, move forward that many times."
   (let ((n (or n 1)))
     (if (< n 0)
         (basis/sql-backward-clause (- n))
-      (let ((start (point)))
+      (let* ((start1 (point))
+             (start2 start1))
         ;; If we're already on a clause starter, move over it
         (when (looking-at basis/sql-clause-start-regexp)
-          (goto-char (match-end 0)))
+          (setq start2 (goto-char (match-end 0))))
         (while (and (> n 0)
                     (re-search-forward basis/sql-clause-start-regexp nil t))
           (unless (basis/sql-in-string-or-comment-p)
             (setq n (- n 1))))
-        ;; If we never moved, the last match will be from something else
-        (let ((point (point)))
-          (unless (= point start)
-            (goto-char (match-beginning 0))
-            point))))))
+        ;; If that didn't get us anywhere, just do `forward-paragraph'
+        (cond ((= (point) start1)
+               (forward-paragraph n))
+              ((= (point) start2)
+               (goto-char start1)
+               (forward-paragraph n))
+              (t
+               (goto-char (match-beginning 0))))
+        (point)))))
 
 (defun basis/sql-backward-clause (&optional n)
   "Move to the start of the previous clause of the statement.
@@ -1873,9 +1878,9 @@ With arg N, move backward that many times."
                     (re-search-backward basis/sql-clause-start-regexp nil t))
           (unless (basis/sql-in-string-or-comment-p)
             (setq n (- n 1))))
-        (let ((point (point)))
-          (unless (= point start)
-            point))))))
+        (when (= (point) start)
+          (backward-paragraph n))
+        (point)))))
 
 (defun basis/sql-beginning-of-defun ()
   "Move to the beginning of the current SQL statement."
