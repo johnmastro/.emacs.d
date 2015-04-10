@@ -1474,6 +1474,10 @@ the region isn't active."
                        "url"))
            (magit-get-current-branch))))
 
+(defun basis/magit-status-fullscreen (&rest _args)
+  "Advice for `magit-status', to make it use the full screen."
+  (delete-other-windows))
+
 (defun basis/magit-expand-top-dir (function &optional directory)
   "Advice for `magit-get-top-dir'.
 Call `expand-file-name' on its result, to make sure its in the

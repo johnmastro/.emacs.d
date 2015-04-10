@@ -1145,11 +1145,6 @@ See `basis/define-eval-keys'.")
 (global-set-key (kbd "C-x g") #'magit-status)
 (global-set-key (kbd "<f10>") #'magit-status)
 
-(defun basis/magit-status-fullscreen (&rest _args)
-  (delete-other-windows))
-
-(advice-add 'magit-status :after #'basis/magit-status-fullscreen)
-
 (with-eval-after-load 'magit
   (setq magit-completing-read-function #'magit-ido-completing-read)
   (setq magit-repository-directories
@@ -1158,11 +1153,11 @@ See `basis/define-eval-keys'.")
           (seq-filter (lambda (dir)
                         (file-directory-p (expand-file-name ".git" dir))))
           (cons "~/code/")
-          (mapcar (lambda (dir) (substring dir 0 -1))))))
-
-(when (and (eq system-type 'windows-nt)
-           basis/cygwin-p)
-  (advice-add 'magit-get-top-dir :around #'basis/magit-expand-top-dir))
+          (mapcar (lambda (dir) (substring dir 0 -1)))))
+  (advice-add 'magit-status :after #'basis/magit-status-fullscreen)
+  (when (and (eq system-type 'windows-nt)
+             basis/cygwin-p)
+    (advice-add 'magit-get-top-dir :around #'basis/magit-expand-top-dir)))
 
 ;; text-mode -------------------------------------------------------------------
 
