@@ -951,10 +951,10 @@ See `basis/define-eval-keys'.")
 
 (setq aw-scope 'frame)
 
-;; Because of how it displays its labels, `ace-window' can't jump to a window
-;; whose buffer is both empty and read-only. However, if there are only two
-;; windows up anyway (a common case) we can simply fall back to `other-window'.
 (defun basis/ace-window-kludge (function arg)
+  "Advice for `ace-window'.
+Ensure it always works with two windows, even when one (or both)
+is read-only and empty."
   (if (and (eq aw-scope 'frame)
            (= (length (window-list)) 2))
       (pcase arg
@@ -968,7 +968,8 @@ See `basis/define-eval-keys'.")
 ;; zop-to-char -----------------------------------------------------------------
 
 (defun basis/zop-no-help ()
-  "Return the empty (help) string."
+  "Advice for `zop-to-char-help-string'.
+Return the empty string (i.e. get rid of the help string)."
   "")
 
 ;; Because I have `zop-to-char' on M-z, it's convenient to continue using meta
