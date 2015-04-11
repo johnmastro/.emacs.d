@@ -1060,10 +1060,6 @@ Return the empty string (i.e. get rid of the help string)."
                        '(macos-keychain-internet)
                      '("~/.authinfo.gpg")))
 
-;; Temporary fix for bug #19074
-(when (string= emacs-version "24.4.1")
-  (load (basis/emacs-file "auth-source-fix.el")))
-
 (with-eval-after-load 'mu4e
   (add-to-list 'mu4e-view-actions
                (cons "View in browser" #'basis/mu4e-action-view-in-browser)
