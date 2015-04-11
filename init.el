@@ -167,13 +167,13 @@ it doesn't exist."
 (autoload 'tramp-tramp-file-p "tramp"
   "Return t if NAME is a string with Tramp file name syntax.")
 
-(load (basis/emacs-file "defuns.el"))
+(load (basis/emacs-file "defuns") nil nil nil t)
 
 (defun basis/maybe-load-local-init ()
   "Load \"local.el\" if it exists."
   (let ((local (basis/emacs-file "local.el")))
     (when (file-exists-p local)
-      (load local))))
+      (load (string-remove-suffix ".el" local) nil nil nil t))))
 
 ;; Do this after init so that it can override anything set here
 (add-hook 'after-init-hook #'basis/maybe-load-local-init)
