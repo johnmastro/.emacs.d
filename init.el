@@ -1667,9 +1667,8 @@ buffer."
     (setq lexical-binding t)))
 
 (defun basis/init-emacs-lisp-mode ()
-  (let ((name buffer-file-name))
-    (unless (and name (string= name (basis/emacs-file "init.el")))
-      (basis/maybe-enable-flycheck))))
+  (unless no-byte-compile
+    (basis/maybe-enable-flycheck)))
 
 (dolist (hook basis/emacs-lisp-hooks)
   (add-hook hook #'basis/init-emacs-lisp-modes))
