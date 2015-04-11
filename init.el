@@ -1542,7 +1542,6 @@ buffer."
 
 ;; swiper ----------------------------------------------------------------------
 
-(setq ivy-wrap t)
 (setq swiper-min-highlight 1)
 
 (global-set-key (kbd "C-s") #'swiper)
