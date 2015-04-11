@@ -868,9 +868,8 @@ See `basis/define-eval-keys'.")
 
 (with-eval-after-load 'diff-mode
   ;; `diff-goto-source' is still available on C-c C-c.
-  (define-key diff-mode-map (kbd "M-o") nil))
-
-(add-hook 'diff-mode-hook #'basis/init-diff-mode)
+  (define-key diff-mode-map (kbd "M-o") nil)
+  (add-hook 'diff-mode-hook #'basis/init-diff-mode))
 
 ;; discover-mode ---------------------------------------------------------------
 
@@ -994,11 +993,10 @@ Return the empty string (i.e. get rid of the help string)."
 (setq message-auto-save-directory (basis/emacs-dir "tmp/")
       message-subject-trailing-was-query nil)
 
-(add-hook 'message-mode-hook #'basis/init-message-mode)
-
 (with-eval-after-load 'message
   (require 'org)
-  (define-key message-mode-map (kbd "C-c n") #'org-footnote-action))
+  (define-key message-mode-map (kbd "C-c n") #'org-footnote-action)
+  (add-hook 'message-mode-hook #'basis/init-message-mode))
 
 ;; mu4e ------------------------------------------------------------------------
 
@@ -1107,7 +1105,8 @@ Return the empty string (i.e. get rid of the help string)."
 (defun basis/init-sx-question-mode ()
   (toggle-truncate-lines -1))
 
-(add-hook 'sx-question-mode-hook #'basis/init-sx-question-mode)
+(with-eval-after-load 'sx-question-mode
+  (add-hook 'sx-question-mode-hook #'basis/init-sx-question-mode))
 
 ;; ediff -----------------------------------------------------------------------
 
@@ -1325,18 +1324,17 @@ buffer."
 ;; `inferior-python-mode' buffers).
 (setenv "PAGER" "cat")
 
+(defun basis/init-comint-mode ()
+  (setq comint-scroll-to-bottom-on-input 'this))
+
 (with-eval-after-load 'comint
   (basis/define-keys comint-mode-map
     ("M-p"     #'basis/comint-previous-input)
     ("M-n"     #'basis/comint-next-input)
     ("C-c C-l" #'helm-comint-input-ring)
     ;; Because Paredit and Smartparens both use M-r
-    ("C-M-r"   #'comint-history-isearch-backward-regexp)))
-
-(defun basis/init-comint-mode ()
-  (setq comint-scroll-to-bottom-on-input 'this))
-
-(add-hook 'comint-mode-hook #'basis/init-comint-mode)
+    ("C-M-r"   #'comint-history-isearch-backward-regexp))
+  (add-hook 'comint-mode-hook #'basis/init-comint-mode))
 
 ;; shell-mode ------------------------------------------------------------------
 
@@ -1352,7 +1350,8 @@ buffer."
   (shell-dirtrack-mode -1)
   (dirtrack-mode +1))
 
-(add-hook 'shell-mode-hook #'basis/init-shell-mode)
+(with-eval-after-load 'shell
+  (add-hook 'shell-mode-hook #'basis/init-shell-mode))
 
 ;; eshell ----------------------------------------------------------------------
 
@@ -1363,7 +1362,8 @@ buffer."
     ("S-DEL"   #'basis/eshell-kill-line-backward)
     ("C-S-DEL" #'basis/eshell-kill-whole-line)))
 
-(add-hook 'eshell-mode-hook #'basis/init-eshell)
+(with-eval-after-load 'esh-mode
+  (add-hook 'eshell-mode-hook #'basis/init-eshell))
 
 ;; sh-mode ---------------------------------------------------------------------
 
@@ -1373,7 +1373,8 @@ buffer."
              (string= (file-name-nondirectory buffer-file-name) ".zshrc"))
     (sh-set-shell "zsh")))
 
-(add-hook 'sh-mode-hook #'basis/init-sh-mode)
+(with-eval-after-load 'sh-script
+  (add-hook 'sh-mode-hook #'basis/init-sh-mode))
 
 ;; ido -------------------------------------------------------------------------
 
@@ -1599,24 +1600,27 @@ buffer."
 ;; lisp ------------------------------------------------------------------------
 
 (defvar basis/lisp-modes
-  '(emacs-lisp-mode
-    lisp-interaction-mode
-    inferior-emacs-lisp-mode
-    clojure-mode
-    cider-repl-mode
-    lisp-mode
-    slime-repl-mode
-    inferior-lisp-mode
-    scheme-mode
-    inferior-scheme-mode
-    geiser-repl-mode)
-  "List of Lisp modes to configure.")
+  '((lisp-mode    . emacs-lisp-mode)
+    (lisp-mode    . lisp-interaction-mode)
+    (ielm         . inferior-emacs-lisp-mode)
+    (clojure-mode . clojure-mode)
+    (cider-repl   . cider-repl-mode)
+    (lisp-mode    . lisp-mode)
+    (slime-repl   . slime-repl-mode)
+    (inf-lisp     . inferior-lisp-mode)
+    (scheme       . scheme-mode)
+    (cmuscheme    . inferior-scheme-mode)
+    (geiser-repl  . geiser-repl-mode))
+  "List of Lisp modes to configure.
+Each element is a cons, (FEATURE . MODE).")
 
 (defvar basis/lisp-hooks
-  (mapcar (lambda (mode)
-            (intern (format "%s-hook" mode)))
+  (mapcar (lambda (cons)
+            (pcase-let ((`(,feature . ,mode) cons))
+              (cons feature (intern (format "%s-hook" mode)))))
           basis/lisp-modes)
-  "List of Lisp mode hooks.")
+  "List of Lisp mode hooks.
+Each element is a cons, (FEATURE . HOOK).")
 
 (setq inferior-lisp-program (or (executable-find "sbcl")
                                 (executable-find "ccl")
@@ -1628,8 +1632,9 @@ buffer."
   "Enable features useful in all Lisp modes."
   (paredit-mode +1))
 
-(dolist (hook basis/lisp-hooks)
-  (add-hook hook #'basis/init-lisp-generic))
+(pcase-dolist (`(,feature . ,hook) basis/lisp-hooks)
+  (eval-after-load feature
+    `(add-hook ',hook #'basis/init-lisp-generic)))
 
 (setq lisp-lambda-list-keyword-alignment t
       lisp-lambda-list-keyword-parameter-alignment t
@@ -1638,16 +1643,19 @@ buffer."
 ;; emacs lisp ------------------------------------------------------------------
 
 (defvar basis/emacs-lisp-modes
-  '(emacs-lisp-mode
-    lisp-interaction-mode
-    inferior-emacs-lisp-mode)
-  "List of Emacs Lisp modes to configure.")
+  '((lisp-mode . emacs-lisp-mode)
+    (lisp-mode . lisp-interaction-mode)
+    (ielm      . inferior-emacs-lisp-mode))
+  "List of Emacs Lisp modes to configure.
+Each element is a cons, (FEATURE . MODE).")
 
 (defvar basis/emacs-lisp-hooks
-  (mapcar (lambda (mode)
-            (intern (format "%s-hook" mode)))
+  (mapcar (lambda (cons)
+            (pcase-let ((`(,feature . ,mode) cons))
+              (cons feature (intern (format "%s-hook" mode)))))
           basis/emacs-lisp-modes)
-  "List of Emacs Lisp mode hooks.")
+  "List of Emacs Lisp mode hooks.
+Each element is a cons, (FEATURE . MODE).")
 
 (defun basis/init-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in `hippie-exp'."
@@ -1670,8 +1678,9 @@ buffer."
   (unless no-byte-compile
     (basis/maybe-enable-flycheck)))
 
-(dolist (hook basis/emacs-lisp-hooks)
-  (add-hook hook #'basis/init-emacs-lisp-modes))
+(pcase-dolist (`(,feature . ,hook) basis/emacs-lisp-hooks)
+  (eval-after-load feature
+    `(add-hook ',hook #'basis/init-emacs-lisp-modes)))
 
 (add-hook 'emacs-lisp-mode-hook #'basis/init-emacs-lisp-mode)
 
@@ -1892,7 +1901,7 @@ buffer."
 (with-eval-after-load 'smartparens
   ;; I still prefer Paredit with Lisps, and having Smartparens enabled messes
   ;; with argument handling in `magit-key-mode'.
-  (dolist (mode (cons 'magit-key-mode basis/lisp-modes))
+  (dolist (mode (cons 'magit-key-mode (mapcar #'cdr basis/lisp-modes)))
     (add-to-list 'sp-ignore-modes-list mode))
 
   (sp-use-paredit-bindings)
@@ -1974,6 +1983,18 @@ buffer."
 
 ;; python ----------------------------------------------------------------------
 
+(defun basis/init-python-mode ()
+  (subword-mode 1)
+  (basis/maybe-enable-flycheck)
+  (setq fill-column 79)
+  (setq tab-width 4)
+  (setq-local whitespace-line-column 79)
+  (setq-local electric-indent-chars (remove ?: electric-indent-chars)))
+
+(defun basis/init-inferior-python-mode ()
+  (subword-mode 1)
+  (setq tab-width 4))
+
 (with-eval-after-load 'python
   (basis/define-eval-keys python-mode-map
     (definition #'python-shell-send-defun)
@@ -1987,30 +2008,23 @@ buffer."
     ("C-c C-D" #'python-eldoc-at-point)
     ("C-h C-p" #'basis/insert-python-docstring-quotes)
     ("C-c C-j" nil))
-  (setq python-fill-docstring-style 'pep-257-nn))
-
-(when (basis/jedi-installed-p)
+  (setq python-fill-docstring-style 'pep-257-nn)
+  (add-hook 'python-mode-hook #'basis/init-python-mode)
+  (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
   ;; Jedi has 2 Python dependencies: jedi and epc
-  (setq jedi:setup-keys t
-        jedi:tooltip-method nil)
-  (add-hook 'python-mode-hook #'jedi:setup))
-
-(defun basis/init-python-mode ()
-  (subword-mode 1)
-  (basis/maybe-enable-flycheck)
-  (setq fill-column 79)
-  (setq tab-width 4)
-  (setq-local whitespace-line-column 79)
-  (setq-local electric-indent-chars (remove ?: electric-indent-chars)))
-
-(defun basis/init-inferior-python-mode ()
-  (subword-mode 1)
-  (setq tab-width 4))
-
-(add-hook 'python-mode-hook #'basis/init-python-mode)
-(add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
+  (when (basis/jedi-installed-p)
+    (setq jedi:setup-keys t
+          jedi:tooltip-method nil)
+    (add-hook 'python-mode-hook #'jedi:setup)))
 
 ;; haskell ---------------------------------------------------------------------
+
+(defun basis/init-haskell-mode ()
+  (turn-on-haskell-indentation)
+  (interactive-haskell-mode))
+
+(with-eval-after-load 'haskell-mode
+  (add-hook 'haskell-mode-hook #'basis/init-haskell-mode))
 
 (with-eval-after-load 'interactive-haskell-mode
   (basis/define-keys interactive-haskell-mode-map
@@ -2022,12 +2036,6 @@ buffer."
     ("M-."     #'haskell-mode-goto-loc)
     ("M-?"     #'haskell-mode-find-uses)
     ("C-c C-t" #'haskell-mode-show-type-at)))
-
-(defun basis/init-haskell-mode ()
-  (turn-on-haskell-indentation)
-  (interactive-haskell-mode))
-
-(add-hook 'haskell-mode-hook #'basis/init-haskell-mode)
 
 (autoload 'ghci-script-mode "ghci-script-mode"
   "Major mode for working with .ghci files."
@@ -2052,10 +2060,9 @@ buffer."
   (subword-mode 1)
   (basis/rust-set-compile-command))
 
-(add-hook 'rust-mode-hook #'basis/init-rust-mode)
-
 (with-eval-after-load 'rust-mode
-  (define-key rust-mode-map (kbd "RET") #'basis/electric-return))
+  (define-key rust-mode-map (kbd "RET") #'basis/electric-return)
+  (add-hook 'rust-mode-hook #'basis/init-rust-mode))
 
 ;; javascript ------------------------------------------------------------------
 
@@ -2069,16 +2076,15 @@ buffer."
 
 (setq js2-basic-offset 2)
 
-(with-eval-after-load 'js2-mode
-  (js2r-add-keybindings-with-prefix "C-h m")
-  (define-key js2-mode-map (kbd "C-;") #'basis/eol-maybe-semicolon))
-
 (defun basis/init-js2-mode ()
   (setq tab-width 4)
   (subword-mode 1)
   (js2-imenu-extras-setup))
 
-(add-hook 'js2-mode-hook #'basis/init-js2-mode)
+(with-eval-after-load 'js2-mode
+  (js2r-add-keybindings-with-prefix "C-h m")
+  (define-key js2-mode-map (kbd "C-;") #'basis/eol-maybe-semicolon)
+  (add-hook 'js2-mode-hook #'basis/init-js2-mode))
 
 ;; css-mode --------------------------------------------------------------------
 
@@ -2110,8 +2116,6 @@ buffer."
   (setq tab-width 4)
   (basis/modify-sql-syntax-table))
 
-(add-hook 'sql-mode-hook #'basis/init-sql-mode)
-
 (with-eval-after-load 'sql
   ;; But I also work with other products and it's often easier not to switch
   ;; `sql-product' around.
@@ -2125,7 +2129,8 @@ buffer."
     ("M-n"   #'basis/sql-forward-clause)
     ("M-p"   #'basis/sql-backward-clause)
     ("C-M-a" #'basis/sql-beginning-of-defun)
-    ("C-M-e" #'basis/sql-end-of-defun)))
+    ("C-M-e" #'basis/sql-end-of-defun))
+  (add-hook 'sql-mode-hook #'basis/init-sql-mode))
 
 ;; When using Emacs as $PSQL_EDITOR, open the files in `sql-mode'
 (add-to-list 'auto-mode-alist '("/psql.edit.[0-9]+\\'" . sql-mode))
@@ -2158,12 +2163,11 @@ buffer."
   (c-set-style "java")
   (basis/init-c-base))
 
-(add-hook 'c-mode-hook    #'basis/init-c)
-(add-hook 'c++-mode-hook  #'basis/init-c++)
-(add-hook 'java-mode-hook #'basis/init-java)
-
 (with-eval-after-load 'cc-mode
-  (define-key c-mode-base-map (kbd "C-j") #'c-context-line-break))
+  (define-key c-mode-base-map (kbd "C-j") #'c-context-line-break)
+  (add-hook 'c-mode-hook    #'basis/init-c)
+  (add-hook 'c++-mode-hook  #'basis/init-c++)
+  (add-hook 'java-mode-hook #'basis/init-java))
 
 ;; ack and a half --------------------------------------------------------------
 
@@ -2273,9 +2277,6 @@ buffer."
   (setq tab-width 4)
   (tagedit-mode 1))
 
-(add-hook 'sgml-mode-hook #'basis/init-simplezen)
-(add-hook 'html-mode-hook #'basis/init-html-mode)
-
 (defun basis/sgml-delete-tag-reindent (&rest _ignore)
   "Advice for `sgml-delete-region' to reindent the buffer."
   (indent-region (point-min) (point-max)))
@@ -2290,6 +2291,8 @@ buffer."
     ("M-RET"                    #'basis/html-multiline-expand)
     ("C-c C-w"                  #'basis/html-wrap-in-tag)
     ("C-c w"                    #'basis/html-wrap-in-tag))
+  (add-hook 'sgml-mode-hook #'basis/init-simplezen)
+  (add-hook 'html-mode-hook #'basis/init-html-mode)
   (tagedit-add-paredit-like-keybindings)
   (tagedit-add-experimental-features)
   (advice-add 'sgml-delete-tag :after #'basis/sgml-delete-tag-reindent))
@@ -2329,15 +2332,14 @@ Move forward by a line and indent if invoked directly between."
   (when (eq major-mode 'gfm-mode)
     (auto-fill-mode -1)))
 
-(add-hook 'markdown-mode-hook #'basis/init-markdown-mode)
-
 (with-eval-after-load 'markdown-mode
   (basis/define-keys markdown-mode-map
     ("DEL"     #'basis/sp-markdown-backspace)
     ("M-n"     #'forward-paragraph)
     ("M-p"     #'backward-paragraph)
     ("C-c r"   #'markdown-insert-reference-link-dwim)
-    ("C-c C-r" #'markdown-insert-reference-link-dwim)))
+    ("C-c C-r" #'markdown-insert-reference-link-dwim))
+  (add-hook 'markdown-mode-hook #'basis/init-markdown-mode))
 
 ;; yaml ------------------------------------------------------------------------
 
@@ -2346,7 +2348,8 @@ Move forward by a line and indent if invoked directly between."
   (when (basis/yaml-multiple-docs-p)
     (basis/yaml-multi-doc-mode)))
 
-(add-hook 'yaml-mode-hook #'basis/init-yaml-mode)
+(with-eval-after-load 'yaml-mode
+  (add-hook 'yaml-mode-hook #'basis/init-yaml-mode))
 
 ;; deft ------------------------------------------------------------------------
 
