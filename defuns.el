@@ -1829,6 +1829,48 @@ Use `slime-expand-1' to produce the expansion."
 
 ;; sql -------------------------------------------------------------------------
 
+(defun basis/sql-indent (&optional n)
+  "Insert spaces or tabs to the Nth next tab-stop column."
+  (interactive "p")
+  (let ((n (or n 1)))
+    (if (use-region-p)
+        (let ((beg (region-beginning))
+              (end (progn (goto-char (region-end))
+                          (point-marker))))
+          (goto-char beg)
+          (unless (bolp)
+            (forward-line 1))
+          (while (< (point) end)
+            (dotimes (_ n) (tab-to-tab-stop))
+            (forward-line 1))
+          (move-marker end nil))
+      (dotimes (_ n) (tab-to-tab-stop)))))
+
+(defun basis/space-before-point ()
+  "Return the number of spaces before point."
+  (- (point)
+     (save-excursion (skip-syntax-backward " " (line-beginning-position))
+                     (point))))
+
+(defun basis/sql-backspace-dedent (&optional n)
+  "Delete N characters backward or dedent.
+Use `sp-backward-delete-char' if `smartparens-mode' is active."
+  (interactive "P")
+  (if (use-region-p)
+      (call-interactively #'backward-delete-char) ; Kill or delete the region
+    (let ((delete (if (bound-and-true-p smartparens-mode)
+                      #'sp-backward-delete-char
+                    (lambda (n) (delete-char (- n))))))
+      (funcall delete
+               (if (or n (bolp))
+                   (prefix-numeric-value n)
+                 (let* ((spaces (basis/space-before-point))
+                        (column (current-column))
+                        (offset (% column tab-width)))
+                   (if (zerop offset)
+                       (min spaces tab-width)
+                     (min spaces offset))))))))
+
 (defvar basis/sql-clause-start-regexp
   (rx word-start
       (or "create" "delete" "drop" "from"

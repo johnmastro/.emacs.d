@@ -2122,6 +2122,8 @@ Each element is a cons, (FEATURE . MODE).")
             'font-lock-keyword-face nil more-keywords)))
   (basis/define-keys sql-mode-map
     ("RET"   #'basis/electric-return)
+    ("TAB"   #'basis/sql-indent)
+    ("DEL"   #'basis/sql-backspace-dedent)
     ("M-n"   #'basis/sql-forward-clause)
     ("M-p"   #'basis/sql-backward-clause)
     ("C-M-a" #'basis/sql-beginning-of-defun)
