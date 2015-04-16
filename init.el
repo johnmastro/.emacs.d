@@ -259,7 +259,6 @@ it doesn't exist."
       line-number-mode t
       column-number-mode t
       imenu-auto-rescan t
-      next-line-add-newlines t
       apropos-do-all t
       custom-file (basis/emacs-file "custom.el")
       recenter-positions '(top middle bottom)
@@ -345,6 +344,10 @@ it doesn't exist."
 (blink-cursor-mode -1)
 
 (defalias 'yes-or-no-p #'y-or-n-p)
+
+;; Let C-n add newlines, and don't deactivate the mark
+(setq next-line-add-newlines t)
+(advice-add 'next-line :around #'basis/next-line-no-deactivate-mark)
 
 ;; Keep popping the mark until point actually moves
 (advice-add 'pop-to-mark-command :around #'basis/pop-to-mark-ensure-new-pos)

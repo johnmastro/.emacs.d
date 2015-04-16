@@ -214,6 +214,13 @@ in the global map."
                          (lookup-key global-map (this-command-keys))))
       (call-interactively cmd))))
 
+(defun basis/next-line-no-deactivate-mark (function &rest args)
+  "Advice for `next-line'.
+Bind `deactivate-mark' so that `next-line-add-newlines' doesn't
+cause the mark to be deactivated."
+  (let ((deactivate-mark))
+    (apply function args)))
+
 ;; kill commands ---------------------------------------------------------------
 
 (defun basis/kill-something (arg)
@@ -2190,3 +2197,4 @@ multiple-document stream."
       (insert (mapconcat #'identity
                          (seq-take basis/lorem-ipsum arg)
                          "\n\n")))))
+
