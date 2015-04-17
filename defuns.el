@@ -1644,6 +1644,14 @@ used to create Unicode, raw, and byte strings respectively."
 
 ;; python ----------------------------------------------------------------------
 
+(defun basis/python-command-fix-quote (function &rest args)
+  "Advice for `python-shell-parse-command' on Cygwin.
+Undo the quoting (via `shell-quote-argument') of e.g.
+\"c:/foo/python.exe\" to \"c\\:/foo/python.exe\", since the
+latter is not a valid path."
+  (let ((cmd (apply function args)))
+    (replace-regexp-in-string "\\`\\([A-Za-z]\\)\\\\:" "\\1:" cmd)))
+
 (defun basis/python-send-something ()
   "Send the active region or the current defun."
   (interactive)

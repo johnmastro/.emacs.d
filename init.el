@@ -2010,6 +2010,11 @@ Each element is a cons, (FEATURE . MODE).")
   (setq python-fill-docstring-style 'pep-257-nn)
   (add-hook 'python-mode-hook #'basis/init-python-mode)
   (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
+  (when (and (eq system-type 'windows-nt)
+             basis/cygwin-p)
+    (advice-add 'python-shell-parse-command
+                :around
+                #'basis/python-command-fix-quote))
   ;; Jedi has 2 Python dependencies: jedi and epc
   (when (basis/jedi-installed-p)
     (setq jedi:setup-keys t
