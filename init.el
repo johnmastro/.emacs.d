@@ -1429,6 +1429,9 @@ buffer."
 
 (helm-mode 1)
 
+;; None of helm, ido, or ivy seem to handle `Info-goto-node'
+(add-to-list 'helm-completing-read-handlers-alist '(Info-goto-node))
+
 (basis/define-keys global-map
   ("C-x C-f"  #'helm-find-files)
   ("C-x b"    #'helm-mini)
