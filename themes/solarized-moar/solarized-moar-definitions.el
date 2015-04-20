@@ -1,9 +1,4 @@
-(eval-when-compile
-  (unless (require 'cl-lib nil t)
-    (require 'cl)
-    (defalias 'cl-case 'case)
-    (defalias 'cl-copy-list 'copy-list))
-  )
+;; solarized-moar-definitions.el  -*- lexical-binding:t -*-
 
 (require 'solarized-definitions)
 
@@ -13,13 +8,6 @@
         (underline   (if solarized-underline t nil))
         (opt-under   nil)
         (italic      (if solarized-italic 'italic 'normal)))
-    (cond ((eq 'high solarized-contrast)
-           (let ((orig-base3 base3))
-             (rotatef base01 base00 base0 base1 base2 base3)
-             (setf base3 orig-base3)))
-          ((eq 'low solarized-contrast)
-           (setf back      base02
-                 opt-under t)))
     (let ((bg-back   '(:background back))
           (bg-base03 '(:background base03))
           (bg-base02 '(:background base02))
