@@ -111,6 +111,7 @@ it doesn't exist."
     js2-refactor
     jump-char
     leuven-theme
+    macrostep
     markdown-mode
     move-text
     multiple-cursors
@@ -1704,7 +1705,8 @@ Each element is a cons, (FEATURE . MODE).")
     (buffer     #'eval-buffer)
     (something  #'basis/eval-something)
     (file       #'load-file)
-    (expand     #'basis/expand-sexp-at-point)))
+    (expand     #'basis/expand-sexp-at-point))
+  (define-key emacs-lisp-mode-map (kbd "C-c e") #'macrostep-expand))
 
 ;; paredit ---------------------------------------------------------------------
 
