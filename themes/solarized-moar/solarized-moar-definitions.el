@@ -2,6 +2,18 @@
 
 (require 'solarized-definitions)
 
+(defun solarized-moar-find-color (name)
+  (let ((row (cdr (assoc name solarized-colors)))
+        (idx (if (or solarized-degrade (not (display-graphic-p)))
+                 (let ((cells (display-color-cells)))
+                   (cond ((>= cells 256) 2)
+                         ((>= cells 16) 3)
+                         (t 4)))
+               (if solarized-broken-srgb
+                   1
+                 0))))
+    (nth idx row)))
+
 (defun solarized-moar-color-definitions ()
   (let ((bold        (if solarized-bold 'bold 'normal))
         (bright-bold (if solarized-bold 'normal 'bold))
