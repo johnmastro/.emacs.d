@@ -208,6 +208,14 @@
                 (magit-bisect-bad (,@fg-red))
                 ;; git-rebase
                 (git-rebase-hash (:inherit magit-hash))
+                ;; macrostep
+                (macrostep-gensym-1 (,@fg-violet :box (,@fg-violet)))
+                (macrostep-gensym-2 (,@fg-green :box (,@fg-green)))
+                (macrostep-gensym-3 (,@fg-yellow :box (,@fg-yellow)))
+                (macrostep-gensym-4 (,@fg-red :box (,@fg-red)))
+                (macrostep-gensym-5 (,@fg-magenta :box (,@fg-magenta)))
+                (macrostep-expansion-highlight-face (:inherit highlight))
+                (macrostep-macro-face (:inherit font-lock-keyword-face ,@fmt-undr))
                 ;; which-func
                 (which-func (,@fg-base1))
                 )))))
