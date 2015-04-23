@@ -1861,30 +1861,38 @@ Use `slime-expand-1' to produce the expansion."
           (move-marker end nil))
       (dotimes (_ n) (tab-to-tab-stop)))))
 
-(defun basis/space-before-point ()
-  "Return the number of spaces before point."
-  (- (point)
-     (save-excursion (skip-syntax-backward " " (line-beginning-position))
-                     (point))))
+(defvar basis/sql-backspace-dedent-hungrily t
+  "Whether `basis/sql-backspace-dedent' should delete backward hungrily.")
 
 (defun basis/sql-backspace-dedent (&optional n)
   "Delete N characters backward or dedent.
-Use `sp-backward-delete-char' if `smartparens-mode' is active."
+If `basis/sql-backspace-dedent-hungrily' is non-nil, N is null,
+and there is non-whitespace before point on the current line,
+delete all whitespace backward. Use `sp-backward-delete-char' if
+`smartparens-mode' is active."
   (interactive "P")
   (if (use-region-p)
-      (call-interactively #'backward-delete-char) ; Kill or delete the region
-    (let ((delete (if (bound-and-true-p smartparens-mode)
-                      #'sp-backward-delete-char
-                    (lambda (n) (delete-char (- n))))))
-      (funcall delete
-               (if (or n (bolp))
-                   (prefix-numeric-value n)
-                 (let* ((spaces (basis/space-before-point))
-                        (column (current-column))
-                        (offset (% column tab-width)))
-                   (if (zerop offset)
-                       (min spaces tab-width)
-                     (min spaces offset))))))))
+      ;; Just call `backward-delete-char' because it will do the right thing
+      ;; based on `delete-active-region'
+      (call-interactively #'backward-delete-char)
+    (pcase-let ((`(,spaces ,stuff)
+                 (let ((start (point)))
+                   (save-excursion
+                     (skip-syntax-backward " " (line-beginning-position))
+                     (list (- start (point)) (not (bolp)))))))
+      (if (and basis/sql-backspace-dedent-hungrily (null n) stuff (> spaces 0))
+          (delete-horizontal-space t)
+        (let ((delete (if (bound-and-true-p smartparens-mode)
+                          #'sp-backward-delete-char
+                        (lambda (n) (delete-char (- n)))))
+              (arg (if (or n (bolp))
+                       (prefix-numeric-value n)
+                     (max 1 (let* ((column (current-column))
+                                   (offset (% column tab-width)))
+                              (if (zerop offset)
+                                  (min spaces tab-width)
+                                (min spaces offset)))))))
+          (funcall delete arg))))))
 
 (defvar basis/sql-clause-start-regexp
   (rx word-start
