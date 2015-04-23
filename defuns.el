@@ -662,7 +662,7 @@ related hooks and key bindings."
   (global-set-key (kbd "<escape>") nil)
   (define-key isearch-mode-map (kbd "<escape>") nil)
   (remove-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
-  (remove-hook 'focus-out-hook #'basis/god-maybe-enable))
+  (remove-hook 'focus-out-hook #'basis/god-maybe-all))
 
 ;; ibuffer ---------------------------------------------------------------------
 
