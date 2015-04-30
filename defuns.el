@@ -1795,19 +1795,13 @@ Use `slime-expand-1' to produce the expansion."
 
 ;; comint ----------------------------------------------------------------------
 
-(defun basis/comint-previous-input (arg)
-  "Move to the input area and call `comint-previous-input'."
-  (interactive "*p")
-  (when comint-scroll-to-bottom-on-input
-    (goto-char (point-max)))
-  (comint-previous-input arg))
-
-(defun basis/comint-next-input (arg)
-  "Move to the input area and call `comint-next-input'."
-  (interactive "*p")
-  (when comint-scroll-to-bottom-on-input
-    (goto-char (point-max)))
-  (comint-next-input arg))
+(defun basis/comint-input-goto-bottom-if-necessary (function &rest args)
+  "Advice for `comint' {previous,next}-input commands.
+If an adviced command would signal a \"Not at command line\"
+user-error, automatically move point to the command line."
+  (when (and comint-scroll-to-bottom-on-input
+             (not (comint-after-pmark-p)))
+    (goto-char (point-max))))
 
 ;; org-mode --------------------------------------------------------------------
 

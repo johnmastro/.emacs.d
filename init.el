@@ -1329,11 +1329,16 @@ buffer."
 
 (with-eval-after-load 'comint
   (basis/define-keys comint-mode-map
-    ("M-p"     #'basis/comint-previous-input)
-    ("M-n"     #'basis/comint-next-input)
+    ("M-p"     #'comint-previous-matching-input-from-input)
+    ("M-n"     #'comint-next-matching-input-from-input)
     ("C-c C-l" #'helm-comint-input-ring)
     ;; Because Paredit and Smartparens both use M-r
     ("C-M-r"   #'comint-history-isearch-backward-regexp))
+  (dolist (cmd '(comint-previous-input
+                 comint-next-input
+                 comint-previous-matching-input-from-input
+                 comint-next-matching-input-from-input))
+    (advice-add cmd :before #'basis/comint-input-goto-bottom-if-necessary))
   (add-hook 'comint-mode-hook #'basis/init-comint-mode))
 
 ;; shell-mode ------------------------------------------------------------------
