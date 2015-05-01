@@ -1206,6 +1206,31 @@ If no keymap is found, return nil."
     (when (boundp name)
       (symbol-value name))))
 
+(defun basis/isearch-backspace (&optional arg)
+  "Delete non-matching text or the last character."
+  (interactive "p")
+  (if (zerop (length isearch-string))
+      (ding)
+    (setq isearch-string
+          (substring isearch-string
+                     0
+                     (or (isearch-fail-pos) (1- (length isearch-string)))))
+    (setq isearch-message
+          (mapconcat #'isearch-text-char-description isearch-string "")))
+  (if isearch-other-end (goto-char isearch-other-end))
+  (isearch-search)
+  (isearch-push-state)
+  (isearch-update))
+
+(defun basis/isearch-cancel ()
+  "Cancel the current interactive search.
+Unlike `isearch-abort' and `isearch-exit', always cancel the
+current search, with no context-dependent behavior."
+  (interactive)
+  (discard-input)
+  (setq isearch-success nil)
+  (isearch-cancel))
+
 (defun basis/isearch-yank-something ()
   "Pull the current region or symbol into the search string."
   (interactive)

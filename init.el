@@ -799,8 +799,11 @@ See `basis/define-eval-keys'.")
 
 ;; isearch ---------------------------------------------------------------------
 
-;; Like C-w but the current region or symbol
-(define-key isearch-mode-map (kbd "C-t") #'basis/isearch-yank-something)
+(basis/define-keys isearch-mode-map
+  ("DEL"         #'basis/isearch-backspace)
+  ("<backspace>" #'basis/isearch-backspace)
+  ("C-t"         #'basis/isearch-yank-something)
+  ("C-g"         #'basis/isearch-cancel))
 
 ;; grep ------------------------------------------------------------------------
 
