@@ -1510,7 +1510,13 @@ buffer."
   (setq helm-adaptive-history-file
         (basis/emacs-file "var/helm-adaptive-history"))
   (require 'helm-adaptive)
-  (helm-adaptive-mode))
+  (helm-adaptive-mode)
+  ;; Always display Helm buffers at the bottom, using 40% of the frame's height
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*helm.*\\*\\'"
+                 (display-buffer-in-side-window)
+                 (inhibit-same-window . t)
+                 (window-height . 0.4))))
 
 (with-eval-after-load 'helm-files
   (basis/define-keys helm-find-files-map
