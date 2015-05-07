@@ -1185,7 +1185,9 @@ Return the empty string (i.e. get rid of the help string)."
 
 (defun basis/init-text-mode ()
   (auto-fill-mode 1)
-  (basis/maybe-enable-flyspell))
+  (basis/maybe-enable-flyspell)
+  (when ispell-alternate-dictionary
+    (add-to-list 'company-backends 'company-ispell)))
 
 (add-hook 'text-mode-hook #'basis/init-text-mode)
 
