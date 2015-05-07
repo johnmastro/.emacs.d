@@ -578,7 +578,6 @@ it doesn't exist."
   ("D" #'basis/delete-current-buffer-file)
   ("f" #'find-name-dired)
   ("F" #'find-dired)
-  ("G" #'find-grep-dired)
   ("m" #'make-directory))
 
 ;; Open one or more files externally, using the `helm-external' machinery
@@ -816,7 +815,8 @@ See `basis/define-eval-keys'.")
   ("s" #'lgrep)
   ("r" #'rgrep)
   ("z" #'zrgrep)
-  ("f" #'grep-find))
+  ("f" #'find-grep)
+  ("d" #'find-grep-dired))
 
 (with-eval-after-load 'grep
   ;; On OS X, prefer GNU Grep if it's available
