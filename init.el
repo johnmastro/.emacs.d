@@ -863,6 +863,13 @@ See `basis/define-eval-keys'.")
       ispell-personal-dictionary "~/.aspell.en.pws"
       ispell-extra-args '("--sug-mode=ultra"))
 
+(with-eval-after-load 'ispell
+  (condition-case nil
+      (lookup-words "whatever")
+    (error
+     (when (file-readable-p "~/Dropbox/dict/words")
+       (setq ispell-alternate-dictionary "~/Dropbox/dict/words")))))
+
 ;; prog-mode -------------------------------------------------------------------
 
 (add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
