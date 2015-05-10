@@ -1311,6 +1311,10 @@ buffer."
         dired-recursive-deletes 'top
         dired-listing-switches "-alh"
         find-ls-options '("-exec ls -ldh {} +" . "-ldh"))
+  ;; Use `ls' from GNU coreutils on OS X, when available
+  (when (and (eq system-type 'darwin)
+             (executable-find "gls"))
+    (setq insert-directory-program "gls"))
   (put 'dired-find-alternate-file 'disabled nil)
   (add-hook 'dired-mode-hook #'dired-omit-mode)
   (advice-add 'dired-omit-expunge :around #'basis/dired-omit-expunge-quietly))
