@@ -1451,6 +1451,17 @@ For use as a `mu4e' message action."
     (erase-buffer)
     (shr-insert-document dom)))
 
+(defun basis/find-tag (symbol)
+  "Like `find-tag' but try to avoid prompting."
+  (interactive (list (thing-at-point 'symbol)))
+  (cond ((equal current-prefix-arg '(4))
+         (let ((current-prefix-arg nil))
+           (call-interactively #'find-tag)))
+        ((or current-prefix-arg (null symbol))
+         (call-interactively #'find-tag))
+        (t
+         (find-tag symbol))))
+
 (defun basis/visit-tags-file-auto ()
   "Automatically find and visit a TAGS file."
   (interactive)

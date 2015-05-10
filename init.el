@@ -509,6 +509,11 @@ it doesn't exist."
   ("M-w" #'basis/transpose-windows)
   ("M-s" #'basis/toggle-window-split))
 
+;; Tags
+(define-key esc-map "." #'basis/find-tag)
+(define-key esc-map "," #'pop-tag-mark)
+(define-key esc-map "*" #'tags-loop-continue)
+
 ;; More comfortable {next,previous}-error
 (global-set-key (kbd "M-g M-f") #'next-error)
 (global-set-key (kbd "M-g M-b") #'previous-error)
