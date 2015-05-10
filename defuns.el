@@ -1458,6 +1458,43 @@ For use as a `mu4e' message action."
                (tags (locate-dominating-file file "TAGS")))
     (visit-tags-table (expand-file-name "TAGS" tags) t)))
 
+(defun basis/maybe-cygwinize-drive-letter (file)
+  "Convert \"c:/foo\" to \"/foo\" or \"e:/foo\" to \"/e/foo\".
+Assumes Cygwin's path prefix is \"/\"."
+  (cond ((string-match "\\`[Cc]:/" file)
+         (replace-match "/" t t file))
+        ((string-match "\\`\\([B-Zb-z]\\):/" file)
+         (replace-match (concat "/" (match-string 1 file) "/")
+                        t
+                        t
+                        file))
+        (t file)))
+
+(defun basis/projectile-regenerate-tags ()
+  "Copy of `projectile-regenerate-tags' modified for Cygwin paths.
+Using a tags file name of e.g. \"c:/foo/TAGS\" causes the
+resulting file to contain invalid paths. Use
+`basis/maybe-cygwinize-drive-letter' to convert the path to e.g.
+\"/foo/TAGS\". This assumes the Cygwin path prefix is \"/\"."
+  (interactive)
+  (if (and (eq system-type 'windows-nt) basis/cygwin-p)
+      (let* ((project-root (projectile-project-root))
+             (tags-exclude (projectile-tags-exclude-patterns))
+             (default-directory project-root)
+             (tags-file (expand-file-name projectile-tags-file-name))
+             (tags-file (basis/maybe-cygwinize-drive-letter tags-file))
+             (command (format projectile-tags-command tags-file tags-exclude))
+             shell-output exit-code)
+        (with-temp-buffer
+          (setq exit-code
+                (call-process-shell-command command nil (current-buffer))
+                shell-output (projectile-trim-string
+                              (buffer-substring (point-min) (point-max)))))
+        (unless (zerop exit-code)
+          (error shell-output))
+        (visit-tags-table tags-file))
+    (call-interactively #'projectile-regenerate-tags)))
+
 (defun basis/count-words ()
   "Count the lines, words, and characters in the active region.
 Like `count-words-region', but operate on the current buffer if

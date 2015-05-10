@@ -1627,6 +1627,10 @@ buffer."
 
 (projectile-global-mode)
 
+(when (and (eq system-type 'windows-nt) basis/cygwin-p)
+  (define-key projectile-mode-map
+    [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags))
+
 ;; lisp ------------------------------------------------------------------------
 
 (defvar basis/lisp-modes
