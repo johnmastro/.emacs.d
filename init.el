@@ -1170,6 +1170,9 @@ Return the empty string (i.e. get rid of the help string)."
 (global-set-key (kbd "<f10>") #'magit-status)
 
 (with-eval-after-load 'magit
+  (unless (boundp 'magit-backup-mode)
+    ;; Temporary kludge to prevent an unbound-symbol error
+    (setq magit-backup-mode nil))
   (setq magit-completing-read-function #'magit-ido-completing-read)
   (setq magit-repository-directories
         (->> (projectile-relevant-known-projects)
