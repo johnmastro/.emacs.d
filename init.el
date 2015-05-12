@@ -402,7 +402,6 @@ it doesn't exist."
                                    (clj-refactor      clj-refactor-mode)
                                    (projectile        projectile-mode)
                                    (page-break-lines  page-break-lines-mode)
-                                   (magit             magit-auto-revert-mode)
                                    (subword           subword-mode)
                                    (superword         superword-mode)))
   (eval-after-load feature
