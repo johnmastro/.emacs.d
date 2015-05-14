@@ -954,9 +954,18 @@ See `basis/define-eval-keys'.")
   (ace-jump-mode-enable-mark-sync))
 
 (basis/define-keys global-map
-  ("M-SPC"   #'ace-jump-mode)
+  ;; ("M-SPC"   #'ace-jump-mode)
   ("s-SPC"   #'ace-jump-mode)
   ("C-h SPC" #'ace-jump-mode-pop-mark))
+
+;; avy -------------------------------------------------------------------------
+
+(setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i))
+
+(global-set-key (kbd "M-SPC") #'avi-goto-word-1)
+
+(setq avy-goto-word-style 'pre
+      avy-goto-char-style 'pre)
 
 ;; ace-window ------------------------------------------------------------------
 
