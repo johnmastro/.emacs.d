@@ -179,24 +179,20 @@ it doesn't exist."
 ;; Do this after init so that it can override anything set here
 (add-hook 'after-init-hook #'basis/maybe-load-local-init)
 
-;; Why not? Idea taken from `dash-enable-font-lock', although I think that
-;; overdoes it a bit
-(basis/add-elisp-font-lock-keywords '("pcase-dolist"
-                                      "->"
-                                      "->>"
-                                      "-->"
-                                      "-when-let"
-                                      "-when-let*"
-                                      "--when-let"
-                                      "-if-let"
-                                      "-if-let*"
-                                      "--if-let"
-                                      "-let*"
-                                      "-let"
-                                      "-lambda"))
-
-(dolist (sym '(-> ->> -->))
-  (put sym 'lisp-indent-function 1))
+;; Compatibility shims for some of the new macros in Emacs 25's `subr-x', using
+;; the `dash' implementations.
+(when (version< emacs-version "25")
+  (let* ((macros (seq-remove (lambda (list) (fboundp (car list)))
+                             '((if-let       -if-let*   2)
+                               (when-let     -when-let* 1)
+                               (thread-first ->         1)
+                               (thread-last  ->>        1)))))
+    (pcase-dolist (`(,sym ,impl ,indent) macros)
+      (defalias sym impl)
+      (put sym 'lisp-indent-function indent))
+    (basis/add-elisp-font-lock-keywords
+     (cons "pcase-dolist" (mapcar (lambda (list) (symbol-name (car list)))
+                                  macros)))))
 
 ;; os x ------------------------------------------------------------------------
 
@@ -383,7 +379,7 @@ it doesn't exist."
 
 (defun basis/get-frame-title ()
   "Return a frame title including the current project directory."
-  (-if-let (file buffer-file-name)
+  (if-let (file buffer-file-name)
       (concat (abbreviate-file-name file)
               (when (and (bound-and-true-p projectile-mode)
                          (projectile-project-p))
@@ -1160,10 +1156,10 @@ Return the empty string (i.e. get rid of the help string)."
 
 ;; magit -----------------------------------------------------------------------
 
-(-when-let* ((directory (->> '("~/code/magit/" "~/src/magit/")
-                          (seq-filter #'file-directory-p)
-                          car))
-             (autoloads (expand-file-name "magit-autoloads.el" directory)))
+(when-let ((directory (thread-last '("~/code/magit/" "~/src/magit/")
+                        (seq-filter #'file-directory-p)
+                        car))
+           (autoloads (expand-file-name "magit-autoloads.el" directory)))
   (add-to-list 'load-path directory)
   (when (file-readable-p autoloads)
     (load autoloads)))
@@ -1177,7 +1173,7 @@ Return the empty string (i.e. get rid of the help string)."
     (setq magit-backup-mode nil))
   (setq magit-completing-read-function #'magit-ido-completing-read)
   (setq magit-repository-directories
-        (->> (projectile-relevant-known-projects)
+        (thread-last (projectile-relevant-known-projects)
           (seq-remove #'tramp-tramp-file-p)
           (seq-filter (lambda (dir)
                         (file-directory-p (expand-file-name ".git" dir))))
@@ -1281,7 +1277,7 @@ Return the empty string (i.e. get rid of the help string)."
                 :around
                 #'basis/company-no-tramp-completion))
   (with-eval-after-load 'cc-mode
-    (-when-let (args (basis/build-clang-args 'c))
+    (when-let (args (basis/build-clang-args 'c))
       (require 'company-clang)
       (setq company-clang-arguments args)
       (add-hook 'c-mode-hook #'basis/enable-company-clang))))
@@ -1853,7 +1849,7 @@ Each element is a cons, (FEATURE . MODE).")
   (cider-turn-on-eldoc-mode))
 
 (defun basis/set-lein-command-for-mac ()
-  (-when-let (lein (executable-find "lein"))
+  (when-let (lein (executable-find "lein"))
     (setq cider-lein-command lein)))
 
 (defun basis/set-lein-command-for-cygwin ()

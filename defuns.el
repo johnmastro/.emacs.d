@@ -205,13 +205,13 @@ search started. Otherwise, call the command the key is bound to
 in the global map."
   (interactive)
   (if (string= ivy-text "")
-      (-when-let (str (save-window-excursion
-                        (with-selected-window swiper--window
-                          (goto-char swiper--opoint)
-                          (thing-at-point 'symbol))))
+      (when-let (str (save-window-excursion
+                       (with-selected-window swiper--window
+                         (goto-char swiper--opoint)
+                         (thing-at-point 'symbol))))
         (insert str))
-    (-when-let (cmd (and (called-interactively-p 'any)
-                         (lookup-key global-map (this-command-keys))))
+    (when-let (cmd (and (called-interactively-p 'any)
+                        (lookup-key global-map (this-command-keys))))
       (call-interactively cmd))))
 
 (defun basis/next-line-no-deactivate-mark (function &rest args)
@@ -457,7 +457,7 @@ touch the filesystem)."
 
 (defun basis/windows->unix (path)
   "Convert a path from Windows-style to UNIX-style."
-  (->> path
+  (thread-last path
     (replace-regexp-in-string "\\\\" "/")
     (replace-regexp-in-string "[a-zA-Z]:" "")))
 
@@ -763,8 +763,8 @@ with `helm-read-file-name'."
              "Open externally: "
              :must-match t
              :marked-candidates t
-             :preselect (-when-let* ((file (buffer-file-name))
-                                     (base (file-name-nondirectory file)))
+             :preselect (when-let ((file (buffer-file-name))
+                                   (base (file-name-nondirectory file)))
                           (format "^%s$" (regexp-quote base)))
              :persistent-action #'helm-open-file-externally)))))
   (require 'helm-external)
@@ -837,7 +837,7 @@ If it doesn't exist, BUFFER is created automatically."
 
 (defun basis/direx-jump-to-project-root-noselect ()
   (interactive)
-  (-if-let (buffer (basis/direx-find-project-root-noselect))
+  (if-let (buffer (basis/direx-find-project-root-noselect))
       (progn (direx:maybe-goto-current-buffer-item buffer)
              buffer)
     ;; Or fall back to `default-directory'?
@@ -854,9 +854,9 @@ If it doesn't exist, BUFFER is created automatically."
 (defun basis/direx-file-name-at-point (&optional point)
   "Return the absolute file name of the item at POINT."
   (ignore-errors
-    (-> (direx:item-at-point point)
-        (direx:item-name)
-        (direx:canonical-filename))))
+    (thread-first (direx:item-at-point point)
+      (direx:item-name)
+      (direx:canonical-filename))))
 
 ;; emacs lisp ------------------------------------------------------------------
 
@@ -1465,8 +1465,8 @@ For use as a `mu4e' message action."
 (defun basis/visit-tags-file-auto ()
   "Automatically find and visit a TAGS file."
   (interactive)
-  (-when-let* ((file (buffer-file-name))
-               (tags (locate-dominating-file file "TAGS")))
+  (when-let ((file (buffer-file-name))
+             (tags (locate-dominating-file file "TAGS")))
     (visit-tags-table (expand-file-name "TAGS" tags) t)))
 
 (defun basis/maybe-cygwinize-drive-letter (file)
@@ -1880,7 +1880,7 @@ user-error, automatically move point to the command line."
 
 (defun basis/process-clojure-output (s)
   (mapconcat (lambda (line)
-               (->> line
+               (thread-last line
                  (string-remove-suffix "\r")
                  (concat ";; ")))
              (split-string (string-remove-suffix "\n" s) "\n")
@@ -1889,9 +1889,9 @@ user-error, automatically move point to the command line."
 (defun basis/org-babel-execute:clojure (body _params)
   (let* ((result (nrepl-sync-request:eval body (cider-current-ns)))
          (value (plist-get result :value))
-         (stdout (-when-let (s (plist-get result :stdout))
+         (stdout (when-let (s (plist-get result :stdout))
                    (basis/process-clojure-output s)))
-         (stderr (-when-let (s (plist-get result :stderr))
+         (stderr (when-let (s (plist-get result :stderr))
                    (basis/process-clojure-output s)))
          (output (concat stdout
                          (when (and stdout (not (string-suffix-p "\n" stdout)))
@@ -2212,7 +2212,7 @@ used rather than a list of symbols."
 
 (defun basis/elfeed-load-feeds (file)
   "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
-  (->> file
+  (thread-last file
     (basis/read-file)
     (mapcar #'basis/elfeed-parse-group)
     (apply #'nconc)))
