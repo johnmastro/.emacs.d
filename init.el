@@ -969,11 +969,9 @@ See `basis/define-eval-keys'.")
 ;; avy -------------------------------------------------------------------------
 
 (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i))
+(setq avy-style 'pre)
 
-(global-set-key (kbd "M-SPC") #'avi-goto-word-1)
-
-(setq avy-goto-word-style 'pre
-      avy-goto-char-style 'pre)
+(global-set-key (kbd "M-SPC") #'avy-goto-word-1)
 
 ;; ace-window ------------------------------------------------------------------
 
