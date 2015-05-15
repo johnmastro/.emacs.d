@@ -515,9 +515,6 @@ it doesn't exist."
 (global-set-key (kbd "M-g M-f") #'next-error)
 (global-set-key (kbd "M-g M-b") #'previous-error)
 
-;; Expand-region
-(global-set-key (kbd "M-=") #'er/expand-region)
-
 ;; Comment/uncomment stuff
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
 (global-set-key (kbd "C-x ;") #'basis/comment-region-lines)
@@ -917,6 +914,17 @@ See `basis/define-eval-keys'.")
 ;; The couple bindings undo-tree puts behind C-x r prevent discover.el's C-x r
 ;; context menu from working
 (define-key undo-tree-map (kbd "C-x r") nil)
+
+;; expand-region ---------------------------------------------------------------
+
+;; Expand-region
+(global-set-key (kbd "M-=") #'er/expand-region)
+
+(when (fboundp 'save-mark-and-excursion)
+  ;; Make `expand-region' use `save-mark-and-excursion', since `save-excursion'
+  ;; no longer saves and restores the mark
+  (require 'expand-region)
+  (fset 'er--expand-region-1 #'basis/er--expand-region-1))
 
 ;; multiple-cursors ------------------------------------------------------------
 

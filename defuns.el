@@ -1565,6 +1565,46 @@ make sure its in the same form that Emacs uses (i.e.
 \"c:/path/to/somewhere\")."
   (and result (expand-file-name result)))
 
+(defun basis/er--expand-region-1 ()
+  ;; Version of `er--expand-region-1' patched to use `save-mark-and-excursion',
+  ;; as required in Emacs 25
+  (let* ((p1 (point))
+         (p2 (if (use-region-p) (mark) (point)))
+         (start (min p1 p2))
+         (end (max p1 p2))
+         (try-list er/try-expand-list)
+         (best-start (point-min))
+         (best-end (point-max))
+         (set-mark-default-inactive nil))
+    (unless er/history
+      (add-hook 'after-change-functions 'er/clear-history t t))
+    (unless (and (= start best-start)
+                 (= end best-end))
+      (push (cons start end) er/history))
+    (when (and expand-region-skip-whitespace
+               (er--point-is-surrounded-by-white-space)
+               (= start end))
+      (skip-chars-forward er--space-str)
+      (setq start (point)))
+    (while try-list
+      (save-mark-and-excursion
+       (ignore-errors
+         (funcall (car try-list))
+         (when (and (region-active-p)
+                    (er--this-expansion-is-better start end best-start best-end))
+           (setq best-start (point))
+           (setq best-end (mark))
+           (when (and er--show-expansion-message (not (minibufferp)))
+             (message "%S" (car try-list))))))
+      (setq try-list (cdr try-list)))
+    (setq deactivate-mark nil)
+    (goto-char best-start)
+    (set-mark best-end)
+    (er--copy-region-to-register)
+    (when (and (= best-start (point-min))
+               (= best-end (point-max)))
+      'early-exit)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
