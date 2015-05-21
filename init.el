@@ -2070,7 +2070,9 @@ Each element is a cons, (FEATURE . MODE).")
   (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
   (when (and (eq system-type 'windows-nt)
              basis/cygwin-p)
-    (advice-add 'python-shell-parse-command
+    (advice-add (if (fboundp 'python-shell-calculate-command)
+                    'python-shell-calculate-command
+                  'python-shell-parse-command)
                 :around
                 #'basis/python-command-fix-quote))
   ;; Jedi has 2 Python dependencies: jedi and epc
