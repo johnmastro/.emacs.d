@@ -115,6 +115,7 @@ it doesn't exist."
     markdown-mode
     move-text
     multiple-cursors
+    nasm-mode
     page-break-lines
     paredit
     pcre2el
@@ -148,8 +149,10 @@ it doesn't exist."
 
 (defun basis/install-packages (packages)
   "Install any of PACKAGES that aren't already installed."
-  (let ((packages (cl-loop for pkg in packages
-                           unless (package-installed-p pkg) collect pkg)))
+  (let ((packages (delq nil (mapcar (lambda (pkg)
+                                      (unless (package-installed-p pkg)
+                                        pkg))
+                                    packages))))
     (when packages
       (package-refresh-contents)
       (mapc #'package-install packages))))
