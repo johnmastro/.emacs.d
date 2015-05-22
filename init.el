@@ -157,6 +157,11 @@ it doesn't exist."
       (package-refresh-contents)
       (mapc #'package-install packages))))
 
+;; Opt out of automatically saving a list of installed packages
+(when (boundp 'package-selected-packages)
+  (advice-add 'package--save-selected-packages :override #'ignore)
+  (setq package-selected-packages (copy-list basis/package-list)))
+
 (basis/install-packages basis/package-list)
 
 ;; load some code --------------------------------------------------------------
