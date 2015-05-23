@@ -1605,6 +1605,22 @@ make sure its in the same form that Emacs uses (i.e.
                (= best-end (point-max)))
       'early-exit)))
 
+(defvar basis/ivy-format-selection-text
+  (propertize "> " 'face 'font-lock-function-name-face)
+  "Text to place before the selection during `ivy' completion.")
+
+(defun basis/ivy-format-function (candidates)
+  "Function for use as `ivy-format-function'.
+Place a propertized \"> \" before the selected candidate."
+  (let ((i -1))
+    (mapconcat (lambda (s)
+                 (concat (if (eq (cl-incf i) ivy--index)
+                             basis/ivy-format-selection-text
+                           "  ")
+                         s))
+               candidates
+               "\n")))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)

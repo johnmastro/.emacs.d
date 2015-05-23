@@ -983,6 +983,25 @@ See `basis/define-eval-keys'.")
 
 (global-set-key (kbd "M-SPC") #'avy-goto-word-1)
 
+;; ivy/swiper/counsel ----------------------------------------------------------
+
+(setq ivy-format-function #'basis/ivy-format-function)
+
+(setq swiper-min-highlight 1)
+
+(global-set-key (kbd "C-s") #'swiper)
+(global-set-key (kbd "C-r") #'basis/swiper-helm)
+
+(with-eval-after-load 'swiper
+  (require 'avy)
+  (basis/define-keys swiper-map
+    ("M-%"   #'swiper-query-replace)
+    ("M-SPC" #'swiper-avy)
+    ("C-t"   #'basis/swiper-maybe-yank-something)))
+
+(with-eval-after-load 'ivy
+  (require 'counsel))
+
 ;; ace-window ------------------------------------------------------------------
 
 (global-set-key (kbd "M-o") #'ace-window)
@@ -1601,18 +1620,6 @@ buffer."
   (setq helm-grep-default-recurse-command
         (concat grep-program " --color=always -d recurse %e -n%cH -e %p %f"))
   (setenv "GREP_COLORS" "mt=30;43:sl=00;37:cx=:fn=35:ln=32:bn=32:se=36"))
-
-;; swiper ----------------------------------------------------------------------
-
-(setq swiper-min-highlight 1)
-
-(global-set-key (kbd "C-s") #'swiper)
-(global-set-key (kbd "C-r") #'basis/swiper-helm)
-
-(with-eval-after-load 'swiper
-  ;; M-q is nicer, but M-% is more forgiving to my muscle memory
-  (define-key swiper-map (kbd "M-%") #'swiper-query-replace)
-  (define-key swiper-map (kbd "C-t") #'basis/swiper-maybe-yank-something))
 
 ;; hippie expand ---------------------------------------------------------------
 
