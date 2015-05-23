@@ -71,6 +71,7 @@ it doesn't exist."
     color-theme-solarized
     company
     company-statistics
+    counsel
     dash
     dash-functional
     debbugs
