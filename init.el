@@ -676,6 +676,7 @@ See `basis/define-eval-keys'.")
     ack-and-a-half-mode
     cider-repl-mode
     slime-repl-mode
+    eshell-mode
     Man-mode
     Custom-mode
     special-mode))
