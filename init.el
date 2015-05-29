@@ -2096,7 +2096,11 @@ Each element is a cons, (FEATURE . MODE).")
   (when (basis/jedi-installed-p)
     (setq jedi:setup-keys t
           jedi:tooltip-method nil)
-    (add-hook 'python-mode-hook #'jedi:setup)))
+    (add-hook 'python-mode-hook #'jedi:setup))
+  ;; Hopefully-temporary workaround
+  (when (and (eq system-type 'windows-nt)
+             (boundp 'python-shell-completion-native-enable))
+    (setq python-shell-completion-native-enable nil)))
 
 ;; haskell ---------------------------------------------------------------------
 
