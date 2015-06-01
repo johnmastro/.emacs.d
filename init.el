@@ -667,20 +667,22 @@ See `basis/define-eval-keys'.")
 ;; god-mode --------------------------------------------------------------------
 
 (defvar basis/god-exempt-major-modes
-  '(compilation-mode
-    debugger-mode
+  '(Custom-mode
     Info-mode
-    completion-list-mode
-    wdired-mode
-    magit-popup-mode
-    magit-popup-sequence-mode
+    Man-mode
     ack-and-a-half-mode
     cider-repl-mode
-    slime-repl-mode
+    compilation-mode
+    completion-list-mode
+    debugger-mode
+    deft-mode
     eshell-mode
-    Man-mode
-    Custom-mode
-    special-mode))
+    magit-popup-mode
+    magit-popup-sequence-mode
+    sldb-mode
+    slime-repl-mode
+    special-mode
+    wdired-mode))
 
 (with-eval-after-load 'god-mode
   (require 'god-mode-isearch)
