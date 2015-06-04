@@ -2026,22 +2026,22 @@ Each element is a cons, (FEATURE . MODE).")
 
 ;; flycheck --------------------------------------------------------------------
 
-(defvar basis/flycheck-map
-  (let ((map (make-sparse-keymap)))
-    (basis/define-keys map
-      ("c"   #'flycheck-buffer)
-      ("n"   #'flycheck-next-error)
-      ("p"   #'flycheck-previous-error)
-      ("l"   #'flycheck-list-errors)
-      ("s"   #'flycheck-select-checker)
-      ("C"   #'flycheck-clear)
-      ("SPC" #'basis/flycheck-check-and-list-errors))
-    map)
-  "Custom keybindings for Flycheck.")
-
 (with-eval-after-load 'flycheck
-  (setq flycheck-check-syntax-automatically nil)
+  (define-prefix-command 'basis/flycheck-map)
+  (global-set-key (kbd "C-h l") basis/flycheck-map)
 
+  (basis/define-keys basis/flycheck-map
+    ("c"   #'flycheck-buffer)
+    ("n"   #'flycheck-next-error)
+    ("p"   #'flycheck-previous-error)
+    ("l"   #'flycheck-list-errors)
+    ("s"   #'flycheck-select-checker)
+    ("C"   #'flycheck-clear)
+    ("SPC" #'basis/flycheck-check-and-list-errors))
+
+  (global-set-key (kbd "<f8>") #'basis/flycheck-check-and-list-errors)
+
+  (setq flycheck-check-syntax-automatically nil)
   (unless (basis/libxml-available-p)
     (setq flycheck-xml-parser #'flycheck-parse-xml-region))
 
@@ -2049,8 +2049,6 @@ Each element is a cons, (FEATURE . MODE).")
   (make-variable-buffer-local 'flycheck-idle-change-delay)
   (add-hook 'flycheck-after-syntax-check-hook
             #'basis/adjust-flycheck-idle-change-delay)
-
-  (global-set-key (kbd "C-h l") basis/flycheck-map)
 
   ;; Keys for the errors buffer
   (basis/define-keys flycheck-error-list-mode-map
