@@ -1180,17 +1180,15 @@ Return the empty string (i.e. get rid of the help string)."
   "Advice for `ediff-setup'."
   (window-configuration-to-register :ediff-restore-windows))
 
-(defun basis/ediff-quit ()
-  "Quit `ediff' and restore the previous window configuration."
-  (interactive)
-  (call-interactively #'ediff-quit)
+(defun basis/ediff-quit-restore (&rest _args)
+  "Advice for `ediff-quit'.
+After quitting, restore the previous window configuration."
   (condition-case nil
       (jump-to-register :ediff-restore-windows)
     (error (message "Previous window configuration could not be restored"))))
 
 (defun basis/init-ediff ()
-  (ediff-setup-keymap)
-  (define-key ediff-mode-map "q" #'basis/ediff-quit))
+  (ediff-setup-keymap))
 
 (with-eval-after-load 'ediff
   (when (eq system-type 'windows-nt)
@@ -1198,6 +1196,7 @@ Return the empty string (i.e. get rid of the help string)."
                 :filter-args
                 #'basis/ediff-expand-tmp-name))
   (advice-add 'ediff-setup :before #'basis/ediff-save-window-config)
+  (advice-add 'ediff-quit :after #'basis/ediff-quit-restore)
   (add-hook 'ediff-mode-hook #'basis/init-ediff))
 
 ;; magit -----------------------------------------------------------------------
