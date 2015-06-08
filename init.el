@@ -694,7 +694,7 @@ See `basis/define-eval-keys'.")
   (dolist (mode basis/god-exempt-major-modes)
     (add-to-list 'god-exempt-major-modes mode)))
 
-(basis/enable-god-mode)
+;; (basis/enable-god-mode)
 
 ;; tmux ------------------------------------------------------------------------
 
