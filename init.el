@@ -1171,22 +1171,6 @@ Return the empty string (i.e. get rid of the help string)."
 (setq ediff-window-setup-function #'ediff-setup-windows-plain
       ediff-split-window-function #'split-window-horizontally)
 
-(defun basis/ediff-expand-tmp-name (args)
-  "Advice for `ediff-make-empty-tmp-file'."
-  (pcase-let ((`(,proposed-name . ,rest) args))
-    (cons (expand-file-name proposed-name) rest)))
-
-(defun basis/ediff-save-window-config (&rest _ignore)
-  "Advice for `ediff-setup'."
-  (window-configuration-to-register :ediff-restore-windows))
-
-(defun basis/ediff-quit-restore (&rest _args)
-  "Advice for `ediff-quit'.
-After quitting, restore the previous window configuration."
-  (condition-case nil
-      (jump-to-register :ediff-restore-windows)
-    (error (message "Previous window configuration could not be restored"))))
-
 (defun basis/init-ediff ()
   (ediff-setup-keymap))
 

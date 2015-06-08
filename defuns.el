@@ -692,6 +692,28 @@ Only group a buffer with a VC if its visiting a file."
     (ibuffer-vc-set-filter-groups-by-vc-root)
     (setq basis/ibuffer-grouped-by-vc-p t)))
 
+;; ediff -----------------------------------------------------------------------
+
+(defun basis/ediff-expand-tmp-name (args)
+  "Advice for `ediff-make-empty-tmp-file'.
+Call `expand-file-name' on the proposed file name. Only necessary
+on Windows."
+  (pcase-let ((`(,proposed-name . ,rest) args))
+    (cons (expand-file-name proposed-name) rest)))
+
+(defun basis/ediff-save-window-config (&rest _ignore)
+  "Advice for `ediff-setup'.
+Save the current window configuration to register
+`:ediff-restore-windows', so that it can be restored on exit."
+  (window-configuration-to-register :ediff-restore-windows))
+
+(defun basis/ediff-quit-restore (&rest _args)
+  "Advice for `ediff-quit'.
+After quitting, restore the previous window configuration."
+  (condition-case nil
+      (jump-to-register :ediff-restore-windows)
+    (error (message "Previous window configuration could not be restored"))))
+
 ;; eshell ----------------------------------------------------------------------
 
 (defun basis/eshell-kill-line-backward ()
