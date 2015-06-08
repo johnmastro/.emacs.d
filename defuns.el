@@ -1621,6 +1621,30 @@ Place a propertized \"> \" before the selected candidate."
                candidates
                "\n")))
 
+(defvar basis/occur-show-note-strings
+  (if (require 'hl-todo nil t)
+      (mapcar #'car hl-todo-keyword-faces)
+    '("HOLD"
+      "TODO"
+      "NEXT"
+      "THEM"
+      "PROG"
+      "OKAY"
+      "DONT"
+      "FAIL"
+      "DONE"
+      "NOTE"
+      "KLUDGE"
+      "FIXME"
+      "XXX"
+      "???"))
+  "List of strings `basis/occur-show-notes' will search for.")
+
+(defun basis/occur-show-notes ()
+  "Search for common \"TODO\"-style notes."
+  (interactive)
+  (occur (regexp-opt basis/occur-show-note-strings t)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
