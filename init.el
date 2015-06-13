@@ -126,6 +126,7 @@ it doesn't exist."
     pyvenv
     quack
     redshank
+    request
     rust-mode
     s
     seq
