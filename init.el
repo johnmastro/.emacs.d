@@ -161,7 +161,7 @@ it doesn't exist."
 ;; Opt out of automatically saving a list of installed packages
 (when (boundp 'package-selected-packages)
   (advice-add 'package--save-selected-packages :override #'ignore)
-  (setq package-selected-packages (copy-list basis/package-list)))
+  (setq package-selected-packages (copy-sequence basis/package-list)))
 
 (basis/install-packages basis/package-list)
 
