@@ -1731,7 +1731,10 @@ Each element is a cons, (FEATURE . MODE).")
   ;; Normally `lexical-binding' should be set within a file, but that doesn't
   ;; work for *scratch* and *ielm*
   (when (member (buffer-name) '("*scratch*" "*ielm*"))
-    (setq lexical-binding t)))
+    (setq lexical-binding t))
+  ;; Use `common-lisp-indent-function', if it knows about Emacs Lisp
+  (when (get 'if 'common-lisp-indent-function-for-elisp)
+    (setq-local lisp-indent-function #'common-lisp-indent-function)))
 
 (defun basis/init-emacs-lisp-mode ()
   (unless no-byte-compile
