@@ -769,9 +769,7 @@ See `basis/define-eval-keys'.")
 
 (setq recentf-max-saved-items 50
       recentf-save-file (basis/emacs-file "var/recentf")
-      recentf-exclude (list #'tramp-tramp-file-p
-                            #'basis/git-file-p
-                            #'file-remote-p))
+      recentf-exclude (list #'tramp-tramp-file-p #'file-remote-p))
 
 ;; TRAMP -----------------------------------------------------------------------
 
