@@ -1549,18 +1549,19 @@ the region isn't active."
                  (looking-at-p "\\_<fi\\_>")))
     (funcall function)))
 
-(defun basis/visit-pull-request-url ()
+(defun basis/browse-pull-request-url ()
   "Visit the current branch's PR on GitHub."
   (interactive)
   (browse-url
    (format "https://github.com/%s/compare/%s"
+           ;; Or this? "https://github.com/%s/pull/new/%s"
            (replace-regexp-in-string
             "\\`.+github\\.com:\\(.+\\)\\.git\\'"
             "\\1"
-            (magit-get "remote"
-                       (magit-get-remote)
-                       "url"))
-           (magit-get-current-branch))))
+            (magit-get "remote" (magit-get-remote) "url"))
+           (cdr (magit-get-remote-branch)))))
+
+(defalias 'basis/visit-pull-request-url #'basis/browse-pull-request-url)
 
 (defun basis/magit-status-fullscreen (&rest _args)
   "Advice for `magit-status', to make it use the full screen."
