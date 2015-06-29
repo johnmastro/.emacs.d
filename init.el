@@ -1725,7 +1725,6 @@ Each element is a cons, (FEATURE . MODE).")
   ;; Paredit is enabled by `basis/init-lisp-generic'
   (elisp-slime-nav-mode t)
   (basis/init-hippie-expand-for-elisp)
-  (add-to-list 'company-backends 'company-elisp)
   (turn-on-eldoc-mode)
   ;; Normally `lexical-binding' should be set within a file, but that doesn't
   ;; work for *scratch* and *ielm*
