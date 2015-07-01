@@ -113,6 +113,7 @@ it doesn't exist."
     jump-char
     leuven-theme
     macrostep
+    magit
     markdown-mode
     move-text
     multiple-cursors
@@ -1183,14 +1184,6 @@ Return the empty string (i.e. get rid of the help string)."
   (add-hook 'ediff-mode-hook #'basis/init-ediff))
 
 ;; magit -----------------------------------------------------------------------
-
-(when-let ((directory (thread-last '("~/code/magit/" "~/src/magit/")
-                        (seq-filter #'file-directory-p)
-                        car))
-           (autoloads (expand-file-name "magit-autoloads.el" directory)))
-  (add-to-list 'load-path directory)
-  (when (file-readable-p autoloads)
-    (load autoloads)))
 
 (global-set-key (kbd "C-x g") #'magit-status)
 (global-set-key (kbd "<f10>") #'magit-status)
