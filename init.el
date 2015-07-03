@@ -1203,7 +1203,7 @@ Return the empty string (i.e. get rid of the help string)."
                         (file-directory-p (expand-file-name ".git" dir))))
           (cons "~/code/")
           (mapcar (lambda (dir) (substring dir 0 -1)))))
-  (advice-add 'magit-status :after #'basis/magit-status-fullscreen)
+  (add-hook 'magit-status-mode-hook #'delete-other-windows)
   (when (and (eq system-type 'windows-nt)
              basis/cygwin-p)
     (advice-add 'magit-get-top-dir

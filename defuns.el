@@ -1563,10 +1563,6 @@ the region isn't active."
 
 (defalias 'basis/visit-pull-request-url #'basis/browse-pull-request-url)
 
-(defun basis/magit-status-fullscreen (&rest _args)
-  "Advice for `magit-status', to make it use the full screen."
-  (delete-other-windows))
-
 (defun basis/magit-expand-top-dir (result)
   "Advice for `magit-get-top-dir'.
 For use with Cygwin. Call `expand-file-name' on its result, to
