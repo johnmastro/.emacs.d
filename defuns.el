@@ -7,6 +7,15 @@
 
 ;; misc. editing utilities -----------------------------------------------------
 
+(defun basis/next-line ()
+  "Move point to the next line.
+Wrapper around `next-line' to let-bind `next-line-add-newlines'
+to nil if a keyboard macro is executing."
+  (interactive)
+  (let ((next-line-add-newlines
+         (and next-line-add-newlines (not executing-kbd-macro))))
+    (call-interactively #'next-line)))
+
 (defun basis/beginning-of-line-or-indentation ()
   "Smarter `move-beginning-of-line'.
 Go back to the first non-whitespace character or, if already

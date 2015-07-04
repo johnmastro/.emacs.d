@@ -463,6 +463,10 @@ it doesn't exist."
 ;; C-c <left>/<right> to move backward/forward through window configurations
 (winner-mode 1)
 
+;; Make `next-line-add-newlines' safe for keyboard macros
+(global-set-key (kbd "C-n") #'basis/next-line)
+(global-set-key (kbd "<down>") #'basis/next-line)
+
 ;; Newlines
 (basis/define-keys global-map
   ("RET"          #'newline-and-indent)
