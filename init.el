@@ -854,16 +854,12 @@ See `basis/define-eval-keys'.")
     ((and cmd (guard (string-match "\\_<-nH\\_>" cmd)))
      (grep-apply-setting 'grep-find-command (replace-match "-nHE" t t cmd))))
   ;; Add some more file aliases
-  (let ((aliases (mapcar #'car grep-files-aliases)))
-    (pcase-dolist (`(,alias . ,files) '(("py"  . "*.py")
-                                        ("sql" . "*.sql")
-                                        ("clj" . "*.clj *.cljs")
-                                        ("cl"  . "*.lisp *.cl")
-                                        ("org" . "*.org")
-                                        ("csv" . "*.csv")
-                                        ("txt" . "*.txt")))
-      (unless (member alias aliases)
-        (add-to-list 'grep-files-aliases (cons alias files))))))
+  (pcase-dolist (`(,alias . ,files)
+                 '(("clj" . "*.clj *.cljs *.cljc")
+                   ("cl"  . "*.lisp *.cl")
+                   ("txt" . "*.txt *.org *.rst *.md *.mkd *.markdown")))
+    (unless (assoc alias grep-files-aliases)
+      (add-to-list 'grep-files-aliases (cons alias files)))))
 
 ;; occur -----------------------------------------------------------------------
 
