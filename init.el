@@ -1208,6 +1208,19 @@ Return the empty string (i.e. get rid of the help string)."
                 :filter-return
                 #'basis/magit-expand-top-dir)))
 
+(with-eval-after-load 'with-editor
+  ;; On Cygwin, fix `with-editor-emacsclient-executable' and advice
+  ;; `with-editor-locate-emacsclient' so that its result is accurate for any
+  ;; future uses.
+  (when (and (eq system-type 'windows-nt)
+             basis/cygwin-p)
+    (when-let ((client with-editor-emacsclient-executable)
+               (client (basis/fix-bad-cygwin-file-name client)))
+      (setq with-editor-emacsclient-executable client))
+    (advice-add 'with-editor-locate-emacsclient
+                :filter-return
+                #'basis/fix-located-emacsclient-file-name)))
+
 ;; text-mode -------------------------------------------------------------------
 
 (defun basis/init-text-mode ()

@@ -1583,6 +1583,19 @@ make sure its in the same form that Emacs uses (i.e.
 \"c:/path/to/somewhere\")."
   (and result (expand-file-name result)))
 
+(defun basis/fix-bad-cygwin-file-name (name)
+  "Un-escape the colon drive letter separator in NAME.
+For example, given \"c\\:/path/to/file\" return \"c:/path/to/file\". Used to
+adjust the result of `with-editor-locate-emacsclient'."
+  (if (string-match "\\`[a-zA-Z]\\(\\\\\\):/" name)
+      (replace-match "" t t name 1)
+    name))
+
+(defun basis/fix-located-emacsclient-file-name (name)
+  "Advice for `with-editor-locate-emacsclient'.
+See also `basis/fix-bad-cygwin-file-name'."
+  (and name (basis/fix-bad-cygwin-file-name name)))
+
 (defun basis/er--expand-region-1 ()
   ;; Version of `er--expand-region-1' patched to use `save-mark-and-excursion',
   ;; as required in Emacs 25
