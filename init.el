@@ -1000,7 +1000,8 @@ See `basis/define-eval-keys'.")
     ("C-t"   #'basis/swiper-maybe-yank-something)))
 
 (with-eval-after-load 'ivy
-  (require 'counsel))
+  (require 'counsel)
+  (define-key ivy-minibuffer-map (kbd "C-r") #'ivy-previous-line))
 
 ;; ace-window ------------------------------------------------------------------
 
