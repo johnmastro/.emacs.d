@@ -1562,7 +1562,7 @@ the region isn't active."
                  (looking-at-p "\\_<fi\\_>")))
     (funcall function)))
 
-(defun basis/browse-pull-request-url ()
+(defun basis/magit-browse-pull-request-url ()
   "Visit the current branch's PR on GitHub."
   (interactive)
   (browse-url
@@ -1574,7 +1574,8 @@ the region isn't active."
             (magit-get "remote" (magit-get-remote) "url"))
            (cdr (magit-get-remote-branch)))))
 
-(defalias 'basis/visit-pull-request-url #'basis/browse-pull-request-url)
+(defalias 'basis/magit-visit-pull-request-url
+  #'basis/magit-browse-pull-request-url)
 
 (defun basis/magit-expand-top-dir (result)
   "Advice for `magit-get-top-dir'.

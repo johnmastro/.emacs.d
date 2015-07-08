@@ -1207,7 +1207,12 @@ Return the empty string (i.e. get rid of the help string)."
              basis/cygwin-p)
     (advice-add 'magit-get-top-dir
                 :filter-return
-                #'basis/magit-expand-top-dir)))
+                #'basis/magit-expand-top-dir))
+  ;; Add a command on `C-c C-v' to view the pull request URL. It would be even
+  ;; better to add this to Magit's menus but nowhere sticks out as obviously
+  ;; appropriate.
+  (define-key magit-status-mode-map
+    (kbd "C-c C-v") #'basis/magit-visit-pull-request-url))
 
 (with-eval-after-load 'with-editor
   ;; On Cygwin, fix `with-editor-emacsclient-executable' and advice
