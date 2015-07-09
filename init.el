@@ -2087,8 +2087,8 @@ Each element is a cons, (FEATURE . MODE).")
     (advice-add (if (fboundp 'python-shell-calculate-command)
                     'python-shell-calculate-command
                   'python-shell-parse-command)
-                :around
-                #'basis/python-command-fix-quote))
+                :filter-return
+                #'basis/fix-bad-cygwin-file-name))
   ;; Jedi has 2 Python dependencies: jedi and epc
   (when (basis/jedi-installed-p)
     (setq jedi:setup-keys t

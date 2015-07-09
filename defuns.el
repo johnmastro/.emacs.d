@@ -1586,9 +1586,11 @@ make sure its in the same form that Emacs uses (i.e.
 
 (defun basis/fix-bad-cygwin-file-name (name)
   "Un-escape the colon drive letter separator in NAME.
-For example, given \"c\\:/path/to/file\" return \"c:/path/to/file\". Used to
-adjust the result of `with-editor-locate-emacsclient'."
-  (if (string-match "\\`[a-zA-Z]\\(\\\\\\):/" name)
+For example, given \"c\\:/path/to/file\" return
+\"c:/path/to/file\". Used to adjust the result of
+`python-shell-calculate-command' and
+`with-editor-locate-emacsclient'."
+  (if (and name (string-match "\\`[a-zA-Z]\\(\\\\\\):/" name))
       (replace-match "" t t name 1)
     name))
 
@@ -1828,14 +1830,6 @@ used to create Unicode, raw, and byte strings respectively."
                         #'geiser-expand-last-sexp)))
 
 ;; python ----------------------------------------------------------------------
-
-(defun basis/python-command-fix-quote (function &rest args)
-  "Advice for `python-shell-parse-command' on Cygwin.
-Undo the quoting (via `shell-quote-argument') of e.g.
-\"c:/foo/python.exe\" to \"c\\:/foo/python.exe\", since the
-latter is not a valid path."
-  (let ((cmd (apply function args)))
-    (replace-regexp-in-string "\\`\\([A-Za-z]\\)\\\\:" "\\1:" cmd)))
 
 (defun basis/python-send-something ()
   "Send the active region or the current defun."
