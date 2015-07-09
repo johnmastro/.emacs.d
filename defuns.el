@@ -1863,13 +1863,11 @@ latter is not a valid path."
   (backward-char 3))
 
 (defun basis/python-find-venv ()
-  (when (and (bound-and-true-p projectile-mode)
-             (projectile-project-p))
-    (let* ((prj (projectile-project-root))
-           (env (expand-file-name "env" prj)))
-      (and (or (file-exists-p (expand-file-name "bin/activate" env))
-               (file-exists-p (expand-file-name "Scripts/activate" env)))
-           env))))
+  (when-let ((prj (ignore-errors (projectile-project-root)))
+             (env (expand-file-name "env" prj)))
+    (and (or (file-exists-p (expand-file-name "bin/activate" env))
+             (file-exists-p (expand-file-name "Scripts/activate" env)))
+         env)))
 
 (defun basis/pyvenv-activate (dir)
   "Like `pyvenv-activate' but try to guess the directory."
