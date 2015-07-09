@@ -927,14 +927,7 @@ See `basis/define-eval-keys'.")
 
 ;; expand-region ---------------------------------------------------------------
 
-;; Expand-region
 (global-set-key (kbd "M-=") #'er/expand-region)
-
-(when (fboundp 'save-mark-and-excursion)
-  ;; Make `expand-region' use `save-mark-and-excursion', since `save-excursion'
-  ;; no longer saves and restores the mark
-  (require 'expand-region)
-  (fset 'er--expand-region-1 #'basis/er--expand-region-1))
 
 ;; multiple-cursors ------------------------------------------------------------
 
