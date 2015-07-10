@@ -1759,7 +1759,7 @@ Each element is a cons, (FEATURE . MODE).")
     (buffer     #'eval-buffer)
     (something  #'basis/eval-something)
     (file       #'load-file)
-    (expand     #'basis/expand-sexp-at-point))
+    (expand     #'macrostep-expand))
   (basis/define-eval-keys lisp-interaction-mode-map
     (last-sexp  #'basis/eval-last-sexp)
     (definition #'eval-defun)
@@ -1767,8 +1767,8 @@ Each element is a cons, (FEATURE . MODE).")
     (buffer     #'eval-buffer)
     (something  #'basis/eval-something)
     (file       #'load-file)
-    (expand     #'basis/expand-sexp-at-point))
-  (define-key emacs-lisp-mode-map (kbd "C-c e") #'macrostep-expand))
+    (expand     #'macrostep-expand))
+  (define-key emacs-lisp-mode-map (kbd "C-c e") #'basis/expand-sexp-at-point))
 
 ;; paredit ---------------------------------------------------------------------
 
