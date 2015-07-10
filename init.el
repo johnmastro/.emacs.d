@@ -72,6 +72,7 @@ it doesn't exist."
     company
     company-statistics
     counsel
+    csv-mode
     dash
     dash-functional
     debbugs
