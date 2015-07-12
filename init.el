@@ -2325,6 +2325,9 @@ Each element is a cons, (FEATURE . MODE).")
   ("C-c c" #'org-capture)
   ("C-c l" #'org-store-link))
 
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "RET") #'org-return-indent))
+
 ;; org-babel + clojure ---------------------------------------------------------
 
 (with-eval-after-load 'org
