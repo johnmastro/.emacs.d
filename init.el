@@ -1515,7 +1515,7 @@ buffer."
   ("e" #'helm-register)
   ("f" #'helm-find-files)
   ("g" #'helm-do-grep)
-  ("i" #'helm-semantic-or-imenu)
+  ("i" #'helm-info-at-point)
   ("k" #'helm-man-woman)
   ("l" #'helm-bookmarks)
   ("m" #'helm-all-mark-rings)
