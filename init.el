@@ -1196,6 +1196,7 @@ Return the empty string (i.e. get rid of the help string)."
                         (file-directory-p (expand-file-name ".git" dir))))
           (cons "~/code/")
           (mapcar (lambda (dir) (substring dir 0 -1)))))
+  (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
   (add-hook 'magit-status-mode-hook #'delete-other-windows)
   (when (and (eq system-type 'windows-nt)
              basis/cygwin-p)
