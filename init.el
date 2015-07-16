@@ -1127,16 +1127,18 @@ Return the empty string (i.e. get rid of the help string)."
 (when (file-exists-p (basis/emacs-file "feeds.el"))
   (setq elfeed-feeds (basis/elfeed-load-feeds (basis/emacs-file "feeds.el"))))
 
-;; eww -------------------------------------------------------------------------
+;; shr/eww ---------------------------------------------------------------------
 
-(defun basis/eww-tag-body-no-color (function &rest args)
-  "Advice for `eww-tag-body'; don't colorize the region."
-  (cl-letf (((symbol-function 'eww-colorize-region)
+(defun basis/shr-tag-body-no-color (function &rest args)
+  "Advice for `shr-tag-body'; don't colorize the region."
+  (cl-letf (((symbol-function 'shr-colorize-region)
              #'ignore))
     (apply function args)))
 
+(with-eval-after-load 'shr
+  (advice-add 'shr-tag-body :around #'basis/shr-tag-body-no-color))
+
 (with-eval-after-load 'eww
-  (advice-add 'eww-tag-body :around #'basis/eww-tag-body-no-color)
   (define-key eww-mode-map (kbd "<backtab>") #'shr-previous-link))
 
 ;; w3m -------------------------------------------------------------------------
