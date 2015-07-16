@@ -1089,7 +1089,7 @@ Return the empty string (i.e. get rid of the help string)."
                                #'basis/shr-html2text))
 
 ;; Where to save attachments
-(let ((dir (-first #'file-directory-p '("~/downloads" "~/Downloads" "~/"))))
+(let ((dir (seq-some-p #'file-directory-p '("~/downloads" "~/Downloads" "~/"))))
   (setq mu4e-attachment-dir dir))
 
 ;; Composing messages
