@@ -1764,8 +1764,7 @@ Each element is a cons, (FEATURE . MODE).")
     (buffer     #'eval-buffer)
     (something  #'basis/eval-something)
     (file       #'load-file)
-    (expand     #'macrostep-expand))
-  (define-key emacs-lisp-mode-map (kbd "C-c e") #'basis/expand-sexp-at-point))
+    (expand     #'macrostep-expand)))
 
 ;; paredit ---------------------------------------------------------------------
 

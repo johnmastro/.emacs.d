@@ -862,13 +862,6 @@ If it doesn't exist, BUFFER is created automatically."
 
 ;; emacs lisp ------------------------------------------------------------------
 
-(define-minor-mode basis/elisp-display-mode
-  "Display pretty-printed output macro expansions."
-  :lighter ""
-  :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "q") #'quit-window)
-            map))
-
 (defun basis/eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
@@ -876,71 +869,6 @@ If it doesn't exist, BUFFER is created automatically."
       (prog1 (call-interactively #'eval-region)
         (setq deactivate-mark t))
     (call-interactively #'eval-defun)))
-
-(defun basis/display-elisp (string &optional buffer-or-name)
-  (let ((buffer-or-name (or buffer-or-name "*Elisp Display*")))
-    (with-current-buffer (get-buffer-create buffer-or-name)
-      (setq buffer-read-only nil)
-      (erase-buffer)
-      (insert string)
-      (emacs-lisp-mode)
-      (basis/elisp-display-mode 1)
-      (setq buffer-read-only t)
-      (goto-char (point-min))
-      (when (bound-and-true-p god-local-mode)
-        (god-local-mode -1))
-      (pop-to-buffer (current-buffer)))))
-
-(defun basis/pp-eval-form (form &optional insert)
-  "Eval FORM and pretty-print the result.
-If INSERT is nil, display the result in a read-only buffer.
-Otherwise, insert it into the current buffer."
-  (let ((result (pp-to-string (eval form))))
-    (if insert
-        (insert result)
-      (basis/display-elisp result "*PP Eval Output*"))))
-
-(defun basis/pp-eval-last-sexp (arg)
-  "Eval the last sexp and pretty-print the result.
-If arg is nil, display the result is a read-only buffer.
-Otherwise, insert the result into the current buffer."
-  (interactive "P")
-  (message "Evaluating...")
-  (basis/pp-eval-form (pp-last-sexp) arg))
-
-(defun basis/read-expression ()
-  "Read an expression from the minibuffer and return it."
-  (read-from-minibuffer
-   "Eval: " nil read-expression-map t 'read-expression-history))
-
-(defun basis/pp-eval-expression (arg)
-  "Read an expression, eval it, and pretty-print the result.
-If arg is nil, display the result is a read-only buffer.
-Otherwise, insert the result into the current buffer."
-  (interactive "P")
-  (let ((expr (basis/read-expression)))
-    (message "Evaluating... ")
-    (basis/pp-eval-form expr arg)))
-
-(defun basis/expand-form (form)
-  "Macroexpand FORM and display the result."
-  (let* ((expansion (macroexpand form))
-         (string (with-output-to-string (pp expansion))))
-    (basis/display-elisp string "*Elisp Macroexpansion*")))
-
-(defun basis/expand-something (thing)
-  "Macroexpand the form designated by THING."
-  (basis/expand-form (form-at-point thing)))
-
-(defun basis/expand-sexp-at-point ()
-  "Display the expansion of the sexp at point."
-  (interactive)
-  (basis/expand-something 'sexp))
-
-(defun basis/expand-defun ()
-  "Display the expansion of the current toplevel form."
-  (interactive)
-  (basis/expand-something 'defun))
 
 (defun basis/eval-last-sexp (&optional arg)
   (interactive "P")
