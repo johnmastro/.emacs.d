@@ -1847,14 +1847,6 @@ Each element is a cons, (FEATURE . MODE).")
     (expand     #'slime-expand-1))
   (setq slime-autodoc-use-multiline-p t))
 
-;; cider-or-slime selector -----------------------------------------------------
-
-(with-eval-after-load 'slime
-  (global-set-key (kbd "<f12>") #'basis/lisp-selector))
-
-(with-eval-after-load 'cider
-  (global-set-key (kbd "<f12>") #'basis/lisp-selector))
-
 ;; clojure ---------------------------------------------------------------------
 
 (defun basis/init-clojure-mode ()
