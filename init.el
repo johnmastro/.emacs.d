@@ -1203,7 +1203,7 @@ Return the empty string (i.e. get rid of the help string)."
   ;; better to add this to Magit's menus but nowhere sticks out as obviously
   ;; appropriate.
   (define-key magit-status-mode-map
-    (kbd "C-c C-v") #'basis/magit-visit-pull-request-url))
+    (kbd "C-c C-v") #'basis/magit-browse-pull-request-url))
 
 (with-eval-after-load 'with-editor
   ;; On Cygwin, fix `with-editor-emacsclient-executable' and advice

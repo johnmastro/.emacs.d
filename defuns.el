@@ -1483,9 +1483,6 @@ the region isn't active."
             (magit-get "remote" (magit-get-remote) "url"))
            (cdr (magit-get-remote-branch)))))
 
-(defalias 'basis/magit-visit-pull-request-url
-  #'basis/magit-browse-pull-request-url)
-
 (defun basis/magit-expand-top-dir (result)
   "Advice for `magit-get-top-dir'.
 For use with Cygwin. Call `expand-file-name' on its result, to
