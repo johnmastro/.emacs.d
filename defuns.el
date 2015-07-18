@@ -928,14 +928,6 @@ point is used instead, if any."
   (browse-url (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                       number)))
 
-(defun basis/upgrade-emacs-packages ()
-  "Upgrade all installed ELPA packages."
-  (interactive)
-  (save-window-excursion
-    (package-list-packages)
-    (package-menu-mark-upgrades)
-    (package-menu-execute t)))
-
 ;; occur -----------------------------------------------------------------------
 
 (defun basis/active-major-modes (&optional files-only)
@@ -1036,27 +1028,6 @@ REGEXP and NLINES are passed on to `multi-occur' unchanged."
 
 ;; misc. defuns ----------------------------------------------------------------
 
-(defun basis/ack-somewhere (arg default-dir)
-  (unless (featurep 'ack-and-a-half)
-    (require 'ack-and-a-half nil t))
-  (let* ((regexp-p  (if arg
-                        (not ack-and-a-half-regexp-search)
-                      ack-and-a-half-regexp-search))
-         (pattern   (read-from-minibuffer "Ack: "))
-         (directory (read-directory-name "Directory: " default-dir nil t)))
-    (ack-and-a-half pattern regexp-p directory)))
-
-(defun basis/ack-here (&optional arg)
-  "Do an ack search. Prompt for the directory to use.
-Default to `default-directory'."
-  (interactive "P")
-  (basis/ack-somewhere arg default-directory))
-
-(defun basis/set-mode-name (mode name)
-  "Set MODE's modeline string to NAME."
-  (let ((hook (intern (concat (symbol-name mode) "-hook"))))
-    (add-hook hook (lambda () (setq mode-name name)))))
-
 (defun basis/google (string)
   "Run a Google search.
 Use the active region or symbol at point, if any, as initial
@@ -1090,14 +1061,6 @@ input."
           (call-interactively #'goto-line))
       (unless linum-enabled-p (linum-mode -1)))))
 
-(defun basis/delete-buffer-file-elc ()
-  "Delete the .elc corresponding to the current buffer, if any."
-  (interactive)
-  (when buffer-file-name
-    (let ((elc (concat buffer-file-name "c")))
-      (when (file-exists-p elc)
-        (delete-file elc)))))
-
 (defun basis/file-remote-p (name)
   (and name (or (tramp-tramp-file-p name) (file-remote-p name))))
 
@@ -1125,13 +1088,6 @@ input."
               (eq major-mode 'eshell-mode)
               (eq major-mode 'cider-repl-mode))
     (whitespace-mode 1)))
-
-(defun basis/find-mode-keymap (mode)
-  "Find (by name) and return the keymap for MODE.
-If no keymap is found, return nil."
-  (let ((name (intern (concat (symbol-name mode) "-map"))))
-    (when (boundp name)
-      (symbol-value name))))
 
 (defun basis/isearch-backspace (&optional arg)
   "Delete non-matching text or the last character."
@@ -1233,14 +1189,6 @@ otherwise call `yas-insert-snippet'."
   (with-temp-buffer
     (insert str)
     (kill-ring-save (point-min) (point-max))))
-
-(defun basis/fit-frame-width-to-buffer (&optional frame)
-  "Adjust the width of FRAME to display the contents its buffer.
-FRAME defaults to the selected frame."
-  (interactive)
-  (let* ((frame (or frame (window-frame (selected-window))))
-         (height (frame-height frame)))
-    (fit-frame-to-buffer frame height)))
 
 (defun basis/full-calc-frame ()
   "Create a new frame and run `calc' in a full-size window."
