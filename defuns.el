@@ -3,7 +3,7 @@
 (defun basis/occur-show-sections ()
   ;; Use occur to display and navigate the sections in this file
   (interactive)
-  (occur ";; .+ -+$"))
+  (occur "^;; \\([^ ].+\\) -+$"))
 
 ;; misc. editing utilities -----------------------------------------------------
 
@@ -148,12 +148,11 @@ If PATTERN is non-nil, only include matching files (via
    (list (read-directory-name "Directory: " nil nil t)
          (when current-prefix-arg
            (read-string "Pattern: "))))
-  (let ((files (file-expand-wildcards (expand-file-name (or pattern "*")
-                                                        dir)
-                                      t)))
-    (if files
-        (basis/insert-files files nil)
-      (message "No files matching '%s' in '%s'" pattern dir))))
+  (if-let (files (file-expand-wildcards (expand-file-name (or pattern "*")
+                                                          dir)
+                                        t))
+      (basis/insert-files files nil)
+    (message "No files matching '%s' in '%s'" pattern dir)))
 
 (defalias 'basis/concat-directory-files #'basis/insert-directory-files)
 
@@ -273,24 +272,23 @@ If `subword-mode' is active, use `subword-backward-kill'."
   (interactive)
   (kill-ring-save (point-min) (point-max)))
 
-(defun basis/kill-ring-save-buffer-file-name (buffer &optional basename)
+(defun basis/kill-ring-save-buffer-file-name (&optional buffer)
   "Save BUFFER's associated file name to the kill ring.
-If BASENAME is non-nil, save only its base name. Otherwise save
-its full path."
+BUFFER defaults to the current buffer, if it is visiting a file."
   (interactive
-   (list (completing-read "Buffer: "
-                          (delq nil (mapcar (lambda (buf)
-                                              (when (buffer-file-name buf)
-                                                (buffer-name buf)))
-                                            (buffer-list)))
-                          nil
-                          t)
-         current-prefix-arg))
-  (let ((filename (buffer-file-name (get-buffer buffer))))
-    (basis/kill-ring-save-string
-     (if basename
-         (file-name-nondirectory filename)
-       filename))))
+   (when (or current-prefix-arg
+             (not (buffer-file-name (current-buffer))))
+     (list (completing-read "Buffer: "
+                            (thread-last (buffer-list)
+                              (seq-filter #'buffer-file-name)
+                              (mapcar #'buffer-name))
+                            nil
+                            t))))
+  (thread-first (or buffer (current-buffer))
+    get-buffer
+    buffer-file-name
+    abbreviate-file-name
+    basis/kill-ring-save-string))
 
 (defun basis/clipboard-save-string (str)
   "Save STR directly to the system clipboard.
@@ -813,10 +811,9 @@ WHAT must be an option in `dired-sorting-options'."
   ;; This assumes we can slap the sort option on the end of
   ;; `dired-listing-switches'. It works with my current setup (and the default
   ;; value) but is fragile and unsatisfactory.
-  (let ((opt (cdr (assoc what basis/dired-sorting-options))))
-    (if opt
-        (dired-sort-other (concat dired-listing-switches opt))
-      (error "Don't know how to sort by '%s'" what))))
+  (if-let (opt (cdr (assoc what basis/dired-sorting-options)))
+      (dired-sort-other (concat dired-listing-switches opt))
+    (error "Don't know how to sort by '%s'" what)))
 
 (defun basis/dired-slurp-files (files buffer)
   "Insert the contents of marked FILES into BUFFER.
@@ -1398,6 +1395,16 @@ Assumes Cygwin's path prefix is \"/\"."
                         file))
         (t file)))
 
+(defun basis/fix-bad-cygwin-file-name (name)
+  "Un-escape the colon drive letter separator in NAME.
+For example, given \"c\\:/path/to/file\" return
+\"c:/path/to/file\". Used to adjust the result of
+`python-shell-calculate-command' and
+`with-editor-locate-emacsclient'."
+  (if (and name (string-match "\\`[a-zA-Z]\\(\\\\\\):/" name))
+      (replace-match "" t t name 1)
+    name))
+
 (defun basis/projectile-regenerate-tags ()
   "Copy of `projectile-regenerate-tags' modified for Cygwin paths.
 Using a tags file name of e.g. \"c:/foo/TAGS\" causes the
@@ -1432,15 +1439,15 @@ the region isn't active."
     (call-interactively #'count-words-region)))
 
 (defun basis/company-no-completion-in-docstring (function)
-  ;; Advice for `company-auto-begin', to work around a bug I haven't figured
-  ;; out yet.
+  "Advice for `company-auto-begin'.
+Work around a bug I haven't figured out yet."
   (unless (and (eq major-mode 'python-mode)
                (basis/in-string-p))
     (funcall function)))
 
 (defun basis/company-no-tramp-completion (function)
-  ;; Advice for `company-auto-begin', to work around TRAMP freezes on my Windows
-  ;; machine at work.
+  "Advice for `company-auto-begin'.
+Work around TRAMP freezes on my Windows machine at work."
   (unless (and (eq major-mode 'shell-mode)
                ;; Skip backward to whitespace and see if we end up on something
                ;; that looks like a TRAMP file name.
@@ -1450,8 +1457,9 @@ the region isn't active."
     (funcall function)))
 
 (defun basis/company-sh-no-complete-fi (function)
-  ;; Advice for `company-auto-begin' to prevent completion on "fi" in `sh-mode'.
-  ;; I find the interaction between this and electric indentation annoying.
+  "Advice for `company-auto-begin'.
+Prevent completion on \"fi\" in `sh-mode'. I find the interaction
+between this and electric indentation annoying."
   (unless (and (eq major-mode 'sh-mode)
                (save-excursion
                  (forward-char -2)
@@ -1476,16 +1484,6 @@ For use with Cygwin. Call `expand-file-name' on its result, to
 make sure its in the same form that Emacs uses (i.e.
 \"c:/path/to/somewhere\")."
   (and result (expand-file-name result)))
-
-(defun basis/fix-bad-cygwin-file-name (name)
-  "Un-escape the colon drive letter separator in NAME.
-For example, given \"c\\:/path/to/file\" return
-\"c:/path/to/file\". Used to adjust the result of
-`python-shell-calculate-command' and
-`with-editor-locate-emacsclient'."
-  (if (and name (string-match "\\`[a-zA-Z]\\(\\\\\\):/" name))
-      (replace-match "" t t name 1)
-    name))
 
 (defun basis/fix-located-emacsclient-file-name (name)
   "Advice for `with-editor-locate-emacsclient'.
@@ -1739,8 +1737,8 @@ activate it."
       (pyvenv-activate env)))
   (call-interactively #'run-python))
 
-(defun basis/reformat-docstring (beg end)
-  "Reformat the region from BEG to END as a Python docstring."
+(defun basis/python-reformat-module-docstring (beg end)
+  "Reformat from BEG to END as a Python module docstring."
   (interactive "r")
   (unless (use-region-p)
     (user-error "No active region"))
@@ -1997,7 +1995,7 @@ With arg N, move backward that many times."
                  (forward-sexp))
         (goto-char start)))))
 
-(defun basis/recapitalize-sql-buffer (style)
+(defun basis/sql-recapitalize-buffer (style)
   "Recapitalize the current buffer to STYLE (caps or none)."
   (interactive
    (list (intern (completing-read  "Style: " '("caps" "none") nil t))))
@@ -2024,7 +2022,7 @@ With arg N, move backward that many times."
           (forward-word 2)
           (backward-word 1))))))
 
-(defun basis/modify-sql-syntax-table ()
+(defun basis/sql-modify-syntax-table ()
   "Set double quote's syntax to string delimiter.
 By default, SQL treats double quote as punctuation. That's
 arguably accurate (real strings are delimited with single quotes)
@@ -2109,8 +2107,7 @@ strings."
 (defun basis/flycheck-enable-automatic-checking ()
   "Enable automatic syntax checking by Flycheck."
   (interactive)
-  (setq flycheck-check-syntax-automatically
-        '(save idle-change mode-enabled)))
+  (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)))
 
 (defun basis/flycheck-disable-automatic-checking ()
   "Disable automatic syntax checking by Flycheck."
@@ -2120,8 +2117,7 @@ strings."
 (defun basis/adjust-flycheck-idle-change-delay ()
   "Adjust Flycheck's idle change delay.
 If the last check found errors, set it to 0.5 or 5.0 otherwise."
-  (setq flycheck-idle-change-delay
-        (if flycheck-current-errors 0.5 5.0)))
+  (setq flycheck-idle-change-delay (if flycheck-current-errors 0.5 5.0)))
 
 ;; elfeed ----------------------------------------------------------------------
 

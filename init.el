@@ -2177,7 +2177,7 @@ Each element is a cons, (FEATURE . MODE).")
 (defun basis/init-sql-mode ()
   (sql-set-product "postgres")
   (setq tab-width 4)
-  (basis/modify-sql-syntax-table))
+  (basis/sql-modify-syntax-table))
 
 (with-eval-after-load 'sql
   ;; But I also work with other products and it's often easier not to switch
