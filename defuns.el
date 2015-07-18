@@ -494,25 +494,6 @@ See `basis/eval-keys'."
                      (error "No eval key for '%s'" sym))))
                keydefs)))
 
-(defmacro basis/define-hyper (keymap key def)
-  "Define a Hyper- modified key binding.
-On OS X, instead define a binding with <kp-enter> as prefix."
-  (declare (indent 1))
-  `(define-key ,keymap
-     (kbd ,(if (eq system-type 'darwin)
-               (concat "<kp-enter> " key)
-             (concat "H-" key)))
-     ,def))
-
-(defmacro basis/define-hyper-keys (keymap &rest keydefs)
-  "Define multiple hyper-modified key bindings for KEYMAP."
-  (declare (indent 1))
-  `(progn
-     ,@(mapcar (lambda (keydef)
-                 (pcase-let ((`(,key ,def) keydef))
-                   `(basis/define-hyper ,keymap ,key ,def)))
-               keydefs)))
-
 (defmacro basis/define-key-translations (&rest keydefs)
   "Define multiple bindings in `key-translation-map'."
   (declare (indent defun))

@@ -437,24 +437,18 @@ it doesn't exist."
 ;; key bindings ----------------------------------------------------------------
 
 (defun basis/init-modifiers-for-linux ()
-  (define-key key-translation-map (kbd "<menu>") #'event-apply-hyper-modifier))
+  'pass)
 
 (defun basis/init-modifiers-for-os-x ()
   (setq mac-command-modifier 'meta
-        mac-option-modifier 'super)
-  ;; Use <kp-enter>, conveniently located to the right of the space
-  ;; bar on my MBP, as a stand-in for mapping the <menu>/<apps> key on
-  ;; PC keyboards to hyper.
-  (define-prefix-command 'quasi-hyper)
-  (global-set-key (kbd "<kp-enter>") 'quasi-hyper))
+        mac-option-modifier 'super))
 
 (defun basis/init-modifiers-for-windows ()
   (setq w32-pass-apps-to-system nil
         w32-pass-lwindow-to-system nil
         w32-pass-rwindow-to-system nil
         w32-lwindow-modifier 'super
-        w32-rwindow-modifier 'super)
-  (define-key key-translation-map (kbd "<apps>") #'event-apply-hyper-modifier))
+        w32-rwindow-modifier 'super))
 
 (pcase system-type
   (`gnu/linux  (basis/init-modifiers-for-linux))
