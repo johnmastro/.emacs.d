@@ -63,7 +63,7 @@ to use. Otherwise use a default of 80 and char ?-."
          (char (or char ?-))
          (pos (- (point) (line-beginning-position)))
          (enough (- goal pos)))
-    (insert (make-string enough char))))
+    (insert-char char enough)))
 
 (defun basis/join-next-line ()
   "Join the next line up to the current one."
@@ -1813,7 +1813,7 @@ used to create Unicode, raw, and byte strings respectively."
 (defun basis/insert-python-docstring-quotes ()
   "Insert the 6 double quotes for a Python docstring."
   (interactive)
-  (insert (make-string 6 ?\"))
+  (insert-char ?\" 6)
   (backward-char 3))
 
 (defun basis/python-find-venv ()
