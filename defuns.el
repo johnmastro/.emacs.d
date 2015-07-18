@@ -1197,19 +1197,6 @@ no matches."
         ido-exit 'fallback)
   (exit-minibuffer))
 
-(defun basis/ido-sort-files-by-modtime ()
-  "Sort ido matches my modification time, descending."
-  (interactive)
-  (when ido-matches
-    (let* ((directory ido-current-directory)
-           (predicate (lambda (file1 file2)
-                        (file-newer-than-file-p
-                         (expand-file-name file1 directory)
-                         (expand-file-name file2 directory)))))
-      (setq ido-cur-list (sort ido-cur-list predicate)
-            ido-matches (sort ido-matches predicate)
-            ido-rescan nil))))
-
 (defun basis/disable-themes (&optional themes)
   "Disable THEMES (defaults to `custom-enabled-themes')."
   (interactive)

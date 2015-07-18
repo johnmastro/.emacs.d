@@ -1461,7 +1461,6 @@ buffer."
   (basis/define-keys ido-file-completion-map
     ("M-w"     #'ido-copy-current-file-name)
     ("M-g"     #'basis/ido-magit-status)
-    ("C-M-e"   #'basis/ido-sort-files-by-modtime)
     ("C-c C-x" #'basis/ido-open-file-externally)))
 
 (add-hook 'ido-setup-hook #'basis/init-ido-keys)
