@@ -1640,6 +1640,24 @@ buffer."
 (setq projectile-keymap-prefix (kbd "C-h p")
       projectile-completion-system 'ido)
 
+(defhydra basis/hydra-projectile (:color blue :columns 4)
+  "Projectile"
+  ("b"   projectile-switch-to-buffer "switch to buffer")
+  ("d"   projectile-find-dir "dir")
+  ("C-f" projectile-find-file "file")
+  ("ff"  projectile-find-file-dwim "file dwim")
+  ("fd"  projectile-find-file-in-directory "file in dir")
+  ("g"   projectile-grep "grep")
+  ("i"   projectile-ibuffer "ibuffer")
+  ("K"   projectile-kill-buffers "kill buffers")
+  ("o"   projectile-multi-occur "multi-occur")
+  ("p"   projectile-switch-project "switch")
+  ("r"   projectile-recentf "recentf")
+  ("x"   projectile-remove-known-project "remove known")
+  ("X"   projectile-cleanup-known-projects "cleanup non-existing")
+  ("z"   projectile-cache-current-file "cache current")
+  ("q"   nil "cancel"))
+
 (setq projectile-known-projects-file
       (basis/emacs-file "var/projectile-bookmarks.eld"))
 (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
