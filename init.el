@@ -103,7 +103,6 @@ it doesn't exist."
     helm-swoop
     hydra
     ibuffer-vc
-    idle-highlight-mode
     ido-at-point
     ido-ubiquitous
     ido-vertical-mode
@@ -2470,24 +2469,6 @@ Move forward by a line and indent if invoked directly between."
     ((and (or `(,rgx . ,sym) `(,rgx ,sym . ,_))
           (guard (eq sym 'csv-mode)))
      (add-to-list 'auto-mode-alist (cons rgx 'text-mode)))))
-
-;; idle-highlight-mode ---------------------------------------------------------
-
-(defun basis/idle-highlight-juggle-mc-disable-list (&rest _ignore)
-  "Advice for `idle-highlight-mode'.
-Add/remove `idle-highlight-mode' from
-`mc/temporarily-disabled-minor-modes' as it's enabled/disabled.
-This keeps mc from enabling idle-highlight unless it was enabled
-to begin with."
-  (if (bound-and-true-p idle-highlight-mode)
-      (add-to-list 'mc/temporarily-disabled-minor-modes 'idle-highlight-mode)
-    (setq mc/temporarily-disabled-minor-modes
-          (remq 'idle-highlight-mode mc/temporarily-disabled-minor-modes))))
-
-(with-eval-after-load 'idle-highlight-mode
-  (advice-add 'idle-highlight-mode
-              :after
-              #'basis/idle-highlight-juggle-mc-disable-list))
 
 ;; batch-mode ------------------------------------------------------------------
 
