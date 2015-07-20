@@ -829,7 +829,7 @@ See `basis/define-eval-keys'.")
   ("d"  find-grep-dired "find-grep-dired")
   ("o"  occur "occur")
   ("mo" multi-occur "multi-occur")
-  ("mm" basis/multi-occur-this-mode "occur this mode")
+  ("mm" multi-occur-in-matching-buffers "multi-occur matching")
   ("q"  nil "cancel"))
 
 (global-set-key (kbd "<f9>") #'basis/hydra-grep/body)

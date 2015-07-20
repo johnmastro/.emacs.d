@@ -930,48 +930,6 @@ point is used instead, if any."
 
 ;; occur -----------------------------------------------------------------------
 
-(defun basis/active-major-modes (&optional files-only)
-  "Return a list of major modes for which a buffer is active.
-If FILES-ONLY is non-nil, only include major modes for which at
-least one buffer is visiting a file."
-  (let ((modes '()))
-    (dolist (buffer (buffer-list))
-      (with-current-buffer buffer
-        (unless (or (and files-only (not buffer-file-name))
-                    (memq major-mode modes))
-          (push major-mode modes))))
-    (nreverse modes)))
-
-(defun basis/find-mode-buffers (mode)
-  "Return a list of the buffers whose major mode is MODE."
-  (seq-filter (lambda (buffer)
-                (with-current-buffer buffer
-                  (eq mode major-mode)))
-              (buffer-list)))
-
-(defun basis/read-mode (prompt &optional choices)
-  "Read the name of a major mode.
-Optional argument CHOICES should, if provided, be a list of
-symbols naming major modes."
-  (let ((choices (or choices (basis/active-major-modes))))
-    (intern (completing-read prompt
-                             (mapcar #'symbol-name choices)
-                             nil
-                             t))))
-
-(defun basis/multi-occur-by-mode (mode regexp &optional nlines)
-  "Run `multi-occur' on all buffers in MODE.
-REGEXP and NLINES are passed on to `multi-occur' unchanged."
-  (interactive (cons (basis/read-mode "Mode: " (basis/active-major-modes t))
-                     (occur-read-primary-args)))
-  (multi-occur (basis/find-mode-buffers mode)
-               regexp
-               nlines))
-
-(defun basis/multi-occur-this-mode (regexp &optional nlines)
-  (interactive (occur-read-primary-args))
-  (basis/multi-occur-by-mode major-mode regexp nlines))
-
 (defun basis/occur-dwim (regexp nlines)
   "Like `occur', but REGEXP defaults to the text at point."
   (interactive
