@@ -578,17 +578,18 @@ it doesn't exist."
 (global-set-key (kbd "<C-next>") #'next-buffer)
 
 ;; File operations
-(define-prefix-command 'basis/buffer-file-map)
-(global-set-key (kbd "C-c f") 'basis/buffer-file-map)
+(defhydra basis/hydra-file (:color blue :columns 2)
+  "Files"
+  ("c" helm-locate "locate")
+  ("d" basis/diff-buffer-with-file "diff")
+  ("r" basis/rename-current-buffer-file "rename")
+  ("D" basis/delete-current-buffer-file "delete")
+  ("f" find-name-dired "find name")
+  ("F" find-dired "find")
+  ("m" make-directory "make dir")
+  ("q" nil "cancel"))
 
-(basis/define-keys basis/buffer-file-map
-  ("c" #'helm-locate)
-  ("d" #'basis/diff-buffer-with-file)
-  ("r" #'basis/rename-current-buffer-file)
-  ("D" #'basis/delete-current-buffer-file)
-  ("f" #'find-name-dired)
-  ("F" #'find-dired)
-  ("m" #'make-directory))
+(global-set-key (kbd "C-c f") #'basis/hydra-file/body)
 
 ;; Open one or more files externally, using the `helm-external' machinery
 (global-set-key (kbd "C-c C-x") #'basis/open-file-externally)
@@ -817,17 +818,21 @@ See `basis/define-eval-keys'.")
 
 ;; grep ------------------------------------------------------------------------
 
-(define-prefix-command 'basis/grep-map)
+(defhydra basis/hydra-grep (:color blue :columns 2)
+  "Grep"
+  ("a"  ack-and-a-half "ack")
+  ("g"  grep "grep")
+  ("s"  lgrep "lgrep")
+  ("r"  rgrep "rgrep")
+  ("z"  zrgrep "zrgrep")
+  ("f"  find-grep "find-grep")
+  ("d"  find-grep-dired "find-grep-dired")
+  ("o"  occur "occur")
+  ("mo" multi-occur "multi-occur")
+  ("mm" basis/multi-occur-this-mode "occur this mode")
+  ("q"  nil "cancel"))
 
-(global-set-key (kbd "<f9>") 'basis/grep-map)
-
-(basis/define-keys basis/grep-map
-  ("g" #'grep)
-  ("s" #'lgrep)
-  ("r" #'rgrep)
-  ("z" #'zrgrep)
-  ("f" #'find-grep)
-  ("d" #'find-grep-dired))
+(global-set-key (kbd "<f9>") #'basis/hydra-grep/body)
 
 (with-eval-after-load 'grep
   ;; On OS X, prefer GNU Grep if it's available
@@ -856,8 +861,6 @@ See `basis/define-eval-keys'.")
       (add-to-list 'grep-files-aliases (cons alias files)))))
 
 ;; occur -----------------------------------------------------------------------
-
-(define-key basis/grep-map "o" #'basis/multi-occur-this-mode)
 
 (define-key occur-mode-map (kbd "n") #'occur-next)
 (define-key occur-mode-map (kbd "p") #'occur-prev)
@@ -2005,19 +2008,18 @@ Each element is a cons, (FEATURE . MODE).")
 ;; flycheck --------------------------------------------------------------------
 
 (with-eval-after-load 'flycheck
-  (define-prefix-command 'basis/flycheck-map)
-  (global-set-key (kbd "C-h l") basis/flycheck-map)
+  (defhydra basis/hydra-flycheck (:color blue :columns 2)
+    ("c"   flycheck-buffer "check buffer")
+    ("n"   flycheck-next-error "next error")
+    ("p"   flycheck-previous-error "prev error")
+    ("l"   flycheck-list-errors "list errors")
+    ("s"   flycheck-select-checker "select checker")
+    ("C"   flycheck-clear "clear")
+    ("SPC" basis/flycheck-check-and-list-errors "check and list")
+    ("q"   nil "cancel"))
 
-  (basis/define-keys basis/flycheck-map
-    ("c"   #'flycheck-buffer)
-    ("n"   #'flycheck-next-error)
-    ("p"   #'flycheck-previous-error)
-    ("l"   #'flycheck-list-errors)
-    ("s"   #'flycheck-select-checker)
-    ("C"   #'flycheck-clear)
-    ("SPC" #'basis/flycheck-check-and-list-errors))
-
-  (global-set-key (kbd "<f8>") #'basis/flycheck-check-and-list-errors)
+  (global-set-key (kbd "C-h l") #'basis/hydra-flycheck/body)
+  (global-set-key (kbd "<f8>")  #'basis/flycheck-check-and-list-errors)
 
   (setq flycheck-check-syntax-automatically nil)
   (unless (basis/libxml-available-p)
@@ -2237,12 +2239,12 @@ Each element is a cons, (FEATURE . MODE).")
 
 ;; ack and a half --------------------------------------------------------------
 
+(autoload 'ack-and-a-half "ack-and-a-half" "Run ack." t)
+
 (defalias 'ack #'ack-and-a-half)
 (defalias 'ack-same #'ack-and-a-half-same)
 (defalias 'ack-find-file #'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same #'ack-and-a-half-find-file-same)
-
-(define-key basis/grep-map "a" #'ack-and-a-half)
 
 (when (file-exists-p "~/bin/ack")
   (setq ack-and-a-half-executable "~/bin/ack"))
