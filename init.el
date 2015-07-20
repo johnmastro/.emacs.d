@@ -2465,8 +2465,7 @@ Move forward by a line and indent if invoked directly between."
 ;; csv-mode --------------------------------------------------------------------
 
 ;; Prevent `csv-mode' from being enabled automatically
-(dolist (elt (seq-filter (lambda (elt) (eq (cdr elt) 'csv-mode))
-                         auto-mode-alist))
+(dolist (elt auto-mode-alist)
   (pcase elt
     ((and (or `(,rgx . ,sym) `(,rgx ,sym . ,_))
           (guard (eq sym 'csv-mode)))
