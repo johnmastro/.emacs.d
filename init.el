@@ -1638,7 +1638,7 @@ buffer."
 ;; projectile ------------------------------------------------------------------
 
 (setq projectile-keymap-prefix (kbd "C-h p")
-      projectile-completion-system 'ido)
+      projectile-completion-system 'helm)
 
 (defhydra basis/hydra-projectile (:color blue :columns 4)
   "Projectile"
