@@ -101,6 +101,7 @@ it doesn't exist."
     helm-make
     helm-projectile
     helm-swoop
+    hydra
     ibuffer-vc
     idle-highlight-mode
     ido-at-point
