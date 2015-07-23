@@ -156,13 +156,6 @@ If PATTERN is non-nil, only include matching files (via
 
 (defalias 'basis/concat-directory-files #'basis/insert-directory-files)
 
-(defun basis/snip (beg end)
-  "Remove selected lines and replace them with [snip]."
-  (interactive "r")
-  (when (use-region-p)
-    (delete-region beg end)
-    (insert "[snip]\n")))
-
 (defvar-local basis/smart-hyphen-code-only t
   "Whether to only perform hyphen substitutions in code.")
 
