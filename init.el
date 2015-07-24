@@ -12,7 +12,7 @@
       (funcall mode -1))))
 
 (defconst basis/emacs-dir
-  (file-name-directory (file-chase-links load-file-name))
+  (file-name-directory (file-chase-links (or load-file-name buffer-file-name)))
   "This Emacs's configuration directory.")
 
 (defun basis/emacs-dir (name &optional create)
