@@ -3,10 +3,13 @@
 (eval-when-compile (require 'cl-lib))
 
 ;; Disable superfluous UI immediately to prevent momentary display
-(mapc (lambda (mode)
-        (when (fboundp mode)
-          (funcall mode -1)))
-      '(menu-bar-mode tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode))
+(let* ((modes '(tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode))
+       (modes (if (eq system-type 'darwin)
+                  modes
+                (cons 'menu-bar-mode modes))))
+  (dolist (mode modes)
+    (when (fboundp mode)
+      (funcall mode -1))))
 
 (defconst basis/emacs-dir
   (file-name-directory (file-chase-links load-file-name))
