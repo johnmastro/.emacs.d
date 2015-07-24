@@ -15,14 +15,17 @@
   (file-name-directory (file-chase-links (or load-file-name buffer-file-name)))
   "This Emacs's configuration directory.")
 
-(defun basis/emacs-dir (name &optional create)
+(defun basis/emacs-dir (name &optional if-not-exists)
   "Return directory NAME expanded in `basis/emacs-dir'.
 If CREATE is non-nil, create the directory (including parents) if
 it doesn't exist."
   (if (string-suffix-p "/" name)
       (let ((dir (expand-file-name name basis/emacs-dir)))
-        (when (and create (not (file-directory-p dir)))
-          (make-directory dir t))
+        (unless (file-directory-p dir)
+          (cond ((eq if-not-exists 'error)
+                 (error "Directory does not exist: '%s'" dir))
+                ((eq if-not-exists 'create)
+                 (make-directory dir t))))
         dir)
     ;; This isn't actually necessary but will catch places I meant to use
     ;; `basis/emacs-file' instead
