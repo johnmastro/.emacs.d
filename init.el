@@ -1181,6 +1181,7 @@ Return the empty string (i.e. get rid of the help string)."
     ;; Temporary kludge to prevent an unbound-symbol error
     (setq magit-backup-mode nil))
   (setq magit-revert-buffers 'silent)
+  (setq magit-save-repository-buffers 'dontask)
   (setq magit-popup-use-prefix-argument 'default)
   (setq magit-completing-read-function #'magit-ido-completing-read)
   (setq magit-repository-directories
@@ -1189,7 +1190,8 @@ Return the empty string (i.e. get rid of the help string)."
           (seq-filter (lambda (dir)
                         (file-directory-p (expand-file-name ".git" dir))))
           (cons "~/code/")
-          (mapcar (lambda (dir) (substring dir 0 -1)))))
+          ;; Remove the trailing slashes
+          (mapcar #'directory-file-name)))
   (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
   (add-hook 'magit-status-mode-hook #'delete-other-windows)
   (when (and (eq system-type 'windows-nt)
