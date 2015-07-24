@@ -66,8 +66,7 @@ it doesn't exist."
 (package-initialize)
 
 (defvar basis/package-list
-  '(ace-jump-mode
-    ace-window
+  '(ace-window
     batch-mode
     browse-kill-ring
     cider
@@ -539,7 +538,7 @@ it doesn't exist."
 (global-set-key (kbd "C-x C-e") #'basis/eval-last-sexp)
 (global-set-key (kbd "C-c M-e") #'basis/eval-and-replace)
 
-;; I use Meta-space for ace-jump-mode
+;; I use M-SPC for `avy-goto-word-1'
 (global-set-key (kbd "C-c SPC") #'just-one-space)
 
 ;; jump-char
@@ -962,16 +961,6 @@ See `basis/define-eval-keys'.")
       savehist-file (basis/emacs-file "var/history"))
 
 (savehist-mode t)
-
-;; ace-jump-mode ---------------------------------------------------------------
-
-(with-eval-after-load 'ace-jump-mode
-  (ace-jump-mode-enable-mark-sync))
-
-(basis/define-keys global-map
-  ;; ("M-SPC"   #'ace-jump-mode)
-  ("s-SPC"   #'ace-jump-mode)
-  ("C-h SPC" #'ace-jump-mode-pop-mark))
 
 ;; avy -------------------------------------------------------------------------
 
