@@ -1429,6 +1429,12 @@ Place a propertized \"> \" before the selected candidate."
   (interactive)
   (occur (regexp-opt basis/occur-show-note-strings t)))
 
+(defun basis/scratch (&optional arg)
+  "Switch to the scratch buffer, creating it if necessary."
+  (interactive "P")
+  (funcall (if arg #'switch-to-buffer #'switch-to-buffer-other-window)
+           (get-buffer-create "*scratch*")))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)

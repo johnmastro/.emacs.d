@@ -621,6 +621,24 @@ it doesn't exist."
 ;; Narrowing can be quite handy
 (put 'narrow-to-region 'disabled nil)
 
+;; find elisp documentation ----------------------------------------------------
+
+(defhydra basis/hydra-find-lisp (:color blue :columns 2)
+  ("c" finder-commentary "finder commentary")
+  ("e" view-echo-area-messages "view echo area messages")
+  ("f" find-function "find function")
+  ("F" find-face-definition "find face definition")
+  ("i" info-apropos "info apropos")
+  ("k" find-function-on-key "find function on key")
+  ("l" find-library "find library")
+  ("m" info-display-manual "info display manual")
+  ("s" basis/scratch "scratch")
+  ("v" find-variable "find variable")
+  ("V" apropos-value "apropos value")
+  ("a" helm-apropos "helm apropos"))
+
+(global-set-key (kbd "<f1> e") #'basis/hydra-find-lisp/body)
+
 ;; h-map -----------------------------------------------------------------------
 
 (define-prefix-command 'basis/h-map)
@@ -632,31 +650,6 @@ it doesn't exist."
 (basis/define-keys basis/h-map
   ("C-k" #'basis/kill-this-buffer)
   ("C-h" #'mark-paragraph))
-
-;; find elisp map --------------------------------------------------------------
-
-(define-prefix-command 'lisp-find-map)
-
-(global-set-key (kbd "<f1> e") 'lisp-find-map)
-
-(defun basis/scratch ()
-  "Switch to the scratch buffer, creating it if necessary."
-  (interactive)
-  (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
-
-(basis/define-keys lisp-find-map
-  ("c" #'finder-commentary)
-  ("e" #'view-echo-area-messages)
-  ("f" #'find-function)
-  ("F" #'find-face-definition)
-  ("i" #'info-apropos)
-  ("k" #'find-function-on-key)
-  ("l" #'find-library)
-  ("m" #'info-display-manual)
-  ("s" #'basis/scratch)
-  ("v" #'find-variable)
-  ("V" #'apropos-value)
-  ("a" #'helm-apropos))
 
 ;; eval keys -------------------------------------------------------------------
 
