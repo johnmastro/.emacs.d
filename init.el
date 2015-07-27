@@ -491,7 +491,8 @@ it doesn't exist."
   ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
   ("ESC <deletechar>"      #'basis/smart-kill-almost-whole-line)
   ("<C-M-backspace>"       #'backward-kill-sexp)
-  ("C-M-_"                 #'backward-kill-sexp))
+  ("C-M-_"                 #'backward-kill-sexp)
+  ("ESC M-DEL"             #'backward-kill-sexp))
 
 ;; Copy stuff
 (basis/define-keys global-map
