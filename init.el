@@ -282,7 +282,8 @@ it doesn't exist."
       bookmark-default-file (basis/emacs-file "var/bookmarks")
       url-configuration-directory (basis/emacs-dir "var/url/")
       gc-cons-threshold 20000000 ; 20MB
-      bookmark-save-flag 1)
+      bookmark-save-flag 1
+      ffap-machine-p-known 'reject)
 
 ;; Prevent point from entering the minibuffer prompt
 (setq minibuffer-prompt-properties
