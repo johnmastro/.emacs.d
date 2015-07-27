@@ -883,6 +883,16 @@ See `basis/define-eval-keys'.")
 (add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
 (add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode)
 
+;; compile ---------------------------------------------------------------------
+
+(global-set-key (kbd "C-c b c") #'compile)
+(global-set-key (kbd "C-c b b") #'recompile)
+
+(setq compilation-ask-about-save nil
+      compilation-always-kill t
+      compilation-scroll-output 'first-error
+      compilation-context-lines 2)
+
 ;; diff-mode -------------------------------------------------------------------
 
 (defun basis/init-diff-mode ()
@@ -2321,7 +2331,6 @@ Each element is a cons, (FEATURE . MODE).")
 ;; Keys
 (basis/define-keys global-map
   ("C-c a" #'org-agenda)
-  ("C-c b" #'org-iswitchb)
   ("C-c c" #'org-capture)
   ("C-c l" #'org-store-link))
 
