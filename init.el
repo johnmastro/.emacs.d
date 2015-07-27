@@ -373,13 +373,15 @@ it doesn't exist."
 ;; install
 (unicode-fonts-setup)
 
-(let ((default-font
-        (pcase system-type
-          (`gnu/linux  "Inconsolata-11")
-          (`darwin     "Andale Mono-12")
-          (`windows-nt "Consolas-10"))))
-  (when default-font
-    (set-face-attribute 'default nil :font default-font)))
+(let ((fonts (pcase system-type
+               (`gnu/linux  '("Inconsolata-11"))
+               (`darwin     '("Source Code Pro-11" "Andale Mono-12"))
+               (`windows-nt '("Consolas-10")))))
+  (catch 'done
+    (dolist (font fonts)
+      (when (ignore-errors (set-face-attribute 'default nil :font font)
+                           t)
+        (throw 'done t)))))
 
 ;; interface -------------------------------------------------------------------
 
