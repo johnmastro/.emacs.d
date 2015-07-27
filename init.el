@@ -593,6 +593,7 @@ it doesn't exist."
   ("f" find-name-dired "find name")
   ("F" find-dired "find")
   ("m" make-directory "make dir")
+  ("v" revert-buffer "revert buffer")
   ("q" nil "cancel"))
 
 (global-set-key (kbd "C-c f") #'basis/hydra-file/body)
