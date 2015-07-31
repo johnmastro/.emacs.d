@@ -65,113 +65,14 @@ it doesn't exist."
 
 (package-initialize)
 
-(defvar basis/package-list
-  '(ace-window
-    batch-mode
-    browse-kill-ring
-    cider
-    clj-refactor
-    clojure-cheatsheet
-    clojure-mode
-    color-theme-solarized
-    company
-    company-statistics
-    counsel
-    csv-mode
-    dash
-    dash-functional
-    debbugs
-    deft
-    diminish
-    dired+
-    direx
-    discover
-    elfeed
-    elisp-slime-nav
-    exec-path-from-shell
-    expand-region
-    flx-ido
-    flycheck
-    geiser
-    gist
-    git-timemachine
-    gitattributes-mode
-    gitconfig-mode
-    gitignore-mode
-    god-mode
-    guide-key
-    haskell-mode
-    helm
-    helm-descbinds
-    helm-make
-    helm-projectile
-    helm-swoop
-    hydra
-    ibuffer-vc
-    ido-at-point
-    ido-ubiquitous
-    ido-vertical-mode
-    idomenu
-    jedi
-    js-comint
-    js2-mode
-    js2-refactor
-    jump-char
-    leuven-theme
-    macrostep
-    magit
-    markdown-mode
-    move-text
-    multiple-cursors
-    nasm-mode
-    page-break-lines
-    paredit
-    pcre2el
-    persistent-soft
-    php-mode
-    projectile
-    pyvenv
-    quack
-    redshank
-    request
-    rust-mode
-    s
-    seq
-    simplezen
-    skewer-mode
-    slime
-    slime-company
-    smartparens
-    smex
-    ssh-config-mode
-    swiper
-    swiper-helm
-    sx
-    tagedit
-    undo-tree
-    unicode-fonts
-    writegood-mode
-    yaml-mode
-    yasnippet
-    zop-to-char)
-  "List of packages to automatically install.")
-
-(defun basis/install-packages (packages)
-  "Install any of PACKAGES that aren't already installed."
-  (let ((packages (delq nil (mapcar (lambda (pkg)
-                                      (unless (package-installed-p pkg)
-                                        pkg))
-                                    packages))))
-    (when packages
-      (package-refresh-contents)
-      (mapc #'package-install packages))))
-
 ;; Opt out of automatically saving a list of installed packages
 (when (boundp 'package-selected-packages)
-  (advice-add 'package--save-selected-packages :override #'ignore)
-  (setq package-selected-packages (copy-sequence basis/package-list)))
+  ;; TODO: Can I hook into `use-package' to build `package-selected-packages'?
+  (advice-add 'package--save-selected-packages :override #'ignore))
 
-(basis/install-packages basis/package-list)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
 ;; load some code --------------------------------------------------------------
 
