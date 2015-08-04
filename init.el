@@ -1198,6 +1198,7 @@ Return the empty string (i.e. get rid of the help string)."
       (setq magit-backup-mode nil))
     (setq magit-revert-buffers 'silent)
     (setq magit-save-repository-buffers 'dontask)
+    (setq magit-push-always-verify nil)
     (setq magit-popup-use-prefix-argument 'default)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-repository-directories
