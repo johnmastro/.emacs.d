@@ -1699,6 +1699,10 @@ buffer."
   :ensure t
   :defer t)
 
+(use-package helm-open-github
+  :ensure t
+  :defer t)
+
 (when nil
   (setq helm-grep-default-command
         (concat grep-program " --color=always -d skip %e -n%cH -e %p %f"))
