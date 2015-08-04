@@ -282,6 +282,10 @@ it doesn't exist."
   :defer t
   :init (setq ffap-machine-p-known 'reject))
 
+(use-package advice
+  :defer t
+  :init (setq ad-redefinition-action 'accept))
+
 (defun basis/set-default-input-method (&optional method)
   (setq default-input-method (or method "TeX")))
 
