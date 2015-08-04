@@ -1703,13 +1703,6 @@ buffer."
   :ensure t
   :defer t)
 
-(when nil
-  (setq helm-grep-default-command
-        (concat grep-program " --color=always -d skip %e -n%cH -e %p %f"))
-  (setq helm-grep-default-recurse-command
-        (concat grep-program " --color=always -d recurse %e -n%cH -e %p %f"))
-  (setenv "GREP_COLORS" "mt=30;43:sl=00;37:cx=:fn=35:ln=32:bn=32:se=36"))
-
 ;; browse-kill-ring ------------------------------------------------------------
 
 (use-package browse-kill-ring
