@@ -2543,10 +2543,9 @@ buffer."
     (setq mu4e-reply-to-address "jbm@jbm.io"
           mu4e-sent-messages-behavior 'delete)) ; They're saved on the server
   :config
-  (with-eval-after-load 'mu4e
-    (add-to-list 'mu4e-view-actions
-                 (cons "View in browser" #'basis/mu4e-action-view-in-browser)
-                 t)))
+  (add-to-list 'mu4e-view-actions
+               (cons "View in browser" #'basis/mu4e-action-view-in-browser)
+               t))
 
 ;; Retrieving passwords
 (use-package auth-source
