@@ -1,5 +1,8 @@
 ;;; init.el      -*- coding: utf-8; lexical-binding: t; no-byte-compile: t -*-
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Early configuration
+
 (eval-when-compile (require 'cl-lib))
 
 ;; Disable superfluous UI immediately to prevent momentary display
@@ -55,7 +58,8 @@ it doesn't exist."
   (when (file-directory-p source)
     (setq source-directory source)))
 
-;; package ---------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Set up package.el
 
 (setq package-user-dir (basis/emacs-dir "elpa/"))
 
@@ -74,7 +78,8 @@ it doesn't exist."
   (package-refresh-contents)
   (package-install 'use-package))
 
-;; load some code --------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Load some code
 
 (require 'use-package)
 
@@ -137,15 +142,14 @@ it doesn't exist."
      (cons "pcase-dolist" (mapcar (lambda (list) (symbol-name (car list)))
                                   macros)))))
 
-;; os x ------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Operating system-specific configuration
 
 ;; A graphical Emacs on OS X doesn't automatically inherit $PATH
 (use-package exec-path-from-shell
   :ensure t
   :if (memq window-system '(mac ns))
   :config (exec-path-from-shell-initialize))
-
-;; cygwin ----------------------------------------------------------------------
 
 (defvar basis/cygwin-p (and (eq system-type 'windows-nt)
                             (directory-files "c:/" nil "Cygwin")
@@ -161,9 +165,8 @@ it doesn't exist."
 (defun basis/init-for-cygwin ()
   (let* ((dirs (seq-filter #'file-directory-p basis/cygwin-path-directories))
          (home (getenv "HOME"))
-         (home/bin (when home
-                     (concat (basis/windows->unix home)
-                             "/bin"))))
+         (home/bin (and home (concat (basis/windows->unix home)
+                                     "/bin"))))
     (when (and home (file-directory-p home) (not after-init-time))
       (cd home))
     (when (and home/bin (file-directory-p home/bin))
@@ -186,7 +189,8 @@ it doesn't exist."
 (when basis/cygwin-p
   (basis/init-for-cygwin))
 
-;; various settings ------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Various settings
 
 (setq visible-bell t
       inhibit-startup-screen t
@@ -215,6 +219,18 @@ it doesn't exist."
 (when (file-exists-p custom-file)
   (load custom-file))
 
+;; Don't prompt when killing buffers with live processes attached
+(setq kill-buffer-query-functions
+      (remq 'process-kill-buffer-query-function
+            kill-buffer-query-functions))
+
+(fset 'display-startup-echo-area-message #'ignore)
+
+(fset 'yes-or-no-p #'y-or-n-p)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Basic packages
+
 (use-package simple
   :init (progn (setq shift-select-mode nil
                      line-number-mode t
@@ -229,7 +245,6 @@ it doesn't exist."
                         :around
                         #'basis/pop-to-mark-ensure-new-pos)))
 
-;; UTF-8 everywhere
 (use-package mule
   :config (progn (prefer-coding-system 'utf-8)
                  (set-default-coding-systems 'utf-8)
@@ -255,16 +270,13 @@ it doesn't exist."
          (setq auto-save-list-file-prefix
                (concat (basis/emacs-dir "var/auto-save-list/") ".saves-")))
   :config
-  (when (eq system-type 'windows-nt)
-    (add-hook 'before-save-hook #'basis/maybe-set-coding)))
-
-(use-package apropos
-  :defer t
-  :init (setq apropos-do-all t))
-
-(use-package imenu
-  :defer t
-  :init (setq imenu-auto-rescan t))
+  (progn
+    (pcase system-type
+      (`darwin
+       (when-let (gls (executable-find "gls"))
+         (setq insert-directory-program gls)))
+      (`windows-nt
+       (add-hook 'before-save-hook #'basis/maybe-set-coding)))))
 
 (use-package mouse
   :init (setq mouse-yank-at-point t))
@@ -292,7 +304,6 @@ it doesn't exist."
 ;; Haven't yet bothered looking into why this needs to be done after init
 (add-hook 'after-init-hook #'basis/set-default-input-method)
 
-;; Start the server, unless it's already running
 (use-package server
   :init (setq server-auth-dir (basis/emacs-dir "var/server/"))
   :config (unless (and server-name (server-running-p server-name))
@@ -310,10 +321,6 @@ it doesn't exist."
 (use-package delsel
   :config (delete-selection-mode 1))
 
-(use-package page-break-lines
-  :config (global-page-break-lines-mode 1)
-  :diminish page-break-lines-mode)
-
 (use-package subword
   :defer t
   :diminish subword-mode)
@@ -322,7 +329,6 @@ it doesn't exist."
   :defer t
   :diminish superword-mode)
 
-;; Automatically refresh buffers
 (use-package autorevert
   :config (progn (global-auto-revert-mode 1)
                  (setq global-auto-revert-non-file-buffers t
@@ -333,18 +339,53 @@ it doesn't exist."
   :bind (("C-c TAB"     . completion-at-point)
          ("C-c <C-tab>" . completion-at-point)))
 
-;; Don't prompt when killing buffers with live processes attached
-(setq kill-buffer-query-functions
-      (remq 'process-kill-buffer-query-function
-            kill-buffer-query-functions))
-
-;; No blinking please
 (use-package frame
   :config (blink-cursor-mode -1))
 
-(defalias 'yes-or-no-p #'y-or-n-p)
+(use-package saveplace
+  :config
+  (setq-default save-place t)
+  (setq save-place-file (basis/emacs-file "var/places")))
 
-;; fonts -----------------------------------------------------------------------
+(use-package savehist
+  :init (setq savehist-additional-variables '(search-ring regexp-search-ring)
+              savehist-file (basis/emacs-file "var/history"))
+  :config (savehist-mode t))
+
+(use-package uniquify
+  :init (setq uniquify-buffer-name-style 'forward
+              uniquify-ignore-buffers-re "^\\*"))
+
+(use-package whitespace
+  :init
+  (setq whitespace-style '(face trailing lines-tail tabs)
+        whitespace-line-column 80)
+  (put 'whitespace-line-column 'safe-local-variable #'integerp)
+  :diminish whitespace-mode)
+
+(use-package recentf
+  :init (setq recentf-max-saved-items 50
+              recentf-save-file (basis/emacs-file "var/recentf")
+              recentf-exclude (list #'tramp-tramp-file-p #'file-remote-p))
+  :config (recentf-mode 1))
+
+(use-package tramp
+  :defer t
+  :init
+  (setq tramp-default-method
+        (if (and (eq system-type 'windows-nt)
+                 (not basis/cygwin-p))
+            "plinkx"
+          "sshx"))
+  (setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
+  ;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
+  (when basis/cygwin-p
+    (setq tramp-encoding-shell (executable-find "sh")
+          tramp-encoding-command-switch "-c"
+          tramp-encoding-command-interactive "-i")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Interface
 
 ;; See the commentary in `unicode-fonts' for the "minimum useful fonts" to
 ;; install
@@ -363,8 +404,6 @@ it doesn't exist."
         (when (ignore-errors (set-face-attribute 'default nil :font font)
                              t)
           (throw 'done t))))))
-
-;; interface -------------------------------------------------------------------
 
 (use-package solarized-theme
   :ensure color-theme-solarized
@@ -395,7 +434,20 @@ it doesn't exist."
   :ensure t
   :defer t)
 
-;; info ------------------------------------------------------------------------
+(use-package page-break-lines
+  :config (global-page-break-lines-mode 1)
+  :diminish page-break-lines-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Documentation modes
+
+(use-package help-mode
+  :defer t
+  :config (basis/define-keys help-mode-map
+            ("n" #'next-line)
+            ("p" #'previous-line)
+            ("b" #'help-go-back)
+            ("f" #'help-go-forward)))
 
 (use-package info
   :defer t
@@ -404,25 +456,20 @@ it doesn't exist."
     (when (file-directory-p info-path)
       (add-to-list 'Info-additional-directory-list info-path))))
 
-;; uniquify --------------------------------------------------------------------
+(use-package apropos
+  :defer t
+  :init (setq apropos-do-all t))
 
-(use-package uniquify
-  :init (setq uniquify-buffer-name-style 'forward
-              uniquify-ignore-buffers-re "^\\*"))
+(defvar basis/system-man-p (executable-find "man")
+  "Non-nil if a \"man\" executable is available on this system.")
 
-;; whitespace-mode -------------------------------------------------------------
+(unless basis/system-man-p
+  (require 'man)
+  (fset 'original-man #'man)
+  (fset 'man #'woman))
 
-(use-package whitespace
-  :init
-  (setq whitespace-style '(face trailing lines-tail tabs)
-        whitespace-line-column 80)
-  (put 'whitespace-line-column 'safe-local-variable #'integerp)
-  :diminish whitespace-mode)
-
-;; key bindings ----------------------------------------------------------------
-
-(use-package hydra
-  :ensure t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Key bindings
 
 (defun basis/init-modifiers-for-linux ()
   'pass)
@@ -442,6 +489,31 @@ it doesn't exist."
   (`gnu/linux  (basis/init-modifiers-for-linux))
   (`darwin     (basis/init-modifiers-for-os-x))
   (`windows-nt (basis/init-modifiers-for-windows)))
+
+(use-package hydra
+  :ensure t)
+
+(use-package discover
+  :ensure t
+  :config (progn (global-discover-mode 1)
+                 (discover-add-context-menu
+                  :context-menu (assq 'isearch discover-context-menus)
+                  :mode nil
+                  :mode-hook nil
+                  :bind "C-c s")))
+
+(use-package guide-key
+  :ensure t
+  :config (progn
+            (guide-key-mode 1)
+            (setq guide-key/popup-window-position 'bottom)
+            (setq guide-key/idle-delay 0.0)
+            (setq guide-key/guide-key-sequence
+                  '("C-x 4" "C-x v" "C-x 8"
+                    (dired-mode "*" "C-t")
+                    (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
+                    (calc-mode "V"))))
+  :diminish guide-key-mode)
 
 ;; C-c <left>/<right> to move backward/forward through window configurations
 (use-package winner
@@ -548,10 +620,6 @@ it doesn't exist."
 ;; Google stuff
 (global-set-key (kbd "C-c g") #'basis/google)
 
-;; Proced
-(use-package proced
-  :bind ("C-x p" . proced))
-
 ;; Re-open recent files
 (global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
 
@@ -600,8 +668,6 @@ it doesn't exist."
 ;; Narrowing can be quite handy
 (put 'narrow-to-region 'disabled nil)
 
-;; find elisp documentation ----------------------------------------------------
-
 (defhydra basis/hydra-find-lisp (:color blue :columns 2)
   ("c" finder-commentary "finder commentary")
   ("e" view-echo-area-messages "view echo area messages")
@@ -618,8 +684,6 @@ it doesn't exist."
 
 (global-set-key (kbd "<f1> e") #'basis/hydra-find-lisp/body)
 
-;; h-map -----------------------------------------------------------------------
-
 (define-prefix-command 'basis/h-map)
 
 ;; Note sure which will be better
@@ -629,8 +693,6 @@ it doesn't exist."
 (basis/define-keys basis/h-map
   ("C-k" #'basis/kill-this-buffer)
   ("C-h" #'mark-paragraph))
-
-;; eval keys -------------------------------------------------------------------
 
 (defvar basis/eval-keys
   '((last-sexp  . "C-x C-e")
@@ -642,8 +704,6 @@ it doesn't exist."
     (expand     . "C-c C-e"))
   "Key bindings used to evaluate various units of code.
 See `basis/define-eval-keys'.")
-
-;; god-mode --------------------------------------------------------------------
 
 (defvar basis/god-exempt-major-modes
   '(Custom-mode
@@ -678,8 +738,6 @@ See `basis/define-eval-keys'.")
     (add-hook 'god-mode-disabled-hook #'basis/god-update-cursor)
     (dolist (mode basis/god-exempt-major-modes)
       (add-to-list 'god-exempt-major-modes mode))))
-
-;; tmux ------------------------------------------------------------------------
 
 ;; A number of non-alphanumeric keys don't work by default when Emacs is
 ;; running in tmux. This attempts to fix that by adding entries to the
@@ -732,8 +790,6 @@ See `basis/define-eval-keys'.")
     ("M-[ 1 ; 6 k" "C-+")
     ("M-[ 1 ; 7 k" "C-M-=")))
 
-;; mintty ----------------------------------------------------------------------
-
 (defun basis/define-mintty-translations ()
   "Define key translations to better support mintty."
   ;; TODO: is there a way to automatically detect whether Emacs is running in
@@ -745,52 +801,83 @@ See `basis/define-eval-keys'.")
     ("M-[ 1 ; 6 y" "C-(")
     ("M-[ 1 ; 6 k" "C-+")))
 
-;; recentf ---------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Editing
 
-(use-package recentf
-  :init (setq recentf-max-saved-items 50
-              recentf-save-file (basis/emacs-file "var/recentf")
-              recentf-exclude (list #'tramp-tramp-file-p #'file-remote-p))
-  :config (recentf-mode 1))
+(use-package undo-tree
+  :ensure t
+  ;; The couple bindings undo-tree puts behind C-x r prevent discover.el's C-x r
+  ;; context menu from working
+  :config (progn
+            (global-undo-tree-mode 1)
+            (define-key undo-tree-map (kbd "C-x r") nil))
+  :diminish undo-tree-mode)
 
-;; TRAMP -----------------------------------------------------------------------
+(use-package expand-region
+  :ensure t
+  :bind ("M-=" . er/expand-region))
 
-(use-package tramp
+(use-package multiple-cursors
+  :ensure t
+  :init (setq mc/list-file (basis/emacs-file "var/mc-lists.el"))
+  :bind (("M-]" . mc/mark-next-like-this)
+         ("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)))
+
+(use-package multiple-cursors-core
+  :ensure multiple-cursors
   :defer t
-  :init
-  (setq tramp-default-method
-        (if (and (eq system-type 'windows-nt)
-                 (not basis/cygwin-p))
-            "plinkx"
-          "sshx"))
-  (setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
-  ;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
-  (when basis/cygwin-p
-    (setq tramp-encoding-shell (executable-find "sh")
-          tramp-encoding-command-switch "-c"
-          tramp-encoding-command-interactive "-i")))
+  ;; Make RET exit multiple-cursors-mode in the terminal too
+  :config (define-key mc/keymap (kbd "RET") #'multiple-cursors-mode))
 
-;; help-mode -------------------------------------------------------------------
+(use-package browse-kill-ring
+  :ensure t
+  :defer t)
 
-(use-package help-mode
+(use-package easy-kill
+  :ensure t
+  :defer t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Movement
+
+(use-package imenu
   :defer t
-  :config (basis/define-keys help-mode-map
-            ("n" #'next-line)
-            ("p" #'previous-line)
-            ("b" #'help-go-back)
-            ("f" #'help-go-forward)))
+  :init (setq imenu-auto-rescan t))
 
-;; man and woman ---------------------------------------------------------------
+(use-package avy
+  :ensure t
+  :init (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i)
+              avy-style 'pre)
+  :bind ("M-SPC" . avy-goto-word-1))
 
-(defvar basis/system-man-p (executable-find "man")
-  "Non-nil if a \"man\" executable is available on this system.")
+(defun basis/ace-window-kludge (function arg)
+  "Advice for `ace-window'.
+Ensure it always works with two windows, even when one (or both)
+is read-only and empty."
+  (if (and (eq aw-scope 'frame)
+           (= (length (window-list)) 2))
+      (pcase arg
+        (4  (basis/transpose-windows 1))
+        (16 (delete-other-windows))
+        (_  (other-window 1)))
+    (funcall function arg)))
 
-(unless basis/system-man-p
-  (require 'man)
-  (fset 'original-man #'man)
-  (fset 'man #'woman))
+(use-package ace-window
+  :ensure t
+  :init (setq aw-keys '(?h ?j ?k ?l ?n ?m)
+              aw-scope 'frame)
+  :bind ("M-o" . ace-window)
+  :config (advice-add 'ace-window :around #'basis/ace-window-kludge))
 
-;; isearch ---------------------------------------------------------------------
+(use-package jump-char
+  :ensure t
+  :bind (("M-m" . jump-char-forward)
+         ("M-M" . jump-char-backward)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Search
 
 (basis/define-keys isearch-mode-map
   ("DEL"         #'basis/isearch-backspace)
@@ -798,7 +885,24 @@ See `basis/define-eval-keys'.")
   ("C-t"         #'basis/isearch-yank-something)
   ("C-g"         #'basis/isearch-cancel))
 
-;; grep ------------------------------------------------------------------------
+(use-package swiper
+  :ensure t
+  :init (setq swiper-min-highlight 1)
+  :bind ("C-s" . swiper)
+  :config (basis/define-keys swiper-map
+            ("M-%"   #'swiper-query-replace)
+            ("M-SPC" #'swiper-avy)
+            ("C-t"   #'basis/swiper-maybe-yank-something)))
+
+(use-package swiper-helm
+  :ensure t
+  :bind ("C-r" . basis/swiper-helm))
+
+(define-key occur-mode-map (kbd "n") #'occur-next)
+(define-key occur-mode-map (kbd "p") #'occur-prev)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; External search
 
 (defhydra basis/hydra-grep (:color blue :columns 2)
   "Grep"
@@ -829,668 +933,33 @@ See `basis/define-eval-keys'.")
     (unless (assoc alias grep-files-aliases)
       (add-to-list 'grep-files-aliases (cons alias files)))))
 
-;; occur -----------------------------------------------------------------------
-
-(define-key occur-mode-map (kbd "n") #'occur-next)
-(define-key occur-mode-map (kbd "p") #'occur-prev)
-
-;; ispell ----------------------------------------------------------------------
-
-(use-package ispell
+(use-package ack-and-a-half
   :defer t
-  :init (setq ispell-program-name (executable-find "aspell")
-              ispell-personal-dictionary "~/.aspell.en.pws"
-              ispell-extra-args '("--sug-mode=ultra"))
-  :config (condition-case nil
-              (lookup-words "whatever")
-            (error
-             (when (file-readable-p "~/Dropbox/dict/words")
-               (setq ispell-alternate-dictionary "~/Dropbox/dict/words")))))
-
-;; prog-mode -------------------------------------------------------------------
-
-(use-package prog-mode
-  :config
-  (add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
-  (add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode))
-
-;; compile ---------------------------------------------------------------------
-
-(use-package compile
-  :bind  (("C-c b c" . compile)
-          ("C-c b b" . recompile))
-  :config (setq compilation-ask-about-save nil
-                compilation-always-kill t
-                compilation-scroll-output 'first-error
-                compilation-context-lines 2))
-
-;; diff-mode -------------------------------------------------------------------
-
-(defun basis/init-diff-mode ()
-  (setq buffer-read-only t))
-
-(use-package diff-mode
-  :defer t
-  :config
-  ;; `diff-goto-source' is still available on C-c C-c.
-  (define-key diff-mode-map (kbd "M-o") nil)
-  (add-hook 'diff-mode-hook #'basis/init-diff-mode))
-
-;; discover-mode ---------------------------------------------------------------
-
-(use-package discover
-  :ensure t
-  :config (progn (global-discover-mode 1)
-                 (discover-add-context-menu
-                  :context-menu (assq 'isearch discover-context-menus)
-                  :mode nil
-                  :mode-hook nil
-                  :bind "C-c s")))
-
-;; guide-key -------------------------------------------------------------------
-
-(use-package guide-key
-  :ensure t
-  :config (progn
-            (guide-key-mode 1)
-            (setq guide-key/popup-window-position 'bottom)
-            (setq guide-key/idle-delay 0.0)
-            (setq guide-key/guide-key-sequence
-                  '("C-x 4" "C-x v" "C-x 8"
-                    (dired-mode "*" "C-t")
-                    (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
-                    (calc-mode "V"))))
-  :diminish guide-key-mode)
-
-;; undo-tree -------------------------------------------------------------------
-
-(use-package undo-tree
-  :ensure t
-  ;; The couple bindings undo-tree puts behind C-x r prevent discover.el's C-x r
-  ;; context menu from working
-  :config (progn
-            (global-undo-tree-mode 1)
-            (define-key undo-tree-map (kbd "C-x r") nil))
-  :diminish undo-tree-mode)
-
-;; expand-region ---------------------------------------------------------------
-
-(use-package expand-region
-  :ensure t
-  :bind ("M-=" . er/expand-region))
-
-;; multiple-cursors ------------------------------------------------------------
-
-(use-package multiple-cursors
-  :ensure t
-  :init (setq mc/list-file (basis/emacs-file "var/mc-lists.el"))
-  :bind (("M-]" . mc/mark-next-like-this)
-         ("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)))
-
-(use-package multiple-cursors-core
-  :ensure multiple-cursors
-  :defer t
-  ;; Make RET exit multiple-cursors-mode in the terminal too
-  :config (define-key mc/keymap (kbd "RET") #'multiple-cursors-mode))
-
-;; saveplace -------------------------------------------------------------------
-
-(use-package saveplace
-  :config
-  (setq-default save-place t)
-  (setq save-place-file (basis/emacs-file "var/places")))
-
-;; savehist --------------------------------------------------------------------
-
-(use-package savehist
-  :init (setq savehist-additional-variables '(search-ring regexp-search-ring)
-              savehist-file (basis/emacs-file "var/history"))
-  :config (savehist-mode t))
-
-;; avy -------------------------------------------------------------------------
-
-(use-package avy
-  :ensure t
-  :init (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i)
-              avy-style 'pre)
-  :bind ("M-SPC" . avy-goto-word-1))
-
-;; ivy/swiper/counsel ----------------------------------------------------------
-
-(use-package swiper
-  :ensure t
-  :init (setq swiper-min-highlight 1)
-  :bind ("C-s" . swiper)
-  :config (basis/define-keys swiper-map
-            ("M-%"   #'swiper-query-replace)
-            ("M-SPC" #'swiper-avy)
-            ("C-t"   #'basis/swiper-maybe-yank-something)))
-
-(use-package swiper-helm
-  :ensure t
-  :bind ("C-r" . basis/swiper-helm))
-
-(use-package ivy
-  :ensure swiper
-  :init (setq ivy-format-function #'basis/ivy-format-function)
-  :config (define-key ivy-minibuffer-map (kbd "C-r") #'ivy-previous-line))
-
-(use-package counsel
-  :ensure t)
-
-;; ace-window ------------------------------------------------------------------
-
-(defun basis/ace-window-kludge (function arg)
-  "Advice for `ace-window'.
-Ensure it always works with two windows, even when one (or both)
-is read-only and empty."
-  (if (and (eq aw-scope 'frame)
-           (= (length (window-list)) 2))
-      (pcase arg
-        (4  (basis/transpose-windows 1))
-        (16 (delete-other-windows))
-        (_  (other-window 1)))
-    (funcall function arg)))
-
-(use-package ace-window
-  :ensure t
-  :init (setq aw-keys '(?h ?j ?k ?l ?n ?m)
-              aw-scope 'frame)
-  :bind ("M-o" . ace-window)
-  :config (advice-add 'ace-window :around #'basis/ace-window-kludge))
-
-;; jump-char -------------------------------------------------------------------
-
-(use-package jump-char
-  :ensure t
-  :bind (("M-m" . jump-char-forward)
-         ("M-M" . jump-char-backward)))
-
-;; move-text -------------------------------------------------------------------
-
-;; Moves lines or regions
-(use-package move-text
-  :ensure t
-  :bind (("<M-s-up>"   . move-text-up)
-         ("<M-s-down>" . move-text-down)))
-
-;; zop-to-char -----------------------------------------------------------------
-
-(defun basis/zop-no-help ()
-  "Advice for `zop-to-char-help-string'.
-Return the empty string (i.e. get rid of the help string)."
-  "")
-
-(use-package zop-to-char
-  :ensure t
-  :bind (("M-z" . zop-up-to-char)
-         ("M-Z" . zop-to-char))
-  ;; Because I have `zop-to-char' on M-z, it's convenient to continue using meta
-  ;; for its actions rather than switching to control
-  :config
-  (progn
-    (add-to-list 'zop-to-char-kill-keys ?\M-k)
-    (add-to-list 'zop-to-char-next-keys ?\M-f)
-    (add-to-list 'zop-to-char-prec-keys ?\M-b)
-    (add-to-list 'zop-to-char-erase-keys ?\M-d)
-    (add-to-list 'zop-to-char-quit-at-point-keys ?\M-q)
-    (advice-add 'zop-to-char-help-string :override #'basis/zop-no-help)))
-
-;; message-mode ----------------------------------------------------------------
-
-(defun basis/init-message-mode ()
-  (setq fill-column 72)
-  (setq-local org-footnote-tag-for-non-org-mode-files nil))
-
-(use-package message
-  :defer t
-  :init (setq user-mail-address "jbm@jbm.io"
-              user-full-name "John Mastro"
-              message-auto-save-directory (basis/emacs-dir "tmp/")
-              message-subject-trailing-was-query nil
-              message-signature "jbm"
-              message-kill-buffer-on-exit t
-              message-dont-reply-to-names nil
-              message-send-mail-function #'smtpmail-send-it)
-  :config (progn
-            (define-key message-mode-map (kbd "C-c n") #'org-footnote-action)
-            (add-hook 'message-mode-hook #'basis/init-message-mode)))
-
-;; mu4e ------------------------------------------------------------------------
-
-(use-package sendmail
-  :defer t
-  :init (setq send-mail-function #'smtpmail-send-it
-              smtp-default-smtp-server "mail.messagingengine.com"))
-
-(use-package smtpmail
-  :defer t
-  :init (setq smtpmail-smtp-server "mail.messagingengine.com"
-              smtpmail-smtp-user "jbm@fastmail.fm"
-              smtpmail-smtp-service 465
-              smtpmail-stream-type 'ssl))
-
-(use-package mu4e
-  :defer t
-  :bind ("C-x m" . mu4e)
-  :init
-  (progn
-    (let ((dir "/usr/local/share/emacs/site-lisp/mu4e/"))
-      (when (file-directory-p dir)
-        (add-to-list 'load-path dir)))
-    ;; Mail
-    (setq mu4e-get-mail-command "offlineimap"
-          mu4e-maildir (expand-file-name ".maildir/fastmail" (getenv "HOME"))
-          mu4e-sent-folder "/sent"
-          mu4e-drafts-folder "/drafts"
-          mu4e-trash-folder "/trash"
-          mu4e-compose-signature "jbm")
-    ;; Shortcuts. Available as jX
-    (setq mu4e-maildir-shortcuts '(("/archive" . ?a)
-                                   ("/inbox"   . ?i)
-                                   ("/sent"    . ?s)))
-    ;; Addresses to consider "me" when searching
-    (setq mu4e-user-mail-address-list '("jbm@jbm.io"
-                                        "jbm@deft.li"
-                                        "jbm@fastmail.com"
-                                        "jbm@fastmail.fm"
-                                        "jbm@mailforce.net"))
-    ;; Convert HTML->text if no text version is available
-    (setq mu4e-html2text-command (if (executable-find "html2text")
-                                     "html2text -utf8 -width 72"
-                                   #'basis/shr-html2text))
-    ;; Where to save attachments
-    (let ((dir (seq-some-p #'file-directory-p
-                           '("~/downloads" "~/Downloads" "~/"))))
-      (setq mu4e-attachment-dir dir))
-    ;; Composing messages
-    (setq mu4e-reply-to-address "jbm@jbm.io"
-          mu4e-sent-messages-behavior 'delete)) ; They're saved on the server
-  :config
-  (with-eval-after-load 'mu4e
-    (add-to-list 'mu4e-view-actions
-                 (cons "View in browser" #'basis/mu4e-action-view-in-browser)
-                 t)))
-
-;; Retrieving passwords
-(use-package auth-source
-  :defer t
-  :init (setq auth-sources (if (eq system-type 'darwin)
-                               '(macos-keychain-internet)
-                             '("~/.authinfo.gpg"))))
-
-;; elfeed ----------------------------------------------------------------------
-
-(use-package elfeed
-  :ensure t
-  :defer t
-  :init (progn (setq elfeed-db-directory (basis/emacs-dir "var/elfeed/"))
-               (when (file-exists-p (basis/emacs-file "feeds.el"))
-                 (setq elfeed-feeds (thread-first "feeds.el"
-                                      basis/emacs-file
-                                      basis/elfeed-load-feeds)))))
-
-;; shr/eww ---------------------------------------------------------------------
-
-(defun basis/shr-tag-body-no-color (function &rest args)
-  "Advice for `shr-tag-body'; don't colorize the region."
-  (cl-letf (((symbol-function 'shr-colorize-region)
-             #'ignore))
-    (apply function args)))
-
-(use-package shr
-  :defer t
-  :config (advice-add 'shr-tag-body :around #'basis/shr-tag-body-no-color))
-
-(use-package eww
-  :defer t
-  :config (define-key eww-mode-map (kbd "<backtab>") #'shr-previous-link))
-
-;; w3m -------------------------------------------------------------------------
-
-(use-package w3m
-  :ensure t
-  :defer t
-  :init (when (and (not (display-graphic-p))
-                   (executable-find "w3m"))
-          (setq browse-url-browser-function #'w3m-browse-url))
-  :config (progn
-            (define-key w3m-mode-map "n" #'w3m-next-anchor)
-            (define-key w3m-mode-map "p" #'w3m-previous-anchor)))
-
-;; sx --------------------------------------------------------------------------
-
-(defun basis/init-sx-question-mode ()
-  (toggle-truncate-lines -1))
-
-(use-package sx
-  :ensure t
-  :defer t
-  :init (setq sx-cache-directory (basis/emacs-dir "var/sx/"))
-  :config (add-hook 'sx-question-mode-hook #'basis/init-sx-question-mode))
-
-;; ediff -----------------------------------------------------------------------
-
-(defun basis/init-ediff ()
-  (ediff-setup-keymap))
-
-(use-package ediff
-  :defer t
-  :init (setq ediff-window-setup-function #'ediff-setup-windows-plain
-              ediff-split-window-function #'split-window-horizontally)
-  :config (progn
-            (when (eq system-type 'windows-nt)
-              (advice-add 'ediff-make-empty-tmp-file
-                          :filter-args
-                          #'basis/ediff-expand-tmp-name))
-            (advice-add 'ediff-setup :before #'basis/ediff-save-window-config)
-            (advice-add 'ediff-quit :after #'basis/ediff-quit-restore)
-            (add-hook 'ediff-mode-hook #'basis/init-ediff)))
-
-;; magit -----------------------------------------------------------------------
-
-(use-package magit
-  :ensure t
-  :bind  (("C-x g"   . magit-status)
-          ("<f10>"   . magit-status)
-          ("C-x M-g" . magit-dispatch-popup))
-  :config
-  (progn
-    (unless (boundp 'magit-backup-mode)
-      ;; Temporary kludge to prevent an unbound-symbol error
-      (setq magit-backup-mode nil))
-    (setq magit-revert-buffers 'silent)
-    (setq magit-save-repository-buffers 'dontask)
-    (setq magit-push-always-verify nil)
-    (setq magit-popup-use-prefix-argument 'default)
-    (setq magit-completing-read-function #'magit-ido-completing-read)
-    (setq magit-repository-directories
-          (thread-last (projectile-relevant-known-projects)
-            (seq-remove #'tramp-tramp-file-p)
-            (seq-filter (lambda (dir)
-                          (file-directory-p (expand-file-name ".git" dir))))
-            (cons "~/code/")
-            ;; Remove the trailing slashes
-            (mapcar #'directory-file-name)))
-    (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
-    (add-hook 'magit-status-mode-hook #'delete-other-windows)
-    (when (and (eq system-type 'windows-nt)
-               basis/cygwin-p)
-      (advice-add 'magit-get-top-dir
-                  :filter-return
-                  #'basis/magit-expand-top-dir))
-    ;; Add a command on `C-c C-v' to view the pull request URL. It would be even
-    ;; better to add this to Magit's menus but nowhere sticks out as obviously
-    ;; appropriate.
-    (define-key magit-status-mode-map
-      (kbd "C-c C-v") #'basis/magit-browse-pull-request-url)))
-
-(use-package with-editor
-  :ensure t
-  :defer t
-  ;; On Cygwin, fix `with-editor-emacsclient-executable' and advice
-  ;; `with-editor-locate-emacsclient' so that its result is accurate for any
-  ;; future uses.
-  :config (when (and (eq system-type 'windows-nt)
-                     basis/cygwin-p)
-            (when-let ((client with-editor-emacsclient-executable)
-                       (client (basis/fix-bad-cygwin-file-name client)))
-              (setq with-editor-emacsclient-executable client))
-            (advice-add 'with-editor-locate-emacsclient
-                        :filter-return
-                        #'basis/fix-located-emacsclient-file-name)))
-
-(use-package gist
-  :ensure t
-  :defer t)
-
-(use-package git-timemachine
-  :ensure t
-  :defer t)
-
-(use-package gitattributes-mode
-  :ensure t
-  :defer t)
-
-(use-package gitconfig-mode
-  :ensure t
-  :defer t)
-
-(use-package gitignore-mode
-  :ensure t
-  :defer t)
-
-;; text-mode -------------------------------------------------------------------
-
-(defun basis/init-text-mode ()
-  (auto-fill-mode 1)
-  (basis/maybe-enable-flyspell)
-  (when ispell-alternate-dictionary
-    (add-to-list 'company-backends 'company-ispell)))
-
-(add-hook 'text-mode-hook #'basis/init-text-mode)
-
-;; ibuffer ---------------------------------------------------------------------
-
-(use-package ibuffer
+  :commands (ack-and-a-half)
   :init (progn
-          (defalias 'ls #'ibuffer)
-          (setq ibuffer-formats
-                '((mark modified read-only " "
-                        (name 18 18 :left :elide)
-                        " "
-                        (size-h 9 -1 :right)
-                        " "
-                        (mode 16 16 :left :elide)
-                        " "
-                        (vc-status 16 16 :left)
-                        " "
-                        filename-and-process)
-                  (mark " "
-                        (name 18 18 :left :elide)
-                        " "
-                        filename)))
-          (setq ibuffer-show-empty-filter-groups nil))
-  :bind ([remap list-buffers] . ibuffer)
+          (defalias 'ack #'ack-and-a-half)
+          (defalias 'ack-same #'ack-and-a-half-same)
+          (defalias 'ack-find-file #'ack-and-a-half-find-file)
+          (defalias 'ack-find-file-same #'ack-and-a-half-find-file-same)
+          (when (file-exists-p "~/bin/ack")
+            (setq ack-and-a-half-executable "~/bin/ack")))
   :config
   (progn
-    (require 'ibuffer-vc)
-    (basis/define-keys ibuffer-mode-map
-      ("M-o"   nil) ;; don't shadow ace-window
-      ("C-M-o" #'ibuffer-visit-buffer-1-window)
-      ("\\"    #'basis/ibuffer-toggle-vc-grouping))
-    (define-ibuffer-column size-h
-      ;; a more readable size column
-      (:name "Size" :inline t)
-      (cond ((> (buffer-size) 1000000)
-             (format "%7.1fM" (/ (buffer-size) 1000000.0)))
-            ((> (buffer-size) 1000)
-             (format "%7.1fk" (/ (buffer-size) 1000.0)))
-            (t
-             (format "%8d" (buffer-size)))))))
+    (basis/define-keys ack-and-a-half-mode-map
+      ("n" #'compilation-next-error)
+      ("p" #'compilation-previous-error)
+      ("]" #'compilation-next-file)
+      ("[" #'compilation-previous-file))
+    (setq ack-and-a-half-use-ido t)
+    ;; Make Cygwin happy
+    (when (and basis/cygwin-p
+               (stringp ack-and-a-half-executable)
+               (string-prefix-p "c:" ack-and-a-half-executable))
+      (setq ack-and-a-half-executable
+            (substring ack-and-a-half-executable 2)))))
 
-(use-package ibuffer-vc
-  :ensure t
-  :defer t
-  :config
-  (advice-add 'ibuffer-vc-root :around #'basis/ibuffer-vc-root-files-only))
-
-;; company ---------------------------------------------------------------------
-
-(use-package company
-  :ensure t
-  :config
-  (progn
-    (add-hook 'after-init-hook #'global-company-mode)
-    (basis/define-keys company-active-map
-      ("TAB"    #'company-complete)
-      ([tab]    #'company-complete)
-      ("<C-f1>" #'company-show-location)
-      ("<M-f1>" #'company-show-location)
-      ("C-w"    nil)
-      ("C-h"    nil)
-      ("RET"    nil)
-      ([return] nil))
-    (set-default
-     (make-variable-buffer-local 'company-backends)
-     '(company-capf
-       (company-dabbrev-code company-gtags company-etags company-keywords)
-       company-files
-       company-dabbrev))
-    (setq company-minimum-prefix-length 2
-          company-tooltip-flip-when-above t)
-    (advice-add 'company-auto-begin
-                :around
-                #'basis/company-no-completion-in-docstring)
-    (advice-add 'company-auto-begin
-                :around
-                #'basis/company-sh-no-complete-fi)
-    (when (eq system-type 'windows-nt)
-      (advice-add 'company-auto-begin
-                  :around
-                  #'basis/company-no-tramp-completion))
-    (with-eval-after-load 'cc-mode
-      (when-let (args (basis/build-clang-args 'c))
-        (require 'company-clang)
-        (setq company-clang-arguments args)
-        (add-hook 'c-mode-hook #'basis/enable-company-clang)))))
-
-(use-package company-statistics
-  :ensure t
-  :init (setq company-statistics-file
-              (basis/emacs-file "var/company-statistics-cache.el"))
-  :config (add-hook 'after-init-hook #'company-statistics-mode t))
-
-;; dired -----------------------------------------------------------------------
-
-(defun basis/dired-omit-expunge-quietly (function &rest args)
-  "Advice for `dired-omit-expunge'.
-Only print messages if the selected window contains a `dired'
-buffer."
-  (cl-letf (((symbol-value 'dired-omit-verbose)
-             (with-current-buffer (window-buffer (selected-window))
-               (eq major-mode 'dired-mode))))
-    (apply function args)))
-
-(use-package dired
-  :defer t
-  :config
-  (progn
-    (require 'dired+)
-    (require 'find-dired)
-    (basis/define-keys dired-mode-map
-      ("RET"                       #'dired-find-alternate-file)
-      ("M-RET"                     #'dired-find-file)
-      ("e"                         #'basis/dired-open-files)
-      ("-"                         #'diredp-up-directory-reuse-dir-buffer)
-      ("^"                         #'diredp-up-directory-reuse-dir-buffer)
-      ("M-^"                       #'diredp-up-directory)
-      ("M-m"                       #'dired-omit-mode)
-      ("M-n"                       #'diredp-next-subdir)
-      ("M-p"                       #'diredp-prev-subdir)
-      ("M-e"                       #'dired-next-dirline)
-      ("M-a"                       #'dired-prev-dirline)
-      ("M-b"                       nil)
-      ("M-o"                       nil)
-      ([remap beginning-of-buffer] #'basis/dired-jump-to-top)
-      ([remap end-of-buffer]       #'basis/dired-jump-to-bottom))
-    (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
-          dired-recursive-deletes 'top
-          dired-listing-switches "-alh"
-          find-ls-options '("-exec ls -ldh {} +" . "-ldh"))
-    ;; Use `ls' from GNU coreutils on OS X, when available
-    (when (and (eq system-type 'darwin)
-               (executable-find "gls"))
-      (setq insert-directory-program "gls"))
-    (put 'dired-find-alternate-file 'disabled nil)
-    (add-hook 'dired-mode-hook #'dired-omit-mode)
-    (advice-add 'dired-omit-expunge
-                :around
-                #'basis/dired-omit-expunge-quietly)))
-
-(use-package dired-x
-  :bind ("C-h C-j" . dired-jump))
-
-(use-package dired+
-  :ensure t
-  :defer t)
-
-;; direx -----------------------------------------------------------------------
-
-(use-package direx
-  :ensure t
-  :bind (("C-h j"     . direx:jump-to-directory)
-         ("C-h p C-j" . basis/direx-jump-to-project-root))
-  :config
-  (define-key direx:direx-mode-map (kbd "M-n") #'direx:next-sibling-item)
-  (define-key direx:direx-mode-map (kbd "M-p") #'direx:previous-sibling-item))
-
-;; comint ----------------------------------------------------------------------
-
-(defun basis/init-comint-mode ()
-  (setq comint-scroll-to-bottom-on-input 'this))
-
-(use-package comint
-  :defer t
-  :init (setenv "PAGER" "cat")
-  :config
-  (progn
-    (basis/define-keys comint-mode-map
-      ("M-p"     #'comint-previous-matching-input-from-input)
-      ("M-n"     #'comint-next-matching-input-from-input)
-      ("C-c C-l" #'helm-comint-input-ring)
-      ;; Because Paredit and Smartparens both use M-r
-      ("C-M-r"   #'comint-history-isearch-backward-regexp))
-    (dolist (cmd '(comint-previous-input
-                   comint-next-input
-                   comint-previous-matching-input-from-input
-                   comint-next-matching-input-from-input))
-      (advice-add cmd :before #'basis/comint-input-goto-bottom-if-necessary))
-    (add-hook 'comint-mode-hook #'basis/init-comint-mode)))
-
-;; shell-mode ------------------------------------------------------------------
-
-(defun basis/init-shell-mode ()
-  (setq comint-process-echoes t)
-  (shell-dirtrack-mode -1)
-  (dirtrack-mode +1))
-
-(use-package shell
-  :defer t
-  ;; Not sure why comint/dirtrack see junk in front of my prompt with Cygwin's
-  ;; zsh, so just work around it
-  :init (setq-default dirtrack-list
-                      (if basis/cygwin-p
-                          '("^%[ \r]*\\(.+\\)>" 1)
-                        '("^[^:\n]+@[^:\n]+:\\(.+\\)>" 1)))
-  :config (add-hook 'shell-mode-hook #'basis/init-shell-mode))
-
-;; eshell ----------------------------------------------------------------------
-
-(defun basis/init-eshell ()
-  (basis/define-keys eshell-mode-map
-    ("S-DEL"   #'basis/eshell-kill-line-backward)
-    ("C-S-DEL" #'basis/eshell-kill-whole-line)))
-
-(use-package esh-mode
-  :defer t
-  :init (setq eshell-directory-name (basis/emacs-dir "var/eshell/"))
-  :config (add-hook 'eshell-mode-hook #'basis/init-eshell))
-
-;; sh-mode ---------------------------------------------------------------------
-
-(defun basis/init-sh-mode ()
-  (setq tab-width 4)
-  (when (and buffer-file-name
-             (string= (file-name-nondirectory buffer-file-name) ".zshrc"))
-    (sh-set-shell "zsh")))
-
-(use-package sh-script
-  :defer t
-  :config (add-hook 'sh-mode-hook #'basis/init-sh-mode))
-
-;; ido -------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Completion
 
 (defun basis/init-ido-keys ()
   (basis/define-keys ido-file-completion-map
@@ -1531,15 +1000,11 @@ buffer."
   :ensure t
   :defer t)
 
-;; smex ------------------------------------------------------------------------
-
 (use-package smex
   :ensure t
   :init (setq smex-save-file (basis/emacs-file "var/smex-items"))
   :bind (("M-X"     . smex-major-mode-commands)
          ("C-h M-x" . execute-extended-command)))
-
-;; helm ------------------------------------------------------------------------
 
 (use-package helm-config
   :ensure helm
@@ -1708,21 +1173,63 @@ buffer."
   :ensure t
   :defer t)
 
-;; browse-kill-ring ------------------------------------------------------------
+(use-package ivy
+  :ensure swiper
+  :init (setq ivy-format-function #'basis/ivy-format-function)
+  :config (define-key ivy-minibuffer-map (kbd "C-r") #'ivy-previous-line))
 
-(use-package browse-kill-ring
+(use-package counsel
+  :ensure t)
+
+(use-package company
   :ensure t
-  :defer t)
+  :config
+  (progn
+    (add-hook 'after-init-hook #'global-company-mode)
+    (basis/define-keys company-active-map
+      ("TAB"    #'company-complete)
+      ([tab]    #'company-complete)
+      ("<C-f1>" #'company-show-location)
+      ("<M-f1>" #'company-show-location)
+      ("C-w"    nil)
+      ("C-h"    nil)
+      ("RET"    nil)
+      ([return] nil))
+    (set-default
+     (make-variable-buffer-local 'company-backends)
+     '(company-capf
+       (company-dabbrev-code company-gtags company-etags company-keywords)
+       company-files
+       company-dabbrev))
+    (setq company-minimum-prefix-length 2
+          company-tooltip-flip-when-above t)
+    (advice-add 'company-auto-begin
+                :around
+                #'basis/company-no-completion-in-docstring)
+    (advice-add 'company-auto-begin
+                :around
+                #'basis/company-sh-no-complete-fi)
+    (when (eq system-type 'windows-nt)
+      (advice-add 'company-auto-begin
+                  :around
+                  #'basis/company-no-tramp-completion))
+    (with-eval-after-load 'cc-mode
+      (when-let (args (basis/build-clang-args 'c))
+        (require 'company-clang)
+        (setq company-clang-arguments args)
+        (add-hook 'c-mode-hook #'basis/enable-company-clang)))))
 
-;; hippie expand ---------------------------------------------------------------
+(use-package company-statistics
+  :ensure t
+  :init (setq company-statistics-file
+              (basis/emacs-file "var/company-statistics-cache.el"))
+  :config (add-hook 'after-init-hook #'company-statistics-mode t))
 
 (use-package hippie-exp
   :bind ("M-/" . hippie-expand)
   :config (dolist (f '(try-expand-line try-expand-list try-expand-all-abbrevs))
             (setq hippie-expand-try-functions-list
                   (remq f hippie-expand-try-functions-list))))
-
-;; yasnippet -------------------------------------------------------------------
 
 (use-package yasnippet
   :ensure t
@@ -1741,52 +1248,13 @@ buffer."
           yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
           yas-wrap-around-region t)))
 
-;; projectile ------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Programming modes
 
-(defhydra basis/hydra-projectile (:color blue :columns 4)
-  "Projectile"
-  ("b"   projectile-switch-to-buffer "switch to buffer")
-  ("d"   projectile-find-dir "dir")
-  ("C-f" projectile-find-file "file")
-  ("ff"  projectile-find-file-dwim "file dwim")
-  ("fd"  projectile-find-file-in-directory "file in dir")
-  ("g"   projectile-grep "grep")
-  ("i"   projectile-ibuffer "ibuffer")
-  ("K"   projectile-kill-buffers "kill buffers")
-  ("o"   projectile-multi-occur "multi-occur")
-  ("p"   projectile-switch-project "switch")
-  ("r"   projectile-recentf "recentf")
-  ("x"   projectile-remove-known-project "remove known")
-  ("X"   projectile-cleanup-known-projects "cleanup non-existing")
-  ("z"   projectile-cache-current-file "cache current")
-  ("q"   nil "cancel"))
-
-(use-package projectile
-  :ensure t
-  :init (progn
-          (setq projectile-keymap-prefix (kbd "C-h p")
-                projectile-completion-system 'helm)
-          (setq projectile-known-projects-file
-                (basis/emacs-file "var/projectile-bookmarks.eld"))
-          (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
-          ;; Projectile defaults to native indexing on Windows, but if we have
-          ;; Cygwin set up we can use "alien".
-          (if (and (eq system-type 'windows-nt)
-                   (not basis/cygwin-p))
-              (setq projectile-indexing-method 'native
-                    projectile-enable-caching t)
-            (setq projectile-indexing-method 'alien
-                  projectile-enable-caching nil))
-          (projectile-global-mode)
-          (global-set-key projectile-keymap-prefix
-                          #'basis/hydra-projectile/body))
+(use-package prog-mode
   :config
-  (when (and (eq system-type 'windows-nt) basis/cygwin-p)
-    (define-key projectile-mode-map
-      [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags))
-  :diminish projectile-mode)
-
-;; lisp ------------------------------------------------------------------------
+  (add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
+  (add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode))
 
 (defvar basis/lisp-modes
   '(lisp-mode
@@ -1823,8 +1291,6 @@ Use `paredit' in these modes rather than `smartparens'.")
 (defun basis/init-lisp-generic ()
   "Enable features useful in all Lisp modes."
   (paredit-mode +1))
-
-;; emacs lisp ------------------------------------------------------------------
 
 (defun basis/init-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in `hippie-exp'."
@@ -1901,65 +1367,10 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t)
 
-;; paredit ---------------------------------------------------------------------
-
-(defun basis/maybe-map-paredit-newline ()
-  "Map `paredit-newline' except in some interactive modes."
-  (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
-                                               inferior-lisp-mode
-                                               inferior-scheme-mode
-                                               geiser-repl-mode
-                                               cider-repl-mode)))
-    (local-set-key (kbd "RET") #'paredit-newline)))
-
-(defun basis/maybe-enable-paredit-mode ()
-  "Enable Paredit during Lisp-related minibuffer commands."
-  (let ((paredit-minibuffer-commands '(eval-expression
-                                       pp-eval-expression
-                                       eval-expression-with-eldoc
-                                       slime-interactive-eval
-                                       helm-eval-expression-with-eldoc)))
-    (when (memq this-command paredit-minibuffer-commands)
-      (enable-paredit-mode))))
-
-(use-package paredit
-  :ensure t
-  :init (add-hook 'minibuffer-setup-hook #'basis/maybe-enable-paredit-mode)
-  :config
-  (progn
-    (basis/define-keys paredit-mode-map
-      ("M-)"             #'basis/paredit-wrap-round-from-behind)
-      ("M-e"             #'paredit-forward)
-      ("M-a"             #'paredit-backward)
-      ("M-k"             #'kill-sexp)
-      ("C-w"             #'basis/paredit-kill-something)
-      ("M-DEL"           #'basis/paredit-kill-something)
-      ("<C-M-backspace>" #'backward-kill-sexp)
-      ("C-M-_"           #'backward-kill-sexp))
-    (add-to-list 'paredit-space-for-delimiter-predicates
-                 #'basis/paredit-doublequote-space-p)
-    ;; Show `eldoc' messages after Paredit motion commands
-    (with-eval-after-load 'eldoc
-      (eldoc-add-command 'paredit-forward
-                         'paredit-forward-up
-                         'paredit-forward-down
-                         'paredit-backward
-                         'paredit-backward-up
-                         'paredit-backward-down
-                         'paredit-newline))
-    (add-hook 'paredit-mode-hook #'basis/maybe-map-paredit-newline)
-    (put 'paredit-forward-delete 'delete-selection 'supersede)
-    (put 'paredit-backward-delete 'delete-selection 'supersede)
-    (put 'paredit-newline 'delete-selection t)))
-
-;; redshank --------------------------------------------------------------------
-
 (use-package redshank
   :ensure t
   :init (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t)
   :diminish redshank-mode)
-
-;; slime -----------------------------------------------------------------------
 
 (defun basis/start-slime ()
   (unless (slime-connected-p)
@@ -1993,8 +1404,6 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package slime-company
   :ensure t
   :defer t)
-
-;; clojure ---------------------------------------------------------------------
 
 (defun basis/init-clojure-mode ()
   (subword-mode)
@@ -2089,8 +1498,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t)
 
-;; scheme ----------------------------------------------------------------------
-
 (use-package quack
   :ensure t
   :defer t
@@ -2133,85 +1540,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure geiser
   :defer t
   :config (add-hook 'geiser-repl-mode-hook #'basis/init-lisp-generic))
-
-;; smartparens -----------------------------------------------------------------
-
-(use-package smartparens
-  :ensure t
-  :init (smartparens-global-strict-mode)
-  :config
-  (progn
-    ;; I still prefer Paredit with Lisps, and having Smartparens enabled messes
-    ;; with argument handling in `magit-key-mode'.
-    (dolist (mode (cons 'magit-key-mode basis/lisp-modes))
-      (add-to-list 'sp-ignore-modes-list mode))
-    (sp-use-paredit-bindings)
-    (setq sp-cancel-autoskip-on-backward-movement nil
-          sp-autoescape-string-quote nil
-          sp-use-subword t)
-    (setq-default sp-autoskip-closing-pair 'always)
-    (sp-pair "'"
-             nil
-             :unless '(basis/sp-point-after-word-p)
-             :actions '(insert wrap autoskip))
-
-    (sp-local-pair 'org-mode "=" "=" :actions '(wrap))
-    (sp-with-modes '(c-mode c++-mode java-mode)
-      (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
-    (basis/define-keys sp-keymap
-      ("M-DEL"           #'basis/sp-kill-something)
-      ("C-DEL"           #'basis/sp-kill-something)
-      ("<C-backspace>"   #'basis/sp-kill-something)
-      ("C-w"             #'basis/sp-kill-something)
-      ("M-k"             #'sp-kill-sexp)
-      ("M-e"             #'basis/maybe-sp-forward-sexp)
-      ("M-a"             #'basis/maybe-sp-backward-sexp)
-      ("<C-M-backspace>" #'sp-backward-kill-sexp)
-      ("C-M-_"           #'sp-backward-kill-sexp))
-    ;; These commands invoke `indent-according-to-mode' but, when
-    ;; `indent-line-function' is `indent-relative', that often doesn't work out
-    ;; too well.
-    (basis/disable-relative-reindent-for
-     '(sp-kill-word
-       sp-backward-kill-word
-       sp-kill-sexp
-       sp-kill-hybrid-sexp
-       basis/sp-kill-something))
-    ;; Treat raw prefix arguments like numeric arguments
-    (advice-add 'sp-backward-delete-char
-                :filter-args
-                #'basis/sp-backward-delete-no-prefix)))
-
-;; flycheck --------------------------------------------------------------------
-
-(defhydra basis/hydra-flycheck (:color blue :columns 2)
-  ("c"   flycheck-buffer "check buffer")
-  ("n"   flycheck-next-error "next error")
-  ("p"   flycheck-previous-error "prev error")
-  ("l"   flycheck-list-errors "list errors")
-  ("s"   flycheck-select-checker "select checker")
-  ("C"   flycheck-clear "clear")
-  ("SPC" basis/flycheck-check-and-list-errors "check and list")
-  ("q"   nil "cancel"))
-
-(use-package flycheck
-  :ensure t
-  :bind (("C-h l" . basis/hydra-flycheck/body)
-         ("<f8>"  . basis/flycheck-check-and-list-errors))
-  :config (progn
-            (setq flycheck-check-syntax-automatically nil)
-            (unless (basis/libxml-available-p)
-              (setq flycheck-xml-parser #'flycheck-parse-xml-region))
-            ;; Check buffers with errors more frequently than ones without
-            (make-variable-buffer-local 'flycheck-idle-change-delay)
-            (add-hook 'flycheck-after-syntax-check-hook
-                      #'basis/adjust-flycheck-idle-change-delay)
-            ;; Keys for the errors buffer
-            (basis/define-keys flycheck-error-list-mode-map
-              ("n" #'flycheck-error-list-next-error)
-              ("p" #'flycheck-error-list-previous-error))))
-
-;; python ----------------------------------------------------------------------
 
 (defun basis/init-python-mode ()
   (subword-mode 1)
@@ -2270,13 +1598,9 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t)
 
-;; php -------------------------------------------------------------------------
-
 (use-package php-mode
   :ensure t
   :defer t)
-
-;; haskell ---------------------------------------------------------------------
 
 (defun basis/init-haskell-mode ()
   (turn-on-haskell-indentation)
@@ -2305,8 +1629,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :mode "\\.ghci\\'")
 
-;; rust ------------------------------------------------------------------------
-
 (defun basis/rust-set-compile-command ()
   (unless (or (file-exists-p "Makefile")
               (file-exists-p "makefile"))
@@ -2328,8 +1650,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :config (progn
             (define-key rust-mode-map (kbd "RET") #'basis/electric-return)
             (add-hook 'rust-mode-hook #'basis/init-rust-mode)))
-
-;; javascript ------------------------------------------------------------------
 
 (defun basis/init-js2-mode ()
   (setq tab-width 4)
@@ -2359,14 +1679,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t)
 
-;; css-mode --------------------------------------------------------------------
-
-(use-package css-mode
-  :defer t
-  :init (put 'css-indent-offset 'safe-local-variable #'integerp))
-
-;; skewer ----------------------------------------------------------------------
-
 (use-package skewer-mode
   :ensure t
   :init (skewer-setup) ; hook into js2, html, and css modes
@@ -2386,8 +1698,6 @@ Use `paredit' in these modes rather than `smartparens'.")
             (last-sexp  #'skewer-css-eval-current-declaration)
             (definition #'skewer-css-eval-current-rule)
             (buffer     #'skewer-css-eval-buffer)))
-
-;; sql -------------------------------------------------------------------------
 
 (defun basis/init-sql-mode ()
   (sql-set-product "postgres")
@@ -2415,8 +1725,6 @@ Use `paredit' in these modes rather than `smartparens'.")
              ("C-M-a" #'basis/sql-beginning-of-defun)
              ("C-M-e" #'basis/sql-end-of-defun))
            (add-hook 'sql-mode-hook #'basis/init-sql-mode)))
-
-;; cc-mode ---------------------------------------------------------------------
 
 (defun basis/init-c-base ()
   (setq indent-tabs-mode nil
@@ -2453,40 +1761,43 @@ Use `paredit' in these modes rather than `smartparens'.")
     (add-hook 'c++-mode-hook  #'basis/init-c++)
     (add-hook 'java-mode-hook #'basis/init-java)))
 
-;; nasm-mode -------------------------------------------------------------------
-
 (use-package nasm-mode
   :ensure t
   :defer t)
 
-;; ack and a half --------------------------------------------------------------
+(defun basis/init-sh-mode ()
+  (setq tab-width 4)
+  (when (and buffer-file-name
+             (string= (file-name-nondirectory buffer-file-name) ".zshrc"))
+    (sh-set-shell "zsh")))
 
-(use-package ack-and-a-half
+(use-package sh-script
   :defer t
-  :commands (ack-and-a-half)
-  :init (progn
-          (defalias 'ack #'ack-and-a-half)
-          (defalias 'ack-same #'ack-and-a-half-same)
-          (defalias 'ack-find-file #'ack-and-a-half-find-file)
-          (defalias 'ack-find-file-same #'ack-and-a-half-find-file-same)
-          (when (file-exists-p "~/bin/ack")
-            (setq ack-and-a-half-executable "~/bin/ack")))
-  :config
-  (progn
-    (basis/define-keys ack-and-a-half-mode-map
-      ("n" #'compilation-next-error)
-      ("p" #'compilation-previous-error)
-      ("]" #'compilation-next-file)
-      ("[" #'compilation-previous-file))
-    (setq ack-and-a-half-use-ido t)
-    ;; Make Cygwin happy
-    (when (and basis/cygwin-p
-               (stringp ack-and-a-half-executable)
-               (string-prefix-p "c:" ack-and-a-half-executable))
-      (setq ack-and-a-half-executable
-            (substring ack-and-a-half-executable 2)))))
+  :config (add-hook 'sh-mode-hook #'basis/init-sh-mode))
 
-;; org -------------------------------------------------------------------------
+(use-package gforth
+  :defer t
+  :commands (forth-mode)
+  :mode ("\\.f\\'" "\\.fs\\'" "\\.fth\\'")
+  :config (with-eval-after-load 'forth-mode
+            (define-key forth-mode-map (kbd "M-o")   nil)
+            (define-key forth-mode-map (kbd "M-SPC") nil)))
+
+(use-package batch-mode
+  :ensure t
+  :defer t
+  :mode "\\.bat\\'")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Text, markup, and configuration modes
+
+(defun basis/init-text-mode ()
+  (auto-fill-mode 1)
+  (basis/maybe-enable-flyspell)
+  (when ispell-alternate-dictionary
+    (add-to-list 'company-backends 'company-ispell)))
+
+(add-hook 'text-mode-hook #'basis/init-text-mode)
 
 (use-package org
   :bind (("C-c a" . org-agenda)
@@ -2552,8 +1863,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :config (fset 'org-babel-execute:clojure #'basis/org-babel-execute:clojure))
 
-;; html ------------------------------------------------------------------------
-
 (defun basis/init-simplezen ()
   (setq-local yas-fallback-behavior
               '(apply simplezen-expand-or-indent-for-tab)))
@@ -2605,18 +1914,6 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t)
 
-;; forth -----------------------------------------------------------------------
-
-(use-package gforth
-  :defer t
-  :commands (forth-mode)
-  :mode ("\\.f\\'" "\\.fs\\'" "\\.fth\\'")
-  :config (with-eval-after-load 'forth-mode
-            (define-key forth-mode-map (kbd "M-o")   nil)
-            (define-key forth-mode-map (kbd "M-SPC") nil)))
-
-;; markdown --------------------------------------------------------------------
-
 (defun basis/init-markdown-mode ()
   (setq tab-width 4)
   (when (eq major-mode 'gfm-mode)
@@ -2639,8 +1936,6 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t)
 
-;; yaml ------------------------------------------------------------------------
-
 (defun basis/init-yaml-mode ()
   (basis/maybe-enable-flyspell-prog-mode)
   (when (basis/yaml-multiple-docs-p)
@@ -2651,39 +1946,12 @@ Move forward by a line and indent if invoked directly between."
   :defer t
   :config (add-hook 'yaml-mode-hook #'basis/init-yaml-mode))
 
-;; deft ------------------------------------------------------------------------
-
 (use-package deft
   :ensure t
   :defer t
   :init (setq deft-extension "md"
               deft-directory "~/Dropbox/deft"
               deft-text-mode  'gfm-mode))
-
-;; gnus ------------------------------------------------------------------------
-
-(use-package gnus
-  :defer t
-  :init (setq gnus-use-dribble-file nil
-              gnus-always-read-dribble-file nil
-              gnus-read-newsrc-file nil
-              gnus-save-newsrc-file nil))
-
-;; debbugs ---------------------------------------------------------------------
-
-(use-package debbugs
-  :ensure t
-  :defer t
-  :init (setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs")))
-
-;; ssh-config-mode -------------------------------------------------------------
-
-(use-package ssh-config-mode
-  :ensure t
-  :defer t
-  :mode (".ssh/config\\'"  "sshd?_config\\'"))
-
-;; csv-mode --------------------------------------------------------------------
 
 (use-package csv-mode
   :ensure t
@@ -2696,12 +1964,602 @@ Move forward by a line and indent if invoked directly between."
             (guard (eq sym 'csv-mode)))
        (add-to-list 'auto-mode-alist (cons rgx 'text-mode))))))
 
-;; batch-mode ------------------------------------------------------------------
-
-(use-package batch-mode
+(use-package ssh-config-mode
   :ensure t
   :defer t
-  :mode "\\.bat\\'")
+  :mode (".ssh/config\\'"  "sshd?_config\\'"))
+
+(use-package css-mode
+  :defer t
+  :init (put 'css-indent-offset 'safe-local-variable #'integerp))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Brackets
+
+(defun basis/maybe-map-paredit-newline ()
+  "Map `paredit-newline' except in some interactive modes."
+  (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
+                                               inferior-lisp-mode
+                                               inferior-scheme-mode
+                                               geiser-repl-mode
+                                               cider-repl-mode)))
+    (local-set-key (kbd "RET") #'paredit-newline)))
+
+(defun basis/maybe-enable-paredit-mode ()
+  "Enable Paredit during Lisp-related minibuffer commands."
+  (let ((paredit-minibuffer-commands '(eval-expression
+                                       pp-eval-expression
+                                       eval-expression-with-eldoc
+                                       slime-interactive-eval
+                                       helm-eval-expression-with-eldoc)))
+    (when (memq this-command paredit-minibuffer-commands)
+      (enable-paredit-mode))))
+
+(use-package paredit
+  :ensure t
+  :init (add-hook 'minibuffer-setup-hook #'basis/maybe-enable-paredit-mode)
+  :config
+  (progn
+    (basis/define-keys paredit-mode-map
+      ("M-)"             #'basis/paredit-wrap-round-from-behind)
+      ("M-e"             #'paredit-forward)
+      ("M-a"             #'paredit-backward)
+      ("M-k"             #'kill-sexp)
+      ("C-w"             #'basis/paredit-kill-something)
+      ("M-DEL"           #'basis/paredit-kill-something)
+      ("<C-M-backspace>" #'backward-kill-sexp)
+      ("C-M-_"           #'backward-kill-sexp))
+    (add-to-list 'paredit-space-for-delimiter-predicates
+                 #'basis/paredit-doublequote-space-p)
+    ;; Show `eldoc' messages after Paredit motion commands
+    (with-eval-after-load 'eldoc
+      (eldoc-add-command 'paredit-forward
+                         'paredit-forward-up
+                         'paredit-forward-down
+                         'paredit-backward
+                         'paredit-backward-up
+                         'paredit-backward-down
+                         'paredit-newline))
+    (add-hook 'paredit-mode-hook #'basis/maybe-map-paredit-newline)
+    (put 'paredit-forward-delete 'delete-selection 'supersede)
+    (put 'paredit-backward-delete 'delete-selection 'supersede)
+    (put 'paredit-newline 'delete-selection t)))
+
+(use-package smartparens
+  :ensure t
+  :init (smartparens-global-strict-mode)
+  :config
+  (progn
+    ;; I still prefer Paredit with Lisps, and having Smartparens enabled messes
+    ;; with argument handling in `magit-key-mode'.
+    (dolist (mode (cons 'magit-key-mode basis/lisp-modes))
+      (add-to-list 'sp-ignore-modes-list mode))
+    (sp-use-paredit-bindings)
+    (setq sp-cancel-autoskip-on-backward-movement nil
+          sp-autoescape-string-quote nil
+          sp-use-subword t)
+    (setq-default sp-autoskip-closing-pair 'always)
+    (sp-pair "'"
+             nil
+             :unless '(basis/sp-point-after-word-p)
+             :actions '(insert wrap autoskip))
+
+    (sp-local-pair 'org-mode "=" "=" :actions '(wrap))
+    (sp-with-modes '(c-mode c++-mode java-mode)
+      (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
+    (basis/define-keys sp-keymap
+      ("M-DEL"           #'basis/sp-kill-something)
+      ("C-DEL"           #'basis/sp-kill-something)
+      ("<C-backspace>"   #'basis/sp-kill-something)
+      ("C-w"             #'basis/sp-kill-something)
+      ("M-k"             #'sp-kill-sexp)
+      ("M-e"             #'basis/maybe-sp-forward-sexp)
+      ("M-a"             #'basis/maybe-sp-backward-sexp)
+      ("<C-M-backspace>" #'sp-backward-kill-sexp)
+      ("C-M-_"           #'sp-backward-kill-sexp))
+    ;; These commands invoke `indent-according-to-mode' but, when
+    ;; `indent-line-function' is `indent-relative', that often doesn't work out
+    ;; too well.
+    (basis/disable-relative-reindent-for
+     '(sp-kill-word
+       sp-backward-kill-word
+       sp-kill-sexp
+       sp-kill-hybrid-sexp
+       basis/sp-kill-something))
+    ;; Treat raw prefix arguments like numeric arguments
+    (advice-add 'sp-backward-delete-char
+                :filter-args
+                #'basis/sp-backward-delete-no-prefix)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Error checking
+
+(use-package ispell
+  :defer t
+  :init (setq ispell-program-name (executable-find "aspell")
+              ispell-personal-dictionary "~/.aspell.en.pws"
+              ispell-extra-args '("--sug-mode=ultra"))
+  :config (condition-case nil
+              (lookup-words "whatever")
+            (error
+             (when (file-readable-p "~/Dropbox/dict/words")
+               (setq ispell-alternate-dictionary "~/Dropbox/dict/words")))))
+
+(defhydra basis/hydra-flycheck (:color blue :columns 2)
+  ("c"   flycheck-buffer "check buffer")
+  ("n"   flycheck-next-error "next error")
+  ("p"   flycheck-previous-error "prev error")
+  ("l"   flycheck-list-errors "list errors")
+  ("s"   flycheck-select-checker "select checker")
+  ("C"   flycheck-clear "clear")
+  ("SPC" basis/flycheck-check-and-list-errors "check and list")
+  ("q"   nil "cancel"))
+
+(use-package flycheck
+  :ensure t
+  :bind (("C-h l" . basis/hydra-flycheck/body)
+         ("<f8>"  . basis/flycheck-check-and-list-errors))
+  :config (progn
+            (setq flycheck-check-syntax-automatically nil)
+            (unless (basis/libxml-available-p)
+              (setq flycheck-xml-parser #'flycheck-parse-xml-region))
+            ;; Check buffers with errors more frequently than ones without
+            (make-variable-buffer-local 'flycheck-idle-change-delay)
+            (add-hook 'flycheck-after-syntax-check-hook
+                      #'basis/adjust-flycheck-idle-change-delay)
+            ;; Keys for the errors buffer
+            (basis/define-keys flycheck-error-list-mode-map
+              ("n" #'flycheck-error-list-next-error)
+              ("p" #'flycheck-error-list-previous-error))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Diffing
+
+(defun basis/init-diff-mode ()
+  (setq buffer-read-only t))
+
+(use-package diff-mode
+  :defer t
+  :config
+  ;; `diff-goto-source' is still available on C-c C-c.
+  (define-key diff-mode-map (kbd "M-o") nil)
+  (add-hook 'diff-mode-hook #'basis/init-diff-mode))
+
+(defun basis/init-ediff ()
+  (ediff-setup-keymap))
+
+(use-package ediff
+  :defer t
+  :init (setq ediff-window-setup-function #'ediff-setup-windows-plain
+              ediff-split-window-function #'split-window-horizontally)
+  :config (progn
+            (when (eq system-type 'windows-nt)
+              (advice-add 'ediff-make-empty-tmp-file
+                          :filter-args
+                          #'basis/ediff-expand-tmp-name))
+            (advice-add 'ediff-setup :before #'basis/ediff-save-window-config)
+            (advice-add 'ediff-quit :after #'basis/ediff-quit-restore)
+            (add-hook 'ediff-mode-hook #'basis/init-ediff)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Magit & other git things
+
+(use-package magit
+  :ensure t
+  :bind  (("C-x g"   . magit-status)
+          ("<f10>"   . magit-status)
+          ("C-x M-g" . magit-dispatch-popup))
+  :config
+  (progn
+    (unless (boundp 'magit-backup-mode)
+      ;; Temporary kludge to prevent an unbound-symbol error
+      (setq magit-backup-mode nil))
+    (setq magit-revert-buffers 'silent)
+    (setq magit-save-repository-buffers 'dontask)
+    (setq magit-push-always-verify nil)
+    (setq magit-popup-use-prefix-argument 'default)
+    (setq magit-completing-read-function #'magit-ido-completing-read)
+    (setq magit-repository-directories
+          (thread-last (projectile-relevant-known-projects)
+            (seq-remove #'tramp-tramp-file-p)
+            (seq-filter (lambda (dir)
+                          (file-directory-p (expand-file-name ".git" dir))))
+            (cons "~/code/")
+            ;; Remove the trailing slashes
+            (mapcar #'directory-file-name)))
+    (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
+    (add-hook 'magit-status-mode-hook #'delete-other-windows)
+    (when (and (eq system-type 'windows-nt)
+               basis/cygwin-p)
+      (advice-add 'magit-get-top-dir
+                  :filter-return
+                  #'basis/magit-expand-top-dir))
+    ;; Add a command on `C-c C-v' to view the pull request URL. It would be even
+    ;; better to add this to Magit's menus but nowhere sticks out as obviously
+    ;; appropriate.
+    (define-key magit-status-mode-map
+      (kbd "C-c C-v") #'basis/magit-browse-pull-request-url)))
+
+(use-package with-editor
+  :ensure t
+  :defer t
+  ;; On Cygwin, fix `with-editor-emacsclient-executable' and advice
+  ;; `with-editor-locate-emacsclient' so that its result is accurate for any
+  ;; future uses.
+  :config (when (and (eq system-type 'windows-nt)
+                     basis/cygwin-p)
+            (when-let ((client with-editor-emacsclient-executable)
+                       (client (basis/fix-bad-cygwin-file-name client)))
+              (setq with-editor-emacsclient-executable client))
+            (advice-add 'with-editor-locate-emacsclient
+                        :filter-return
+                        #'basis/fix-located-emacsclient-file-name)))
+
+(use-package gist
+  :ensure t
+  :defer t)
+
+(use-package git-timemachine
+  :ensure t
+  :defer t)
+
+(use-package gitattributes-mode
+  :ensure t
+  :defer t)
+
+(use-package gitconfig-mode
+  :ensure t
+  :defer t)
+
+(use-package gitignore-mode
+  :ensure t
+  :defer t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Project management
+
+;; While "project management" doesn't quite fit `ibuffer' this is where it seems
+;; to fit best.
+(use-package ibuffer
+  :init (progn
+          (defalias 'ls #'ibuffer)
+          (setq ibuffer-formats
+                '((mark modified read-only " "
+                        (name 18 18 :left :elide)
+                        " "
+                        (size-h 9 -1 :right)
+                        " "
+                        (mode 16 16 :left :elide)
+                        " "
+                        (vc-status 16 16 :left)
+                        " "
+                        filename-and-process)
+                  (mark " "
+                        (name 18 18 :left :elide)
+                        " "
+                        filename)))
+          (setq ibuffer-show-empty-filter-groups nil))
+  :bind ([remap list-buffers] . ibuffer)
+  :config
+  (progn
+    (require 'ibuffer-vc)
+    (basis/define-keys ibuffer-mode-map
+      ("M-o"   nil) ;; don't shadow ace-window
+      ("C-M-o" #'ibuffer-visit-buffer-1-window)
+      ("\\"    #'basis/ibuffer-toggle-vc-grouping))
+    (define-ibuffer-column size-h
+      ;; a more readable size column
+      (:name "Size" :inline t)
+      (cond ((> (buffer-size) 1000000)
+             (format "%7.1fM" (/ (buffer-size) 1000000.0)))
+            ((> (buffer-size) 1000)
+             (format "%7.1fk" (/ (buffer-size) 1000.0)))
+            (t
+             (format "%8d" (buffer-size)))))))
+
+(use-package ibuffer-vc
+  :ensure t
+  :defer t
+  :config
+  (advice-add 'ibuffer-vc-root :around #'basis/ibuffer-vc-root-files-only))
+
+(defhydra basis/hydra-projectile (:color blue :columns 4)
+  "Projectile"
+  ("b"   projectile-switch-to-buffer "switch to buffer")
+  ("d"   projectile-find-dir "dir")
+  ("C-f" projectile-find-file "file")
+  ("ff"  projectile-find-file-dwim "file dwim")
+  ("fd"  projectile-find-file-in-directory "file in dir")
+  ("g"   projectile-grep "grep")
+  ("i"   projectile-ibuffer "ibuffer")
+  ("K"   projectile-kill-buffers "kill buffers")
+  ("o"   projectile-multi-occur "multi-occur")
+  ("p"   projectile-switch-project "switch")
+  ("r"   projectile-recentf "recentf")
+  ("x"   projectile-remove-known-project "remove known")
+  ("X"   projectile-cleanup-known-projects "cleanup non-existing")
+  ("z"   projectile-cache-current-file "cache current")
+  ("q"   nil "cancel"))
+
+(use-package projectile
+  :ensure t
+  :init (progn
+          (setq projectile-keymap-prefix (kbd "C-h p")
+                projectile-completion-system 'helm)
+          (setq projectile-known-projects-file
+                (basis/emacs-file "var/projectile-bookmarks.eld"))
+          (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
+          ;; Projectile defaults to native indexing on Windows, but if we have
+          ;; Cygwin set up we can use "alien".
+          (if (and (eq system-type 'windows-nt)
+                   (not basis/cygwin-p))
+              (setq projectile-indexing-method 'native
+                    projectile-enable-caching t)
+            (setq projectile-indexing-method 'alien
+                  projectile-enable-caching nil))
+          (projectile-global-mode)
+          (global-set-key projectile-keymap-prefix
+                          #'basis/hydra-projectile/body))
+  :config
+  (when (and (eq system-type 'windows-nt) basis/cygwin-p)
+    (define-key projectile-mode-map
+      [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags))
+  :diminish projectile-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Shells, processes, and filesystems
+
+(use-package compile
+  :bind  (("C-c b c" . compile)
+          ("C-c b b" . recompile))
+  :config (setq compilation-ask-about-save nil
+                compilation-always-kill t
+                compilation-scroll-output 'first-error
+                compilation-context-lines 2))
+
+(defun basis/dired-omit-expunge-quietly (function &rest args)
+  "Advice for `dired-omit-expunge'.
+Only print messages if the selected window contains a `dired'
+buffer."
+  (cl-letf (((symbol-value 'dired-omit-verbose)
+             (with-current-buffer (window-buffer (selected-window))
+               (eq major-mode 'dired-mode))))
+    (apply function args)))
+
+(use-package dired
+  :defer t
+  :config
+  (progn
+    (require 'dired+)
+    (require 'find-dired)
+    (basis/define-keys dired-mode-map
+      ("RET"                       #'dired-find-alternate-file)
+      ("M-RET"                     #'dired-find-file)
+      ("e"                         #'basis/dired-open-files)
+      ("-"                         #'diredp-up-directory-reuse-dir-buffer)
+      ("^"                         #'diredp-up-directory-reuse-dir-buffer)
+      ("M-^"                       #'diredp-up-directory)
+      ("M-m"                       #'dired-omit-mode)
+      ("M-n"                       #'diredp-next-subdir)
+      ("M-p"                       #'diredp-prev-subdir)
+      ("M-e"                       #'dired-next-dirline)
+      ("M-a"                       #'dired-prev-dirline)
+      ("M-b"                       nil)
+      ("M-o"                       nil)
+      ([remap beginning-of-buffer] #'basis/dired-jump-to-top)
+      ([remap end-of-buffer]       #'basis/dired-jump-to-bottom))
+    (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
+          dired-recursive-deletes 'top
+          dired-listing-switches "-alh"
+          find-ls-options '("-exec ls -ldh {} +" . "-ldh"))
+    (put 'dired-find-alternate-file 'disabled nil)
+    (add-hook 'dired-mode-hook #'dired-omit-mode)
+    (advice-add 'dired-omit-expunge
+                :around
+                #'basis/dired-omit-expunge-quietly)))
+
+(use-package dired-x
+  :bind ("C-h C-j" . dired-jump))
+
+(use-package dired+
+  :ensure t
+  :defer t)
+
+(use-package direx
+  :ensure t
+  :bind ("C-h j"     . direx:jump-to-directory)
+  :config
+  (define-key direx:direx-mode-map (kbd "M-n") #'direx:next-sibling-item)
+  (define-key direx:direx-mode-map (kbd "M-p") #'direx:previous-sibling-item))
+
+(defun basis/init-comint-mode ()
+  (setq comint-scroll-to-bottom-on-input 'this))
+
+(use-package comint
+  :defer t
+  :init (setenv "PAGER" "cat")
+  :config
+  (progn
+    (basis/define-keys comint-mode-map
+      ("M-p"     #'comint-previous-matching-input-from-input)
+      ("M-n"     #'comint-next-matching-input-from-input)
+      ("C-c C-l" #'helm-comint-input-ring)
+      ;; Because Paredit and Smartparens both use M-r
+      ("C-M-r"   #'comint-history-isearch-backward-regexp))
+    (dolist (cmd '(comint-previous-input
+                   comint-next-input
+                   comint-previous-matching-input-from-input
+                   comint-next-matching-input-from-input))
+      (advice-add cmd :before #'basis/comint-input-goto-bottom-if-necessary))
+    (add-hook 'comint-mode-hook #'basis/init-comint-mode)))
+
+(defun basis/init-shell-mode ()
+  (setq comint-process-echoes t)
+  (shell-dirtrack-mode -1)
+  (dirtrack-mode +1))
+
+(use-package shell
+  :defer t
+  ;; Not sure why comint/dirtrack see junk in front of my prompt with Cygwin's
+  ;; zsh, so just work around it
+  :init (setq-default dirtrack-list
+                      (if basis/cygwin-p
+                          '("^%[ \r]*\\(.+\\)>" 1)
+                        '("^[^:\n]+@[^:\n]+:\\(.+\\)>" 1)))
+  :config (add-hook 'shell-mode-hook #'basis/init-shell-mode))
+
+(defun basis/init-eshell ()
+  (basis/define-keys eshell-mode-map
+    ("S-DEL"   #'basis/eshell-kill-line-backward)
+    ("C-S-DEL" #'basis/eshell-kill-whole-line)))
+
+(use-package esh-mode
+  :defer t
+  :init (setq eshell-directory-name (basis/emacs-dir "var/eshell/"))
+  :config (add-hook 'eshell-mode-hook #'basis/init-eshell))
+
+;; Proced
+(use-package proced
+  :bind ("C-x p" . proced))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Applications
+
+(use-package elfeed
+  :ensure t
+  :defer t
+  :init (progn (setq elfeed-db-directory (basis/emacs-dir "var/elfeed/"))
+               (when (file-exists-p (basis/emacs-file "feeds.el"))
+                 (setq elfeed-feeds (thread-first "feeds.el"
+                                      basis/emacs-file
+                                      basis/elfeed-load-feeds)))))
+
+(defun basis/shr-tag-body-no-color (function &rest args)
+  "Advice for `shr-tag-body'; don't colorize the region."
+  (cl-letf (((symbol-function 'shr-colorize-region)
+             #'ignore))
+    (apply function args)))
+
+(use-package shr
+  :defer t
+  :config (advice-add 'shr-tag-body :around #'basis/shr-tag-body-no-color))
+
+(use-package eww
+  :defer t
+  :config (define-key eww-mode-map (kbd "<backtab>") #'shr-previous-link))
+
+(use-package w3m
+  :ensure t
+  :defer t
+  :init (when (and (not (display-graphic-p))
+                   (executable-find "w3m"))
+          (setq browse-url-browser-function #'w3m-browse-url))
+  :config (progn
+            (define-key w3m-mode-map "n" #'w3m-next-anchor)
+            (define-key w3m-mode-map "p" #'w3m-previous-anchor)))
+
+(defun basis/init-sx-question-mode ()
+  (toggle-truncate-lines -1))
+
+(use-package sx
+  :ensure t
+  :defer t
+  :init (setq sx-cache-directory (basis/emacs-dir "var/sx/"))
+  :config (add-hook 'sx-question-mode-hook #'basis/init-sx-question-mode))
+
+(use-package debbugs
+  :ensure t
+  :defer t
+  :init (setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Email & news
+
+(defun basis/init-message-mode ()
+  (setq fill-column 72)
+  (setq-local org-footnote-tag-for-non-org-mode-files nil))
+
+(use-package message
+  :defer t
+  :init (setq user-mail-address "jbm@jbm.io"
+              user-full-name "John Mastro"
+              message-auto-save-directory (basis/emacs-dir "tmp/")
+              message-subject-trailing-was-query nil
+              message-signature "jbm"
+              message-kill-buffer-on-exit t
+              message-dont-reply-to-names nil
+              message-send-mail-function #'smtpmail-send-it)
+  :config (progn
+            (define-key message-mode-map (kbd "C-c n") #'org-footnote-action)
+            (add-hook 'message-mode-hook #'basis/init-message-mode)))
+
+(use-package sendmail
+  :defer t
+  :init (setq send-mail-function #'smtpmail-send-it
+              smtp-default-smtp-server "mail.messagingengine.com"))
+
+(use-package smtpmail
+  :defer t
+  :init (setq smtpmail-smtp-server "mail.messagingengine.com"
+              smtpmail-smtp-user "jbm@fastmail.fm"
+              smtpmail-smtp-service 465
+              smtpmail-stream-type 'ssl))
+
+(use-package mu4e
+  :defer t
+  :bind ("C-x m" . mu4e)
+  :init
+  (progn
+    (let ((dir "/usr/local/share/emacs/site-lisp/mu4e/"))
+      (when (file-directory-p dir)
+        (add-to-list 'load-path dir)))
+    ;; Mail
+    (setq mu4e-get-mail-command "offlineimap"
+          mu4e-maildir (expand-file-name ".maildir/fastmail" (getenv "HOME"))
+          mu4e-sent-folder "/sent"
+          mu4e-drafts-folder "/drafts"
+          mu4e-trash-folder "/trash"
+          mu4e-compose-signature "jbm")
+    ;; Shortcuts. Available as jX
+    (setq mu4e-maildir-shortcuts '(("/archive" . ?a)
+                                   ("/inbox"   . ?i)
+                                   ("/sent"    . ?s)))
+    ;; Addresses to consider "me" when searching
+    (setq mu4e-user-mail-address-list '("jbm@jbm.io"
+                                        "jbm@deft.li"
+                                        "jbm@fastmail.com"
+                                        "jbm@fastmail.fm"
+                                        "jbm@mailforce.net"))
+    ;; Convert HTML->text if no text version is available
+    (setq mu4e-html2text-command (if (executable-find "html2text")
+                                     "html2text -utf8 -width 72"
+                                   #'basis/shr-html2text))
+    ;; Where to save attachments
+    (let ((dir (seq-some-p #'file-directory-p
+                           '("~/downloads" "~/Downloads" "~/"))))
+      (setq mu4e-attachment-dir dir))
+    ;; Composing messages
+    (setq mu4e-reply-to-address "jbm@jbm.io"
+          mu4e-sent-messages-behavior 'delete)) ; They're saved on the server
+  :config
+  (with-eval-after-load 'mu4e
+    (add-to-list 'mu4e-view-actions
+                 (cons "View in browser" #'basis/mu4e-action-view-in-browser)
+                 t)))
+
+;; Retrieving passwords
+(use-package auth-source
+  :defer t
+  :init (setq auth-sources (if (eq system-type 'darwin)
+                               '(macos-keychain-internet)
+                             '("~/.authinfo.gpg"))))
+
+(use-package gnus
+  :defer t
+  :init (setq gnus-use-dribble-file nil
+              gnus-always-read-dribble-file nil
+              gnus-read-newsrc-file nil
+              gnus-save-newsrc-file nil))
 
 
 ;;; init.el ends here
