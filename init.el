@@ -193,6 +193,7 @@ it doesn't exist."
 ;; Various settings
 
 (setq visible-bell t
+      inhibit-default-init t
       inhibit-startup-screen t
       inhibit-startup-message t
       initial-scratch-message nil
