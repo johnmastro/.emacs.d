@@ -97,6 +97,9 @@ it doesn't exist."
 (use-package seq
   :ensure t)
 
+(use-package map
+  :if (>= emacs-major-version 25))
+
 (use-package dash
   :ensure t)
 
@@ -130,7 +133,7 @@ it doesn't exist."
 
 ;; Compatibility shims for some of the new macros in Emacs 25's `subr-x', using
 ;; the `dash' implementations.
-(when (version< emacs-version "25")
+(when (< emacs-major-version 25)
   (let* ((macros (seq-remove (lambda (list) (fboundp (car list)))
                              '((if-let       -if-let*   2)
                                (when-let     -when-let* 1)
