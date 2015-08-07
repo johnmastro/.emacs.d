@@ -47,12 +47,6 @@ it doesn't exist."
 ;; Set up the load path
 (add-to-list 'load-path (basis/emacs-dir "site-lisp/" 'create))
 
-;; Enable auto-compile
-(setq load-prefer-newer t)
-(require 'auto-compile)
-(auto-compile-on-load-mode 1)
-(auto-compile-on-save-mode 1)
-
 ;; So e.g. `find-function' works on C functions
 (let ((source (format "~/src/emacs/emacs-%s/" emacs-version)))
   (when (file-directory-p source)
@@ -60,6 +54,8 @@ it doesn't exist."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set up package.el
+
+(setq load-prefer-newer t)
 
 (setq package-user-dir (basis/emacs-dir "elpa/"))
 
@@ -82,6 +78,11 @@ it doesn't exist."
 ;; Load some code
 
 (require 'use-package)
+
+(use-package auto-compile
+  :ensure t
+  :config (progn (auto-compile-on-load-mode 1)
+                 (auto-compile-on-save-mode 1)))
 
 (use-package bind-key
   :ensure t)
