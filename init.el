@@ -339,11 +339,6 @@ it doesn't exist."
                  (setq global-auto-revert-non-file-buffers t
                        auto-revert-verbose nil)))
 
-;; Use `completion-at-point' in buffers. This gets the `ido' treatment later.
-(use-package minibuffer
-  :bind (("C-c TAB"     . completion-at-point)
-         ("C-c <C-tab>" . completion-at-point)))
-
 (use-package frame
   :config (blink-cursor-mode -1))
 
@@ -996,10 +991,6 @@ is read-only and empty."
 (use-package ido-vertical-mode
   :ensure t
   :config (ido-vertical-mode 1))
-
-(use-package ido-at-point
-  :ensure t
-  :config (ido-at-point-mode 1))
 
 (use-package idomenu
   :ensure t
