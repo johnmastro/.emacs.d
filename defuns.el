@@ -1435,6 +1435,12 @@ Place a propertized \"> \" before the selected candidate."
   (funcall (if arg #'switch-to-buffer #'switch-to-buffer-other-window)
            (get-buffer-create "*scratch*")))
 
+(defun basis/flash-region (start end &optional timeout)
+  "Temporarily highlight region from START to END."
+  (let ((overlay (make-overlay start end)))
+    (overlay-put overlay 'face 'secondary-selection)
+    (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
+
 ;; paredit ---------------------------------------------------------------------
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
