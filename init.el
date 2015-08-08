@@ -2017,9 +2017,11 @@ Move forward by a line and indent if invoked directly between."
                          'paredit-backward-down
                          'paredit-newline))
     (add-hook 'paredit-mode-hook #'basis/maybe-map-paredit-newline)
-    (put 'paredit-forward-delete 'delete-selection 'supersede)
-    (put 'paredit-backward-delete 'delete-selection 'supersede)
-    (put 'paredit-newline 'delete-selection t)))
+    (pcase-dolist (`(,sym . ,act) '((paredit-kill            . supersede)
+                                    (paredit-forward-delete  . supersede)
+                                    (paredit-backward-delete . supersede)
+                                    (paredit-newline         . t)))
+      (put sym 'delete-selection act))))
 
 (use-package smartparens
   :ensure t
