@@ -840,6 +840,11 @@ See `basis/define-eval-keys'.")
   :ensure t
   :defer t)
 
+(use-package visual-regexp
+  :ensure t
+  :init (defalias 'vqr #'vr/query-replace)
+  :defer t)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Movement
 
