@@ -435,7 +435,9 @@ it doesn't exist."
   :defer t)
 
 (use-package page-break-lines
-  :config (global-page-break-lines-mode 1)
+  :ensure t
+  :defer t
+  ;; :config (global-page-break-lines-mode 1)
   :diminish page-break-lines-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
