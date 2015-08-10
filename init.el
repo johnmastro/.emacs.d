@@ -496,6 +496,7 @@ it doesn't exist."
   :ensure t)
 
 (use-package discover
+  :disabled t
   :ensure t
   :config (progn (global-discover-mode 1)
                  (discover-add-context-menu
