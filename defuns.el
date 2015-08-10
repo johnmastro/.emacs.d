@@ -84,33 +84,6 @@ to use. Otherwise use a default of 80 and char ?-."
   (forward-line -1)
   (indent-according-to-mode))
 
-(defun basis/electric-return ()
-  "Typical \"electric\" return, similar to that in CC Mode."
-  (interactive)
-  (when (memql (char-after) '(?\) ?\] ?}))
-    (save-excursion (newline-and-indent)))
-  (newline-and-indent))
-
-(defun basis/eol-maybe-semicolon ()
-  (interactive)
-  (move-end-of-line 1)
-  (unless (basis/looking-back-p ";")
-    (insert ";")))
-
-(defun basis/wrap-in-curlies ()
-  (interactive)
-  (save-excursion
-    (forward-line -1)
-    (move-end-of-line 1)
-    (unless (basis/looking-back-p " ")
-      (insert " "))
-    (insert "{")
-    (forward-line)
-    (move-end-of-line 1)
-    (newline-and-indent)
-    (insert "}")
-    (indent-for-tab-command)))
-
 (defun basis/insert-blank-below (&optional count)
   "Insert COUNT blank lines below point, without moving point."
   (interactive "p")
@@ -132,6 +105,38 @@ to use. Otherwise use a default of 80 and char ?-."
       (while (> count 0)
         (newline)
         (setq count (1- count))))))
+
+(defun basis/electric-return ()
+  "Typical \"electric\" return, similar to that in CC Mode."
+  (interactive)
+  (when (memql (char-after) '(?\) ?\] ?}))
+    (save-excursion (newline-and-indent)))
+  (newline-and-indent))
+
+(defun basis/eol-maybe-semicolon ()
+  "Move to the end of the line and insert a semicolon."
+  (interactive)
+  (move-end-of-line 1)
+  (unless (basis/looking-back-p ";")
+    (insert ";")))
+
+(defun basis/wrap-in-curlies (beg end)
+  "Wrap the current line with curly braces."
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (line-beginning-position) (line-end-position))))
+  (save-excursion
+    (goto-char beg)
+    (forward-line -1)
+    (move-end-of-line 1)
+    (delete-horizontal-space)
+    (insert " {")
+    (goto-char end)
+    (move-end-of-line 1)
+    (newline-and-indent)
+    (insert "}")
+    (indent-for-tab-command)))
 
 (defun basis/insert-files (files &optional buffer)
   "Insert the contents of FILES into BUFFER.
@@ -2107,9 +2112,9 @@ multiple-document stream."
               (insert-file-contents basis/lorem-ipsum-file)
               (split-string (buffer-substring-no-properties 1 (point-max))
                             "\n\n"))))
-    (let ((arg (cond ((null arg) 1)
-                     ((consp arg) (car arg))
-                     (t arg))))
+    (let ((arg (if (consp arg)
+                   (car arg)
+                 (or arg 1))))
       (insert (mapconcat #'identity
                          (seq-take basis/lorem-ipsum arg)
                          "\n\n")))))
