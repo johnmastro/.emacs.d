@@ -1,11 +1,14 @@
 ;;; defuns.el    -*- coding: utf-8; lexical-binding: t; -*-
 
-(defun basis/occur-show-sections ()
-  ;; Use occur to display and navigate the sections in this file
-  (interactive)
-  (occur "^;; \\([^ ].+\\) -+$"))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Editing utilities
 
-;; misc. editing utilities -----------------------------------------------------
+(defun basis/occur-show-sections ()
+  "Use occur to show headings in an Emacs Lisp file.
+This assumes the convention of using \";;;\" at the beginning of
+a line to denote a heading."
+  (interactive)
+  (occur "^;;; \\([^ ].+\\)"))
 
 (defun basis/next-line ()
   "Move point to the next line.
@@ -227,7 +230,8 @@ cause the mark to be deactivated."
   (let ((deactivate-mark))
     (apply function args)))
 
-;; kill commands ---------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Kill commands
 
 (defun basis/kill-something (arg)
   "Kill the region, or one or more words backward.
@@ -313,7 +317,8 @@ Interactively, default to four spaces of indentation."
       (indent-rigidly (point-min) (point-max) arg)
       (kill-ring-save (point-min) (point-max)))))
 
-;; case changing ---------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Case changing
 
 (defun basis/upcase-something (&optional arg)
   "Upcase either the region or word(s).
@@ -351,7 +356,8 @@ on whether the region is active."
         (t
          (capitalize-word arg))))
 
-;; mark commands ---------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Mark commands
 
 (defun basis/push-mark-no-activate ()
   "Pushes `point` to `mark-ring` without activating the region.
@@ -383,7 +389,8 @@ This is the same as using \\[set-mark-command] with the prefix argument."
       (funcall function)
       (setq n (1- n)))))
 
-;; buffer cleanup --------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Buffer cleanup
 
 (defun basis/untabify-buffer ()
   "Untabify the current buffer."
@@ -410,7 +417,8 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   (basis/cleanup-buffer-safe)
   (basis/indent-buffer))
 
-;; file utilities --------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; File utilities
 
 (defun basis/rename-current-buffer-file (destination)
   "Rename the current buffer's file to DESTINATION."
@@ -462,7 +470,8 @@ This is the same as using \\[set-mark-command] with the prefix argument."
     (insert-file-contents file)
     (read (current-buffer))))
 
-;; key binding utilities -------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Key binding utilities
 
 (defmacro basis/define-keys (keymap &rest keydefs)
   "Define multiple key bindings for KEYMAP."
@@ -516,7 +525,8 @@ See `basis/eval-keys'."
 (basis/create-simple-keybinding-command f11 "<f11>")
 (basis/create-simple-keybinding-command f12 "<f12>")
 
-;; escape mode -----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Escape mode
 
 ;; ESC->escape translation based on that in evil-core.el from `evil-mode'
 
@@ -582,7 +592,8 @@ Enable with positive ARG and disable with negative ARG."
           (start-kbd-macro t t)))
     map))
 
-;; god-mode --------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; God-mode
 
 (defun basis/god-update-cursor ()
   "Toggle the cursor type to signal whether `god-mode' is active."
@@ -640,7 +651,8 @@ related hooks and key bindings."
   (remove-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
   (remove-hook 'focus-out-hook #'basis/god-maybe-all))
 
-;; ibuffer ---------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ibuffer
 
 (defun basis/ibuffer-vc-root-files-only (function buf)
   "Advice for `ibuffer-vc-root'.
@@ -668,7 +680,8 @@ Only group a buffer with a VC if its visiting a file."
     (ibuffer-vc-set-filter-groups-by-vc-root)
     (setq basis/ibuffer-grouped-by-vc-p t)))
 
-;; ediff -----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ediff
 
 (defun basis/ediff-expand-tmp-name (args)
   "Advice for `ediff-make-empty-tmp-file'.
@@ -690,7 +703,8 @@ After quitting, restore the previous window configuration."
       (jump-to-register :ediff-restore-windows)
     (error (message "Previous window configuration could not be restored"))))
 
-;; eshell ----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; eshell
 
 (defun basis/eshell-kill-line-backward ()
   "Kill the current line backward, respecting Eshell's prompt."
@@ -704,7 +718,8 @@ After quitting, restore the previous window configuration."
   (kill-region (save-excursion (eshell-bol) (point))
                (save-excursion (move-end-of-line 1) (point))))
 
-;; helm ------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; helm
 
 (defun basis/helm-backspace (n)
   "Delete N chars backwards.
@@ -776,7 +791,8 @@ with `helm-read-file-name'."
   (with-helm-alive-p
     (helm-quit-and-execute-action #'magit-status)))
 
-;; dired -----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; dired
 
 (defun basis/dired-jump-to-top ()
   "Move point to the first line representing a file."
@@ -822,7 +838,8 @@ If it doesn't exist, BUFFER is created automatically."
                      (read-buffer "Destination buffer: ")))
   (basis/insert-files files (get-buffer-create buffer)))
 
-;; direx -----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; direx
 
 ;; `direx' includes a package `direx-project', which implements its own project
 ;; root finding. However, since I have `projectile' anyway it makes more sense
@@ -855,7 +872,8 @@ If it doesn't exist, BUFFER is created automatically."
       (direx:item-name)
       (direx:canonical-filename))))
 
-;; emacs lisp ------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Emacs Lisp
 
 (defun basis/eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
@@ -926,7 +944,8 @@ point is used instead, if any."
   (browse-url (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                       number)))
 
-;; occur -----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; occur
 
 (defun basis/occur-dwim (regexp nlines)
   "Like `occur', but REGEXP defaults to the text at point."
@@ -941,7 +960,8 @@ point is used instead, if any."
          (prefix-numeric-value current-prefix-arg)))
   (occur regexp nlines))
 
-;; window utilities ------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Window utilities
 
 (defun basis/transpose-windows (arg)
   "Transpose the relative positions of two or more windows."
@@ -982,7 +1002,8 @@ point is used instead, if any."
         (when this-win-2nd
           (other-window 1))))))
 
-;; misc. defuns ----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Miscellaneous
 
 (defun basis/google (string)
   "Run a Google search.
@@ -1446,7 +1467,8 @@ Place a propertized \"> \" before the selected candidate."
     (overlay-put overlay 'face 'secondary-selection)
     (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
 
-;; paredit ---------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; paredit
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
   "Don't insert an extraneous space when entering a CL pathname."
@@ -1491,7 +1513,8 @@ Place a propertized \"> \" before the selected candidate."
   (interactive)
   (basis/paredit-wrap-from-behind #'paredit-wrap-curly nil))
 
-;; smartparens -----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; smartparens
 
 (defun basis/sp-backward-delete-no-prefix (args)
   "Advice for `sp-backward-delete-char'.
@@ -1570,7 +1593,8 @@ used to create Unicode, raw, and byte strings respectively."
   (dolist (function functions)
     (advice-add function :around #'basis/disable-relative-reindent)))
 
-;; scheme/geiser ---------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Scheme
 
 (defun basis/scheme-send-something ()
   (interactive)
@@ -1596,7 +1620,8 @@ used to create Unicode, raw, and byte strings respectively."
                           #'geiser-expand-region
                         #'geiser-expand-last-sexp)))
 
-;; python ----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Python
 
 (defun basis/python-send-something ()
   "Send the active region or the current defun."
@@ -1663,7 +1688,8 @@ activate it."
     (fill-region beg end))
   (indent-rigidly beg end 4))
 
-;; slime -----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; SLIME
 
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
@@ -1681,7 +1707,8 @@ Use `slime-expand-1' to produce the expansion."
     (beginning-of-defun)
     (slime-expand-1 repeatedly)))
 
-;; clojure ---------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Clojure
 
 (defun basis/cider-trust-me ()
   "Run `cider-jack-in' without checking for lein."
@@ -1706,7 +1733,8 @@ Use `slime-expand-1' to produce the expansion."
                     (volatile)
                     (headline "^[;(]")))))
 
-;; comint ----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; comint
 
 (defun basis/comint-input-goto-bottom-if-necessary (function &rest args)
   "Advice for `comint' {previous,next}-input commands.
@@ -1716,7 +1744,8 @@ user-error, automatically move point to the command line."
              (not (comint-after-pmark-p)))
     (goto-char (point-max))))
 
-;; org-mode --------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Org
 
 (defun basis/process-clojure-output (s)
   (mapconcat (lambda (line)
@@ -1749,7 +1778,8 @@ user-error, automatically move point to the command line."
   (let ((body (cadr (org-babel-get-src-block-info))))
     (cider-eval-last-sexp-to-repl body)))
 
-;; sql -------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; SQL
 
 (defun basis/sql-indent (&optional n)
   "Insert spaces or tabs to the Nth next tab-stop column."
@@ -1954,7 +1984,8 @@ strings."
        (with-current-buffer buffer
          (modify-syntax-entry ?\" "\""))))))
 
-;; html utilities --------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; HTML utilities
 
 (defun basis/move-to-next-blank-line ()
   "Move point to the next blank line."
@@ -1997,7 +2028,8 @@ strings."
   (simplezen-expand)
   (basis/html-newline-and-indent))
 
-;; skewer ----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; skewer
 
 (defun basis/run-skewer ()
   (interactive)
@@ -2012,7 +2044,7 @@ strings."
     (browse-url (format "http://localhost:%d/skewer/demo" httpd-port))
     (skewer-repl)))
 
-;; flycheck --------------------------------------------------------------------
+;;; flycheck -------------------------------------------------------------------
 
 (defun basis/flycheck-check-and-list-errors ()
   "Run a check and show the errors, if any."
@@ -2035,7 +2067,8 @@ strings."
 If the last check found errors, set it to 0.5 or 5.0 otherwise."
   (setq flycheck-idle-change-delay (if flycheck-current-errors 0.5 5.0)))
 
-;; elfeed ----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; elfeed
 
 (defun basis/elfeed-parse-group (group)
   "Parse the feed and tag specification GROUP.
@@ -2055,7 +2088,8 @@ used rather than a list of symbols."
     (mapcar #'basis/elfeed-parse-group)
     (apply #'nconc)))
 
-;; yaml ------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; YAML
 
 (defun basis/yaml-multiple-docs-p ()
   "Return non-nil if the buffer contains a multiple-document stream."
@@ -2093,7 +2127,8 @@ multiple-document stream."
             (define-key map (kbd "M-p") #'basis/yaml-previous-document)
             map))
 
-;; lorem ipsum -----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Lorem ipsum
 
 (defvar basis/lorem-ipsum-file
   (let ((filename (expand-file-name (basis/emacs-file "lorem-ipsum.txt"))))
@@ -2119,3 +2154,5 @@ multiple-document stream."
                          (seq-take basis/lorem-ipsum arg)
                          "\n\n")))))
 
+
+;;; defuns.el ends here

@@ -1,7 +1,7 @@
 ;;; init.el      -*- coding: utf-8; lexical-binding: t; no-byte-compile: t -*-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Early configuration
+;;; Early configuration
 
 (eval-when-compile (require 'cl-lib))
 
@@ -53,7 +53,7 @@ it doesn't exist."
     (setq source-directory source)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Set up package.el
+;;; Set up package.el
 
 (setq load-prefer-newer t)
 
@@ -75,7 +75,7 @@ it doesn't exist."
   (package-install 'use-package))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Load some code
+;;; Load some code
 
 (require 'use-package)
 
@@ -147,7 +147,7 @@ it doesn't exist."
                                   macros)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Operating system-specific configuration
+;;; Operating system-specific configuration
 
 ;; A graphical Emacs on OS X doesn't automatically inherit $PATH
 (use-package exec-path-from-shell
@@ -194,7 +194,7 @@ it doesn't exist."
   (basis/init-for-cygwin))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Various settings
+;;; Various settings
 
 (setq visible-bell t
       inhibit-default-init t
@@ -234,7 +234,7 @@ it doesn't exist."
 (fset 'yes-or-no-p #'y-or-n-p)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic packages
+;;; Basic packages
 
 (use-package simple
   :init (progn (setq shift-select-mode nil
@@ -385,7 +385,7 @@ it doesn't exist."
           tramp-encoding-command-interactive "-i")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Interface
+;;; Interface
 
 ;; See the commentary in `unicode-fonts' for the "minimum useful fonts" to
 ;; install
@@ -441,7 +441,7 @@ it doesn't exist."
   :diminish page-break-lines-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Documentation modes
+;;; Documentation modes
 
 (use-package help-mode
   :defer t
@@ -471,7 +471,7 @@ it doesn't exist."
   (fset 'man #'woman))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Key bindings
+;;; Key bindings
 
 (defun basis/init-modifiers-for-linux ()
   'pass)
@@ -805,7 +805,7 @@ See `basis/define-eval-keys'.")
     ("M-[ 1 ; 6 k" "C-+")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Editing
+;;; Editing
 
 (use-package undo-tree
   :ensure t
@@ -847,7 +847,7 @@ See `basis/define-eval-keys'.")
   :defer t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Movement
+;;; Movement
 
 (use-package imenu
   :defer t
@@ -885,7 +885,7 @@ is read-only and empty."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Search
+;;; Search
 
 (basis/define-keys isearch-mode-map
   ("DEL"         #'basis/isearch-backspace)
@@ -903,14 +903,13 @@ is read-only and empty."
             ("C-t"   #'basis/swiper-maybe-yank-something)))
 
 (use-package swiper-helm
-  :ensure t
-  :bind ("C-r" . basis/swiper-helm))
+  :ensure t)
 
 (define-key occur-mode-map (kbd "n") #'occur-next)
 (define-key occur-mode-map (kbd "p") #'occur-prev)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; External search
+;;; External search
 
 (defhydra basis/hydra-grep (:color blue :columns 2)
   "Grep"
@@ -967,7 +966,7 @@ is read-only and empty."
             (substring ack-and-a-half-executable 2)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Completion
+;;; Completion
 
 (defun basis/init-ido-keys ()
   (basis/define-keys ido-file-completion-map
@@ -1135,7 +1134,7 @@ is read-only and empty."
 
 (use-package helm-swoop
   :ensure t
-  :defer t
+  :bind ("C-r" . helm-swoop)
   :init (progn
           (setq helm-swoop-use-line-number-face t)
           (define-key isearch-mode-map (kbd "M-s") #'helm-swoop-from-isearch))
@@ -1253,7 +1252,7 @@ is read-only and empty."
           yas-wrap-around-region t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Programming modes
+;;; Programming modes
 
 (use-package prog-mode
   :config
@@ -1793,7 +1792,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :mode "\\.bat\\'")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Text, markup, and configuration modes
+;;; Text, markup, and configuration modes
 
 (defun basis/init-text-mode ()
   (auto-fill-mode 1)
@@ -1978,7 +1977,7 @@ Move forward by a line and indent if invoked directly between."
   :init (put 'css-indent-offset 'safe-local-variable #'integerp))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Brackets
+;;; Brackets
 
 (defun basis/maybe-map-paredit-newline ()
   "Map `paredit-newline' except in some interactive modes."
@@ -2078,7 +2077,7 @@ Move forward by a line and indent if invoked directly between."
                 #'basis/sp-backward-delete-no-prefix)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Error checking
+;;; Error checking
 
 (use-package ispell
   :defer t
@@ -2119,7 +2118,7 @@ Move forward by a line and indent if invoked directly between."
               ("p" #'flycheck-error-list-previous-error))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Diffing
+;;; Diffing
 
 (defun basis/init-diff-mode ()
   (setq buffer-read-only t))
@@ -2148,7 +2147,7 @@ Move forward by a line and indent if invoked directly between."
             (add-hook 'ediff-mode-hook #'basis/init-ediff)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Magit & other git things
+;;; Magit & other git things
 
 (use-package magit
   :ensure t
@@ -2222,7 +2221,7 @@ Move forward by a line and indent if invoked directly between."
   :defer t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Project management
+;;; Project management
 
 ;; While "project management" doesn't quite fit `ibuffer' this is where it seems
 ;; to fit best.
@@ -2313,7 +2312,7 @@ Move forward by a line and indent if invoked directly between."
   :diminish projectile-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Shells, processes, and filesystems
+;;; Shells, processes, and filesystems
 
 (use-package compile
   :bind  (("C-c b c" . compile)
@@ -2429,7 +2428,7 @@ buffer."
   :bind ("C-x p" . proced))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Applications
+;;; Applications
 
 (use-package elfeed
   :ensure t
@@ -2479,7 +2478,7 @@ buffer."
   :init (setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Email & news
+;;; Email & news
 
 (defun basis/init-message-mode ()
   (setq fill-column 72)
