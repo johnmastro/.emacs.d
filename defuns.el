@@ -54,20 +54,6 @@ With optional prefix ARG, uncomment instead."
                                  (line-end-position)))))
       (comment-region beg end arg))))
 
-(defun basis/insert-enough-dashes (&optional goal char)
-  "Insert enough dashes to reach a specific column.
-With a prefix arg, prompt for the target column and the character
-to use. Otherwise use a default of 80 and char ?-."
-  (interactive
-   (when current-prefix-arg
-     (list (read-number "Target column: ")
-           (read-char "Character: "))))
-  (let* ((goal (or goal 80))
-         (char (or char ?-))
-         (pos (- (point) (line-beginning-position)))
-         (enough (- goal pos)))
-    (insert-char char enough)))
-
 (defun basis/join-next-line ()
   "Join the next line up to the current one."
   (interactive)
