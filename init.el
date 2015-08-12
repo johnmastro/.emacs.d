@@ -512,7 +512,7 @@ it doesn't exist."
             (setq guide-key/popup-window-position 'bottom)
             (setq guide-key/idle-delay 0.0)
             (setq guide-key/guide-key-sequence
-                  '("C-x 4" "C-x v" "C-x 8"
+                  '("C-x r" "C-x 4" "C-x v" "C-x 8"
                     (dired-mode "*" "C-t")
                     (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
                     (calc-mode "V"))))
@@ -809,11 +809,7 @@ See `basis/define-eval-keys'.")
 
 (use-package undo-tree
   :ensure t
-  ;; The couple bindings undo-tree puts behind C-x r prevent discover.el's C-x r
-  ;; context menu from working
-  :config (progn
-            (global-undo-tree-mode 1)
-            (define-key undo-tree-map (kbd "C-x r") nil))
+  :config (global-undo-tree-mode 1)
   :diminish undo-tree-mode)
 
 (use-package expand-region
