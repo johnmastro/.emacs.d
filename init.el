@@ -970,7 +970,7 @@ is read-only and empty."
 (defun basis/init-ido-keys ()
   (basis/define-keys ido-file-completion-map
     ("M-w"     #'ido-copy-current-file-name)
-    ("M-g"     #'basis/ido-magit-status)
+    ("C-x g"   #'ido-enter-magit-status)
     ("C-c C-x" #'basis/ido-open-file-externally)))
 
 (use-package ido
@@ -1229,9 +1229,11 @@ is read-only and empty."
 
 (use-package hippie-exp
   :bind ("M-/" . hippie-expand)
-  :config (dolist (f '(try-expand-line try-expand-list try-expand-all-abbrevs))
-            (setq hippie-expand-try-functions-list
-                  (remq f hippie-expand-try-functions-list))))
+  :config (setq hippie-expand-try-functions-list
+                (seq-difference hippie-expand-try-functions-list
+                                '(try-expand-line
+                                  try-expand-list
+                                  try-expand-all-abbrevs))))
 
 (use-package yasnippet
   :ensure t
