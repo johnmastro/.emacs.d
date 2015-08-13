@@ -275,7 +275,7 @@ With optional prefix ARG, uncomment instead."
   (interactive)
   (move-end-of-line 1)
   (delete-horizontal-space t)
-  (unless (basis/looking-back-p ";")
+  (unless (basis/looking-back-p ";" (1- (point)))
     (insert ";")))
 
 (defun basis/wrap-in-curlies (beg end)
@@ -1338,7 +1338,7 @@ strings."
 
 (defun basis/html-newline-and-indent ()
   (interactive)
-  (if (and (looking-at-p "<") (basis/looking-back-p ">"))
+  (if (and (looking-at-p "<") (basis/looking-back-p ">" (1- (point))))
       (tagedit-toggle-multiline-tag)
     (newline-and-indent)))
 
@@ -1487,8 +1487,9 @@ used to create Unicode, raw, and byte strings respectively."
   (let ((result (sp-point-after-word-p id action context)))
     (if (and (memq major-mode '(python-mode inferior-python-mode))
              (member id '("'" "\"")))
-        (let ((raw-string (concat "\\([^\\sw\\s_]\\)[bru]" (regexp-quote id))))
-          (and result (not (looking-back raw-string))))
+        (let ((raw-string (concat "\\([^\\sw\\s_]\\)[bru]" (regexp-quote id)))
+              (limit (line-beginning-position)))
+          (and result (not (looking-back raw-string limit))))
       result)))
 
 (defun basis/disable-relative-reindent (function &rest args)
@@ -1994,9 +1995,9 @@ input."
   (with-selected-frame (make-frame)
     (calc nil t t)))
 
-(defun basis/looking-back-p (regexp)
+(defun basis/looking-back-p (regexp &optional limit)
   "Same as `looking-back' but don't change the match data."
-  (save-match-data (looking-back regexp)))
+  (save-match-data (looking-back regexp limit)))
 
 (defun basis/kill-frame-or-terminal (&optional arg)
   "Kill the current frame or session.
