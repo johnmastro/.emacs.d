@@ -1902,8 +1902,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 (defun basis/tagedit-toggle-multiline-maybe-forward (function &rest args)
   "Advice for `tagedit-toggle-multiline-tag'.
 Move forward by a line and indent if invoked directly between."
-  (let ((move-forward-p
-         (and (looking-at-p "<") (basis/looking-back-p ">" (1- (point))))))
+  (let ((move-forward-p (and (eq (char-before) ?>) (eq (char-after) ?<))))
     (apply function args)
     (when move-forward-p
       (forward-line 1)

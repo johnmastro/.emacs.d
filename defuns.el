@@ -275,7 +275,7 @@ With optional prefix ARG, uncomment instead."
   (interactive)
   (move-end-of-line 1)
   (delete-horizontal-space t)
-  (unless (basis/looking-back-p ";" (1- (point)))
+  (unless (eq (char-before) ?\;)
     (insert ";")))
 
 (defun basis/wrap-in-curlies (beg end)
@@ -1338,7 +1338,7 @@ strings."
 
 (defun basis/html-newline-and-indent ()
   (interactive)
-  (if (and (looking-at-p "<") (basis/looking-back-p ">" (1- (point))))
+  (if (and (eq (char-before) ?>) (eq (char-after) ?<))
       (tagedit-toggle-multiline-tag)
     (newline-and-indent)))
 
