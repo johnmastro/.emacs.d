@@ -1832,7 +1832,8 @@ Use `paredit' in these modes rather than `smartparens'.")
     (setq org-capture-templates
           `(("t" "Todo" entry (file+headline ,org-default-notes-file "Tasks")
              "* TODO %?\n %i\n")
-            ("w" "Work todo" entry (file+headline "~/Dropbox/org/work.org" "Tasks")
+            ("w" "Work todo" entry (file+headline "~/Dropbox/org/work.org"
+                                                  "Tasks")
              "* TODO %?\n %i\n")
             ("n" "Note" entry (file+headline "~/Dropbox/org/notes.org" "Notes")
              "* %u %?")))
@@ -2313,7 +2314,7 @@ Move forward by a line and indent if invoked directly between."
   :diminish projectile-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Shells, processes, and filesystems
+;;; Processes, shells, and the filesystem
 
 (use-package compile
   :bind  (("C-c b c" . compile)

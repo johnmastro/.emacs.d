@@ -1,14 +1,182 @@
 ;;; defuns.el    -*- coding: utf-8; lexical-binding: t; -*-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Editing utilities
+;;; Key binding utilities
 
-(defun basis/occur-show-sections ()
-  "Use occur to show headings in an Emacs Lisp file.
-This assumes the convention of using \";;;\" at the beginning of
-a line to denote a heading."
+(defmacro basis/define-keys (keymap &rest keydefs)
+  "Define multiple key bindings for KEYMAP."
+  (declare (indent 1))
+  `(progn
+     ,@(mapcar (lambda (keydef)
+                 (let ((key (if (vectorp (car keydef))
+                                (car keydef)
+                              (read-kbd-macro (car keydef))))
+                       (def (cadr keydef)))
+                   `(define-key ,keymap ,key ,def)))
+               keydefs)))
+
+(defmacro basis/define-eval-keys (keymap &rest keydefs)
+  "Define evaluation key bindings for various units of code.
+See `basis/eval-keys'."
+  (declare (indent 1))
+  `(progn
+     ,@(mapcar (lambda (keydef)
+                 (let* ((sym (car keydef))
+                        (def (cadr keydef))
+                        (key (cdr (assq sym basis/eval-keys))))
+                   (if key
+                       `(define-key ,keymap (kbd ,key) ,def)
+                     (error "No eval key for '%s'" sym))))
+               keydefs)))
+
+(defmacro basis/define-key-translations (&rest keydefs)
+  "Define multiple bindings in `key-translation-map'."
+  (declare (indent defun))
+  `(progn
+     ,@(mapcar (lambda (keydef)
+                 (pcase-let ((`(,key ,def) keydef))
+                   `(define-key key-translation-map (kbd ,key) (kbd ,def))))
+               keydefs)))
+
+(defmacro basis/create-simple-keybinding-command (name key)
+  `(defun ,name (def &optional keymap)
+     (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
+
+(basis/create-simple-keybinding-command f1 "<f1>")
+(basis/create-simple-keybinding-command f2 "<f2>")
+(basis/create-simple-keybinding-command f3 "<f3>")
+(basis/create-simple-keybinding-command f4 "<f4>")
+(basis/create-simple-keybinding-command f5 "<f5>")
+(basis/create-simple-keybinding-command f6 "<f6>")
+(basis/create-simple-keybinding-command f7 "<f7>")
+(basis/create-simple-keybinding-command f8 "<f8>")
+(basis/create-simple-keybinding-command f9 "<f9>")
+(basis/create-simple-keybinding-command f10 "<f10>")
+(basis/create-simple-keybinding-command f11 "<f11>")
+(basis/create-simple-keybinding-command f12 "<f12>")
+
+;; ESC->escape translation based on that in evil-core.el from `evil-mode'
+
+(defvar basis/esc-mode nil)
+
+(defvar basis/esc-delay 0.01)
+
+(defvar basis/intercept-esc
+  (memq (terminal-live-p (frame-terminal)) '(t pc)))
+
+(defvar basis/inhibit-esc nil)
+
+(defun basis/esc-mode (&optional arg)
+  "Toggle interception of \\e (escape).
+Enable with positive ARG and disable with negative ARG."
+  (cond
+   ((or (null arg) (eq arg 0))
+    (basis/esc-mode (if basis/esc-mode -1 +1)))
+   ((> arg 0)
+    (unless basis/esc-mode
+      (setq basis/esc-mode t)
+      (add-hook 'after-make-frame-functions #'basis/init-esc)
+      (mapc #'basis/init-esc (frame-list))))
+   ((< arg 0)
+    (when basis/esc-mode
+      (remove-hook 'after-make-frame-functions #'basis/init-esc)
+      (mapc #'basis/deinit-esc (frame-list))
+      (setq basis/esc-mode nil)))))
+
+(defun basis/init-esc (frame)
+  "Update `input-decode-map' in terminal."
+  (with-selected-frame frame
+    (let ((term (frame-terminal frame)))
+      (when (and
+             (or (eq basis/intercept-esc 'always)
+                 (and basis/intercept-esc
+                      (eq (terminal-live-p term) t))) ; only patch tty
+             (not (terminal-parameter term 'basis/esc-map)))
+        (let ((basis/esc-map (lookup-key input-decode-map [?\e])))
+          (set-terminal-parameter term 'basis/esc-map basis/esc-map)
+          (define-key input-decode-map [?\e]
+            `(menu-item "" ,basis/esc-map :filter ,#'basis/esc-filter)))))))
+
+(defun basis/deinit-esc (frame)
+  "Restore `input-decode-map' in terminal."
+  (with-selected-frame frame
+    (let ((term (frame-terminal frame)))
+      (when (terminal-live-p term)
+        (let ((basis/esc-map (terminal-parameter term 'basis/esc-map)))
+          (when basis/esc-map
+            (define-key input-decode-map [?\e] basis/esc-map)
+            (set-terminal-parameter term 'basis/esc-map nil)))))))
+
+(defun basis/esc-filter (map)
+  "Translate \\e to 'escape if no further event arrives."
+  (if (and (not basis/inhibit-esc)
+           (equal (this-single-command-keys) [?\e])
+           (sit-for basis/esc-delay))
+      (prog1 [escape]
+        (when defining-kbd-macro
+          (end-kbd-macro)
+          (setq last-kbd-macro (vconcat last-kbd-macro [escape]))
+          (start-kbd-macro t t)))
+    map))
+
+(defun basis/god-update-cursor ()
+  "Toggle the cursor type to signal whether `god-mode' is active."
+  (setq cursor-type
+        (if (bound-and-true-p god-local-mode)
+            'box
+          'bar)))
+
+(defun basis/god-toggle-on-overwrite ()
+  "Pause `god-mode' when `overwrite-mode' is active."
+  (if (bound-and-true-p overwrite-mode)
+      (god-local-mode-pause)
+    (god-local-mode-resume)))
+
+(defun basis/god-mode-all ()
+  "Enable `god-mode' in all buffers."
   (interactive)
-  (occur "^;;; \\([^ ].+\\)"))
+  (setq god-global-mode t)
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+            (god-mode-maybe-activate 1)))
+        (buffer-list)))
+
+(defun basis/god-maybe-all ()
+  "Conditionally enable `god-local-mode'.
+Enable `god-local-mode' if `god-global-mode' is active and the
+current buffer is not exempt. Intended for us in
+`focus-out-hook'."
+  (when (bound-and-true-p god-global-mode)
+    (basis/god-mode-all)))
+
+(defun basis/enable-god-mode ()
+  "Enable `god-mode'.
+Enable `god-global-mode' and `god-local-mode', add related hooks,
+and define related key bindings."
+  (interactive)
+  (setq god-global-mode t)
+  (god-local-mode 1)
+  (basis/esc-mode 1)
+  (global-set-key (kbd "<escape>") #'basis/god-mode-all)
+  (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
+  (add-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
+  (add-hook 'focus-out-hook #'basis/god-maybe-all))
+
+(defun basis/disable-god-mode ()
+  "Disable `god-mode'.
+Disable `god-global-mode' and `god-local-mode'. Also remove
+related hooks and key bindings."
+  (interactive)
+  (setq god-global-mode nil)
+  (god-local-mode -1)
+  (basis/esc-mode -1)
+  (global-set-key (kbd "<escape>") nil)
+  (define-key isearch-mode-map (kbd "<escape>") nil)
+  (remove-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
+  (remove-hook 'focus-out-hook #'basis/god-maybe-all))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Editing utilities
 
 (defun basis/next-line ()
   "Move point to the next line.
@@ -106,6 +274,7 @@ With optional prefix ARG, uncomment instead."
   "Move to the end of the line and insert a semicolon."
   (interactive)
   (move-end-of-line 1)
+  (delete-horizontal-space t)
   (unless (basis/looking-back-p ";")
     (insert ";")))
 
@@ -188,27 +357,6 @@ If PATTERN is non-nil, only include matching files (via
                       next)))
         (call-interactively command)))))
 
-(defun basis/swiper-helm ()
-  (interactive)
-  (let ((helm-move-to-line-cycle-in-source t))
-    (call-interactively #'swiper-helm)))
-
-(defun basis/swiper-maybe-yank-something ()
-  "Conditionally insert the symbol at point.
-If the search text is empty, insert the symbol at point where the
-search started. Otherwise, call the command the key is bound to
-in the global map."
-  (interactive)
-  (if (string= ivy-text "")
-      (when-let (str (save-window-excursion
-                       (with-selected-window swiper--window
-                         (goto-char swiper--opoint)
-                         (thing-at-point 'symbol))))
-        (insert str))
-    (when-let (cmd (and (called-interactively-p 'any)
-                        (lookup-key global-map (this-command-keys))))
-      (call-interactively cmd))))
-
 (defun basis/next-line-no-deactivate-mark (function &rest args)
   "Advice for `next-line'.
 Bind `deactivate-mark' so that `next-line-add-newlines' doesn't
@@ -216,8 +364,37 @@ cause the mark to be deactivated."
   (let ((deactivate-mark))
     (apply function args)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Kill commands
+(defun basis/next-long-line (&optional threshold message)
+  "Move forward to the next overly-long line.
+With a prefix arg, read the THRESHOLD to use. Otherwise use
+`whitespace-line-column' if `whitespace-mode' is enabled, or 80
+if not."
+  (interactive (list (and current-prefix-arg (read-number "Threshold: "))
+                     t))
+  (let ((threshold (or threshold
+                       (and (bound-and-true-p whitespace-mode)
+                            whitespace-line-column)
+                       80))
+        (start (point))
+        line column)
+    (when (eolp) (forward-line 1))
+    (catch 'done
+      (while (not (eobp))
+        (move-end-of-line 1)
+        (if (> (setq column (current-column)) threshold)
+            (progn
+              (setq line (line-number-at-pos))
+              (when message (message "Line %d is %d columns long" line column))
+              (throw 'done (cons line column)))
+          (forward-line 1)))
+      (goto-char start)
+      (when message (message "No long lines found")))))
+
+(defun basis/kill-ring-save-string (str)
+  "Save STR to the kill ring."
+  (with-temp-buffer
+    (insert str)
+    (kill-ring-save (point-min) (point-max))))
 
 (defun basis/kill-something (arg)
   "Kill the region, or one or more words backward.
@@ -303,9 +480,6 @@ Interactively, default to four spaces of indentation."
       (indent-rigidly (point-min) (point-max) arg)
       (kill-ring-save (point-min) (point-max)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Case changing
-
 (defun basis/upcase-something (&optional arg)
   "Upcase either the region or word(s).
 This will call `upcase-region' or `upcase-word' depending on
@@ -342,9 +516,6 @@ on whether the region is active."
         (t
          (capitalize-word arg))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Mark commands
-
 (defun basis/push-mark-no-activate ()
   "Pushes `point` to `mark-ring` without activating the region.
 Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled."
@@ -375,9 +546,6 @@ This is the same as using \\[set-mark-command] with the prefix argument."
       (funcall function)
       (setq n (1- n)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Buffer cleanup
-
 (defun basis/untabify-buffer ()
   "Untabify the current buffer."
   (interactive)
@@ -403,309 +571,202 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   (basis/cleanup-buffer-safe)
   (basis/indent-buffer))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; File utilities
-
-(defun basis/rename-current-buffer-file (destination)
-  "Rename the current buffer's file to DESTINATION."
-  (interactive "FDestination: ")
-  (let* ((name (buffer-name))
-         (file (buffer-file-name))
-         (destination (if (file-directory-p destination)
-                          (expand-file-name (file-name-nondirectory file)
-                                            destination)
-                        destination)))
-    (if (not (and file (file-exists-p file)))
-        (error "Buffer '%s' is not visiting a file" file)
-      (rename-file file destination 1)
-      (set-visited-file-name destination)
-      (set-buffer-modified-p nil)
-      (message "File '%s' renamed to '%s'"
-               name
-               (file-name-nondirectory destination)))))
-
-(defun basis/delete-current-buffer-file ()
-  "Kill the current buffer and delete the file it's visiting."
+(defun basis/count-words ()
+  "Count the lines, words, and characters in the active region.
+Like `count-words-region', but operate on the current buffer if
+the region isn't active."
   (interactive)
-  (let ((buffer (current-buffer))
-        (filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (ido-kill-buffer)
-      (when (yes-or-no-p "Are you sure you want to delete this file?")
-        (delete-file filename)
-        (kill-buffer buffer)
-        (message "File '%s' successfully deleted" filename)))))
+  (let ((current-prefix-arg (not (use-region-p))))
+    (call-interactively #'count-words-region)))
 
-(defun basis/find-file-recentf ()
-  "Find recently open files using ido and recentf."
-  (interactive)
-  (let* ((list (mapcar #'abbreviate-file-name recentf-list))
-         (file (completing-read "Recent file: " list nil t)))
-    (when file
-      (find-file file))))
-
-(defun basis/windows->unix (path)
-  "Convert a path from Windows-style to UNIX-style."
-  (thread-last path
-    (replace-regexp-in-string "\\\\" "/")
-    (replace-regexp-in-string "[a-zA-Z]:" "")))
-
-(defun basis/read-file (file)
-  "Read a Lisp form from FILE."
-  (with-temp-buffer
-    (insert-file-contents file)
-    (read (current-buffer))))
+(defun basis/count-sloc-region (beg end kind)
+  ;; From Stefan Monnier on the help-gnu-emacs list
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end) 'region)
+     (list (point-min) (point-max) 'buffer)))
+  (save-excursion
+    (goto-char beg)
+    (let ((count 0))
+      (while (< (point) end)
+        (if (nth 4 (syntax-ppss))
+            (let ((pos (point)))
+              (goto-char (nth 8 (syntax-ppss)))
+              (forward-comment (point-max))
+              (when (< (point) pos) (goto-char pos)))
+          (forward-comment (point-max)))
+        (setq count (1+ count))
+        (forward-line))
+      (when kind
+        (message "SLOC in %s: %d" kind count)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Key binding utilities
+;;; Search
 
-(defmacro basis/define-keys (keymap &rest keydefs)
-  "Define multiple key bindings for KEYMAP."
-  (declare (indent 1))
-  `(progn
-     ,@(mapcar (lambda (keydef)
-                 (let ((key (if (vectorp (car keydef))
-                                (car keydef)
-                              (read-kbd-macro (car keydef))))
-                       (def (cadr keydef)))
-                   `(define-key ,keymap ,key ,def)))
-               keydefs)))
+(defun basis/isearch-backspace (&optional arg)
+  "Delete non-matching text or the last character."
+  (interactive "p")
+  (if (zerop (length isearch-string))
+      (ding)
+    (setq isearch-string
+          (substring isearch-string
+                     0
+                     (or (isearch-fail-pos) (1- (length isearch-string)))))
+    (setq isearch-message
+          (mapconcat #'isearch-text-char-description isearch-string "")))
+  (if isearch-other-end (goto-char isearch-other-end))
+  (isearch-search)
+  (isearch-push-state)
+  (isearch-update))
 
-(defmacro basis/define-eval-keys (keymap &rest keydefs)
-  "Define evaluation key bindings for various units of code.
-See `basis/eval-keys'."
-  (declare (indent 1))
-  `(progn
-     ,@(mapcar (lambda (keydef)
-                 (let* ((sym (car keydef))
-                        (def (cadr keydef))
-                        (key (cdr (assq sym basis/eval-keys))))
-                   (if key
-                       `(define-key ,keymap (kbd ,key) ,def)
-                     (error "No eval key for '%s'" sym))))
-               keydefs)))
+(defun basis/isearch-cancel ()
+  "Cancel the current interactive search.
+Unlike `isearch-abort' and `isearch-exit', always cancel the
+current search, with no context-dependent behavior."
+  (interactive)
+  (discard-input)
+  (setq isearch-success nil)
+  (isearch-cancel))
 
-(defmacro basis/define-key-translations (&rest keydefs)
-  "Define multiple bindings in `key-translation-map'."
-  (declare (indent defun))
-  `(progn
-     ,@(mapcar (lambda (keydef)
-                 (pcase-let ((`(,key ,def) keydef))
-                   `(define-key key-translation-map (kbd ,key) (kbd ,def))))
-               keydefs)))
+(defun basis/isearch-yank-something ()
+  "Pull the current region or symbol into the search string."
+  (interactive)
+  (isearch-yank-string
+   (if (use-region-p)
+       (let ((str (buffer-substring (region-beginning) (region-end))))
+         (deactivate-mark)
+         str)
+     (or (thing-at-point 'symbol)
+         ""))))
 
-(defmacro basis/create-simple-keybinding-command (name key)
-  `(defun ,name (def &optional keymap)
-     (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
+(defun basis/occur-dwim (regexp nlines)
+  "Like `occur', but REGEXP defaults to the text at point."
+  (interactive
+   (list (let ((str (if (use-region-p)
+                        (buffer-substring-no-properties (region-beginning)
+                                                        (region-end))
+                      (thing-at-point 'symbol))))
+           (read-regexp
+            (format "Occur (default %s): " (or str (car regexp-history)))
+            (and (not str) 'regexp-history-last)))
+         (prefix-numeric-value current-prefix-arg)))
+  (occur regexp nlines))
 
-(basis/create-simple-keybinding-command f1 "<f1>")
-(basis/create-simple-keybinding-command f2 "<f2>")
-(basis/create-simple-keybinding-command f3 "<f3>")
-(basis/create-simple-keybinding-command f4 "<f4>")
-(basis/create-simple-keybinding-command f5 "<f5>")
-(basis/create-simple-keybinding-command f6 "<f6>")
-(basis/create-simple-keybinding-command f7 "<f7>")
-(basis/create-simple-keybinding-command f8 "<f8>")
-(basis/create-simple-keybinding-command f9 "<f9>")
-(basis/create-simple-keybinding-command f10 "<f10>")
-(basis/create-simple-keybinding-command f11 "<f11>")
-(basis/create-simple-keybinding-command f12 "<f12>")
+(defvar basis/occur-show-note-strings
+  (if (require 'hl-todo nil t)
+      (mapcar #'car hl-todo-keyword-faces)
+    '("HOLD"
+      "TODO"
+      "NEXT"
+      "THEM"
+      "PROG"
+      "OKAY"
+      "DONT"
+      "FAIL"
+      "DONE"
+      "NOTE"
+      "KLUDGE"
+      "FIXME"
+      "XXX"
+      "???"))
+  "List of strings `basis/occur-show-notes' will search for.")
+
+(defun basis/occur-show-notes ()
+  "Search for common \"TODO\"-style notes."
+  (interactive)
+  (occur (regexp-opt basis/occur-show-note-strings t)))
+
+(defun basis/swiper-helm ()
+  (interactive)
+  (let ((helm-move-to-line-cycle-in-source t))
+    (call-interactively #'swiper-helm)))
+
+(defun basis/swiper-maybe-yank-something ()
+  "Conditionally insert the symbol at point.
+If the search text is empty, insert the symbol at point where the
+search started. Otherwise, call the command the key is bound to
+in the global map."
+  (interactive)
+  (if (string= ivy-text "")
+      (when-let (str (save-window-excursion
+                       (with-selected-window swiper--window
+                         (goto-char swiper--opoint)
+                         (thing-at-point 'symbol))))
+        (insert str))
+    (when-let (cmd (and (called-interactively-p 'any)
+                        (lookup-key global-map (this-command-keys))))
+      (call-interactively cmd))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Escape mode
+;;; Completion
 
-;; ESC->escape translation based on that in evil-core.el from `evil-mode'
+(defun basis/ido-selected-file ()
+  "Return the current selection during `ido' file completion.
+Return the current directory if no text is entered or there are
+no matches."
+  (if (or (string= ido-text "")
+          (null ido-matches))
+      default-directory
+    (expand-file-name (car ido-matches) default-directory)))
 
-(defvar basis/esc-mode nil)
+(defun basis/ido-open-file-externally-internal (file)
+  (interactive (list (basis/ido-selected-file)))
+  (helm-open-file-externally file))
 
-(defvar basis/esc-delay 0.01)
-
-(defvar basis/intercept-esc
-  (memq (terminal-live-p (frame-terminal)) '(t pc)))
-
-(defvar basis/inhibit-esc nil)
-
-(defun basis/esc-mode (&optional arg)
-  "Toggle interception of \\e (escape).
-Enable with positive ARG and disable with negative ARG."
-  (cond
-   ((or (null arg) (eq arg 0))
-    (basis/esc-mode (if basis/esc-mode -1 +1)))
-   ((> arg 0)
-    (unless basis/esc-mode
-      (setq basis/esc-mode t)
-      (add-hook 'after-make-frame-functions #'basis/init-esc)
-      (mapc #'basis/init-esc (frame-list))))
-   ((< arg 0)
-    (when basis/esc-mode
-      (remove-hook 'after-make-frame-functions #'basis/init-esc)
-      (mapc #'basis/deinit-esc (frame-list))
-      (setq basis/esc-mode nil)))))
-
-(defun basis/init-esc (frame)
-  "Update `input-decode-map' in terminal."
-  (with-selected-frame frame
-    (let ((term (frame-terminal frame)))
-      (when (and
-             (or (eq basis/intercept-esc 'always)
-                 (and basis/intercept-esc
-                      (eq (terminal-live-p term) t))) ; only patch tty
-             (not (terminal-parameter term 'basis/esc-map)))
-        (let ((basis/esc-map (lookup-key input-decode-map [?\e])))
-          (set-terminal-parameter term 'basis/esc-map basis/esc-map)
-          (define-key input-decode-map [?\e]
-            `(menu-item "" ,basis/esc-map :filter ,#'basis/esc-filter)))))))
-
-(defun basis/deinit-esc (frame)
-  "Restore `input-decode-map' in terminal."
-  (with-selected-frame frame
-    (let ((term (frame-terminal frame)))
-      (when (terminal-live-p term)
-        (let ((basis/esc-map (terminal-parameter term 'basis/esc-map)))
-          (when basis/esc-map
-            (define-key input-decode-map [?\e] basis/esc-map)
-            (set-terminal-parameter term 'basis/esc-map nil)))))))
-
-(defun basis/esc-filter (map)
-  "Translate \\e to 'escape if no further event arrives."
-  (if (and (not basis/inhibit-esc)
-           (equal (this-single-command-keys) [?\e])
-           (sit-for basis/esc-delay))
-      (prog1 [escape]
-        (when defining-kbd-macro
-          (end-kbd-macro)
-          (setq last-kbd-macro (vconcat last-kbd-macro [escape]))
-          (start-kbd-macro t t)))
-    map))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; God-mode
-
-(defun basis/god-update-cursor ()
-  "Toggle the cursor type to signal whether `god-mode' is active."
-  (setq cursor-type
-        (if (bound-and-true-p god-local-mode)
-            'box
-          'bar)))
-
-(defun basis/god-toggle-on-overwrite ()
-  "Pause `god-mode' when `overwrite-mode' is active."
-  (if (bound-and-true-p overwrite-mode)
-      (god-local-mode-pause)
-    (god-local-mode-resume)))
-
-(defun basis/god-mode-all ()
-  "Enable `god-mode' in all buffers."
+(defun basis/ido-open-file-externally ()
+  "Open a file externally during `ido' completion."
   (interactive)
-  (setq god-global-mode t)
-  (mapc (lambda (buffer)
-          (with-current-buffer buffer
-            (god-mode-maybe-activate 1)))
-        (buffer-list)))
+  (setq fallback 'basis/ido-open-file-externally-internal
+        ido-exit 'fallback)
+  (exit-minibuffer))
 
-(defun basis/god-maybe-all ()
-  "Conditionally enable `god-local-mode'.
-Enable `god-local-mode' if `god-global-mode' is active and the
-current buffer is not exempt. Intended for us in
-`focus-out-hook'."
-  (when (bound-and-true-p god-global-mode)
-    (basis/god-mode-all)))
+(defun basis/company-no-completion-in-docstring (function)
+  "Advice for `company-auto-begin'.
+Work around a bug I haven't figured out yet."
+  (unless (and (eq major-mode 'python-mode)
+               (basis/in-string-p))
+    (funcall function)))
 
-(defun basis/enable-god-mode ()
-  "Enable `god-mode'.
-Enable `god-global-mode' and `god-local-mode', add related hooks,
-and define related key bindings."
-  (interactive)
-  (setq god-global-mode t)
-  (god-local-mode 1)
-  (basis/esc-mode 1)
-  (global-set-key (kbd "<escape>") #'basis/god-mode-all)
-  (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
-  (add-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
-  (add-hook 'focus-out-hook #'basis/god-maybe-all))
+(defun basis/company-no-tramp-completion (function)
+  "Advice for `company-auto-begin'.
+Work around TRAMP freezes on my Windows machine at work."
+  (unless (and (eq major-mode 'shell-mode)
+               ;; Skip backward to whitespace and see if we end up on something
+               ;; that looks like a TRAMP file name.
+               (save-excursion
+                 (skip-syntax-backward "^ ")
+                 (looking-at-p "\\(\\w+@\\)?\\w\\{2,\\}:/")))
+    (funcall function)))
 
-(defun basis/disable-god-mode ()
-  "Disable `god-mode'.
-Disable `god-global-mode' and `god-local-mode'. Also remove
-related hooks and key bindings."
-  (interactive)
-  (setq god-global-mode nil)
-  (god-local-mode -1)
-  (basis/esc-mode -1)
-  (global-set-key (kbd "<escape>") nil)
-  (define-key isearch-mode-map (kbd "<escape>") nil)
-  (remove-hook 'overwrite-mode-hook #'basis/god-toggle-on-overwrite)
-  (remove-hook 'focus-out-hook #'basis/god-maybe-all))
+(defun basis/company-sh-no-complete-fi (function)
+  "Advice for `company-auto-begin'.
+Prevent completion on \"fi\" in `sh-mode'. I find the interaction
+between this and electric indentation annoying."
+  (unless (and (eq major-mode 'sh-mode)
+               (save-excursion
+                 (forward-char -2)
+                 (looking-at-p "\\_<fi\\_>")))
+    (funcall function)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; ibuffer
+(defun basis/enable-company-clang ()
+  "Enable `company-clang' for the current buffer."
+  (add-to-list 'company-backends #'company-clang))
 
-(defun basis/ibuffer-vc-root-files-only (function buf)
-  "Advice for `ibuffer-vc-root'.
-Only group a buffer with a VC if its visiting a file."
-  (when (buffer-file-name buf)
-    (funcall function buf)))
+(defvar basis/ivy-format-selection-text
+  (propertize "> " 'face 'font-lock-function-name-face)
+  "Text to place before the selection during `ivy' completion.")
 
-(defvar basis/ibuffer-grouped-by-vc-p nil
-  "Non-nil is grouping by VC root is enabled.")
-
-(defun basis/ibuffer-disable-vc-groups ()
-  "Disable grouping by VC root."
-  (interactive)
-  (ibuffer-assert-ibuffer-mode)
-  (setq ibuffer-filter-groups nil)
-  (ibuffer-update nil t))
-
-(defun basis/ibuffer-toggle-vc-grouping ()
-  "Toggle whether grouping by VC root is enabled."
-  (interactive)
-  (ibuffer-assert-ibuffer-mode)
-  (if basis/ibuffer-grouped-by-vc-p
-      (progn (basis/ibuffer-disable-vc-groups)
-             (setq basis/ibuffer-grouped-by-vc-p nil))
-    (ibuffer-vc-set-filter-groups-by-vc-root)
-    (setq basis/ibuffer-grouped-by-vc-p t)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; ediff
-
-(defun basis/ediff-expand-tmp-name (args)
-  "Advice for `ediff-make-empty-tmp-file'.
-Call `expand-file-name' on the proposed file name. Only necessary
-on Windows."
-  (pcase-let ((`(,proposed-name . ,rest) args))
-    (cons (expand-file-name proposed-name) rest)))
-
-(defun basis/ediff-save-window-config (&rest _ignore)
-  "Advice for `ediff-setup'.
-Save the current window configuration to register
-`:ediff-restore-windows', so that it can be restored on exit."
-  (window-configuration-to-register :ediff-restore-windows))
-
-(defun basis/ediff-quit-restore (&rest _args)
-  "Advice for `ediff-quit'.
-After quitting, restore the previous window configuration."
-  (condition-case nil
-      (jump-to-register :ediff-restore-windows)
-    (error (message "Previous window configuration could not be restored"))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; eshell
-
-(defun basis/eshell-kill-line-backward ()
-  "Kill the current line backward, respecting Eshell's prompt."
-  (interactive)
-  (kill-region (save-excursion (eshell-bol) (point))
-               (point)))
-
-(defun basis/eshell-kill-whole-line ()
-  "Kill the current line, respecting Eshell's prompt."
-  (interactive)
-  (kill-region (save-excursion (eshell-bol) (point))
-               (save-excursion (move-end-of-line 1) (point))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; helm
+(defun basis/ivy-format-function (candidates)
+  "Function for use as `ivy-format-function'.
+Place a propertized \"> \" before the selected candidate."
+  (let ((i -1))
+    (mapconcat (lambda (s)
+                 (concat (if (eq (cl-incf i) ivy--index)
+                             basis/ivy-format-selection-text
+                           "  ")
+                         s))
+               candidates
+               "\n")))
 
 (defun basis/helm-backspace (n)
   "Delete N chars backwards.
@@ -777,89 +838,16 @@ with `helm-read-file-name'."
   (with-helm-alive-p
     (helm-quit-and-execute-action #'magit-status)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; dired
-
-(defun basis/dired-jump-to-top ()
-  "Move point to the first line representing a file."
+(defun basis/yas-expand-or-insert ()
+  "Call `yas-expand' or `yas-insert-snippet' depending on context.
+If point is after what might be a snippet key, call `yas-expand',
+otherwise call `yas-insert-snippet'."
   (interactive)
-  (goto-char (point-min))
-  (dired-next-line (if dired-hide-details-mode 1 2)))
-
-(defun basis/dired-jump-to-bottom ()
-  "Move point to the last line representing a file."
-  (interactive)
-  (goto-char (point-max))
-  (dired-next-line -1))
-
-(defvar basis/dired-sorting-options
-  '(("modification" . "c")
-    ("access"       . "u")
-    ("size"         . "S")
-    ("extension"    . "X")
-    ("name"         . ""))
-  "Sorting options and their associated ls switches.")
-
-(defun basis/dired-sort-by (what)
-  "Sort this `dired-mode' buffer by WHAT.
-WHAT must be an option in `dired-sorting-options'."
-  (interactive
-   (list (completing-read "Sort by: "
-                          (mapcar #'car basis/dired-sorting-options)
-                          nil
-                          t)))
-  ;; This assumes we can slap the sort option on the end of
-  ;; `dired-listing-switches'. It works with my current setup (and the default
-  ;; value) but is fragile and unsatisfactory.
-  (if-let (opt (cdr (assoc what basis/dired-sorting-options)))
-      (dired-sort-other (concat dired-listing-switches opt))
-    (error "Don't know how to sort by '%s'" what)))
-
-(defun basis/dired-slurp-files (files buffer)
-  "Insert the contents of marked FILES into BUFFER.
-If it doesn't exist, BUFFER is created automatically."
-  (interactive (list (if (eq major-mode 'dired-mode)
-                         (dired-get-marked-files)
-                       (error "Buffer not in `dired-mode'"))
-                     (read-buffer "Destination buffer: ")))
-  (basis/insert-files files (get-buffer-create buffer)))
+  (call-interactively
+   (if (looking-at-p "\\>") #'yas-expand #'yas-insert-snippet)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; direx
-
-;; `direx' includes a package `direx-project', which implements its own project
-;; root finding. However, since I have `projectile' anyway it makes more sense
-;; to use it.
-
-(defun basis/direx-find-project-root-noselect ()
-  (when (projectile-project-p)
-    (direx:find-directory-noselect (projectile-project-root))))
-
-(defun basis/direx-jump-to-project-root-noselect ()
-  (interactive)
-  (if-let (buffer (basis/direx-find-project-root-noselect))
-      (progn (direx:maybe-goto-current-buffer-item buffer)
-             buffer)
-    ;; Or fall back to `default-directory'?
-    (error "Not in a project")))
-
-(defun basis/direx-jump-to-project-root ()
-  (interactive)
-  (switch-to-buffer (basis/direx-jump-to-project-root-noselect)))
-
-(defun basis/direx-jump-to-project-root-other-window ()
-  (interactive)
-  (switch-to-buffer-other-window (basis/direx-jump-to-project-root-noselect)))
-
-(defun basis/direx-file-name-at-point (&optional point)
-  "Return the absolute file name of the item at POINT."
-  (ignore-errors
-    (thread-first (direx:item-at-point point)
-      (direx:item-name)
-      (direx:canonical-filename))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Emacs Lisp
+;;; Programming modes
 
 (defun basis/eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
@@ -930,80 +918,6 @@ point is used instead, if any."
   (browse-url (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                       number)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; occur
-
-(defun basis/occur-dwim (regexp nlines)
-  "Like `occur', but REGEXP defaults to the text at point."
-  (interactive
-   (list (let ((str (if (use-region-p)
-                        (buffer-substring-no-properties (region-beginning)
-                                                        (region-end))
-                      (thing-at-point 'symbol))))
-           (read-regexp
-            (format "Occur (default %s): " (or str (car regexp-history)))
-            (and (not str) 'regexp-history-last)))
-         (prefix-numeric-value current-prefix-arg)))
-  (occur regexp nlines))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Window utilities
-
-(defun basis/transpose-windows (arg)
-  "Transpose the relative positions of two or more windows."
-  (interactive "p")
-  (let ((selector (if (>= arg 0) #'next-window #'previous-window)))
-    (dotimes (_ (abs arg))
-      (let ((this-win  (window-buffer))
-            (next-win (window-buffer (funcall selector))))
-        (set-window-buffer (selected-window) next-win)
-        (set-window-buffer (funcall selector) this-win)
-        (select-window (funcall selector))))))
-
-(defun basis/toggle-window-split ()
-  "Toggle between horizontal and vertical window split (for two windows)."
-  (interactive)
-  (when (= (count-windows) 2)
-    (let* ((this-win-buffer (window-buffer))
-           (next-win-buffer (window-buffer (next-window)))
-           (this-win-edges (window-edges (selected-window)))
-           (next-win-edges (window-edges (next-window)))
-           (this-win-2nd (not (and (<= (car this-win-edges)
-                                       (car next-win-edges))
-                                   (<= (cadr this-win-edges)
-                                       (cadr next-win-edges)))))
-           (splitter
-            (if (= (car this-win-edges)
-                   (car (window-edges (next-window))))
-                #'split-window-horizontally
-              #'split-window-vertically)))
-      (delete-other-windows)
-      (let ((first-win (selected-window)))
-        (funcall splitter)
-        (when this-win-2nd
-          (other-window 1))
-        (set-window-buffer (selected-window) this-win-buffer)
-        (set-window-buffer (next-window) next-win-buffer)
-        (select-window first-win)
-        (when this-win-2nd
-          (other-window 1))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Miscellaneous
-
-(defun basis/google (string)
-  "Run a Google search.
-Use the active region or symbol at point, if any, as initial
-input."
-  (interactive
-   (list (let ((default (if (use-region-p)
-                            (buffer-substring (region-beginning) (region-end))
-                          (thing-at-point 'symbol))))
-           (read-string "Google: " default))))
-  (browse-url
-   (concat "https://www.google.com/search?ie=utf-8&oe=utf-8&q="
-           (url-hexify-string string))))
-
 (defun basis/eval-and-replace ()
   "Replace the preceding sexp with its value."
   (interactive)
@@ -1013,574 +927,6 @@ input."
              (current-buffer))
     (error (message "Invalid expression")
            (insert (current-kill 0)))))
-
-(defun basis/goto-line-with-numbers ()
-  "Invoke `goto-line' with `linum-mode' temporarily enabled."
-  (interactive)
-  (let ((linum-enabled-p (bound-and-true-p linum-mode)))
-    (unwind-protect
-        (progn
-          (unless linum-enabled-p (linum-mode 1))
-          (call-interactively #'goto-line))
-      (unless linum-enabled-p (linum-mode -1)))))
-
-(defun basis/file-remote-p (name)
-  (and name (or (tramp-tramp-file-p name) (file-remote-p name))))
-
-(defun basis/maybe-enable-flycheck ()
-  "Enable `flycheck-mode', except for remote files."
-  (unless (basis/file-remote-p buffer-file-name)
-    (flycheck-mode)))
-
-(defun basis/maybe-enable-flyspell ()
-  "Enable `flyspell-mode', except for remote files."
-  (when (and ispell-program-name
-             (not (basis/file-remote-p buffer-file-name)))
-    (flyspell-mode)))
-
-(defun basis/maybe-enable-flyspell-prog-mode ()
-  "Enable `flyspell-prog-mode', except for remote files."
-  (when (and ispell-program-name
-             (not (basis/file-remote-p buffer-file-name)))
-    (flyspell-prog-mode)))
-
-(defun basis/maybe-enable-whitespace-mode ()
-  "Enable `whitespace-mode' in programming modes (but not REPLs)."
-  (interactive)
-  (unless (or (derived-mode-p 'comint-mode)
-              (eq major-mode 'eshell-mode)
-              (eq major-mode 'cider-repl-mode))
-    (whitespace-mode 1)))
-
-(defun basis/isearch-backspace (&optional arg)
-  "Delete non-matching text or the last character."
-  (interactive "p")
-  (if (zerop (length isearch-string))
-      (ding)
-    (setq isearch-string
-          (substring isearch-string
-                     0
-                     (or (isearch-fail-pos) (1- (length isearch-string)))))
-    (setq isearch-message
-          (mapconcat #'isearch-text-char-description isearch-string "")))
-  (if isearch-other-end (goto-char isearch-other-end))
-  (isearch-search)
-  (isearch-push-state)
-  (isearch-update))
-
-(defun basis/isearch-cancel ()
-  "Cancel the current interactive search.
-Unlike `isearch-abort' and `isearch-exit', always cancel the
-current search, with no context-dependent behavior."
-  (interactive)
-  (discard-input)
-  (setq isearch-success nil)
-  (isearch-cancel))
-
-(defun basis/isearch-yank-something ()
-  "Pull the current region or symbol into the search string."
-  (interactive)
-  (isearch-yank-string
-   (if (use-region-p)
-       (let ((str (buffer-substring (region-beginning) (region-end))))
-         (deactivate-mark)
-         str)
-     (or (thing-at-point 'symbol)
-         ""))))
-
-(defun basis/kill-this-buffer ()
-  "Kill the currently active buffer."
-  (interactive)
-  (kill-buffer (current-buffer)))
-
-(defun basis/ido-selected-file ()
-  "Return the current selection during `ido' file completion.
-Return the current directory if no text is entered or there are
-no matches."
-  (if (or (string= ido-text "")
-          (null ido-matches))
-      default-directory
-    (expand-file-name (car ido-matches) default-directory)))
-
-(defun basis/ido-open-file-externally-internal (file)
-  (interactive (list (basis/ido-selected-file)))
-  (helm-open-file-externally file))
-
-(defun basis/ido-open-file-externally ()
-  "Open a file externally during `ido' completion."
-  (interactive)
-  (setq fallback 'basis/ido-open-file-externally-internal
-        ido-exit 'fallback)
-  (exit-minibuffer))
-
-(defun basis/disable-themes (&optional themes)
-  "Disable THEMES (defaults to `custom-enabled-themes')."
-  (interactive)
-  (mapc #'disable-theme (or themes custom-enabled-themes)))
-
-(defun basis/reload-solarized (&optional background-mode)
-  "Load (or reload) the Solarized theme.
-If provided, BACKGROUND-MODE specifies which variant to use:
-`dark' or `light'."
-  (interactive
-   (list (and current-prefix-arg
-              (intern (completing-read "Background: " '(dark light) nil t)))))
-  (basis/disable-themes)
-  (when background-mode
-    (set-frame-parameter nil 'background-mode background-mode)
-    (set-terminal-parameter nil 'background-mode background-mode))
-  (load-theme 'solarized t)
-  (load-theme 'solarized-moar t))
-
-(defun basis/libxml-available-p ()
-  "Return non-nil if libxml is available."
-  (and (fboundp 'libxml-parse-html-region)
-       (with-temp-buffer
-         (insert "<html></html>")
-         (not (null (libxml-parse-html-region (point-min) (point-max)))))))
-
-(defun basis/yas-expand-or-insert ()
-  "Call `yas-expand' or `yas-insert-snippet' depending on context.
-If point is after what might be a snippet key, call `yas-expand',
-otherwise call `yas-insert-snippet'."
-  (interactive)
-  (call-interactively
-   (if (looking-at-p "\\>") #'yas-expand #'yas-insert-snippet)))
-
-(defun basis/kill-ring-save-string (str)
-  "Save STR to the kill ring."
-  (with-temp-buffer
-    (insert str)
-    (kill-ring-save (point-min) (point-max))))
-
-(defun basis/full-calc-frame ()
-  "Create a new frame and run `calc' in a full-size window."
-  (interactive)
-  (with-selected-frame (make-frame)
-    (calc nil t t)))
-
-(defun basis/looking-back-p (regexp)
-  "Same as `looking-back' but don't change the match data."
-  (save-match-data
-    (looking-back regexp)))
-
-(defun basis/find-clang-includes-path (&optional language)
-  "Return clang's #include <...> search path."
-  ;; This isn't a very satisfactory solution but it's "good enough"
-  (seq-filter #'file-directory-p
-              (pcase (or language 'c)
-                (`c
-                 (let* ((cmd "clang -v -xc -")
-                        (str (ignore-errors (shell-command-to-string cmd)))
-                        (str (or str ""))
-                        (lines (split-string str "\n" t "[[:space:]]+"))
-                        (result '()))
-                   (catch 'return
-                     (while lines
-                       (pcase-let ((`(,line . ,more) lines))
-                         (if (string= line "#include <...> search starts here:")
-                             (dolist (path more)
-                               (if (string= path "End of search list.")
-                                   (throw 'return (nreverse result))
-                                 (push path result)))
-                           (setq lines more)))))))
-                ;; Hardcoded based on an Ubuntu 12.04 box...
-                (`c++
-                 '("/usr/include/c++/4.6"
-                   "/usr/include/c++/4.6/i686-linux-gnu"
-                   "/usr/include/c++/4.6/backward"
-                   "/usr/local/include"
-                   "/usr/include/clang/3.3/include"
-                   "/usr/include/i386-linux-gnu"
-                   "/usr/include")))))
-
-(defun basis/build-clang-args (&optional language)
-  (let* ((language (or language 'c))
-         (standard (pcase language
-                     (`c   "c11")
-                     (`c++ "c++11")))
-         (includes (basis/find-clang-includes-path language)))
-    (when (and standard includes)
-      (cons (format "-std=%s" standard)
-            (basis/find-clang-includes-path language)))))
-
-(defun basis/enable-company-clang ()
-  "Enable `company-clang' for the current buffer."
-  (add-to-list 'company-backends #'company-clang))
-
-(defun basis/kill-frame-or-terminal (&optional arg)
-  "Kill the current frame or session.
-If there is more than one live frame, close the current one.
-Otherwise kill the current session. If optional ARG is non-nil,
-kill the current session even if there are multiple frames."
-  (interactive "P")
-  (if (or arg (null (cdr (frame-list))))
-      (save-buffers-kill-terminal)
-    (delete-frame)))
-
-(defun basis/in-string-p ()
-  "Return non-nil if point is within a string."
-  (let ((state (syntax-ppss)))
-    (and (nth 3 state) (nth 8 state))))
-
-(defun basis/diff-buffer-with-file (&optional buffer file)
-  "View the differences between BUFFER and FILE.
-With a prefix arg, prompt for both BUFFER and FILE. Otherwise,
-only prompt for BUFFER and use its associated file as FILE."
-  (interactive
-   (list (read-buffer "Buffer: " (buffer-name) t)
-         (unless current-prefix-arg
-           (read-file-name "File: " nil nil t))))
-  (with-current-buffer (get-buffer (or buffer (current-buffer)))
-    (diff (or file buffer-file-name) (current-buffer) nil 'noasync)))
-
-(defun basis/mu4e-action-view-in-browser (msg)
-  "View MSG in a browser, via `browse-url'.
-For use as a `mu4e' message action."
-  (let ((html (or (mu4e-msg-field msg :body-html)
-                  (error "This message doesn't have an HTML part")))
-        (file (expand-file-name (format "%d.html" (random))
-                                temporary-file-directory)))
-    (with-temp-file file
-      (insert "<html>"
-              "<head><meta http-equiv=\"content-type\""
-              "content=\"text/html;charset=UTF-8\">"
-              html))
-    (browse-url (format "file://%s" file))))
-
-(defun basis/count-sloc-region (beg end kind)
-  ;; From Stefan Monnier on the help-gnu-emacs list
-  (interactive
-   (if (use-region-p)
-       (list (region-beginning) (region-end) 'region)
-     (list (point-min) (point-max) 'buffer)))
-  (save-excursion
-    (goto-char beg)
-    (let ((count 0))
-      (while (< (point) end)
-        (if (nth 4 (syntax-ppss))
-            (let ((pos (point)))
-              (goto-char (nth 8 (syntax-ppss)))
-              (forward-comment (point-max))
-              (when (< (point) pos) (goto-char pos)))
-          (forward-comment (point-max)))
-        (setq count (1+ count))
-        (forward-line))
-      (when kind
-        (message "SLOC in %s: %d" kind count)))))
-
-(defun basis/shr-html2text ()
-  "Convert HTML to plain text in the current buffer using `shr'."
-  (interactive)
-  (let ((dom (libxml-parse-html-region (point-min) (point-max))))
-    (erase-buffer)
-    (shr-insert-document dom)))
-
-(defun basis/find-tag (symbol)
-  "Like `find-tag' but try to avoid prompting."
-  (interactive (list (thing-at-point 'symbol)))
-  (cond ((equal current-prefix-arg '(4))
-         (let ((current-prefix-arg nil))
-           (call-interactively #'find-tag)))
-        ((or current-prefix-arg (null symbol))
-         (call-interactively #'find-tag))
-        (t
-         (find-tag symbol))))
-
-(defun basis/visit-tags-file-auto ()
-  "Automatically find and visit a TAGS file."
-  (interactive)
-  (when-let ((file (buffer-file-name))
-             (tags (locate-dominating-file file "TAGS")))
-    (visit-tags-table (expand-file-name "TAGS" tags) t)))
-
-(defun basis/maybe-cygwinize-drive-letter (file)
-  "Convert \"c:/foo\" to \"/foo\" or \"e:/foo\" to \"/e/foo\".
-Assumes Cygwin's path prefix is \"/\"."
-  (cond ((string-match "\\`[Cc]:/" file)
-         (replace-match "/" t t file))
-        ((string-match "\\`\\([B-Zb-z]\\):/" file)
-         (replace-match (concat "/" (match-string 1 file) "/")
-                        t
-                        t
-                        file))
-        (t file)))
-
-(defun basis/fix-bad-cygwin-file-name (name)
-  "Un-escape the colon drive letter separator in NAME.
-For example, given \"c\\:/path/to/file\" return
-\"c:/path/to/file\". Used to adjust the result of
-`python-shell-calculate-command' and
-`with-editor-locate-emacsclient'."
-  (if (and name (string-match "\\`[a-zA-Z]\\(\\\\\\):/" name))
-      (replace-match "" t t name 1)
-    name))
-
-(defun basis/projectile-regenerate-tags ()
-  "Copy of `projectile-regenerate-tags' modified for Cygwin paths.
-Using a tags file name of e.g. \"c:/foo/TAGS\" causes the
-resulting file to contain invalid paths. Use
-`basis/maybe-cygwinize-drive-letter' to convert the path to e.g.
-\"/foo/TAGS\". This assumes the Cygwin path prefix is \"/\"."
-  (interactive)
-  (if (and (eq system-type 'windows-nt) basis/cygwin-p)
-      (let* ((project-root (projectile-project-root))
-             (tags-exclude (projectile-tags-exclude-patterns))
-             (default-directory project-root)
-             (tags-file (expand-file-name projectile-tags-file-name))
-             (tags-file (basis/maybe-cygwinize-drive-letter tags-file))
-             (command (format projectile-tags-command tags-file tags-exclude))
-             shell-output exit-code)
-        (with-temp-buffer
-          (setq exit-code
-                (call-process-shell-command command nil (current-buffer))
-                shell-output (projectile-trim-string
-                              (buffer-substring (point-min) (point-max)))))
-        (unless (zerop exit-code)
-          (error shell-output))
-        (visit-tags-table tags-file))
-    (call-interactively #'projectile-regenerate-tags)))
-
-(defun basis/count-words ()
-  "Count the lines, words, and characters in the active region.
-Like `count-words-region', but operate on the current buffer if
-the region isn't active."
-  (interactive)
-  (let ((current-prefix-arg (not (use-region-p))))
-    (call-interactively #'count-words-region)))
-
-(defun basis/company-no-completion-in-docstring (function)
-  "Advice for `company-auto-begin'.
-Work around a bug I haven't figured out yet."
-  (unless (and (eq major-mode 'python-mode)
-               (basis/in-string-p))
-    (funcall function)))
-
-(defun basis/company-no-tramp-completion (function)
-  "Advice for `company-auto-begin'.
-Work around TRAMP freezes on my Windows machine at work."
-  (unless (and (eq major-mode 'shell-mode)
-               ;; Skip backward to whitespace and see if we end up on something
-               ;; that looks like a TRAMP file name.
-               (save-excursion
-                 (skip-syntax-backward "^ ")
-                 (looking-at-p "\\(\\w+@\\)?\\w\\{2,\\}:/")))
-    (funcall function)))
-
-(defun basis/company-sh-no-complete-fi (function)
-  "Advice for `company-auto-begin'.
-Prevent completion on \"fi\" in `sh-mode'. I find the interaction
-between this and electric indentation annoying."
-  (unless (and (eq major-mode 'sh-mode)
-               (save-excursion
-                 (forward-char -2)
-                 (looking-at-p "\\_<fi\\_>")))
-    (funcall function)))
-
-(defun basis/magit-browse-pull-request-url ()
-  "Visit the current branch's PR on GitHub."
-  (interactive)
-  (browse-url
-   (format "https://github.com/%s/compare/%s"
-           ;; Or this? "https://github.com/%s/pull/new/%s"
-           (replace-regexp-in-string
-            "\\`.+github\\.com:\\(.+\\)\\.git\\'"
-            "\\1"
-            (magit-get "remote" (magit-get-remote) "url"))
-           (cdr (magit-get-remote-branch)))))
-
-(defun basis/magit-expand-top-dir (result)
-  "Advice for `magit-get-top-dir'.
-For use with Cygwin. Call `expand-file-name' on its result, to
-make sure its in the same form that Emacs uses (i.e.
-\"c:/path/to/somewhere\")."
-  (and result (expand-file-name result)))
-
-(defun basis/fix-located-emacsclient-file-name (name)
-  "Advice for `with-editor-locate-emacsclient'.
-See also `basis/fix-bad-cygwin-file-name'."
-  (and name (basis/fix-bad-cygwin-file-name name)))
-
-(defvar basis/ivy-format-selection-text
-  (propertize "> " 'face 'font-lock-function-name-face)
-  "Text to place before the selection during `ivy' completion.")
-
-(defun basis/ivy-format-function (candidates)
-  "Function for use as `ivy-format-function'.
-Place a propertized \"> \" before the selected candidate."
-  (let ((i -1))
-    (mapconcat (lambda (s)
-                 (concat (if (eq (cl-incf i) ivy--index)
-                             basis/ivy-format-selection-text
-                           "  ")
-                         s))
-               candidates
-               "\n")))
-
-(defvar basis/occur-show-note-strings
-  (if (require 'hl-todo nil t)
-      (mapcar #'car hl-todo-keyword-faces)
-    '("HOLD"
-      "TODO"
-      "NEXT"
-      "THEM"
-      "PROG"
-      "OKAY"
-      "DONT"
-      "FAIL"
-      "DONE"
-      "NOTE"
-      "KLUDGE"
-      "FIXME"
-      "XXX"
-      "???"))
-  "List of strings `basis/occur-show-notes' will search for.")
-
-(defun basis/occur-show-notes ()
-  "Search for common \"TODO\"-style notes."
-  (interactive)
-  (occur (regexp-opt basis/occur-show-note-strings t)))
-
-(defun basis/scratch (&optional arg)
-  "Switch to the scratch buffer, creating it if necessary."
-  (interactive "P")
-  (funcall (if arg #'switch-to-buffer #'switch-to-buffer-other-window)
-           (get-buffer-create "*scratch*")))
-
-(defun basis/flash-region (start end &optional timeout)
-  "Temporarily highlight region from START to END."
-  (let ((overlay (make-overlay start end)))
-    (overlay-put overlay 'face 'secondary-selection)
-    (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; paredit
-
-(defun basis/paredit-doublequote-space-p (endp delimiter)
-  "Don't insert an extraneous space when entering a CL pathname."
-  ;; If any of `paredit-space-for-delimiter-predicates' returns nil
-  ;; a space isn't inserted.
-  (not (and (not endp)
-            (eql delimiter ?\")
-            (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
-            (save-excursion
-              (backward-char 2)
-              (looking-at-p "#p")))))
-
-(defun basis/paredit-open-something ()
-  (interactive)
-  (call-interactively
-   (if (memq major-mode '(clojure-mode cider-repl-mode))
-       #'paredit-open-square
-     #'paredit-open-round)))
-
-(defun basis/paredit-kill-something ()
-  (interactive)
-  (call-interactively (if (use-region-p)
-                          #'kill-region
-                        #'paredit-backward-kill-word)))
-
-(defun basis/paredit-wrap-from-behind (wrapper &optional spacep)
-  (paredit-backward)
-  (funcall wrapper)
-  (when spacep
-    (insert " ")
-    (forward-char -1)))
-
-(defun basis/paredit-wrap-round-from-behind ()
-  (interactive)
-  (basis/paredit-wrap-from-behind #'paredit-wrap-round t))
-
-(defun basis/paredit-wrap-square-from-behind ()
-  (interactive)
-  (basis/paredit-wrap-from-behind #'paredit-wrap-square nil))
-
-(defun basis/paredit-wrap-curly-from-behind ()
-  (interactive)
-  (basis/paredit-wrap-from-behind #'paredit-wrap-curly nil))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; smartparens
-
-(defun basis/sp-backward-delete-no-prefix (args)
-  "Advice for `sp-backward-delete-char'.
-Do not treat raw universal arguments specially (treat it as a
-numeric argument)."
-  (pcase-let ((`(,prefix . ,rest) args))
-    (cons (prefix-numeric-value prefix) rest)))
-
-(defun basis/sp-kill-something ()
-  "Call `sp-backward-kill-word' or `kill-region'. "
-  (interactive)
-  (call-interactively (if (use-region-p)
-                          #'kill-region
-                        #'sp-backward-kill-word)))
-
-(defmacro basis/with-sp-backward-delete (&rest body)
-  "Execute BODY with `sp-backward-delete-char' overriding
-`backward-delete-char' and `backward-delete-char-untabify'."
-  `(cl-letf (((symbol-function 'backward-delete-char)
-              #'sp-backward-delete-char)
-             ((symbol-function 'backward-delete-char-untabify)
-              #'sp-backward-delete-char))
-     ,@body))
-
-(defun basis/sp-python-backspace (arg)
-  "Delete a char backward or dedent the current line."
-  (interactive "*p")
-  (basis/with-sp-backward-delete (python-indent-dedent-line-backspace arg)))
-
-(put 'basis/sp-python-backspace 'delete-selection 'supersede)
-
-(defun basis/sp-markdown-backspace (arg)
-  "Delete a char backward or dedent the current line."
-  (interactive "*p")
-  (basis/with-sp-backward-delete (markdown-exdent-or-delete arg)))
-
-(put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
-
-(defun basis/maybe-sp-forward-sexp (&optional arg)
-  (interactive "p")
-  (let ((arg (or arg 1)))
-    (if (memq major-mode '(python-mode inferior-python-mode))
-        (python-nav-forward-sexp arg)
-      (sp-forward-sexp arg))))
-
-(defun basis/maybe-sp-backward-sexp (&optional arg)
-  (interactive "p")
-  (let ((arg (or arg 1)))
-    (if (memq major-mode '(python-mode inferior-python-mode))
-        (basis/python-nav-backward-sexp arg)
-      (sp-backward-sexp arg))))
-
-(defun basis/sp-point-after-word-p (id action context)
-  "Like `sp-point-after-word-p' but special-case Python's strings.
-Specifically, this handles the \"u\", \"r\", and \"b\" prefixes
-used to create Unicode, raw, and byte strings respectively."
-  (let ((result (sp-point-after-word-p id action context)))
-    (if (and (memq major-mode '(python-mode inferior-python-mode))
-             (member id '("'" "\"")))
-        (let ((raw-string (concat "\\([^\\sw\\s_]\\)[bru]" (regexp-quote id))))
-          (and result (not (looking-back raw-string))))
-      result)))
-
-(defun basis/disable-relative-reindent (function &rest args)
-  "Advice to prevent relative reindentation by FUNCTION."
-  (if (memq indent-line-function '(indent-relative
-                                   python-indent-line-function
-                                   haskell-indentation-indent-line))
-      (cl-letf (((symbol-function 'indent-according-to-mode)
-                 #'ignore))
-        (apply function args))
-    (apply function args)))
-
-(defun basis/disable-relative-reindent-for (functions)
-  "Prevent automatic relative reindentation by FUNCTIONS."
-  (dolist (function functions)
-    (advice-add function :around #'basis/disable-relative-reindent)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Scheme
 
 (defun basis/scheme-send-something ()
   (interactive)
@@ -1605,9 +951,6 @@ used to create Unicode, raw, and byte strings respectively."
   (call-interactively (if (use-region-p)
                           #'geiser-expand-region
                         #'geiser-expand-last-sexp)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Python
 
 (defun basis/python-send-something ()
   "Send the active region or the current defun."
@@ -1674,9 +1017,6 @@ activate it."
     (fill-region beg end))
   (indent-rigidly beg end 4))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; SLIME
-
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
@@ -1692,9 +1032,6 @@ Use `slime-expand-1' to produce the expansion."
     (end-of-defun)
     (beginning-of-defun)
     (slime-expand-1 repeatedly)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Clojure
 
 (defun basis/cider-trust-me ()
   "Run `cider-jack-in' without checking for lein."
@@ -1719,53 +1056,18 @@ Use `slime-expand-1' to produce the expansion."
                     (volatile)
                     (headline "^[;(]")))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; comint
-
-(defun basis/comint-input-goto-bottom-if-necessary (function &rest args)
-  "Advice for `comint' {previous,next}-input commands.
-If an adviced command would signal a \"Not at command line\"
-user-error, automatically move point to the command line."
-  (when (and comint-scroll-to-bottom-on-input
-             (not (comint-after-pmark-p)))
-    (goto-char (point-max))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Org
-
-(defun basis/process-clojure-output (s)
-  (mapconcat (lambda (line)
-               (thread-last line
-                 (string-remove-suffix "\r")
-                 (concat ";; ")))
-             (split-string (string-remove-suffix "\n" s) "\n")
-             "\n"))
-
-(defun basis/org-babel-execute:clojure (body _params)
-  (let* ((result (nrepl-sync-request:eval body (cider-current-ns)))
-         (value (plist-get result :value))
-         (stdout (when-let (s (plist-get result :stdout))
-                   (basis/process-clojure-output s)))
-         (stderr (when-let (s (plist-get result :stderr))
-                   (basis/process-clojure-output s)))
-         (output (concat stdout
-                         (when (and stdout (not (string-suffix-p "\n" stdout)))
-                           "\n")
-                         stderr)))
-    (concat output
-            (when (and output
-                       (not (string= output ""))
-                       (not (string-suffix-p "\n" output)))
-              "\n")
-            (when value (concat ";;=> " value)))))
-
-(defun basis/org-babel-execute-in-cider-repl ()
+(defun basis/run-skewer ()
   (interactive)
-  (let ((body (cadr (org-babel-get-src-block-info))))
-    (cider-eval-last-sexp-to-repl body)))
+  (let ((httpd-port 8042))
+    (httpd-start)
+    (message "HTTP server started. Jack in with the bookmarklet.")))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; SQL
+(defun basis/run-skewer-demo ()
+  (interactive)
+  (let ((httpd-port 8043))
+    (httpd-start)
+    (browse-url (format "http://localhost:%d/skewer/demo" httpd-port))
+    (skewer-repl)))
 
 (defun basis/sql-indent (&optional n)
   "Insert spaces or tabs to the Nth next tab-stop column."
@@ -1971,7 +1273,38 @@ strings."
          (modify-syntax-entry ?\" "\""))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; HTML utilities
+;;; Text, markup, and configuration modes
+
+(defun basis/process-clojure-output (s)
+  (mapconcat (lambda (line)
+               (thread-last line
+                 (string-remove-suffix "\r")
+                 (concat ";; ")))
+             (split-string (string-remove-suffix "\n" s) "\n")
+             "\n"))
+
+(defun basis/org-babel-execute:clojure (body _params)
+  (let* ((result (nrepl-sync-request:eval body (cider-current-ns)))
+         (value (plist-get result :value))
+         (stdout (when-let (s (plist-get result :stdout))
+                   (basis/process-clojure-output s)))
+         (stderr (when-let (s (plist-get result :stderr))
+                   (basis/process-clojure-output s)))
+         (output (concat stdout
+                         (when (and stdout (not (string-suffix-p "\n" stdout)))
+                           "\n")
+                         stderr)))
+    (concat output
+            (when (and output
+                       (not (string= output ""))
+                       (not (string-suffix-p "\n" output)))
+              "\n")
+            (when value (concat ";;=> " value)))))
+
+(defun basis/org-babel-execute-in-cider-repl ()
+  (interactive)
+  (let ((body (cadr (org-babel-get-src-block-info))))
+    (cider-eval-last-sexp-to-repl body)))
 
 (defun basis/move-to-next-blank-line ()
   "Move point to the next blank line."
@@ -2014,69 +1347,6 @@ strings."
   (simplezen-expand)
   (basis/html-newline-and-indent))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; skewer
-
-(defun basis/run-skewer ()
-  (interactive)
-  (let ((httpd-port 8042))
-    (httpd-start)
-    (message "HTTP server started. Jack in with the bookmarklet.")))
-
-(defun basis/run-skewer-demo ()
-  (interactive)
-  (let ((httpd-port 8043))
-    (httpd-start)
-    (browse-url (format "http://localhost:%d/skewer/demo" httpd-port))
-    (skewer-repl)))
-
-;;; flycheck -------------------------------------------------------------------
-
-(defun basis/flycheck-check-and-list-errors ()
-  "Run a check and show the errors, if any."
-  (interactive)
-  (flycheck-buffer)
-  (flycheck-list-errors))
-
-(defun basis/flycheck-enable-automatic-checking ()
-  "Enable automatic syntax checking by Flycheck."
-  (interactive)
-  (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)))
-
-(defun basis/flycheck-disable-automatic-checking ()
-  "Disable automatic syntax checking by Flycheck."
-  (interactive)
-  (setq flycheck-check-syntax-automatically nil))
-
-(defun basis/adjust-flycheck-idle-change-delay ()
-  "Adjust Flycheck's idle change delay.
-If the last check found errors, set it to 0.5 or 5.0 otherwise."
-  (setq flycheck-idle-change-delay (if flycheck-current-errors 0.5 5.0)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; elfeed
-
-(defun basis/elfeed-parse-group (group)
-  "Parse the feed and tag specification GROUP.
-GROUP should be a list whose car contains a list of tags and
-whose cdr is a list of feeds to associate with those tags. If
-only one tag will be associated with the group, a symbol can be
-used rather than a list of symbols."
-  (pcase-let* ((`(,tag . ,feeds) group)
-               (tags (if (listp tag) tag (list tag))))
-    (mapcar (lambda (feed) (cons feed tags))
-            feeds)))
-
-(defun basis/elfeed-load-feeds (file)
-  "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
-  (thread-last file
-    (basis/read-file)
-    (mapcar #'basis/elfeed-parse-group)
-    (apply #'nconc)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; YAML
-
 (defun basis/yaml-multiple-docs-p ()
   "Return non-nil if the buffer contains a multiple-document stream."
   (save-excursion
@@ -2112,6 +1382,711 @@ multiple-document stream."
             (define-key map (kbd "M-n") #'basis/yaml-next-document)
             (define-key map (kbd "M-p") #'basis/yaml-previous-document)
             map))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Brackets
+
+(defun basis/paredit-doublequote-space-p (endp delimiter)
+  "Don't insert an extraneous space when entering a CL pathname."
+  ;; If any of `paredit-space-for-delimiter-predicates' returns nil
+  ;; a space isn't inserted.
+  (not (and (not endp)
+            (eql delimiter ?\")
+            (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
+            (save-excursion
+              (backward-char 2)
+              (looking-at-p "#p")))))
+
+(defun basis/paredit-open-something ()
+  (interactive)
+  (call-interactively
+   (if (memq major-mode '(clojure-mode cider-repl-mode))
+       #'paredit-open-square
+     #'paredit-open-round)))
+
+(defun basis/paredit-kill-something ()
+  (interactive)
+  (call-interactively (if (use-region-p)
+                          #'kill-region
+                        #'paredit-backward-kill-word)))
+
+(defun basis/paredit-wrap-from-behind (wrapper &optional spacep)
+  (paredit-backward)
+  (funcall wrapper)
+  (when spacep
+    (insert " ")
+    (forward-char -1)))
+
+(defun basis/paredit-wrap-round-from-behind ()
+  (interactive)
+  (basis/paredit-wrap-from-behind #'paredit-wrap-round t))
+
+(defun basis/paredit-wrap-square-from-behind ()
+  (interactive)
+  (basis/paredit-wrap-from-behind #'paredit-wrap-square nil))
+
+(defun basis/paredit-wrap-curly-from-behind ()
+  (interactive)
+  (basis/paredit-wrap-from-behind #'paredit-wrap-curly nil))
+
+(defun basis/sp-backward-delete-no-prefix (args)
+  "Advice for `sp-backward-delete-char'.
+Do not treat raw universal arguments specially (treat it as a
+numeric argument)."
+  (pcase-let ((`(,prefix . ,rest) args))
+    (cons (prefix-numeric-value prefix) rest)))
+
+(defun basis/sp-kill-something ()
+  "Call `sp-backward-kill-word' or `kill-region'. "
+  (interactive)
+  (call-interactively (if (use-region-p)
+                          #'kill-region
+                        #'sp-backward-kill-word)))
+
+(defmacro basis/with-sp-backward-delete (&rest body)
+  "Execute BODY with `sp-backward-delete-char' overriding
+`backward-delete-char' and `backward-delete-char-untabify'."
+  `(cl-letf (((symbol-function 'backward-delete-char)
+              #'sp-backward-delete-char)
+             ((symbol-function 'backward-delete-char-untabify)
+              #'sp-backward-delete-char))
+     ,@body))
+
+(defun basis/sp-python-backspace (arg)
+  "Delete a char backward or dedent the current line."
+  (interactive "*p")
+  (basis/with-sp-backward-delete (python-indent-dedent-line-backspace arg)))
+
+(put 'basis/sp-python-backspace 'delete-selection 'supersede)
+
+(defun basis/sp-markdown-backspace (arg)
+  "Delete a char backward or dedent the current line."
+  (interactive "*p")
+  (basis/with-sp-backward-delete (markdown-exdent-or-delete arg)))
+
+(put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
+
+(defun basis/maybe-sp-forward-sexp (&optional arg)
+  (interactive "p")
+  (let ((arg (or arg 1)))
+    (if (memq major-mode '(python-mode inferior-python-mode))
+        (python-nav-forward-sexp arg)
+      (sp-forward-sexp arg))))
+
+(defun basis/maybe-sp-backward-sexp (&optional arg)
+  (interactive "p")
+  (let ((arg (or arg 1)))
+    (if (memq major-mode '(python-mode inferior-python-mode))
+        (basis/python-nav-backward-sexp arg)
+      (sp-backward-sexp arg))))
+
+(defun basis/sp-point-after-word-p (id action context)
+  "Like `sp-point-after-word-p' but special-case Python's strings.
+Specifically, this handles the \"u\", \"r\", and \"b\" prefixes
+used to create Unicode, raw, and byte strings respectively."
+  (let ((result (sp-point-after-word-p id action context)))
+    (if (and (memq major-mode '(python-mode inferior-python-mode))
+             (member id '("'" "\"")))
+        (let ((raw-string (concat "\\([^\\sw\\s_]\\)[bru]" (regexp-quote id))))
+          (and result (not (looking-back raw-string))))
+      result)))
+
+(defun basis/disable-relative-reindent (function &rest args)
+  "Advice to prevent relative reindentation by FUNCTION."
+  (if (memq indent-line-function '(indent-relative
+                                   python-indent-line-function
+                                   haskell-indentation-indent-line))
+      (cl-letf (((symbol-function 'indent-according-to-mode)
+                 #'ignore))
+        (apply function args))
+    (apply function args)))
+
+(defun basis/disable-relative-reindent-for (functions)
+  "Prevent automatic relative reindentation by FUNCTIONS."
+  (dolist (function functions)
+    (advice-add function :around #'basis/disable-relative-reindent)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Error checking
+
+(defun basis/maybe-enable-flycheck ()
+  "Enable `flycheck-mode', except for remote files."
+  (unless (basis/file-remote-p buffer-file-name)
+    (flycheck-mode)))
+
+(defun basis/flycheck-check-and-list-errors ()
+  "Run a check and show the errors, if any."
+  (interactive)
+  (flycheck-buffer)
+  (flycheck-list-errors))
+
+(defun basis/flycheck-enable-automatic-checking ()
+  "Enable automatic syntax checking by Flycheck."
+  (interactive)
+  (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)))
+
+(defun basis/flycheck-disable-automatic-checking ()
+  "Disable automatic syntax checking by Flycheck."
+  (interactive)
+  (setq flycheck-check-syntax-automatically nil))
+
+(defun basis/adjust-flycheck-idle-change-delay ()
+  "Adjust Flycheck's idle change delay.
+If the last check found errors, set it to 0.5 or 5.0 otherwise."
+  (setq flycheck-idle-change-delay (if flycheck-current-errors 0.5 5.0)))
+
+(defun basis/maybe-enable-flyspell ()
+  "Enable `flyspell-mode', except for remote files."
+  (when (and ispell-program-name
+             (not (basis/file-remote-p buffer-file-name)))
+    (flyspell-mode)))
+
+(defun basis/maybe-enable-flyspell-prog-mode ()
+  "Enable `flyspell-prog-mode', except for remote files."
+  (when (and ispell-program-name
+             (not (basis/file-remote-p buffer-file-name)))
+    (flyspell-prog-mode)))
+
+(defun basis/maybe-enable-whitespace-mode ()
+  "Enable `whitespace-mode' in programming modes (but not REPLs)."
+  (interactive)
+  (unless (or (derived-mode-p 'comint-mode)
+              (eq major-mode 'eshell-mode)
+              (eq major-mode 'cider-repl-mode))
+    (whitespace-mode 1)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Diffing
+
+(defun basis/diff-buffer-with-file (&optional buffer file)
+  "View the differences between BUFFER and FILE.
+With a prefix arg, prompt for both BUFFER and FILE. Otherwise,
+only prompt for BUFFER and use its associated file as FILE."
+  (interactive
+   (list (read-buffer "Buffer: " (buffer-name) t)
+         (unless current-prefix-arg
+           (read-file-name "File: " nil nil t))))
+  (with-current-buffer (get-buffer (or buffer (current-buffer)))
+    (diff (or file buffer-file-name) (current-buffer) nil 'noasync)))
+
+(defun basis/ediff-expand-tmp-name (args)
+  "Advice for `ediff-make-empty-tmp-file'.
+Call `expand-file-name' on the proposed file name. Only necessary
+on Windows."
+  (pcase-let ((`(,proposed-name . ,rest) args))
+    (cons (expand-file-name proposed-name) rest)))
+
+(defun basis/ediff-save-window-config (&rest _ignore)
+  "Advice for `ediff-setup'.
+Save the current window configuration to register
+`:ediff-restore-windows', so that it can be restored on exit."
+  (window-configuration-to-register :ediff-restore-windows))
+
+(defun basis/ediff-quit-restore (&rest _args)
+  "Advice for `ediff-quit'.
+After quitting, restore the previous window configuration."
+  (condition-case nil
+      (jump-to-register :ediff-restore-windows)
+    (error (message "Previous window configuration could not be restored"))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Magit & other git things
+
+(defun basis/magit-browse-pull-request-url ()
+  "Visit the current branch's PR on GitHub."
+  (interactive)
+  (browse-url
+   (format "https://github.com/%s/compare/%s"
+           ;; Or this? "https://github.com/%s/pull/new/%s"
+           (replace-regexp-in-string
+            "\\`.+github\\.com:\\(.+\\)\\.git\\'"
+            "\\1"
+            (magit-get "remote" (magit-get-remote) "url"))
+           (cdr (magit-get-remote-branch)))))
+
+(defun basis/magit-expand-top-dir (result)
+  "Advice for `magit-get-top-dir'.
+For use with Cygwin. Call `expand-file-name' on its result, to
+make sure its in the same form that Emacs uses (i.e.
+\"c:/path/to/somewhere\")."
+  (and result (expand-file-name result)))
+
+(defun basis/fix-located-emacsclient-file-name (name)
+  "Advice for `with-editor-locate-emacsclient'.
+See also `basis/fix-bad-cygwin-file-name'."
+  (and name (basis/fix-bad-cygwin-file-name name)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Processes and shells
+
+(defun basis/comint-input-goto-bottom-if-necessary (function &rest args)
+  "Advice for `comint' {previous,next}-input commands.
+If an adviced command would signal a \"Not at command line\"
+user-error, automatically move point to the command line."
+  (when (and comint-scroll-to-bottom-on-input
+             (not (comint-after-pmark-p)))
+    (goto-char (point-max))))
+
+(defun basis/eshell-kill-line-backward ()
+  "Kill the current line backward, respecting Eshell's prompt."
+  (interactive)
+  (kill-region (save-excursion (eshell-bol) (point))
+               (point)))
+
+(defun basis/eshell-kill-whole-line ()
+  "Kill the current line, respecting Eshell's prompt."
+  (interactive)
+  (kill-region (save-excursion (eshell-bol) (point))
+               (save-excursion (move-end-of-line 1) (point))))
+
+(defun basis/find-clang-includes-path (&optional language)
+  "Return clang's #include <...> search path."
+  ;; This isn't a very satisfactory solution but it's "good enough"
+  (seq-filter #'file-directory-p
+              (pcase (or language 'c)
+                (`c
+                 (let* ((cmd "clang -v -xc -")
+                        (str (ignore-errors (shell-command-to-string cmd)))
+                        (str (or str ""))
+                        (lines (split-string str "\n" t "[[:space:]]+"))
+                        (result '()))
+                   (catch 'return
+                     (while lines
+                       (pcase-let ((`(,line . ,more) lines))
+                         (if (string= line "#include <...> search starts here:")
+                             (dolist (path more)
+                               (if (string= path "End of search list.")
+                                   (throw 'return (nreverse result))
+                                 (push path result)))
+                           (setq lines more)))))))
+                ;; Hardcoded based on an Ubuntu 12.04 box...
+                (`c++
+                 '("/usr/include/c++/4.6"
+                   "/usr/include/c++/4.6/i686-linux-gnu"
+                   "/usr/include/c++/4.6/backward"
+                   "/usr/local/include"
+                   "/usr/include/clang/3.3/include"
+                   "/usr/include/i386-linux-gnu"
+                   "/usr/include")))))
+
+(defun basis/build-clang-args (&optional language)
+  (let* ((language (or language 'c))
+         (standard (pcase language
+                     (`c   "c11")
+                     (`c++ "c++11")))
+         (includes (basis/find-clang-includes-path language)))
+    (when (and standard includes)
+      (cons (format "-std=%s" standard)
+            (basis/find-clang-includes-path language)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; File utilities
+
+(defun basis/rename-current-buffer-file (destination)
+  "Rename the current buffer's file to DESTINATION."
+  (interactive "FDestination: ")
+  (let* ((name (buffer-name))
+         (file (buffer-file-name))
+         (destination (if (file-directory-p destination)
+                          (expand-file-name (file-name-nondirectory file)
+                                            destination)
+                        destination)))
+    (if (not (and file (file-exists-p file)))
+        (error "Buffer '%s' is not visiting a file" file)
+      (rename-file file destination 1)
+      (set-visited-file-name destination)
+      (set-buffer-modified-p nil)
+      (message "File '%s' renamed to '%s'"
+               name
+               (file-name-nondirectory destination)))))
+
+(defun basis/delete-current-buffer-file ()
+  "Kill the current buffer and delete the file it's visiting."
+  (interactive)
+  (let ((buffer (current-buffer))
+        (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (ido-kill-buffer)
+      (when (yes-or-no-p "Are you sure you want to delete this file?")
+        (delete-file filename)
+        (kill-buffer buffer)
+        (message "File '%s' successfully deleted" filename)))))
+
+(defun basis/find-file-recentf ()
+  "Find recently open files using ido and recentf."
+  (interactive)
+  (let* ((list (mapcar #'abbreviate-file-name recentf-list))
+         (file (completing-read "Recent file: " list nil t)))
+    (when file
+      (find-file file))))
+
+(defun basis/windows->unix (path)
+  "Convert a path from Windows-style to UNIX-style."
+  (thread-last path
+    (replace-regexp-in-string "\\\\" "/")
+    (replace-regexp-in-string "[a-zA-Z]:" "")))
+
+(defun basis/maybe-cygwinize-drive-letter (file)
+  "Convert \"c:/foo\" to \"/foo\" or \"e:/foo\" to \"/e/foo\".
+Assumes Cygwin's path prefix is \"/\"."
+  (cond ((string-match "\\`[Cc]:/" file)
+         (replace-match "/" t t file))
+        ((string-match "\\`\\([B-Zb-z]\\):/" file)
+         (replace-match (concat "/" (match-string 1 file) "/")
+                        t
+                        t
+                        file))
+        (t file)))
+
+(defun basis/fix-bad-cygwin-file-name (name)
+  "Un-escape the colon drive letter separator in NAME.
+For example, given \"c\\:/path/to/file\" return
+\"c:/path/to/file\". Used to adjust the result of
+`python-shell-calculate-command' and
+`with-editor-locate-emacsclient'."
+  (if (and name (string-match "\\`[a-zA-Z]\\(\\\\\\):/" name))
+      (replace-match "" t t name 1)
+    name))
+
+(defun basis/read-file (file)
+  "Read a Lisp form from FILE."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (read (current-buffer))))
+
+(defun basis/file-remote-p (name)
+  (and name (or (tramp-tramp-file-p name) (file-remote-p name))))
+
+(defun basis/dired-jump-to-top ()
+  "Move point to the first line representing a file."
+  (interactive)
+  (goto-char (point-min))
+  (dired-next-line (if dired-hide-details-mode 1 2)))
+
+(defun basis/dired-jump-to-bottom ()
+  "Move point to the last line representing a file."
+  (interactive)
+  (goto-char (point-max))
+  (dired-next-line -1))
+
+(defvar basis/dired-sorting-options
+  '(("modification" . "c")
+    ("access"       . "u")
+    ("size"         . "S")
+    ("extension"    . "X")
+    ("name"         . ""))
+  "Sorting options and their associated ls switches.")
+
+(defun basis/dired-sort-by (what)
+  "Sort this `dired-mode' buffer by WHAT.
+WHAT must be an option in `dired-sorting-options'."
+  (interactive
+   (list (completing-read "Sort by: "
+                          (mapcar #'car basis/dired-sorting-options)
+                          nil
+                          t)))
+  ;; This assumes we can slap the sort option on the end of
+  ;; `dired-listing-switches'. It works with my current setup (and the default
+  ;; value) but is fragile and unsatisfactory.
+  (if-let (opt (cdr (assoc what basis/dired-sorting-options)))
+      (dired-sort-other (concat dired-listing-switches opt))
+    (error "Don't know how to sort by '%s'" what)))
+
+(defun basis/dired-slurp-files (files buffer)
+  "Insert the contents of marked FILES into BUFFER.
+If it doesn't exist, BUFFER is created automatically."
+  (interactive (list (if (eq major-mode 'dired-mode)
+                         (dired-get-marked-files)
+                       (error "Buffer not in `dired-mode'"))
+                     (read-buffer "Destination buffer: ")))
+  (basis/insert-files files (get-buffer-create buffer)))
+
+;; `direx' includes a package `direx-project', which implements its own project
+;; root finding. However, since I have `projectile' anyway it makes more sense
+;; to use it.
+
+(defun basis/direx-find-project-root-noselect ()
+  (when (projectile-project-p)
+    (direx:find-directory-noselect (projectile-project-root))))
+
+(defun basis/direx-jump-to-project-root-noselect ()
+  (interactive)
+  (if-let (buffer (basis/direx-find-project-root-noselect))
+      (progn (direx:maybe-goto-current-buffer-item buffer)
+             buffer)
+    ;; Or fall back to `default-directory'?
+    (error "Not in a project")))
+
+(defun basis/direx-jump-to-project-root ()
+  (interactive)
+  (switch-to-buffer (basis/direx-jump-to-project-root-noselect)))
+
+(defun basis/direx-jump-to-project-root-other-window ()
+  (interactive)
+  (switch-to-buffer-other-window (basis/direx-jump-to-project-root-noselect)))
+
+(defun basis/direx-file-name-at-point (&optional point)
+  "Return the absolute file name of the item at POINT."
+  (ignore-errors
+    (thread-first (direx:item-at-point point)
+      (direx:item-name)
+      (direx:canonical-filename))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Project management
+
+(defun basis/projectile-regenerate-tags ()
+  "Copy of `projectile-regenerate-tags' modified for Cygwin paths.
+Using a tags file name of e.g. \"c:/foo/TAGS\" causes the
+resulting file to contain invalid paths. Use
+`basis/maybe-cygwinize-drive-letter' to convert the path to e.g.
+\"/foo/TAGS\". This assumes the Cygwin path prefix is \"/\"."
+  (interactive)
+  (if (and (eq system-type 'windows-nt) basis/cygwin-p)
+      (let* ((project-root (projectile-project-root))
+             (tags-exclude (projectile-tags-exclude-patterns))
+             (default-directory project-root)
+             (tags-file (expand-file-name projectile-tags-file-name))
+             (tags-file (basis/maybe-cygwinize-drive-letter tags-file))
+             (command (format projectile-tags-command tags-file tags-exclude))
+             shell-output exit-code)
+        (with-temp-buffer
+          (setq exit-code
+                (call-process-shell-command command nil (current-buffer))
+                shell-output (projectile-trim-string
+                              (buffer-substring (point-min) (point-max)))))
+        (unless (zerop exit-code)
+          (error shell-output))
+        (visit-tags-table tags-file))
+    (call-interactively #'projectile-regenerate-tags)))
+
+(defun basis/ibuffer-vc-root-files-only (function buf)
+  "Advice for `ibuffer-vc-root'.
+Only group a buffer with a VC if its visiting a file."
+  (when (buffer-file-name buf)
+    (funcall function buf)))
+
+(defvar basis/ibuffer-grouped-by-vc-p nil
+  "Non-nil is grouping by VC root is enabled.")
+
+(defun basis/ibuffer-disable-vc-groups ()
+  "Disable grouping by VC root."
+  (interactive)
+  (ibuffer-assert-ibuffer-mode)
+  (setq ibuffer-filter-groups nil)
+  (ibuffer-update nil t))
+
+(defun basis/ibuffer-toggle-vc-grouping ()
+  "Toggle whether grouping by VC root is enabled."
+  (interactive)
+  (ibuffer-assert-ibuffer-mode)
+  (if basis/ibuffer-grouped-by-vc-p
+      (progn (basis/ibuffer-disable-vc-groups)
+             (setq basis/ibuffer-grouped-by-vc-p nil))
+    (ibuffer-vc-set-filter-groups-by-vc-root)
+    (setq basis/ibuffer-grouped-by-vc-p t)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Window utilities
+
+(defun basis/transpose-windows (arg)
+  "Transpose the relative positions of two or more windows."
+  (interactive "p")
+  (let ((selector (if (>= arg 0) #'next-window #'previous-window)))
+    (dotimes (_ (abs arg))
+      (let ((this-win  (window-buffer))
+            (next-win (window-buffer (funcall selector))))
+        (set-window-buffer (selected-window) next-win)
+        (set-window-buffer (funcall selector) this-win)
+        (select-window (funcall selector))))))
+
+(defun basis/toggle-window-split ()
+  "Toggle between horizontal and vertical window split (for two windows)."
+  (interactive)
+  (when (= (count-windows) 2)
+    (let* ((this-win-buffer (window-buffer))
+           (next-win-buffer (window-buffer (next-window)))
+           (this-win-edges (window-edges (selected-window)))
+           (next-win-edges (window-edges (next-window)))
+           (this-win-2nd (not (and (<= (car this-win-edges)
+                                       (car next-win-edges))
+                                   (<= (cadr this-win-edges)
+                                       (cadr next-win-edges)))))
+           (splitter
+            (if (= (car this-win-edges)
+                   (car (window-edges (next-window))))
+                #'split-window-horizontally
+              #'split-window-vertically)))
+      (delete-other-windows)
+      (let ((first-win (selected-window)))
+        (funcall splitter)
+        (when this-win-2nd
+          (other-window 1))
+        (set-window-buffer (selected-window) this-win-buffer)
+        (set-window-buffer (next-window) next-win-buffer)
+        (select-window first-win)
+        (when this-win-2nd
+          (other-window 1))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Interface
+
+(defun basis/disable-themes (&optional themes)
+  "Disable THEMES (defaults to `custom-enabled-themes')."
+  (interactive)
+  (mapc #'disable-theme (or themes custom-enabled-themes)))
+
+(defun basis/reload-solarized (&optional background-mode)
+  "Load (or reload) the Solarized theme.
+If provided, BACKGROUND-MODE specifies which variant to use:
+`dark' or `light'."
+  (interactive
+   (list (and current-prefix-arg
+              (intern (completing-read "Background: " '(dark light) nil t)))))
+  (basis/disable-themes)
+  (when background-mode
+    (set-frame-parameter nil 'background-mode background-mode)
+    (set-terminal-parameter nil 'background-mode background-mode))
+  (load-theme 'solarized t)
+  (load-theme 'solarized-moar t))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Miscellaneous
+
+(defun basis/google (string)
+  "Run a Google search.
+Use the active region or symbol at point, if any, as initial
+input."
+  (interactive
+   (list (let ((default (if (use-region-p)
+                            (buffer-substring (region-beginning) (region-end))
+                          (thing-at-point 'symbol))))
+           (read-string "Google: " default))))
+  (browse-url
+   (concat "https://www.google.com/search?ie=utf-8&oe=utf-8&q="
+           (url-hexify-string string))))
+
+(defun basis/goto-line-with-numbers ()
+  "Invoke `goto-line' with `linum-mode' temporarily enabled."
+  (interactive)
+  (let ((linum-enabled-p (bound-and-true-p linum-mode)))
+    (unwind-protect
+        (progn
+          (unless linum-enabled-p (linum-mode 1))
+          (call-interactively #'goto-line))
+      (unless linum-enabled-p (linum-mode -1)))))
+
+(defun basis/kill-this-buffer ()
+  "Kill the currently active buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
+
+(defun basis/libxml-available-p ()
+  "Return non-nil if libxml is available."
+  (and (fboundp 'libxml-parse-html-region)
+       (with-temp-buffer
+         (insert "<html></html>")
+         (not (null (libxml-parse-html-region (point-min) (point-max)))))))
+
+(defun basis/full-calc-frame ()
+  "Create a new frame and run `calc' in a full-size window."
+  (interactive)
+  (with-selected-frame (make-frame)
+    (calc nil t t)))
+
+(defun basis/looking-back-p (regexp)
+  "Same as `looking-back' but don't change the match data."
+  (save-match-data (looking-back regexp)))
+
+(defun basis/kill-frame-or-terminal (&optional arg)
+  "Kill the current frame or session.
+If there is more than one live frame, close the current one.
+Otherwise kill the current session. If optional ARG is non-nil,
+kill the current session even if there are multiple frames."
+  (interactive "P")
+  (if (or arg (null (cdr (frame-list))))
+      (save-buffers-kill-terminal)
+    (delete-frame)))
+
+(defun basis/in-string-p ()
+  "Return non-nil if point is within a string."
+  (let ((state (syntax-ppss)))
+    (and (nth 3 state) (nth 8 state))))
+
+(defun basis/shr-html2text ()
+  "Convert HTML to plain text in the current buffer using `shr'."
+  (interactive)
+  (let ((dom (libxml-parse-html-region (point-min) (point-max))))
+    (erase-buffer)
+    (shr-insert-document dom)))
+
+(defun basis/find-tag (symbol)
+  "Like `find-tag' but try to avoid prompting."
+  (interactive (list (thing-at-point 'symbol)))
+  (cond ((equal current-prefix-arg '(4))
+         (let ((current-prefix-arg nil))
+           (call-interactively #'find-tag)))
+        ((or current-prefix-arg (null symbol))
+         (call-interactively #'find-tag))
+        (t
+         (find-tag symbol))))
+
+(defun basis/visit-tags-file-auto ()
+  "Automatically find and visit a TAGS file."
+  (interactive)
+  (when-let ((file (buffer-file-name))
+             (tags (locate-dominating-file file "TAGS")))
+    (visit-tags-table (expand-file-name "TAGS" tags) t)))
+
+(defun basis/scratch (&optional arg)
+  "Switch to the scratch buffer, creating it if necessary."
+  (interactive "P")
+  (funcall (if arg #'switch-to-buffer #'switch-to-buffer-other-window)
+           (get-buffer-create "*scratch*")))
+
+(defun basis/flash-region (start end &optional timeout)
+  "Temporarily highlight region from START to END."
+  (let ((overlay (make-overlay start end)))
+    (overlay-put overlay 'face 'secondary-selection)
+    (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Applications
+
+(defun basis/elfeed-parse-group (group)
+  "Parse the feed and tag specification GROUP.
+GROUP should be a list whose car contains a list of tags and
+whose cdr is a list of feeds to associate with those tags. If
+only one tag will be associated with the group, a symbol can be
+used rather than a list of symbols."
+  (pcase-let* ((`(,tag . ,feeds) group)
+               (tags (if (listp tag) tag (list tag))))
+    (mapcar (lambda (feed) (cons feed tags))
+            feeds)))
+
+(defun basis/elfeed-load-feeds (file)
+  "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
+  (thread-last file
+    (basis/read-file)
+    (mapcar #'basis/elfeed-parse-group)
+    (apply #'nconc)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Email and news
+
+(defun basis/mu4e-action-view-in-browser (msg)
+  "View MSG in a browser, via `browse-url'.
+For use as a `mu4e' message action."
+  (let ((html (or (mu4e-msg-field msg :body-html)
+                  (error "This message doesn't have an HTML part")))
+        (file (expand-file-name (format "%d.html" (random))
+                                temporary-file-directory)))
+    (with-temp-file file
+      (insert "<html>"
+              "<head><meta http-equiv=\"content-type\""
+              "content=\"text/html;charset=UTF-8\">"
+              html))
+    (browse-url (format "file://%s" file))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Lorem ipsum
