@@ -495,16 +495,6 @@ it doesn't exist."
 (use-package hydra
   :ensure t)
 
-(use-package discover
-  :disabled t
-  :ensure t
-  :config (progn (global-discover-mode 1)
-                 (discover-add-context-menu
-                  :context-menu (assq 'isearch discover-context-menus)
-                  :mode nil
-                  :mode-hook nil
-                  :bind "C-c s")))
-
 (use-package guide-key
   :ensure t
   :config (progn
