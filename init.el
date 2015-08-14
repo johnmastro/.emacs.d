@@ -1134,6 +1134,11 @@ is read-only and empty."
   :ensure t
   :defer t)
 
+(use-package helm-unicode
+  :ensure t
+  :defer t
+  :init (define-key ctl-x-map (kbd "8 M-RET") #'helm-unicode))
+
 (use-package ivy
   :ensure swiper
   :init (setq ivy-format-function #'basis/ivy-format-function)
