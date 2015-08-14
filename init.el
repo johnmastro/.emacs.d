@@ -661,13 +661,6 @@ it doesn't exist."
   ("l" #'basis/count-sloc-region)
   ("s" #'sort-lines))
 
-;; These are mostly useful with `god-mode'
-(basis/define-keys global-map
-  ("C-x C-0" #'delete-window)
-  ("C-x C-1" #'delete-other-windows)
-  ("C-x C-2" #'split-window-below)
-  ("C-x C-3" #'split-window-right))
-
 ;; Narrowing can be quite handy
 (put 'narrow-to-region 'disabled nil)
 
@@ -707,40 +700,6 @@ it doesn't exist."
     (expand     . "C-c C-e"))
   "Key bindings used to evaluate various units of code.
 See `basis/define-eval-keys'.")
-
-(defvar basis/god-exempt-major-modes
-  '(Custom-mode
-    Info-mode
-    Man-mode
-    ack-and-a-half-mode
-    cider-repl-mode
-    compilation-mode
-    completion-list-mode
-    debugger-mode
-    deft-mode
-    eshell-mode
-    magit-popup-mode
-    magit-popup-sequence-mode
-    sldb-mode
-    slime-repl-mode
-    special-mode
-    wdired-mode))
-
-(use-package god-mode
-  :ensure t
-  :defer t
-  ;; :init (basis/enable-god-mode)
-  :config
-  (progn
-    (use-package god-mode-isearch
-      :config (define-key god-mode-isearch-map (kbd "<escape>")
-                #'god-mode-isearch-disable))
-    (define-key god-local-mode-map "." #'repeat)
-    (define-key god-local-mode-map "i" #'god-local-mode)
-    (add-hook 'god-mode-enabled-hook #'basis/god-update-cursor)
-    (add-hook 'god-mode-disabled-hook #'basis/god-update-cursor)
-    (dolist (mode basis/god-exempt-major-modes)
-      (add-to-list 'god-exempt-major-modes mode))))
 
 ;; A number of non-alphanumeric keys don't work by default when Emacs is
 ;; running in tmux. This attempts to fix that by adding entries to the
