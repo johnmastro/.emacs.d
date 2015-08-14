@@ -763,14 +763,17 @@ See `basis/define-eval-keys'.")
 
 (use-package expand-region
   :ensure t
-  :bind ("M-=" . er/expand-region))
+  :defer t
+  :init (global-set-key (kbd "M-=") #'er/expand-region))
 
 (use-package multiple-cursors
   :ensure t
-  :init (setq mc/list-file (basis/emacs-file "var/mc-lists.el"))
-  :bind (("M-]" . mc/mark-next-like-this)
-         ("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)))
+  :defer t
+  :init (progn (basis/define-keys global-map
+                 ("M-]" #'mc/mark-next-like-this)
+                 ("C->" #'mc/mark-next-like-this)
+                 ("C-<" #'mc/mark-previous-like-this))
+               (setq mc/list-file (basis/emacs-file "var/mc-lists.el"))))
 
 (use-package multiple-cursors-core
   :ensure multiple-cursors
@@ -800,9 +803,10 @@ See `basis/define-eval-keys'.")
 
 (use-package avy
   :ensure t
-  :init (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i)
-              avy-style 'pre)
-  :bind ("M-SPC" . avy-goto-word-1))
+  :defer t
+  :init (progn (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i)
+                     avy-style 'pre)
+               (global-set-key (kbd "M-SPC") #'avy-goto-word-1)))
 
 (defun basis/ace-window-kludge (function arg)
   "Advice for `ace-window'.
@@ -818,15 +822,17 @@ is read-only and empty."
 
 (use-package ace-window
   :ensure t
-  :init (setq aw-keys '(?h ?j ?k ?l ?n ?m)
-              aw-scope 'frame)
-  :bind ("M-o" . ace-window)
+  :defer t
+  :init (progn (setq aw-keys '(?h ?j ?k ?l ?n ?m)
+                     aw-scope 'frame)
+               (global-set-key (kbd "M-o") #'ace-window))
   :config (advice-add 'ace-window :around #'basis/ace-window-kludge))
 
 (use-package jump-char
   :ensure t
-  :bind (("M-m" . jump-char-forward)
-         ("M-M" . jump-char-backward)))
+  :defer t
+  :init (progn (global-set-key (kbd "M-m") #'jump-char-forward)
+               (global-set-key (kbd "M-M") #'jump-char-backward)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -840,8 +846,9 @@ is read-only and empty."
 
 (use-package swiper
   :ensure t
-  :init (setq swiper-min-highlight 1)
-  :bind ("C-s" . swiper)
+  :defer t
+  :init (progn (setq swiper-min-highlight 1)
+               (global-set-key (kbd "C-s") #'swiper))
   :config (basis/define-keys swiper-map
             ("M-%"   #'swiper-query-replace)
             ("M-SPC" #'swiper-avy)
@@ -874,7 +881,8 @@ is read-only and empty."
   ("q"  nil "cancel"))
 
 (use-package grep
-  :bind ("<f9>" . basis/hydra-grep/body)
+  :defer t
+  :init (global-set-key (kbd "<f9>") #'basis/hydra-grep/body)
   :config
   ;; On OS X, prefer GNU Grep if it's available
   (when (and (eq system-type 'darwin)
@@ -953,9 +961,9 @@ is read-only and empty."
 
 (use-package smex
   :ensure t
-  :init (setq smex-save-file (basis/emacs-file "var/smex-items"))
-  :bind (("M-X"     . smex-major-mode-commands)
-         ("C-h M-x" . execute-extended-command)))
+  :defer t
+  :init (progn (global-set-key (kbd "M-X") #'smex-major-mode-commands)
+               (setq smex-save-file (basis/emacs-file "var/smex-items"))))
 
 (use-package helm-config
   :ensure helm
@@ -963,6 +971,7 @@ is read-only and empty."
 
 (use-package helm
   :ensure t
+  :defer t
   :init (progn
           (setq helm-split-window-default-side 'other
                 helm-split-window-in-side-p t
@@ -991,8 +1000,8 @@ is read-only and empty."
             ("x" #'helm-M-x)
             ("y" #'helm-show-kill-ring)
             ("/" #'helm-find)
-            (":" #'helm-eval-expression-with-eldoc)))
-  :bind ("C-c h" . basis/helm-map)
+            (":" #'helm-eval-expression-with-eldoc))
+          (global-set-key (kbd "C-c h") basis/helm-map))
   :config (progn
             (require 'helm-utils) ; For the `helm-selection-line' face
             (basis/define-keys helm-map
@@ -1025,11 +1034,12 @@ is read-only and empty."
 
 (use-package helm-files
   :ensure helm
-  :bind (("C-x C-f" . helm-find-files))
-  :init (setq helm-ff-newfile-prompt-p nil
-              helm-ff-file-name-history-use-recentf t
-              helm-ff-search-library-in-sexp t
-              helm-recentf-fuzzy-match t)
+  :defer t
+  :init (progn (global-set-key (kbd "C-x C-f") #'helm-find-files)
+               (setq helm-ff-newfile-prompt-p nil
+                     helm-ff-file-name-history-use-recentf t
+                     helm-ff-search-library-in-sexp t
+                     helm-recentf-fuzzy-match t))
   :config (basis/define-keys helm-find-files-map
             ("TAB"   #'helm-execute-persistent-action)
             ("M-s"   #'helm-select-action)
@@ -1042,30 +1052,35 @@ is read-only and empty."
 
 (use-package helm-buffers
   :ensure helm
-  :bind (("C-x b" . helm-mini))
-  :init (setq helm-buffers-fuzzy-matching t))
+  :defer t
+  :init (progn (setq helm-buffers-fuzzy-matching t)
+               (global-set-key (kbd "C-x b") #'helm-mini)))
 
 (use-package helm-command
   :ensure helm
-  :bind (("M-x" . helm-M-x))
-  :init (setq helm-M-x-fuzzy-match t))
+  :defer t
+  :init (progn (setq helm-M-x-fuzzy-match t)
+               (global-set-key (kbd "M-x") #'helm-M-x)))
 
 (use-package helm-imenu
   :ensure helm
-  :bind ("M-i" . helm-imenu)
-  :init (setq helm-imenu-execute-action-at-once-if-one nil
-                helm-imenu-fuzzy-match t))
+  :defer t
+  :init (progn (setq helm-imenu-execute-action-at-once-if-one nil
+                     helm-imenu-fuzzy-match t)
+               (global-set-key (kbd "M-i") #'helm-imenu)))
 
 (use-package helm-ring
   :ensure helm
-  :bind (("M-y" . helm-show-kill-ring)
-         ("M-`" . helm-all-mark-rings)))
+  :defer t
+  :init (progn (global-set-key (kbd "M-y") #'helm-show-kill-ring)
+               (global-set-key (kbd "M-`") #'helm-all-mark-rings)))
 
 (use-package helm-elisp
   :ensure helm
-  :bind ("<f1> SPC" . helm-apropos)
-  :init (setq helm-apropos-fuzzy-match t
-              helm-lisp-fuzzy-completion t))
+  :defer t
+  :init (progn (setq helm-apropos-fuzzy-match t
+                     helm-lisp-fuzzy-completion t)
+               (global-set-key (kbd "<f1> SPC") #'helm-apropos)))
 
 (use-package helm-man
   :ensure helm
@@ -1074,7 +1089,8 @@ is read-only and empty."
 
 (use-package helm-descbinds
   :ensure t
-  :bind ("<f1> b" . helm-descbinds))
+  :defer t
+  :init (global-set-key (kbd "<f1> b") #'helm-descbinds))
 
 (use-package helm-projectile
   :ensure t
@@ -1082,9 +1098,10 @@ is read-only and empty."
 
 (use-package helm-swoop
   :ensure t
-  :bind ("C-r" . helm-swoop)
+  :defer t
   :init (progn
           (setq helm-swoop-use-line-number-face t)
+          (global-set-key (kbd "C-r") #'helm-swoop)
           (define-key isearch-mode-map (kbd "M-s") #'helm-swoop-from-isearch))
   :config (progn
             (define-key helm-swoop-map (kbd "C-s") #'helm-next-line)
@@ -1182,7 +1199,7 @@ is read-only and empty."
   :config (add-hook 'after-init-hook #'company-statistics-mode t))
 
 (use-package hippie-exp
-  :bind ("M-/" . hippie-expand)
+  :init (global-set-key (kbd "M-/") #'hippie-expand)
   :config (setq hippie-expand-try-functions-list
                 (seq-difference hippie-expand-try-functions-list
                                 '(try-expand-line
@@ -1758,11 +1775,13 @@ Use `paredit' in these modes rather than `smartparens'.")
 (add-hook 'text-mode-hook #'basis/init-text-mode)
 
 (use-package org
-  :bind (("C-c a" . org-agenda)
-         ("C-c c" . org-capture)
-         ("C-c l" . org-store-link))
+  :defer t
   :init
   (progn
+    (basis/define-keys global-map
+      ("C-c a" #'org-agenda)
+      ("C-c c" #'org-capture)
+      ("C-c l" #'org-store-link))
     ;; Paths
     (setq org-directory "~/Dropbox/org/"
           org-default-notes-file (expand-file-name "refile.org" org-directory)
@@ -2058,8 +2077,10 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package flycheck
   :ensure t
-  :bind (("C-h l" . basis/hydra-flycheck/body)
-         ("<f8>"  . basis/flycheck-check-and-list-errors))
+  :defer t
+  :init (progn
+          (global-set-key (kbd "C-h l") #'basis/hydra-flycheck/body)
+          (global-set-key (kbd "<f8>")  #'basis/flycheck-check-and-list-errors))
   :config (progn
             (setq flycheck-check-syntax-automatically nil)
             (unless (basis/libxml-available-p)
@@ -2107,9 +2128,11 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package magit
   :ensure t
-  :bind  (("C-x g"   . magit-status)
-          ("<f10>"   . magit-status)
-          ("C-x M-g" . magit-dispatch-popup))
+  :defer t
+  :init (basis/define-keys global-map
+          ("C-x g"   #'magit-status)
+          ("<f10>"   #'magit-status)
+          ("C-x M-g" #'magit-dispatch-popup))
   :config
   (progn
     (unless (boundp 'magit-backup-mode)
@@ -2182,8 +2205,10 @@ Move forward by a line and indent if invoked directly between."
 ;; While "project management" doesn't quite fit `ibuffer' this is where it seems
 ;; to fit best.
 (use-package ibuffer
+  :defer t
   :init (progn
           (defalias 'ls #'ibuffer)
+          (global-set-key [remap list-buffers] #'ibuffer)
           (setq ibuffer-formats
                 '((mark modified read-only " "
                         (name 18 18 :left :elide)
@@ -2200,7 +2225,6 @@ Move forward by a line and indent if invoked directly between."
                         " "
                         filename)))
           (setq ibuffer-show-empty-filter-groups nil))
-  :bind ([remap list-buffers] . ibuffer)
   :config
   (progn
     (require 'ibuffer-vc)
@@ -2271,8 +2295,9 @@ Move forward by a line and indent if invoked directly between."
 ;;; Processes, shells, and the filesystem
 
 (use-package compile
-  :bind  (("C-c b c" . compile)
-          ("C-c b b" . recompile))
+  :defer t
+  :init (progn (global-set-key (kbd "C-c b c") #'compile)
+               (global-set-key (kbd "C-c b b") #'recompile))
   :config (setq compilation-ask-about-save nil
                 compilation-always-kill t
                 compilation-scroll-output 'first-error
@@ -2320,7 +2345,8 @@ buffer."
                 #'basis/dired-omit-expunge-quietly)))
 
 (use-package dired-x
-  :bind ("C-h C-j" . dired-jump))
+  :defer t
+  :init (global-set-key (kbd "C-h C-j") #'dired-jump))
 
 (use-package dired+
   :ensure t
@@ -2328,7 +2354,8 @@ buffer."
 
 (use-package direx
   :ensure t
-  :bind ("C-h j"     . direx:jump-to-directory)
+  :defer t
+  :init (global-set-key (kbd "C-h j") #'direx:jump-to-directory)
   :config
   (define-key direx:direx-mode-map (kbd "M-n") #'direx:next-sibling-item)
   (define-key direx:direx-mode-map (kbd "M-p") #'direx:previous-sibling-item))
@@ -2381,7 +2408,8 @@ buffer."
 
 ;; Proced
 (use-package proced
-  :bind ("C-x p" . proced))
+  :defer t
+  :init (global-set-key (kbd "C-x p") #'proced))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
@@ -2468,9 +2496,9 @@ buffer."
 
 (use-package mu4e
   :defer t
-  :bind ("C-x m" . mu4e)
   :init
   (progn
+    (global-set-key (kbd "C-x m") #'mu4e)
     (let ((dir "/usr/local/share/emacs/site-lisp/mu4e/"))
       (when (file-directory-p dir)
         (add-to-list 'load-path dir)))
