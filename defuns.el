@@ -67,7 +67,7 @@ to nil if a keyboard macro is executing."
          (and next-line-add-newlines (not executing-kbd-macro))))
     (call-interactively #'next-line)))
 
-(defun basis/beginning-of-line-or-indentation ()
+(defun basis/beginning-of-line ()
   "Smarter `move-beginning-of-line'.
 Go back to the first non-whitespace character or, if already
 there, to the beginning of the line."
@@ -913,13 +913,12 @@ Use `slime-expand-1' to produce the expansion."
     (beginning-of-defun)
     (slime-expand-1 repeatedly)))
 
-(defun basis/cider-trust-me ()
+(defun basis/cider-jack-in ()
   "Run `cider-jack-in' without checking for lein."
   ;; Necessary because `executable-find' can't find lein on my Cygwin box for
   ;; some reason, despite the fact that it's present and works.
   (interactive)
-  (unless (featurep 'cider)
-    (require 'cider))
+  (require 'cider)
   (cl-letf (((symbol-function 'cider--lein-present-p)
              (lambda () t)))
     (call-interactively #'cider-jack-in)))

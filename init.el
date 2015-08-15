@@ -47,10 +47,11 @@ it doesn't exist."
 ;; Set up the load path
 (add-to-list 'load-path (basis/emacs-dir "site-lisp/" 'create))
 
-;; So e.g. `find-function' works on C functions
-(let ((source (format "~/src/emacs/emacs-%s/" emacs-version)))
-  (when (file-directory-p source)
-    (setq source-directory source)))
+;; So e.g. `find-function' works on C functions in Emacsen I didn't build myself
+(unless (file-directory-p source-directory)
+  (let ((dir (format "~/src/emacs/emacs-%s/" emacs-version)))
+    (when (file-directory-p dir)
+      (setq source-directory dir))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Set up package.el
@@ -528,7 +529,7 @@ it doesn't exist."
 (global-set-key (kbd "M-\\") #'cycle-spacing)
 
 ;; Clever C-a
-(global-set-key (kbd "C-a") #'basis/beginning-of-line-or-indentation)
+(global-set-key (kbd "C-a") #'basis/beginning-of-line)
 
 ;; Kill stuff
 (basis/define-keys global-map
@@ -591,9 +592,8 @@ it doesn't exist."
 (global-set-key (kbd "M-g M-g") #'basis/goto-line-with-numbers)
 
 ;; Movement by sexp
-(basis/define-keys global-map
-  ("M-e" #'forward-sexp)
-  ("M-a" #'backward-sexp))
+(global-set-key (kbd "M-e") #'forward-sexp)
+(global-set-key (kbd "M-a") #'backward-sexp)
 
 ;; M-x shell
 (global-set-key (kbd "C-c <C-return>") #'shell)
