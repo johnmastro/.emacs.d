@@ -569,7 +569,7 @@ in the global map."
   (interactive)
   (if (string= ivy-text "")
       (when-let (str (save-window-excursion
-                       (with-selected-window swiper--window
+                       (with-ivy-window
                          (goto-char swiper--opoint)
                          (thing-at-point 'symbol))))
         (insert str))
