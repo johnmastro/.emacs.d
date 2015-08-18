@@ -781,6 +781,12 @@ See `basis/define-eval-keys'.")
   ;; Make RET exit multiple-cursors-mode in the terminal too
   :config (define-key mc/keymap (kbd "RET") #'multiple-cursors-mode))
 
+(use-package move-text
+  :ensure t
+  :defer t
+  :init (progn (global-set-key (kbd "<M-s-up>") #'move-text-up)
+               (global-set-key (kbd "<M-s-down>") #'move-text-down)))
+
 (use-package browse-kill-ring
   :ensure t
   :defer t)
