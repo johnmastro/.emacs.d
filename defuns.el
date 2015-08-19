@@ -1830,6 +1830,12 @@ If provided, BACKGROUND-MODE specifies which variant to use:
   (load-theme 'solarized t)
   (load-theme 'solarized-moar t))
 
+(defun basis/maybe-set-emoji-font (&optional frame)
+  "Set a system-specific font for symbols (including emojis)."
+  (when-let (font-spec (pcase system-type
+                         (`darwin (font-spec :family "Apple Color Emoji"))))
+    (set-fontset-font t 'symbol font-spec frame 'prepend)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Miscellaneous
 

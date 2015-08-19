@@ -1204,6 +1204,13 @@ is read-only and empty."
               (basis/emacs-file "var/company-statistics-cache.el"))
   :config (add-hook 'after-init-hook #'company-statistics-mode t))
 
+(use-package company-emoji
+  :ensure t
+  :defer t
+  :init (when (eq system-type 'darwin)
+          (add-hook 'after-make-frame-functions #'basis/maybe-set-emoji-font))
+  :config (add-to-list 'company-backends #'company-emoji))
+
 (use-package hippie-exp
   :init (global-set-key (kbd "M-/") #'hippie-expand)
   :config (setq hippie-expand-try-functions-list
@@ -2209,7 +2216,7 @@ Move forward by a line and indent if invoked directly between."
 ;;; Project management
 
 ;; While "project management" doesn't quite fit `ibuffer' this is where it seems
-;; to fit best.
+;; to make the most sense.
 (use-package ibuffer
   :defer t
   :init (progn
