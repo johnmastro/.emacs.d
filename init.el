@@ -580,6 +580,8 @@ it doesn't exist."
 ;; Comment/uncomment stuff
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
 (global-set-key (kbd "C-x ;") #'basis/comment-region-lines)
+;; Unfortunately, this one doesn't work at the terminal
+(global-set-key (kbd "C-M-;") #'basis/comment-or-uncomment-sexp)
 
 ;; Eval
 (global-set-key (kbd "C-x C-e") #'basis/eval-last-sexp)

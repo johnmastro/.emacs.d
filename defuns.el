@@ -102,6 +102,88 @@ With optional prefix ARG, uncomment instead."
                                  (line-end-position)))))
       (comment-region beg end arg))))
 
+(defvar basis/whitespace-chars "\r\n[:blank:]"
+  "Whitespace characters, for e.g. `skip-chars-forward'.")
+
+(defun basis/uncomment-sexp (&optional n)
+  "Uncomment the sexp at pont."
+  (interactive "p")
+  (let* ((start (point-marker))
+         (pos nil)
+         (end (save-excursion
+                (when (elt (syntax-ppss) 4)
+                  (re-search-backward comment-start-skip
+                                      (line-beginning-position)
+                                      t))
+                (setq pos (point-marker))
+                (comment-forward (point-max))
+                (point-marker)))
+         (beg (save-excursion
+                (forward-line 0)
+                (while (= end (save-excursion
+                                (comment-forward (point-max))
+                                (point)))
+                  (forward-line -1))
+                (goto-char (line-end-position))
+                (re-search-backward comment-start-skip
+                                    (line-beginning-position)
+                                    t)
+                (while (looking-at-p comment-start-skip)
+                  (forward-char -1))
+                (point-marker))))
+    (unless (= beg end)
+      (uncomment-region beg end))
+    (goto-char pos)
+    ;; Identify the "top-level" sexp inside the comment
+    (while (and (ignore-errors (backward-up-list) t)
+                (>= (point) beg))
+      (skip-chars-backward (rx (syntax expression-prefix)))
+      (setq pos (point-marker)))
+    ;; Re-comment everything before it
+    (ignore-errors (comment-region beg pos))
+    ;; And everything after it
+    (goto-char pos)
+    (forward-sexp (or n 1))
+    (skip-chars-forward basis/whitespace-chars)
+    (if (< (point) end)
+        (ignore-errors (comment-region (point) end))
+      ;; If this is a closing delimiter, pull it up
+      (goto-char end)
+      (skip-chars-forward basis/whitespace-chars)
+      (when (= (car (syntax-after (point))) 5)
+        (delete-indentation)))
+    ;; Without a prefix, it's more useful to leave point where it was
+    (unless n (goto-char start))))
+
+(defun basis/comment-sexp-raw ()
+  "Comment the sexp at point and move over it."
+  (pcase (or (bounds-of-thing-at-point 'sexp)
+             (save-excursion
+               (skip-chars-forward basis/whitespace-chars)
+               (bounds-of-thing-at-point 'sexp)))
+    (`(,beg . ,end)
+     (goto-char end)
+     (skip-chars-forward basis/whitespace-chars)
+     (comment-region beg end)
+     (skip-chars-forward basis/whitespace-chars))))
+
+(defun basis/comment-or-uncomment-sexp (&optional n)
+  "Comment or uncomment the sexp at point.
+When commenting, a prefix argument N means comment that many
+sexps. When uncommenting, a prefix argument N means move forward
+that many sexps before uncommenting."
+  (interactive "p")
+  (if (or (elt (syntax-ppss) 4)
+          (< (save-excursion
+               (skip-chars-forward basis/whitespace-chars)
+               (point))
+             (save-excursion
+               (comment-forward 1)
+               (point))))
+      (basis/uncomment-sexp n)
+    (dotimes (_ (or n 1))
+      (basis/comment-sexp-raw))))
+
 (defun basis/join-next-line ()
   "Join the next line up to the current one."
   (interactive)
