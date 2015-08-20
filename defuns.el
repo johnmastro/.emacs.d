@@ -1135,6 +1135,29 @@ With arg N, move backward that many times."
           (forward-word 2)
           (backward-word 1))))))
 
+;; There's probably a better way to do this
+(defvar basis/transact-sql-regexps
+  '("^\\(use[[:space:]]+\[?[\\sw_]+]?;?\\|go\\)[[:space:]]*$"
+    "\\(^\\|[[:space:]]\\)object_id(")
+  "Regular expressions to identify Transact-SQL constructs.")
+
+(defun basis/sql-guess-product ()
+  "Try to guess the SQL product for the current buffer."
+  (if (save-excursion
+        (seq-some-p (lambda (regexp)
+                      (goto-char (point-min))
+                      (re-search-forward regexp nil t))
+                    basis/transact-sql-regexps))
+      'ms
+    ;; Default to PostgreSQL because I use it the most
+    'postgres))
+
+(defun basis/sql-set-product (&optional product)
+  "Call `sql-set-product' based on file content."
+  (interactive
+   (list (sql-read-product "SQL product: " (basis/sql-guess-product))))
+  (sql-set-product (or product (basis/sql-guess-product))))
+
 (defun basis/sql-modify-syntax-table ()
   "Set double quote's syntax to string delimiter.
 By default, SQL treats double quote as punctuation. That's

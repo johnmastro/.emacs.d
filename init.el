@@ -1688,7 +1688,7 @@ Use `paredit' in these modes rather than `smartparens'.")
             (buffer     #'skewer-css-eval-buffer)))
 
 (defun basis/init-sql-mode ()
-  (sql-set-product "postgres")
+  (basis/sql-set-product)
   (setq tab-width 4)
   (basis/sql-modify-syntax-table))
 
