@@ -975,9 +975,8 @@ and there is non-whitespace before point on the current line,
 delete all whitespace backward. Use `sp-backward-delete-char' if
 `smartparens-mode' is active."
   (interactive "P")
-  (if (use-region-p)
-      ;; Just call `backward-delete-char' because it will do the right thing
-      ;; based on `delete-active-region'
+  (if (or (bound-and-true-p multiple-cursors-mode)
+          (use-region-p))
       (call-interactively #'backward-delete-char)
     (pcase-let ((`(,spaces ,stuff)
                  (let ((start (point)))
@@ -985,7 +984,8 @@ delete all whitespace backward. Use `sp-backward-delete-char' if
                      (skip-syntax-backward " " (line-beginning-position))
                      (list (- start (point)) (not (bolp)))))))
       (if (and basis/sql-backspace-dedent-hungrily (null n) stuff (> spaces 0))
-          (delete-horizontal-space t)
+          (progn (delete-horizontal-space t)
+                 (unless (= spaces 1) (insert " ")))
         (let ((delete (if (bound-and-true-p smartparens-mode)
                           #'sp-backward-delete-char
                         (lambda (n) (delete-char (- n)))))
