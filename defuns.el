@@ -273,9 +273,9 @@ If PATTERN is non-nil, only include matching files (via
    (list (read-directory-name "Directory: " nil nil t)
          (when current-prefix-arg
            (read-string "Pattern: "))))
-  (if-let (files (file-expand-wildcards (expand-file-name (or pattern "*")
-                                                          dir)
-                                        t))
+  (if-let ((files (file-expand-wildcards (expand-file-name (or pattern "*")
+                                                           dir)
+                                         t)))
       (basis/insert-files files nil)
     (message "No files matching '%s' in '%s'" pattern dir)))
 
@@ -650,13 +650,13 @@ search started. Otherwise, call the command the key is bound to
 in the global map."
   (interactive)
   (if (string= ivy-text "")
-      (when-let (str (save-window-excursion
-                       (with-ivy-window
-                         (goto-char swiper--opoint)
-                         (thing-at-point 'symbol))))
+      (when-let ((str (save-window-excursion
+                        (with-ivy-window
+                          (goto-char swiper--opoint)
+                          (thing-at-point 'symbol)))))
         (insert str))
-    (when-let (cmd (and (called-interactively-p 'any)
-                        (lookup-key global-map (this-command-keys))))
+    (when-let ((cmd (and (called-interactively-p 'any)
+                         (lookup-key global-map (this-command-keys)))))
       (call-interactively cmd))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1270,9 +1270,9 @@ strings."
 (defun basis/org-babel-execute:clojure (body _params)
   (let* ((result (nrepl-sync-request:eval body (cider-current-ns)))
          (value (plist-get result :value))
-         (stdout (when-let (s (plist-get result :stdout))
+         (stdout (when-let ((s (plist-get result :stdout)))
                    (basis/process-clojure-output s)))
-         (stderr (when-let (s (plist-get result :stderr))
+         (stderr (when-let ((s (plist-get result :stderr)))
                    (basis/process-clojure-output s)))
          (output (concat stdout
                          (when (and stdout (not (string-suffix-p "\n" stdout)))
@@ -1775,7 +1775,7 @@ WHAT must be an option in `dired-sorting-options'."
   ;; This assumes we can slap the sort option on the end of
   ;; `dired-listing-switches'. It works with my current setup (and the default
   ;; value) but is fragile and unsatisfactory.
-  (if-let (opt (cdr (assoc what basis/dired-sorting-options)))
+  (if-let ((opt (cdr (assoc what basis/dired-sorting-options))))
       (dired-sort-other (concat dired-listing-switches opt))
     (error "Don't know how to sort by '%s'" what)))
 
@@ -1798,7 +1798,7 @@ If it doesn't exist, BUFFER is created automatically."
 
 (defun basis/direx-jump-to-project-root-noselect ()
   (interactive)
-  (if-let (buffer (basis/direx-find-project-root-noselect))
+  (if-let ((buffer (basis/direx-find-project-root-noselect)))
       (progn (direx:maybe-goto-current-buffer-item buffer)
              buffer)
     ;; Or fall back to `default-directory'?
@@ -1939,8 +1939,8 @@ If provided, BACKGROUND-MODE specifies which variant to use:
 
 (defun basis/maybe-set-emoji-font (&optional frame)
   "Set a system-specific font for symbols (including emojis)."
-  (when-let (font-spec (pcase system-type
-                         (`darwin (font-spec :family "Apple Color Emoji"))))
+  (when-let ((font-spec (pcase system-type
+                          (`darwin (font-spec :family "Apple Color Emoji")))))
     (set-fontset-font t 'symbol font-spec frame 'prepend)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

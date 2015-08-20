@@ -279,7 +279,7 @@ it doesn't exist."
   (progn
     (pcase system-type
       (`darwin
-       (when-let (gls (executable-find "gls"))
+       (when-let ((gls (executable-find "gls")))
          (setq insert-directory-program gls)))
       (`windows-nt
        (add-hook 'before-save-hook #'basis/maybe-set-coding)))))
@@ -421,7 +421,7 @@ it doesn't exist."
 
 (defun basis/get-frame-title ()
   "Return a frame title including the current project directory."
-  (if-let (file buffer-file-name)
+  (if-let ((file buffer-file-name))
       (concat (abbreviate-file-name file)
               (when (and (bound-and-true-p projectile-mode)
                          (projectile-project-p))
@@ -1195,7 +1195,7 @@ is read-only and empty."
                   :around
                   #'basis/company-no-tramp-completion))
     (with-eval-after-load 'cc-mode
-      (when-let (args (basis/build-clang-args 'c))
+      (when-let ((args (basis/build-clang-args 'c)))
         (require 'company-clang)
         (setq company-clang-arguments args)
         (add-hook 'c-mode-hook #'basis/enable-company-clang)))))
@@ -1408,7 +1408,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   (cider-turn-on-eldoc-mode))
 
 (defun basis/set-lein-command-for-mac ()
-  (when-let (lein (executable-find "lein"))
+  (when-let ((lein (executable-find "lein")))
     (setq cider-lein-command lein)))
 
 (defun basis/set-lein-command-for-cygwin ()
