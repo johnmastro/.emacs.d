@@ -1383,15 +1383,17 @@ numeric argument)."
       (sp-backward-sexp arg))))
 
 (defun basis/sp-point-after-word-p (id action context)
-  "Like `sp-point-after-word-p' but special-case Python's strings.
-Specifically, this handles the \"u\", \"r\", and \"b\" prefixes
-used to create Unicode, raw, and byte strings respectively."
-  (let ((result (sp-point-after-word-p id action context)))
-    (if (and (memq major-mode '(python-mode inferior-python-mode))
-             (member id '("'" "\"")))
-        (let ((raw-string (concat "\\([^\\sw\\s_]\\)[bru]" (regexp-quote id)))
-              (limit (line-beginning-position)))
-          (and result (not (looking-back raw-string limit))))
+  "Like `sp-point-after-word-p' but handle Python and SQL Unicode strings."
+  (let ((result (sp-point-after-word-p id action context))
+        (regexp (pcase (cons major-mode id)
+                  (`(,(or `python-mode `inferior-python-mode) . ,(or "'" "\""))
+                   (concat "\\(^\\|[^\\sw\\s_]\\)[bru]" (regexp-quote id)))
+                  (`(sql-mode . "'")
+                   (concat "\\(^\\|[^\\sw\\s_]\\)N" (regexp-quote id))))))
+    (if regexp
+        (let ((case-fold-search
+               (memq major-mode '(python-mode inferior-python-mode))))
+          (and result (not (looking-back regexp (line-beginning-position)))))
       result)))
 
 (defun basis/disable-relative-reindent (function &rest args)
