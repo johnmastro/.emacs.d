@@ -741,19 +741,15 @@ See `basis/define-eval-keys'.")
       ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k))))
   (basis/define-key-translations
     ("M-[ 1 ; 5 k" "C-=")
+    ("M-[ 1 ; 5 l" "C-,")
+    ("M-[ 1 ; 5 n" "C-.")
     ("M-[ 1 ; 6 k" "C-+")
-    ("M-[ 1 ; 7 k" "C-M-=")))
-
-(defun basis/define-mintty-translations ()
-  "Define key translations to better support mintty."
-  ;; TODO: is there a way to automatically detect whether Emacs is running in
-  ;; mintty?
-  (interactive)
-  (basis/define-key-translations
     ("M-[ 1 ; 6 l" "C-<")
     ("M-[ 1 ; 6 n" "C->")
     ("M-[ 1 ; 6 y" "C-(")
-    ("M-[ 1 ; 6 k" "C-+")))
+    ("M-[ 1 ; 7 k" "C-M-=")
+    ("M-[ 1 ; 7 n" "C-M-.")
+    ("M-[ 1 ; 7 l" "C-M-,")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing
