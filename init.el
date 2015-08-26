@@ -2030,14 +2030,16 @@ Move forward by a line and indent if invoked directly between."
           sp-autoescape-string-quote nil
           sp-use-subword t)
     (setq-default sp-autoskip-closing-pair 'always)
-    (sp-pair "'"
-             nil
+    (sp-pair "'" nil
              :unless '(basis/sp-point-after-word-p)
              :actions '(insert wrap autoskip))
-
-    (sp-local-pair 'org-mode "=" "=" :actions '(wrap))
-    (sp-with-modes '(c-mode c++-mode java-mode)
-      (sp-local-pair "{" "}" :actions '(:rem insert autoskip)))
+    (pcase-dolist (`(,mode ,open ,close ,actions)
+                   '((org-mode  "=" "=" (wrap))
+                     (rust-mode "'" nil (:rem insert autoskip))
+                     (c-mode    "{" "}" (:rem insert autoskip))
+                     (c++-mode  "{" "}" (:rem insert autoskip))
+                     (java-mode "{" "}" (:rem insert autoskip))))
+      (sp-local-pair mode open close :actions actions))
     (basis/define-keys sp-keymap
       ("M-DEL"           #'basis/sp-kill-something)
       ("C-DEL"           #'basis/sp-kill-something)
