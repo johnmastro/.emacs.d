@@ -638,6 +638,10 @@ current search, with no context-dependent behavior."
   (interactive)
   (occur (regexp-opt basis/occur-show-note-strings t)))
 
+(defun basis/avy-push-mark (&rest _args)
+  "Advice for `avy-push-mark'."
+  (push-mark nil t nil))
+
 (defun basis/swiper-helm ()
   (interactive)
   (let ((helm-move-to-line-cycle-in-source t))
