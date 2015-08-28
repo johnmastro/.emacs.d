@@ -853,14 +853,15 @@ is read-only and empty."
   :ensure t
   :defer t
   :init (progn (setq swiper-min-highlight 1)
-               (global-set-key (kbd "C-s") #'swiper))
+               (define-key isearch-mode-map (kbd "M-s") #'swiper-from-isearch))
   :config (basis/define-keys swiper-map
             ("M-%"   #'swiper-query-replace)
             ("M-SPC" #'swiper-avy)
             ("C-t"   #'basis/swiper-maybe-yank-something)))
 
 (use-package swiper-helm
-  :ensure t)
+  :ensure t
+  :defer t)
 
 ;; replace.el doesn't (provide 'replace)
 (with-eval-after-load "replace"
@@ -1106,7 +1107,6 @@ is read-only and empty."
   :defer t
   :init (progn
           (setq helm-swoop-use-line-number-face t)
-          (global-set-key (kbd "C-r") #'helm-swoop)
           (define-key isearch-mode-map (kbd "M-s") #'helm-swoop-from-isearch))
   :config (progn
             (define-key helm-swoop-map (kbd "C-s") #'helm-next-line)
