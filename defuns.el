@@ -431,16 +431,20 @@ Do not save the string to the the kill ring."
   (when region
     (setq deactivate-mark t)))
 
-(defun basis/kill-ring-save-indented (beg end arg)
+(defun basis/kill-ring-save-indented (arg beg end &optional region)
   "Save region to the kill ring with ARG spaces of indentation added.
 Interactively, default to four spaces of indentation."
-  (interactive "r\nP")
-  (let ((arg (or arg 4))
-        (buf (current-buffer)))
+  (interactive
+   (cons (or current-prefix-arg 4)
+         (if (use-region-p)
+             (list (region-beginning) (region-end) t)
+           (list (point-min) (point-max) nil))))
+  (let ((buffer (current-buffer)))
     (with-temp-buffer
-      (insert-buffer-substring-no-properties buf beg end)
+      (insert-buffer-substring-no-properties buffer beg end)
       (indent-rigidly (point-min) (point-max) arg)
-      (kill-ring-save (point-min) (point-max)))))
+      (kill-ring-save (point-min) (point-max))))
+  (when region (setq deactivate-mark t)))
 
 (defun basis/upcase-something (&optional arg)
   "Upcase either the region or word(s).
