@@ -2149,9 +2149,6 @@ Move forward by a line and indent if invoked directly between."
           ("C-x M-g" #'magit-dispatch-popup))
   :config
   (progn
-    (unless (boundp 'magit-backup-mode)
-      ;; Temporary kludge to prevent an unbound-symbol error
-      (setq magit-backup-mode nil))
     (setq magit-revert-buffers 'silent)
     (setq magit-save-repository-buffers 'dontask)
     (setq magit-push-always-verify nil)
