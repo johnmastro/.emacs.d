@@ -1611,6 +1611,11 @@ make sure its in the same form that Emacs uses (i.e.
 See also `basis/fix-bad-cygwin-file-name'."
   (and name (basis/fix-bad-cygwin-file-name name)))
 
+(defun basis/magit-list-repos-uniquely (result)
+  "Advice for `magit-list-repos'."
+  ;; Only necessary on my Cygwin setup
+  (delete-dups (mapcar #'abbreviate-file-name result)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
 

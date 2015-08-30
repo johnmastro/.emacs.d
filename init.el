@@ -2171,7 +2171,10 @@ Move forward by a line and indent if invoked directly between."
                basis/cygwin-p)
       (advice-add 'magit-get-top-dir
                   :filter-return
-                  #'basis/magit-expand-top-dir))
+                  #'basis/magit-expand-top-dir)
+      (advice-add 'magit-list-repos
+                  :filter-return
+                  #'basis/magit-list-repos-uniquely))
     ;; Add a command on `C-c C-v' to view the pull request URL. It would be even
     ;; better to add this to Magit's menus but nowhere sticks out as obviously
     ;; appropriate.
