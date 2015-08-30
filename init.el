@@ -2158,7 +2158,7 @@ Move forward by a line and indent if invoked directly between."
     (setq magit-popup-use-prefix-argument 'default)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-repository-directories
-          (thread-last (projectile-relevant-known-projects)
+          (thread-last projectile-known-projects
             (seq-remove #'tramp-tramp-file-p)
             (seq-filter (lambda (dir)
                           (file-directory-p (expand-file-name ".git" dir))))
