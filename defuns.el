@@ -1478,20 +1478,6 @@ numeric argument)."
 
 (put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
 
-(defun basis/maybe-sp-forward-sexp (&optional arg)
-  (interactive "p")
-  (let ((arg (or arg 1)))
-    (if (memq major-mode '(python-mode inferior-python-mode))
-        (python-nav-forward-sexp arg)
-      (sp-forward-sexp arg))))
-
-(defun basis/maybe-sp-backward-sexp (&optional arg)
-  (interactive "p")
-  (let ((arg (or arg 1)))
-    (if (memq major-mode '(python-mode inferior-python-mode))
-        (basis/python-nav-backward-sexp arg)
-      (sp-backward-sexp arg))))
-
 (defun basis/sp-point-after-word-p (id action context)
   "Like `sp-point-after-word-p' but handle Python and SQL Unicode strings."
   (let ((result (sp-point-after-word-p id action context))

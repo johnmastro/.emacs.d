@@ -2073,8 +2073,8 @@ Move forward by a line and indent if invoked directly between."
       ("<C-backspace>"   #'basis/sp-kill-something)
       ("C-w"             #'basis/sp-kill-something)
       ("M-k"             #'sp-kill-sexp)
-      ("M-e"             #'basis/maybe-sp-forward-sexp)
-      ("M-a"             #'basis/maybe-sp-backward-sexp)
+      ("M-e"             #'sp-forward-sexp)
+      ("M-a"             #'sp-backward-sexp)
       ("<C-M-backspace>" #'sp-backward-kill-sexp)
       ("C-M-_"           #'sp-backward-kill-sexp))
     ;; These commands invoke `indent-according-to-mode' but, when
