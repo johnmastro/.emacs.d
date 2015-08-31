@@ -1154,6 +1154,12 @@ is read-only and empty."
   :defer t
   :init (define-key ctl-x-map (kbd "8 M-RET") #'helm-unicode))
 
+(use-package helm-pages
+  :ensure t
+  :defer t
+  :config (fset 'helm-pages-get-next-header
+                #'basis/helm-pages-get-next-header))
+
 (use-package ivy
   :ensure swiper
   :init (setq ivy-format-function #'basis/ivy-format-function)

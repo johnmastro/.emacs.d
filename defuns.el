@@ -808,6 +808,19 @@ with `helm-read-file-name'."
   (with-helm-alive-p
     (helm-quit-and-execute-action #'magit-status)))
 
+(defun basis/helm-pages-get-next-header ()
+  (with-helm-current-buffer
+    (save-restriction
+      (save-excursion
+        (narrow-to-page)
+        (beginning-of-line)
+        (while (and (not (eobp))
+                    (looking-at-p "^[[:space:];]*$"))
+          (forward-line))
+        (let* ((start (progn (beginning-of-line) (point)))
+               (end (progn (end-of-line) (point))))
+          (buffer-substring start end))))))
+
 (defun basis/yas-expand-or-insert ()
   "Call `yas-expand' or `yas-insert-snippet' depending on context.
 If point is after what might be a snippet key, call `yas-expand',
