@@ -843,6 +843,9 @@ is read-only and empty."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
+(global-set-key (kbd "C-s") #'isearch-forward-regexp)
+(global-set-key (kbd "C-r") #'isearch-backward-regexp)
+
 (basis/define-keys isearch-mode-map
   ("DEL"         #'basis/isearch-backspace)
   ("<backspace>" #'basis/isearch-backspace)
