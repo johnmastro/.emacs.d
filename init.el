@@ -2149,7 +2149,8 @@ Move forward by a line and indent if invoked directly between."
   :init (basis/define-keys global-map
           ("C-x g"   #'magit-status)
           ("<f10>"   #'magit-status)
-          ("C-x M-g" #'magit-dispatch-popup))
+          ("C-x M-g" #'magit-dispatch-popup)
+          ("C-c M-g" #'magit-file-buffer-popup))
   :config
   (progn
     (setq magit-revert-buffers 'silent)
