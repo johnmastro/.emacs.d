@@ -1,5 +1,6 @@
 ;;; init.el      -*- coding: utf-8; lexical-binding: t; no-byte-compile: t -*-
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Early configuration
 
@@ -53,6 +54,7 @@ it doesn't exist."
     (when (file-directory-p dir)
       (setq source-directory dir))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Set up package.el
 
@@ -75,6 +77,7 @@ it doesn't exist."
   (package-refresh-contents)
   (package-install 'use-package))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Load some code
 
@@ -147,6 +150,7 @@ it doesn't exist."
      (cons "pcase-dolist" (mapcar (lambda (list) (symbol-name (car list)))
                                   macros)))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Operating system-specific configuration
 
@@ -194,6 +198,7 @@ it doesn't exist."
 (when basis/cygwin-p
   (basis/init-for-cygwin))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Various settings
 
@@ -234,6 +239,7 @@ it doesn't exist."
 
 (fset 'yes-or-no-p #'y-or-n-p)
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Basic packages
 
@@ -385,6 +391,7 @@ it doesn't exist."
           tramp-encoding-command-switch "-c"
           tramp-encoding-command-interactive "-i")))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
 
@@ -441,6 +448,7 @@ it doesn't exist."
   ;; :config (global-page-break-lines-mode 1)
   :diminish page-break-lines-mode)
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Documentation modes
 
@@ -471,6 +479,7 @@ it doesn't exist."
   (fset 'original-man #'man)
   (fset 'man #'woman))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Key bindings
 
@@ -751,6 +760,7 @@ See `basis/define-eval-keys'.")
     ("M-[ 1 ; 7 n" "C-M-.")
     ("M-[ 1 ; 7 l" "C-M-,")))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing
 
@@ -798,6 +808,7 @@ See `basis/define-eval-keys'.")
   :init (defalias 'vqr #'vr/query-replace)
   :defer t)
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement
 
@@ -840,6 +851,7 @@ is read-only and empty."
                (global-set-key (kbd "M-M") #'jump-char-backward)))
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
@@ -872,6 +884,7 @@ is read-only and empty."
   (define-key occur-mode-map (kbd "n") #'occur-next)
   (define-key occur-mode-map (kbd "p") #'occur-prev))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; External search
 
@@ -930,6 +943,7 @@ is read-only and empty."
       (setq ack-and-a-half-executable
             (substring ack-and-a-half-executable 2)))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Completion
 
@@ -1244,6 +1258,7 @@ is read-only and empty."
           yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
           yas-wrap-around-region t)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Programming modes
 
@@ -1784,6 +1799,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :mode "\\.bat\\'")
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Text, markup, and configuration modes
 
@@ -1972,6 +1988,7 @@ Move forward by a line and indent if invoked directly between."
   :defer t
   :init (put 'css-indent-offset 'safe-local-variable #'integerp))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Brackets
 
@@ -2074,6 +2091,7 @@ Move forward by a line and indent if invoked directly between."
                 :filter-args
                 #'basis/sp-backward-delete-no-prefix)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Error checking
 
@@ -2117,6 +2135,7 @@ Move forward by a line and indent if invoked directly between."
               ("n" #'flycheck-error-list-next-error)
               ("p" #'flycheck-error-list-previous-error))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Diffing
 
@@ -2146,6 +2165,7 @@ Move forward by a line and indent if invoked directly between."
             (advice-add 'ediff-quit :after #'basis/ediff-quit-restore)
             (add-hook 'ediff-mode-hook #'basis/init-ediff)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Magit & other git things
 
@@ -2223,6 +2243,7 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t)
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
 
@@ -2315,6 +2336,7 @@ Move forward by a line and indent if invoked directly between."
       [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags))
   :diminish projectile-mode)
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes, shells, and the filesystem
 
@@ -2435,6 +2457,7 @@ buffer."
   :defer t
   :init (global-set-key (kbd "C-x p") #'proced))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
 
@@ -2485,6 +2508,7 @@ buffer."
   :defer t
   :init (setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs")))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Email & news
 

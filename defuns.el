@@ -1,5 +1,6 @@
 ;;; defuns.el    -*- coding: utf-8; lexical-binding: t; -*-
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Key binding utilities
 
@@ -55,6 +56,7 @@ See `basis/eval-keys'."
 (basis/create-simple-keybinding-command f11 "<f11>")
 (basis/create-simple-keybinding-command f12 "<f12>")
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing utilities
 
@@ -566,6 +568,7 @@ the region isn't active."
       (when kind
         (message "SLOC in %s: %d" kind count)))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
@@ -667,6 +670,7 @@ in the global map."
                          (lookup-key global-map (this-command-keys)))))
       (call-interactively cmd))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Completion
 
@@ -829,6 +833,7 @@ otherwise call `yas-insert-snippet'."
   (call-interactively
    (if (looking-at-p "\\>") #'yas-expand #'yas-insert-snippet)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Programming modes
 
@@ -1277,6 +1282,7 @@ strings."
        (with-current-buffer buffer
          (modify-syntax-entry ?\" "\""))))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Text, markup, and configuration modes
 
@@ -1388,6 +1394,7 @@ multiple-document stream."
             (define-key map (kbd "M-p") #'basis/yaml-previous-document)
             map))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Brackets
 
@@ -1514,6 +1521,7 @@ numeric argument)."
   (dolist (function functions)
     (advice-add function :around #'basis/disable-relative-reindent)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Error checking
 
@@ -1563,6 +1571,7 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
               (eq major-mode 'cider-repl-mode))
     (whitespace-mode 1)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Diffing
 
@@ -1597,6 +1606,7 @@ After quitting, restore the previous window configuration."
       (jump-to-register :ediff-restore-windows)
     (error (message "Previous window configuration could not be restored"))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Magit & other git things
 
@@ -1629,6 +1639,7 @@ See also `basis/fix-bad-cygwin-file-name'."
   ;; Only necessary on my Cygwin setup
   (delete-dups (mapcar #'abbreviate-file-name result)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
 
@@ -1692,6 +1703,7 @@ user-error, automatically move point to the command line."
       (cons (format "-std=%s" standard)
             (basis/find-clang-includes-path language)))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File utilities
 
@@ -1845,6 +1857,7 @@ If it doesn't exist, BUFFER is created automatically."
       (direx:item-name)
       (direx:canonical-filename))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
 
@@ -1899,6 +1912,7 @@ Only group a buffer with a VC if its visiting a file."
     (ibuffer-vc-set-filter-groups-by-vc-root)
     (setq basis/ibuffer-grouped-by-vc-p t)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Window utilities
 
@@ -1941,6 +1955,7 @@ Only group a buffer with a VC if its visiting a file."
         (when this-win-2nd
           (other-window 1))))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
 
@@ -1969,6 +1984,7 @@ If provided, BACKGROUND-MODE specifies which variant to use:
                           (`darwin (font-spec :family "Apple Color Emoji")))))
     (set-fontset-font t 'symbol font-spec frame 'prepend)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Miscellaneous
 
@@ -2069,6 +2085,7 @@ kill the current session even if there are multiple frames."
     (overlay-put overlay 'face 'secondary-selection)
     (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
 
@@ -2090,6 +2107,7 @@ used rather than a list of symbols."
     (mapcar #'basis/elfeed-parse-group)
     (apply #'nconc)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Email and news
 
@@ -2107,6 +2125,7 @@ For use as a `mu4e' message action."
               html))
     (browse-url (format "file://%s" file))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Lorem ipsum
 
