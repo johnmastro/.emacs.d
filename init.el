@@ -895,6 +895,8 @@ is read-only and empty."
   ("s"  lgrep "lgrep")
   ("r"  rgrep "rgrep")
   ("z"  zrgrep "zrgrep")
+  ("v"  projectile-grep "git grep project")
+  ("V"  vc-git-grep "git grep")
   ("f"  find-grep "find-grep")
   ("d"  find-grep-dired "find-grep-dired")
   ("o"  occur "occur")
@@ -2322,6 +2324,7 @@ Move forward by a line and indent if invoked directly between."
           (setq projectile-known-projects-file
                 (basis/emacs-file "var/projectile-bookmarks.eld"))
           (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
+          (setq projectile-use-git-grep t)
           ;; Projectile defaults to native indexing on Windows, but if we have
           ;; Cygwin set up we can use "alien".
           (if (and (eq system-type 'windows-nt)
