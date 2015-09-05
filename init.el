@@ -2248,6 +2248,10 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t)
 
+(use-package diff-hl
+  :ensure t
+  :defer t)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
