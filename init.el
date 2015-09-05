@@ -1788,7 +1788,6 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package gforth
   :defer t
-  :commands (forth-mode)
   :mode ("\\.f\\'" "\\.fs\\'" "\\.fth\\'")
   :config (with-eval-after-load 'forth-mode
             (define-key forth-mode-map (kbd "M-o")   nil)
@@ -1798,6 +1797,10 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t
   :mode "\\.bat\\'")
+
+(use-package ahk-mode
+  :ensure t
+  :defer t)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
