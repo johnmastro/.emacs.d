@@ -2206,7 +2206,9 @@ Move forward by a line and indent if invoked directly between."
                   #'basis/magit-expand-top-dir)
       (advice-add 'magit-list-repos
                   :filter-return
-                  #'basis/magit-list-repos-uniquely))
+                  #'basis/magit-list-repos-uniquely)
+      (fset 'magit-process-git-arguments
+            #'basis/magit-process-git-arguments))
     ;; Add a command on `C-c C-v' to view the pull request URL. It would be even
     ;; better to add this to Magit's menus but nowhere sticks out as obviously
     ;; appropriate.

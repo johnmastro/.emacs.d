@@ -1625,6 +1625,20 @@ See also `basis/fix-bad-cygwin-file-name'."
   ;; Only necessary on my Cygwin setup
   (delete-dups (mapcar #'abbreviate-file-name result)))
 
+(defun basis/magit-process-git-arguments (args)
+  (setq args (-flatten args))
+  (when (and (eq system-type 'windows-nt)
+             (let ((exec-path
+                    (list (file-name-directory magit-git-executable))))
+               (executable-find "cygpath.exe")))
+    (setq args (--map (let* ((it (replace-regexp-in-string
+                                  "{\\([0-9]+\\)}" "\\\\{\\1\\\\}" it))
+                             (it (replace-regexp-in-string
+                                  "\\^{commit}" "^\\\\{commit\\\\}" it)))
+                        it)
+                      args)))
+  (append magit-git-global-arguments args))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
