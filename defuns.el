@@ -995,15 +995,32 @@ activate it."
       (pyvenv-activate env)))
   (call-interactively #'run-python))
 
-(defun basis/python-reformat-module-docstring (beg end)
-  "Reformat from BEG to END as a Python module docstring."
-  (interactive "r")
-  (unless (use-region-p)
-    (user-error "No active region"))
-  ;; TODO: Handle the module name and underline specially
-  (let ((fill-column 68))
-    (fill-region beg end))
-  (indent-rigidly beg end 4))
+(defun basis/python-mark-docstring (mark-inside)
+  "Mark the docstring around point."
+  (unless (python-info-docstring-p)
+    (user-error "Not in a docstring"))
+  (require 'expand-region)
+  (require 'python-el-fgallina-expansions)
+  (er/mark-python-string mark-inside))
+
+(defun basis/python-fill-module-docstring (beg end)
+  "Fill from BEG to END as a Python module docstring."
+  (interactive
+   (progn
+     (unless (use-region-p)
+       (basis/python-mark-docstring t))
+     (list (region-beginning) (region-end))))
+  (let ((text (delete-and-extract-region beg end)))
+    (with-temp-buffer
+      (insert text)
+      (indent-rigidly (point-min) (point-max) most-negative-fixnum)
+      (goto-char (point-min))
+      (forward-line 3)               ; Move over the header
+      (let ((fill-column 68))
+        (fill-region (point) (point-max)))
+      (indent-rigidly (point-min) (point-max) 4)
+      (setq text (delete-and-extract-region (point-min) (point-max))))
+    (insert text)))
 
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
