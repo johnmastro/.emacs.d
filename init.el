@@ -2193,6 +2193,7 @@ Move forward by a line and indent if invoked directly between."
     (setq magit-push-always-verify nil)
     (setq magit-popup-use-prefix-argument 'default)
     (setq magit-completing-read-function #'magit-ido-completing-read)
+    (setq magit-revision-show-gravatars nil)
     (setq magit-repository-directories
           (thread-last projectile-known-projects
             (seq-remove #'tramp-tramp-file-p)
