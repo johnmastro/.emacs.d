@@ -859,8 +859,13 @@ is read-only and empty."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
-(global-set-key (kbd "C-s") #'isearch-forward-regexp)
-(global-set-key (kbd "C-r") #'isearch-backward-regexp)
+(setq character-fold-search t)
+
+(basis/define-keys global-map
+  ("C-s"   #'isearch-forward-regexp)
+  ("C-r"   #'isearch-backward-regexp)
+  ("C-M-s" #'isearch-forward)
+  ("C-M-r" #'isearch-backward))
 
 (basis/define-keys isearch-mode-map
   ("DEL"         #'basis/isearch-backspace)
