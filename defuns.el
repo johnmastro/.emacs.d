@@ -484,25 +484,6 @@ on whether the region is active."
         (t
          (capitalize-word arg))))
 
-(defun basis/push-mark-no-activate ()
-  "Pushes `point` to `mark-ring` without activating the region.
-Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled."
-  (interactive)
-  (push-mark (point) t nil)
-  (message "Pushed mark to ring"))
-
-(defun basis/jump-to-mark ()
-  "Jumps to the local mark, respecting the `mark-ring` order.
-This is the same as using \\[set-mark-command] with the prefix argument."
-  (interactive)
-  (set-mark-command 1))
-
-(defun basis/exchange-point-and-mark-no-activate ()
-  "Identical to \\[exchange-point-and-mark] but will not activate the region."
-  (interactive)
-  (exchange-point-and-mark)
-  (deactivate-mark nil))
-
 (defun basis/pop-to-mark-ensure-new-pos (function)
   "Advice for `pop-to-mark-command' to repeat until point moves."
   (let ((p (point))
