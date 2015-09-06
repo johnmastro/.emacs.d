@@ -824,7 +824,8 @@ See `basis/define-eval-keys'.")
   :defer t
   :init (progn (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i)
                      avy-style 'pre)
-               (global-set-key (kbd "M-SPC") #'avy-goto-word-1))
+               (global-set-key (kbd "M-SPC") #'avy-goto-word-1)
+               (global-set-key (kbd "M-s-SPC") #'avy-goto-line))
   :config (advice-add 'avy-push-mark :after #'basis/avy-push-mark))
 
 (defun basis/ace-window-kludge (function arg)
