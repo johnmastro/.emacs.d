@@ -532,7 +532,6 @@ it doesn't exist."
 
 ;; Newlines
 (basis/define-keys global-map
-  ("RET"          #'newline-and-indent)
   ("S-RET"        #'basis/open-line-below)
   ("<S-return>"   #'basis/open-line-below)
   ("C-S-RET"      #'basis/open-line-above)
