@@ -518,6 +518,10 @@ it doesn't exist."
                     (calc-mode "V"))))
   :diminish guide-key-mode)
 
+;; When splitting windows, select the newly created window
+(global-set-key (kbd "C-x 2") #'basis/split-window-below)
+(global-set-key (kbd "C-x 3") #'basis/split-window-right)
+
 ;; C-c <left>/<right> to move backward/forward through window configurations
 (use-package winner
   :config (winner-mode 1))

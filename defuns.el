@@ -210,7 +210,7 @@ that many sexps before uncommenting."
   (interactive "p")
   (let ((count (or count 1)))
     (save-excursion
-      (move-beginning-of-line 1)
+      (beginning-of-line)
       (forward-line 1)
       (while (> count 0)
         (newline)
@@ -222,7 +222,7 @@ that many sexps before uncommenting."
   (let ((count (or count 1)))
     (save-excursion
       (forward-line -1)
-      (move-end-of-line 1)
+      (end-of-line)
       (while (> count 0)
         (newline)
         (setq count (1- count))))))
@@ -237,7 +237,7 @@ that many sexps before uncommenting."
 (defun basis/eol-maybe-semicolon ()
   "Move to the end of the line and insert a semicolon."
   (interactive)
-  (move-end-of-line 1)
+  (end-of-line)
   (delete-horizontal-space t)
   (unless (eq (char-before) ?\;)
     (insert ";")))
@@ -251,11 +251,11 @@ that many sexps before uncommenting."
   (save-excursion
     (goto-char beg)
     (forward-line -1)
-    (move-end-of-line 1)
+    (end-of-line)
     (delete-horizontal-space)
     (insert " {")
     (goto-char end)
-    (move-end-of-line 1)
+    (end-of-line)
     (newline-and-indent)
     (insert "}")
     (indent-for-tab-command)))
@@ -344,7 +344,7 @@ if not."
     (when (eolp) (forward-line 1))
     (catch 'done
       (while (not (eobp))
-        (move-end-of-line 1)
+        (end-of-line)
         (if (> (setq column (current-column)) threshold)
             (progn
               (setq line (line-number-at-pos))
@@ -813,13 +813,16 @@ with `helm-read-file-name'."
     (helm-quit-and-execute-action #'magit-status)))
 
 (defun basis/helm-pages-get-next-header ()
+  "Alternative implementation of `helm-pages-get-next-header'.
+Like the above but skip over lines that contain only whitespace
+or comment starters."
   (with-helm-current-buffer
     (save-restriction
       (save-excursion
         (narrow-to-page)
         (beginning-of-line)
         (while (and (not (eobp))
-                    (looking-at-p "^[[:space:];]*$"))
+                    (looking-at-p (format "^[[:space:]%s]*$" comment-start)))
           (forward-line))
         (let* ((start (progn (beginning-of-line) (point)))
                (end (progn (end-of-line) (point))))
@@ -1678,7 +1681,7 @@ user-error, automatically move point to the command line."
   "Kill the current line, respecting Eshell's prompt."
   (interactive)
   (kill-region (save-excursion (eshell-bol) (point))
-               (save-excursion (move-end-of-line 1) (point))))
+               (line-end-position)))
 
 (defun basis/find-clang-includes-path (&optional language)
   "Return clang's #include <...> search path."
@@ -1975,6 +1978,16 @@ Only group a buffer with a VC if its visiting a file."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
+
+(defun basis/split-window-below (&optional size)
+  "Split the window and select the new window."
+  (interactive "P")
+  (select-window (split-window-below size)))
+
+(defun basis/split-window-right (&optional size)
+  "Split the window and select the new window."
+  (interactive "P")
+  (select-window (split-window-right size)))
 
 (defun basis/disable-themes (&optional themes)
   "Disable THEMES (defaults to `custom-enabled-themes')."
