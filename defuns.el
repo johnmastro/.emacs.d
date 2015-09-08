@@ -60,6 +60,20 @@ See `basis/eval-keys'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing utilities
 
+(defun basis/bounds-of-region-or-thing (thing)
+  "Return the bounds of the region if active or THING."
+  ;; Note that whereas `bounds-of-thing-at-point' returns (BEG . END) we return
+  ;; (BEG END), because the latter is more convenient to use with `apply' or an
+  ;; `interactive' spec.
+  (if (use-region-p)
+      (list (region-beginning) (region-end))
+    (pcase thing
+      (`line
+       (list (line-beginning-position) (line-end-position)))
+      (_
+       (when-let ((bounds (bounds-of-thing-at-point thing)))
+         (list (car bounds) (cdr bounds)))))))
+
 (defun basis/next-line ()
   "Move point to the next line.
 Wrapper around `next-line' to let-bind `next-line-add-newlines'
@@ -81,10 +95,7 @@ there, to the beginning of the line."
 
 (defun basis/comment-or-uncomment (beg end)
   "Comment or uncomment the active region or current line."
-  (interactive
-   (if (use-region-p)
-       (list (region-beginning) (region-end))
-     (list (line-beginning-position) (line-end-position))))
+  (interactive (basis/bounds-of-region-or-thing 'line))
   (comment-or-uncomment-region beg end))
 
 (defun basis/comment-region-lines (beg end &optional arg)
@@ -244,10 +255,7 @@ that many sexps before uncommenting."
 
 (defun basis/wrap-in-curlies (beg end)
   "Wrap the current line with curly braces."
-  (interactive
-   (if (use-region-p)
-       (list (region-beginning) (region-end))
-     (list (line-beginning-position) (line-end-position))))
+  (interactive (basis/bounds-of-region-or-thing 'line))
   (save-excursion
     (goto-char beg)
     (forward-line -1)
@@ -392,9 +400,7 @@ If `subword-mode' is active, use `subword-backward-kill'."
 (defun basis/kill-ring-save-something ()
   "Save the contents of the active region or the current line."
   (interactive)
-  (if (use-region-p)
-      (kill-ring-save (region-beginning) (region-end))
-    (kill-ring-save (line-beginning-position) (line-end-position))))
+  (apply #'kill-ring-save (basis/bounds-of-region-or-thing 'line)))
 
 (defun basis/kill-ring-save-buffer ()
   "Save the buffer's content to the kill ring."
@@ -424,29 +430,24 @@ BUFFER defaults to the current buffer, if it is visiting a file."
 Do not save the string to the the kill ring."
   (funcall interprogram-cut-function str))
 
-(defun basis/clipboard-save-something (beg end &optional region)
+(defun basis/clipboard-save-something (beg end)
   "Save the region or buffer to the system clipboard."
-  (interactive (if (use-region-p)
-                   (list (region-beginning) (region-end) t)
-                 (list (point-min) (point-max) nil)))
+  (interactive (basis/bounds-of-region-or-thing 'buffer))
   (basis/clipboard-save-string (buffer-substring-no-properties beg end))
-  (when region
-    (setq deactivate-mark t)))
+  (setq deactivate-mark t))
 
-(defun basis/kill-ring-save-indented (arg beg end &optional region)
+(defun basis/kill-ring-save-indented (arg beg end)
   "Save region to the kill ring with ARG spaces of indentation added.
 Interactively, default to four spaces of indentation."
   (interactive
    (cons (or current-prefix-arg 4)
-         (if (use-region-p)
-             (list (region-beginning) (region-end) t)
-           (list (point-min) (point-max) nil))))
+         (basis/bounds-of-region-or-thing 'buffer)))
   (let ((buffer (current-buffer)))
     (with-temp-buffer
       (insert-buffer-substring-no-properties buffer beg end)
       (indent-rigidly (point-min) (point-max) arg)
       (kill-ring-save (point-min) (point-max))))
-  (when region (setq deactivate-mark t)))
+  (setq deactivate-mark t))
 
 (defun basis/upcase-something (&optional arg)
   "Upcase either the region or word(s).
@@ -528,12 +529,10 @@ the region isn't active."
   (let ((current-prefix-arg (not (use-region-p))))
     (call-interactively #'count-words-region)))
 
-(defun basis/count-sloc-region (beg end kind)
-  ;; From Stefan Monnier on the help-gnu-emacs list
-  (interactive
-   (if (use-region-p)
-       (list (region-beginning) (region-end) 'region)
-     (list (point-min) (point-max) 'buffer)))
+(defun basis/count-sloc-region (beg end)
+  "Count the \"SLOC\" in the region from BEG to END.
+If no region is active, examine the full buffer."
+  (interactive (basis/bounds-of-region-or-thing 'buffer))
   (save-excursion
     (goto-char beg)
     (let ((count 0))
@@ -546,7 +545,7 @@ the region isn't active."
           (forward-comment (point-max)))
         (setq count (1+ count))
         (forward-line))
-      (when kind
+      (when (called-interactively-p 'interactive)
         (message "SLOC in %s: %d" kind count)))))
 
 
@@ -592,10 +591,8 @@ current search, with no context-dependent behavior."
 (defun basis/occur-dwim (regexp nlines)
   "Like `occur', but REGEXP defaults to the text at point."
   (interactive
-   (list (let ((str (if (use-region-p)
-                        (buffer-substring-no-properties (region-beginning)
-                                                        (region-end))
-                      (thing-at-point 'symbol))))
+   (list (let ((str (apply #'buffer-substring-no-properties
+                           (basis/bounds-of-region-or-thing 'symbol))))
            (read-regexp
             (format "Occur (default %s): " (or str (car regexp-history)))
             (and (not str) 'regexp-history-last)))
@@ -862,12 +859,7 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
   "Put the region from BEG to END in Emacs Lisp-style quotes.
 If called interactively without an active region, the symbol at
 point is used instead, if any."
-  (interactive
-   (pcase-let ((`(,beg . ,end)
-                (if (use-region-p)
-                    (cons (region-beginning) (region-end))
-                  (bounds-of-thing-at-point 'symbol))))
-     (list beg end)))
+  (interactive (basis/bounds-of-region-or-thing 'symbol))
   (unless (and beg end)
     (error "Invalid region"))
   (let ((end (move-marker (make-marker) end)))
@@ -2011,10 +2003,10 @@ If provided, BACKGROUND-MODE specifies which variant to use:
 Use the active region or symbol at point, if any, as initial
 input."
   (interactive
-   (list (let ((default (if (use-region-p)
-                            (buffer-substring (region-beginning) (region-end))
-                          (thing-at-point 'symbol))))
-           (read-string "Google: " default))))
+   (list (thread-last 'symbol
+           (basis/bounds-of-region-or-thing)
+           (apply #'buffer-substring-no-properties)
+           (read-string "Google: "))))
   (browse-url
    (concat "https://www.google.com/search?ie=utf-8&oe=utf-8&q="
            (url-hexify-string string))))
