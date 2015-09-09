@@ -538,7 +538,7 @@ it doesn't exist."
   ("<C-S-return>" #'basis/open-line-above))
 
 ;; Whitespace
-(global-set-key (kbd "M-\\") #'cycle-spacing)
+(global-set-key (kbd "M-\\") #'basis/cycle-spacing-fast)
 
 ;; Clever C-a
 (global-set-key (kbd "C-a") #'basis/beginning-of-line)

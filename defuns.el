@@ -548,6 +548,11 @@ If no region is active, examine the full buffer."
       (when (called-interactively-p 'interactive)
         (message "SLOC in %s: %d" kind count)))))
 
+(defun basis/cycle-spacing-fast (&optional n)
+  "Invoke `cycle-spacing' in `fast' MODE."
+  (interactive "*p")
+  (cycle-spacing n nil 'fast))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
