@@ -99,7 +99,17 @@ it doesn't exist."
 (use-package subr-x)
 
 (use-package seq
-  :ensure t)
+  :ensure t
+  ;; Compatibility shim for older versions of `seq' that had `seq-some-p'
+  ;; instead of `seq-some'
+  :config (unless (fboundp 'seq-some)
+            (defun seq-some (pred seq)
+              (catch 'seq--break
+                (seq-doseq (elt seq)
+                  (let ((result (funcall pred elt)))
+                    (when result
+                      (throw 'seq--break result))))
+                nil))))
 
 (use-package map
   :if (>= emacs-major-version 25))
@@ -2595,8 +2605,8 @@ buffer."
                                      "html2text -utf8 -width 72"
                                    #'basis/shr-html2text))
     ;; Where to save attachments
-    (let ((dir (seq-some-p #'file-directory-p
-                           '("~/downloads" "~/Downloads" "~/"))))
+    (let ((dir (seq-some (lambda (dir) (and (file-directory-p dir) dir))
+                         '("~/downloads" "~/Downloads" "~/"))))
       (setq mu4e-attachment-dir dir))
     ;; Composing messages
     (setq mu4e-reply-to-address "jbm@jbm.io"

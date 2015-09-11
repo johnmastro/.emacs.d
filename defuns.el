@@ -1250,10 +1250,10 @@ With arg N, move backward that many times."
 (defun basis/sql-guess-product ()
   "Try to guess the SQL product for the current buffer."
   (if (save-excursion
-        (seq-some-p (lambda (regexp)
-                      (goto-char (point-min))
-                      (re-search-forward regexp nil t))
-                    basis/transact-sql-regexps))
+        (seq-some (lambda (regexp)
+                    (goto-char (point-min))
+                    (re-search-forward regexp nil t))
+                  basis/transact-sql-regexps))
       'ms
     ;; Default to PostgreSQL because I use it the most
     'postgres))
