@@ -1606,8 +1606,8 @@ After quitting, restore the previous window configuration."
             (magit-get "remote" (magit-get-remote) "url"))
            (cdr (magit-get-remote-branch)))))
 
-(defun basis/magit-expand-top-dir (result)
-  "Advice for `magit-get-top-dir'.
+(defun basis/magit-expand-toplevel (result)
+  "Advice for `magit-toplevel'.
 For use with Cygwin. Call `expand-file-name' on its result, to
 make sure its in the same form that Emacs uses (i.e.
 \"c:/path/to/somewhere\")."

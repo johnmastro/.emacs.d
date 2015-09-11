@@ -166,9 +166,9 @@ it doesn't exist."
   "Non-nil if this is a Windows system with Cygwin installed.")
 
 (defvar basis/cygwin-path-directories
-  (append '("/bin" "/usr/bin" "/usr/local/bin")
-          '("/Python27" "/Python27/Scripts")
-          '("/ProgramData/Oracle/Java/javapath"))
+  '("/bin" "/usr/bin" "/usr/local/bin"
+    "/Python27" "/Python27/Scripts"
+    "/ProgramData/Oracle/Java/javapath")
   "Directories to add to PATH on Cygwin.")
 
 (defun basis/init-for-cygwin ()
@@ -2212,9 +2212,9 @@ Move forward by a line and indent if invoked directly between."
     (add-hook 'magit-status-mode-hook #'delete-other-windows)
     (when (and (eq system-type 'windows-nt)
                basis/cygwin-p)
-      (advice-add 'magit-get-top-dir
+      (advice-add 'magit-toplevel
                   :filter-return
-                  #'basis/magit-expand-top-dir)
+                  #'basis/magit-expand-toplevel)
       (advice-add 'magit-list-repos
                   :filter-return
                   #'basis/magit-list-repos-uniquely)
