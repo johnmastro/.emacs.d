@@ -401,6 +401,19 @@ it doesn't exist."
           tramp-encoding-command-switch "-c"
           tramp-encoding-command-interactive "-i")))
 
+(use-package time
+  :defer t
+  ;; Show all continental US time zones
+  :config (setq display-time-world-list
+                '(("PST8PDT"  "Los Angeles")
+                  ("MST7MDT"  "Denver")
+                  ("CST6CDT"  "Chicago")
+                  ("EST5EDT"  "New York")
+                  ("GMT0BST"  "London")
+                  ("CET-1CDT" "Paris")
+                  ("IST-5:30" "Bangalore")
+                  ("JST-9"    "Tokyo"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
