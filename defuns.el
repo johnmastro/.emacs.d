@@ -1631,6 +1631,24 @@ See also `basis/fix-bad-cygwin-file-name'."
                        "noglob"))
     (apply function args)))
 
+(defun basis/magit-cygwin-save-repository-buffers (&optional arg)
+  "Alternative `magit-save-repository-buffers'.
+Use `expand-file-name' to canonicalize file names to Emacs's
+representation before comparing them."
+  (interactive "P")
+  (when-let ((topdir (magit-rev-parse-safe "--show-toplevel"))
+             (topdir (expand-file-name topdir)))
+    (save-some-buffers
+     arg
+     (lambda ()
+       (and buffer-file-name
+            ;; Avoid needlessly connecting to unrelated remotes.
+            (string-prefix-p topdir buffer-file-name)
+            (equal (when-let ((dir (magit-rev-parse-safe "--show-toplevel"))
+                              (dir (expand-file-name dir)))
+                     dir)
+                   topdir))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
