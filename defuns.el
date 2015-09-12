@@ -1657,6 +1657,11 @@ representation before comparing them."
                      dir)
                    topdir))))))
 
+(defun basis/set-list-buffers-directory ()
+  "Set `list-buffers-directory' to `default-directory'."
+  ;; Used in `magit-mode' buffers
+  (setq list-buffers-directory (abbreviate-file-name default-directory)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
