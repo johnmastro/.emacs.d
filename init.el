@@ -170,10 +170,13 @@ it doesn't exist."
   :if (memq window-system '(mac ns))
   :config (exec-path-from-shell-initialize))
 
-(defvar basis/cygwin-p (and (eq system-type 'windows-nt)
-                            (directory-files "c:/" nil "Cygwin")
-                            (file-directory-p "c:/bin"))
-  "Non-nil if this is a Windows system with Cygwin installed.")
+(defvar basis/system-type
+  (if (and (eq system-type 'windows-nt)
+           (directory-files "c:/" nil "Cygwin")
+           (file-directory-p "c:/bin"))
+      'windows+cygwin
+    system-type)
+  "Like `system-type' but with the additional option `windows+cygwin'.")
 
 (defvar basis/cygwin-path-directories
   '("/bin" "/usr/bin" "/usr/local/bin"
@@ -205,7 +208,7 @@ it doesn't exist."
     ;; unless we fix it.
     (setenv "LANG" "en_US.UTF-8")))
 
-(when basis/cygwin-p
+(when (eq basis/system-type 'windows+cygwin)
   (basis/init-for-cygwin))
 
 
@@ -390,13 +393,12 @@ it doesn't exist."
   :defer t
   :init
   (setq tramp-default-method
-        (if (and (eq system-type 'windows-nt)
-                 (not basis/cygwin-p))
+        (if (eq basis/system-type 'windows-nt)
             "plinkx"
           "sshx"))
   (setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
   ;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
-  (when basis/cygwin-p
+  (when (eq basis/system-type 'windows+cygwin)
     (setq tramp-encoding-shell (executable-find "sh")
           tramp-encoding-command-switch "-c"
           tramp-encoding-command-interactive "-i")))
@@ -971,7 +973,7 @@ is read-only and empty."
       ("[" #'compilation-previous-file))
     (setq ack-and-a-half-use-ido t)
     ;; Make Cygwin happy
-    (when (and basis/cygwin-p
+    (when (and (eq basis/system-type 'windows+cygwin)
                (stringp ack-and-a-half-executable)
                (string-prefix-p "c:" ack-and-a-half-executable))
       (setq ack-and-a-half-executable
@@ -1507,10 +1509,11 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :config
   (progn
-    (cond ((eq system-type 'darwin)
-           (basis/set-lein-command-for-mac))
-          (basis/cygwin-p
-           (basis/set-lein-command-for-cygwin)))
+    (pcase basis/system-type
+      (`darwin
+       (basis/set-lein-command-for-mac))
+      (`windows+cygwin
+       (basis/set-lein-command-for-cygwin)))
     (add-hook 'cider-mode-hook #'basis/init-cider-mode)
     (basis/define-eval-keys cider-mode-map
       (last-sexp  #'cider-eval-last-sexp)
@@ -1619,8 +1622,7 @@ Use `paredit' in these modes rather than `smartparens'.")
     (setq python-fill-docstring-style 'pep-257-nn)
     (add-hook 'python-mode-hook #'basis/init-python-mode)
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
-    (when (and (eq system-type 'windows-nt)
-               basis/cygwin-p)
+    (when (eq basis/system-type 'windows+cygwin)
       (advice-add (if (fboundp 'python-shell-calculate-command)
                       'python-shell-calculate-command
                     'python-shell-parse-command)
@@ -2233,8 +2235,7 @@ Move forward by a line and indent if invoked directly between."
             (mapcar #'directory-file-name)))
     (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
     (add-hook 'magit-status-mode-hook #'delete-other-windows)
-    (when (and (eq system-type 'windows-nt)
-               basis/cygwin-p)
+    (when (eq basis/system-type 'windows+cygwin)
       (advice-add 'magit-toplevel
                   :filter-return
                   #'basis/magit-expand-toplevel)
@@ -2262,8 +2263,7 @@ Move forward by a line and indent if invoked directly between."
   ;; On Cygwin, fix `with-editor-emacsclient-executable' and advice
   ;; `with-editor-locate-emacsclient' so that its result is accurate for any
   ;; future uses.
-  :config (when (and (eq system-type 'windows-nt)
-                     basis/cygwin-p)
+  :config (when (eq basis/system-type 'windows+cygwin)
             (when-let ((client with-editor-emacsclient-executable)
                        (client (basis/fix-bad-cygwin-file-name client)))
               (setq with-editor-emacsclient-executable client))
@@ -2374,8 +2374,7 @@ Move forward by a line and indent if invoked directly between."
           (setq projectile-use-git-grep t)
           ;; Projectile defaults to native indexing on Windows, but if we have
           ;; Cygwin set up we can use "alien".
-          (if (and (eq system-type 'windows-nt)
-                   (not basis/cygwin-p))
+          (if (eq basis/system-type 'windows-nt)
               (setq projectile-indexing-method 'native
                     projectile-enable-caching t)
             (setq projectile-indexing-method 'alien
@@ -2384,7 +2383,7 @@ Move forward by a line and indent if invoked directly between."
           (global-set-key projectile-keymap-prefix
                           #'basis/hydra-projectile/body))
   :config
-  (when (and (eq system-type 'windows-nt) basis/cygwin-p)
+  (when (eq basis/system-type 'windows+cygwin)
     (define-key projectile-mode-map
       [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags))
   :diminish projectile-mode)
@@ -2490,7 +2489,7 @@ buffer."
   ;; Not sure why comint/dirtrack see junk in front of my prompt with Cygwin's
   ;; zsh, so just work around it
   :init (setq-default dirtrack-list
-                      (if basis/cygwin-p
+                      (if (eq basis/system-type 'windows+cygwin)
                           '("^%[ \r]*\\(.+\\)>" 1)
                         '("^[^:\n]+@[^:\n]+:\\(.+\\)>" 1)))
   :config (add-hook 'shell-mode-hook #'basis/init-shell-mode))

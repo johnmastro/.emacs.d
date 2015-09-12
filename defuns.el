@@ -1878,7 +1878,7 @@ resulting file to contain invalid paths. Use
 `basis/maybe-cygwinize-drive-letter' to convert the path to e.g.
 \"/foo/TAGS\". This assumes the Cygwin path prefix is \"/\"."
   (interactive)
-  (if (and (eq system-type 'windows-nt) basis/cygwin-p)
+  (if (eq basis/system-type 'windows+cygwin)
       (let* ((project-root (projectile-project-root))
              (tags-exclude (projectile-tags-exclude-patterns))
              (default-directory project-root)
