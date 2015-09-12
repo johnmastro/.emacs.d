@@ -2241,8 +2241,13 @@ Move forward by a line and indent if invoked directly between."
       (advice-add 'magit-list-repos
                   :filter-return
                   #'basis/magit-list-repos-uniquely)
-      (fset 'magit-process-git-arguments
-            #'basis/magit-process-git-arguments))
+      (dolist (sym '(magit-call-process
+                     magit-start-process
+                     magit-git-insert
+                     magit-git-exit-code
+                     magit-git-str
+                     magit-patch-id))
+        (advice-add sym :around #'basis/cygwin-noglob)))
     ;; Add a command on `C-c C-v' to view the pull request URL. It would be even
     ;; better to add this to Magit's menus but nowhere sticks out as obviously
     ;; appropriate.
