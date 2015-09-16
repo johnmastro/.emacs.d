@@ -227,8 +227,9 @@ it doesn't exist."
       recenter-positions '(top middle bottom)
       scroll-preserve-screen-position t
       delete-by-moving-to-trash t
-      gc-cons-threshold 20000000 ; 20MB
-      temporary-file-directory (basis/emacs-dir "tmp/"))
+      gc-cons-threshold (* 20 1024 1024)
+      temporary-file-directory (basis/emacs-dir "tmp/")
+      enable-recursive-minibuffers t)
 
 ;; Prevent point from entering the minibuffer prompt
 (setq minibuffer-prompt-properties
@@ -415,6 +416,9 @@ it doesn't exist."
                   ("CET-1CDT" "Paris")
                   ("IST-5:30" "Bangalore")
                   ("JST-9"    "Tokyo"))))
+
+(use-package mb-depth
+  :config (minibuffer-depth-indicate-mode))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
