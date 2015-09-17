@@ -1876,6 +1876,22 @@ If it doesn't exist, BUFFER is created automatically."
       (direx:item-name)
       (direx:canonical-filename))))
 
+(defun basis/download-file (url destination &optional visit)
+  "Download URL to DESTINATION.
+If VISIT is non-nil, visit the file after downloading it."
+  (interactive
+   (let* ((url (read-string "URL: " (thing-at-point 'url)))
+          (name (thread-first url
+                  url-generic-parse-url
+                  url-path-and-query
+                  car
+                  (split-string "/")
+                  last
+                  car)))
+     (list url (read-file-name "Destination: " nil name) current-prefix-arg)))
+  (url-copy-file url destination 0)
+  (when visit (find-file destination)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
