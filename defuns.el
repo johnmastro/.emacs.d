@@ -1633,10 +1633,11 @@ See also `basis/fix-bad-cygwin-file-name'."
 
 (defun basis/cygwin-noglob (function &rest args)
   "Add \"CYGWIN=noglob\" to the environment while invoking `function'."
-  (let ((process-environment process-environment))
-    (setenv "CYGWIN" (if-let ((val (getenv "CYGWIN")))
-                         (concat val " noglob")
-                       "noglob"))
+  (let ((process-environment (cons (concat "CYGWIN="
+                                           (if-let ((val (getenv "CYGWIN")))
+                                               (concat val " noglob")
+                                             "noglob"))
+                                   process-environment)))
     (apply function args)))
 
 (defun basis/magit-cygwin-save-repository-buffers (&optional arg)
