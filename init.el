@@ -2238,7 +2238,6 @@ Move forward by a line and indent if invoked directly between."
             ;; Remove the trailing slashes
             (mapcar #'directory-file-name)))
     (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
-    (add-hook 'magit-mode-hook #'basis/set-list-buffers-directory)
     (add-hook 'magit-status-mode-hook #'delete-other-windows)
     (when (eq basis/system-type 'windows+cygwin)
       (advice-add 'magit-toplevel
