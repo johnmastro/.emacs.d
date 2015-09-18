@@ -546,7 +546,7 @@ If no region is active, examine the full buffer."
         (setq count (1+ count))
         (forward-line))
       (when (called-interactively-p 'interactive)
-        (message "SLOC in %s: %d" kind count)))))
+        (message "SLOC: %d" count)))))
 
 (defun basis/cycle-spacing-fast (&optional n)
   "Invoke `cycle-spacing' in `fast' MODE."
@@ -557,7 +557,7 @@ If no region is active, examine the full buffer."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
-(defun basis/isearch-backspace (&optional arg)
+(defun basis/isearch-backspace (&optional _arg)
   "Delete non-matching text or the last character."
   (interactive "p")
   (if (zerop (length isearch-string))
@@ -793,7 +793,7 @@ with `helm-read-file-name'."
   "Run `magit-status' from `helm-source-find-files'."
   (interactive)
   (with-helm-alive-p
-    (helm-quit-and-execute-action #'magit-status)))
+    (helm-exit-and-execute-action #'magit-status)))
 
 (defun basis/helm-pages-get-next-header ()
   "Alternative implementation of `helm-pages-get-next-header'.
@@ -809,7 +809,7 @@ or comment starters."
           (forward-line))
         (let* ((start (progn (beginning-of-line) (point)))
                (end (progn (end-of-line) (point))))
-          (buffer-substring start end))))))
+          (buffer-substring-no-properties start end))))))
 
 (defun basis/yas-expand-or-insert ()
   "Call `yas-expand' or `yas-insert-snippet' depending on context.
@@ -1621,10 +1621,10 @@ make sure its in the same form that Emacs uses (i.e.
 \"c:/path/to/somewhere\")."
   (and result (expand-file-name result)))
 
-(defun basis/fix-located-emacsclient-file-name (name)
+(defun basis/with-editor-cygwin-fix-file-name (name)
   "Advice for `with-editor-locate-emacsclient'.
-See also `basis/fix-bad-cygwin-file-name'."
-  (and name (basis/fix-bad-cygwin-file-name name)))
+See also `basis/cygwin-fix-file-name'."
+  (and name (basis/cygwin-fix-file-name name)))
 
 (defun basis/magit-list-repos-uniquely (result)
   "Advice for `magit-list-repos'."
@@ -1662,7 +1662,7 @@ representation before comparing them."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
 
-(defun basis/comint-input-goto-bottom-if-necessary (function &rest args)
+(defun basis/comint-input-goto-bottom-if-necessary (&rest _args)
   "Advice for `comint' {previous,next}-input commands.
 If an adviced command would signal a \"Not at command line\"
 user-error, automatically move point to the command line."
@@ -1782,7 +1782,7 @@ Assumes Cygwin's path prefix is \"/\"."
                         file))
         (t file)))
 
-(defun basis/fix-bad-cygwin-file-name (name)
+(defun basis/cygwin-fix-file-name (name)
   "Un-escape the colon drive letter separator in NAME.
 For example, given \"c\\:/path/to/file\" return
 \"c:/path/to/file\". Used to adjust the result of

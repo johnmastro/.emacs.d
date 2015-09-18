@@ -1631,7 +1631,7 @@ Use `paredit' in these modes rather than `smartparens'.")
                       'python-shell-calculate-command
                     'python-shell-parse-command)
                   :filter-return
-                  #'basis/fix-bad-cygwin-file-name))
+                  #'basis/cygwin-fix-file-name))
     ;; Jedi has 2 Python dependencies: jedi and epc
     (when (basis/jedi-installed-p)
       (setq jedi:setup-keys t
@@ -2269,11 +2269,11 @@ Move forward by a line and indent if invoked directly between."
   ;; future uses.
   :config (when (eq basis/system-type 'windows+cygwin)
             (when-let ((client with-editor-emacsclient-executable)
-                       (client (basis/fix-bad-cygwin-file-name client)))
+                       (client (basis/cygwin-fix-file-name client)))
               (setq with-editor-emacsclient-executable client))
             (advice-add 'with-editor-locate-emacsclient
                         :filter-return
-                        #'basis/fix-located-emacsclient-file-name)))
+                        #'basis/with-editor-cygwin-fix-file-name)))
 
 (use-package gist
   :ensure t
@@ -2439,7 +2439,7 @@ buffer."
     (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
           dired-recursive-deletes 'top
           dired-listing-switches "-alh"
-          find-ls-options '("-exec ls -ldh {} +" . "-ldh"))
+          find-ls-option '("-exec ls -ldh {} +" . "-ldh"))
     (put 'dired-find-alternate-file 'disabled nil)
     (add-hook 'dired-mode-hook #'dired-omit-mode)
     (advice-add 'dired-omit-expunge
