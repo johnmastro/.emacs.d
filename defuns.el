@@ -1813,29 +1813,6 @@ For example, given \"c\\:/path/to/file\" return
   (goto-char (point-max))
   (dired-next-line -1))
 
-(defvar basis/dired-sorting-options
-  '(("modification" . "c")
-    ("access"       . "u")
-    ("size"         . "S")
-    ("extension"    . "X")
-    ("name"         . ""))
-  "Sorting options and their associated ls switches.")
-
-(defun basis/dired-sort-by (what)
-  "Sort this `dired-mode' buffer by WHAT.
-WHAT must be an option in `dired-sorting-options'."
-  (interactive
-   (list (completing-read "Sort by: "
-                          (mapcar #'car basis/dired-sorting-options)
-                          nil
-                          t)))
-  ;; This assumes we can slap the sort option on the end of
-  ;; `dired-listing-switches'. It works with my current setup (and the default
-  ;; value) but is fragile and unsatisfactory.
-  (if-let ((opt (cdr (assoc what basis/dired-sorting-options))))
-      (dired-sort-other (concat dired-listing-switches opt))
-    (error "Don't know how to sort by '%s'" what)))
-
 (defun basis/dired-slurp-files (files buffer)
   "Insert the contents of marked FILES into BUFFER.
 If it doesn't exist, BUFFER is created automatically."
