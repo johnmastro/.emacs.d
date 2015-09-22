@@ -2246,13 +2246,6 @@ Move forward by a line and indent if invoked directly between."
       (advice-add 'magit-list-repos
                   :filter-return
                   #'basis/magit-list-repos-uniquely)
-      (dolist (sym '(magit-call-process
-                     magit-start-process
-                     magit-git-insert
-                     magit-git-exit-code
-                     magit-git-str
-                     magit-patch-id))
-        (advice-add sym :around #'basis/cygwin-noglob))
       (fset 'magit-save-repository-buffers
             #'basis/magit-cygwin-save-repository-buffers)
       ;; I haven't figured out yet why the Magit commands for saving and popping
