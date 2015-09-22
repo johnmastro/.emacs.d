@@ -2254,7 +2254,19 @@ Move forward by a line and indent if invoked directly between."
                      magit-patch-id))
         (advice-add sym :around #'basis/cygwin-noglob))
       (fset 'magit-save-repository-buffers
-            #'basis/magit-cygwin-save-repository-buffers))
+            #'basis/magit-cygwin-save-repository-buffers)
+      ;; I haven't figured out yet why the Magit commands for saving and popping
+      ;; stashes fail on my Windows+Cygwin setup at work, but this gives me
+      ;; quick access to the simplest usage in the meantime.
+      (pcase-dolist (`(,key ,cmd ,before) '((?z save ?Z)
+                                            (?Z snapshot ?p)
+                                            (?p pop ?i)))
+        (magit-define-popup-action 'magit-stash-popup
+          key
+          (capitalize (symbol-name cmd))
+          (intern (format "basis/magit-stash-%s" cmd))
+          before
+          'prepend)))
     ;; Add a command on `C-c C-v' to view the pull request URL. It would be even
     ;; better to add this to Magit's menus but nowhere sticks out as obviously
     ;; appropriate.

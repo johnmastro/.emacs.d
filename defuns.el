@@ -1658,6 +1658,26 @@ representation before comparing them."
                      dir)
                    topdir))))))
 
+(defun basis/magit-stash-save (message &optional include-untracked)
+  "Run \"git stash save\"."
+  (interactive (magit-stash-read-args))
+  (if (magit-git-success "stash" "save" (and include-untracked "-u") message)
+      (magit-refresh)
+    (error "Unable to stash")))
+
+(defun basis/magit-stash-snapshot (&optional include-untracked)
+  "Run \"git stash save\" with a generated message."
+  (interactive (magit-snapshot-read-args))
+  (basis/magit-stash-save (concat "WIP on " (magit-stash-summary))
+                          include-untracked))
+
+(defun basis/magit-stash-pop (stash)
+  "Run \"git stash pop\"."
+  (interactive (list (magit-read-stash "Apply pop" t)))
+  (if (magit-git-success "stash" "pop" stash)
+      (magit-refresh)
+    (error "Unable to pop stash")))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
