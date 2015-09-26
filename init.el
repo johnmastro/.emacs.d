@@ -1908,6 +1908,11 @@ Use `paredit' in these modes rather than `smartparens'.")
   :config
   (progn
     (define-key org-mode-map (kbd "RET") #'org-return-indent)
+    (setq org-structure-template-alist
+          (mapcar (lambda (elt)
+                    (pcase-let ((`(,key ,val) elt))
+                      (list key (downcase val))))
+                  org-structure-template-alist))
     (require 'ob)
     (require 'ob-tangle)
     (require 'ob-clojure)
