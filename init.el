@@ -204,6 +204,7 @@ it doesn't exist."
             ediff-shell shell
             null-device "/dev/null")
       (setenv "SHELL" shell))
+    (setq locale-coding-system 'utf-8)
     ;; Since Emacs wasn't launched from a Cygwin shell, $LANG will be wonky
     ;; unless we fix it.
     (setenv "LANG" "en_US.UTF-8")))
