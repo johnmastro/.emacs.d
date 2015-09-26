@@ -1311,8 +1311,7 @@ is read-only and empty."
 (use-package prog-mode
   :config
   (add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
-  (add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode)
-  (add-hook 'prog-mode-hook #'basis/font-lock-add-watchwords))
+  (add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode))
 
 (defvar basis/lisp-modes
   '(lisp-mode

@@ -2026,13 +2026,6 @@ If provided, BACKGROUND-MODE specifies which variant to use:
                           (`darwin (font-spec :family "Apple Color Emoji")))))
     (set-fontset-font t 'symbol font-spec frame 'prepend)))
 
-(defun basis/font-lock-add-watchwords (&optional mode)
-  "Highlight \"watchwords\" with `font-lock-warning-face'."
-  (font-lock-add-keywords
-   mode
-   '(("\\<\\(FIX\\(ME\\)?\\|TODO\\|HACK\\|XXX\\|REFACTOR\\|NOCOMMIT\\|KLUDGE\\)"
-      1 font-lock-warning-face t))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Miscellaneous
