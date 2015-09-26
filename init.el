@@ -1879,7 +1879,8 @@ Use `paredit' in these modes rather than `smartparens'.")
     (setq org-completion-use-ido t
           org-outline-path-complete-in-steps nil
           org-reverse-note-order t
-          org-log-done t)
+          org-log-done t
+          org-special-ctrl-a/e t)
     ;; Agenda
     (setq org-agenda-start-on-weekday nil
           org-agenda-skip-scheduled-if-done t
