@@ -85,8 +85,8 @@ it doesn't exist."
 
 (use-package auto-compile
   :ensure t
-  :config (progn (auto-compile-on-load-mode 1)
-                 (auto-compile-on-save-mode 1)))
+  :config (progn (auto-compile-on-load-mode)
+                 (auto-compile-on-save-mode)))
 
 (use-package bind-key
   :ensure t)
@@ -265,7 +265,7 @@ it doesn't exist."
                ;; Let C-n add newlines, and don't deactivate the mark
                (setq next-line-add-newlines t))
   :config (progn
-            (size-indication-mode 1)
+            (size-indication-mode)
             (advice-add 'next-line :around #'basis/next-line-no-deactivate-mark)
             ;; Keep popping the mark until point actually moves
             (advice-add 'pop-to-mark-command
@@ -340,16 +340,16 @@ it doesn't exist."
             (server-start)))
 
 (use-package hl-line
-  :config (global-hl-line-mode 1))
+  :config (global-hl-line-mode))
 
 (use-package paren
-  :config (show-paren-mode 1))
+  :config (show-paren-mode))
 
 (use-package jka-cmpr-hook
-  :config (auto-compression-mode 1))
+  :config (auto-compression-mode))
 
 (use-package delsel
-  :config (delete-selection-mode 1))
+  :config (delete-selection-mode))
 
 (use-package subword
   :defer t
@@ -360,7 +360,7 @@ it doesn't exist."
   :diminish superword-mode)
 
 (use-package autorevert
-  :config (progn (global-auto-revert-mode 1)
+  :config (progn (global-auto-revert-mode)
                  (setq global-auto-revert-non-file-buffers t
                        auto-revert-verbose nil)))
 
@@ -392,7 +392,7 @@ it doesn't exist."
   :init (setq recentf-max-saved-items 50
               recentf-save-file (basis/emacs-file "var/recentf")
               recentf-exclude (list #'tramp-tramp-file-p #'file-remote-p))
-  :config (recentf-mode 1))
+  :config (recentf-mode))
 
 (use-package tramp
   :defer t
@@ -478,7 +478,7 @@ it doesn't exist."
 (use-package page-break-lines
   :ensure t
   :defer t
-  ;; :config (global-page-break-lines-mode 1)
+  ;; :config (global-page-break-lines-mode)
   :diminish page-break-lines-mode)
 
 
@@ -541,7 +541,7 @@ it doesn't exist."
 (use-package guide-key
   :ensure t
   :config (progn
-            (guide-key-mode 1)
+            (guide-key-mode)
             (setq guide-key/popup-window-position 'bottom)
             (setq guide-key/idle-delay 0.0)
             (setq guide-key/guide-key-sequence
@@ -557,7 +557,7 @@ it doesn't exist."
 
 ;; C-c <left>/<right> to move backward/forward through window configurations
 (use-package winner
-  :config (winner-mode 1))
+  :config (winner-mode))
 
 ;; Make `next-line-add-newlines' safe for keyboard macros
 (global-set-key (kbd "C-n") #'basis/next-line)
@@ -802,7 +802,7 @@ See `basis/define-eval-keys'.")
 
 (use-package undo-tree
   :ensure t
-  :config (global-undo-tree-mode 1)
+  :config (global-undo-tree-mode)
   :diminish undo-tree-mode)
 
 (use-package expand-region
@@ -1016,11 +1016,11 @@ is read-only and empty."
 (use-package flx-ido
   :ensure t
   :init (setq flx-ido-threshhold 10000)
-  :config (flx-ido-mode 1))
+  :config (flx-ido-mode))
 
 (use-package ido-vertical-mode
   :ensure t
-  :config (ido-vertical-mode 1))
+  :config (ido-vertical-mode))
 
 (use-package idomenu
   :ensure t
@@ -1095,7 +1095,7 @@ is read-only and empty."
   :ensure helm
   :init (setq helm-mode-handle-completion-in-region nil)
   :config
-  (progn (helm-mode 1)
+  (progn (helm-mode)
          ;; None of helm, ido, or ivy seem to handle `Info-goto-node'
          (add-to-list 'helm-completing-read-handlers-alist '(Info-goto-node))))
 
@@ -1347,7 +1347,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (defun basis/init-lisp-generic ()
   "Enable features useful in all Lisp modes."
-  (paredit-mode +1))
+  (paredit-mode))
 
 (defun basis/init-hippie-expand-for-elisp ()
   "Enable Lisp symbol completion in `hippie-exp'."
@@ -1464,7 +1464,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (defun basis/init-clojure-mode ()
   (subword-mode)
-  (clj-refactor-mode 1)
+  (clj-refactor-mode)
   (cljr-add-keybindings-with-prefix "C-h m"))
 
 (defun basis/init-cider-repl-mode ()
@@ -1600,7 +1600,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :config (add-hook 'geiser-repl-mode-hook #'basis/init-lisp-generic))
 
 (defun basis/init-python-mode ()
-  (subword-mode 1)
+  (subword-mode)
   (basis/maybe-enable-flycheck)
   (setq fill-column 79)
   (setq tab-width 4)
@@ -1608,7 +1608,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   (setq-local electric-indent-chars (remove ?: electric-indent-chars)))
 
 (defun basis/init-inferior-python-mode ()
-  (subword-mode 1)
+  (subword-mode)
   (setq tab-width 4))
 
 (use-package python
@@ -1698,7 +1698,7 @@ Use `paredit' in these modes rather than `smartparens'.")
                             ""))))))
 
 (defun basis/init-rust-mode ()
-  (subword-mode 1)
+  (subword-mode)
   (basis/rust-set-compile-command))
 
 (use-package rust-mode
@@ -1710,7 +1710,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (defun basis/init-js2-mode ()
   (setq tab-width 4)
-  (subword-mode 1)
+  (subword-mode)
   (js2-imenu-extras-setup))
 
 (use-package js2-mode
@@ -1793,7 +1793,7 @@ Use `paredit' in these modes rather than `smartparens'.")
                      defun-close-semi
                      empty-defun-braces))
     (add-to-list 'c-cleanup-list cleanup))
-  (subword-mode 1))
+  (subword-mode))
 
 (defun basis/init-c ()
   (c-set-style "python")
@@ -1853,7 +1853,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 ;;; Text, markup, and configuration modes
 
 (defun basis/init-text-mode ()
-  (auto-fill-mode 1)
+  (auto-fill-mode)
   (basis/maybe-enable-flyspell)
   (when ispell-alternate-dictionary
     (add-to-list 'company-backends 'company-ispell)))
@@ -1938,7 +1938,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (defun basis/init-html-mode ()
   (setq tab-width 4)
-  (tagedit-mode 1))
+  (tagedit-mode))
 
 (defun basis/sgml-delete-tag-reindent (&rest _ignore)
   "Advice for `sgml-delete-region' to reindent the buffer."
@@ -2501,7 +2501,7 @@ buffer."
 (defun basis/init-shell-mode ()
   (setq comint-process-echoes t)
   (shell-dirtrack-mode -1)
-  (dirtrack-mode +1))
+  (dirtrack-mode))
 
 (use-package shell
   :defer t
