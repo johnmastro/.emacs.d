@@ -272,12 +272,15 @@ it doesn't exist."
                         #'basis/pop-to-mark-ensure-new-pos)))
 
 (use-package mule
-  :config (progn (prefer-coding-system 'utf-8)
-                 (set-default-coding-systems 'utf-8)
-                 (set-terminal-coding-system 'utf-8)
-                 (set-keyboard-coding-system 'utf-8)
-                 (set-selection-coding-system 'utf-8)
-                 (set-language-environment 'utf-8)))
+  :config
+  (let ((fns (list #'prefer-coding-system
+                   #'set-default-coding-systems
+                   #'set-terminal-coding-system
+                   #'set-keyboard-coding-system
+                   #'set-language-environment
+                   #'set-selection-coding-system)))
+    (dolist (fn (if (eq system-type 'windows-nt) (butlast fns) fns))
+      (funcall fn 'utf-8))))
 
 (defun basis/maybe-set-coding ()
   (when (and (eq system-type 'windows-nt)
