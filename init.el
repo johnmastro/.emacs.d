@@ -1107,11 +1107,13 @@ is read-only and empty."
                      helm-ff-file-name-history-use-recentf t
                      helm-ff-search-library-in-sexp t
                      helm-recentf-fuzzy-match t))
-  :config (basis/define-keys helm-find-files-map
-            ("TAB"   #'helm-execute-persistent-action)
-            ("M-s"   #'helm-select-action)
-            ("DEL"   #'basis/helm-backspace)
-            ("C-x g" #'basis/helm-ff-run-magit-status)))
+  :config (progn (basis/define-keys helm-find-files-map
+                   ("TAB"   #'helm-execute-persistent-action)
+                   ("M-s"   #'helm-select-action)
+                   ("DEL"   #'basis/helm-backspace)
+                   ("C-x g" #'basis/helm-ff-run-magit-status))
+                 ;; Disable `ffap' behavior
+                 (advice-add 'helm-find-files-input :override #'ignore)))
 
 (use-package helm-locate
   :ensure helm
