@@ -920,11 +920,11 @@ is read-only and empty."
   :ensure t
   :defer t)
 
-;; replace.el doesn't (provide 'replace)
-(with-eval-after-load "replace"
-  (defalias 'qrr #'query-replace-regexp)
-  (define-key occur-mode-map (kbd "n") #'occur-next)
-  (define-key occur-mode-map (kbd "p") #'occur-prev))
+;; replace.el doesn't ‘(provide 'replace)’
+(defalias 'qrr #'query-replace-regexp)
+(global-set-key (kbd "ESC M-%") #'query-replace-regexp)
+(define-key occur-mode-map (kbd "n") #'occur-next)
+(define-key occur-mode-map (kbd "p") #'occur-prev)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
