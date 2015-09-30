@@ -1545,12 +1545,14 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
 
 (defun basis/maybe-enable-flyspell ()
   "Enable `flyspell-mode', except for remote files."
+  (require 'ispell)
   (when (and ispell-program-name
              (not (basis/file-remote-p buffer-file-name)))
     (flyspell-mode)))
 
 (defun basis/maybe-enable-flyspell-prog-mode ()
   "Enable `flyspell-prog-mode', except for remote files."
+  (require 'ispell)
   (when (and ispell-program-name
              (not (basis/file-remote-p buffer-file-name)))
     (flyspell-prog-mode)))
@@ -1559,8 +1561,7 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
   "Enable `whitespace-mode' in programming modes (but not REPLs)."
   (interactive)
   (unless (or (derived-mode-p 'comint-mode)
-              (eq major-mode 'eshell-mode)
-              (eq major-mode 'cider-repl-mode))
+              (memq major-mode '(eshell-mode cider-repl-mode)))
     (whitespace-mode 1)))
 
 
