@@ -703,6 +703,12 @@ it doesn't exist."
   ("V" #'apropos-value)
   ("a" #'helm-apropos))
 
+;; Make it harder to accidentally `suspend-frame'
+(basis/define-map basis/ctl-z-map (:key "C-z")
+  ("C-z" #'suspend-frame))
+
+(global-set-key (kbd "C-x C-z") #'repeat)
+
 (basis/define-map basis/h-map ()
   ("C-k" #'basis/kill-this-buffer)
   ("C-h" #'mark-paragraph))
