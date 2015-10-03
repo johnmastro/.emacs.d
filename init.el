@@ -596,8 +596,10 @@ it doesn't exist."
   ("s-w"    #'basis/kill-ring-save-indented))
 
 ;; Join lines
-(global-set-key (kbd "C-c C-j") #'basis/join-next-line)
-(global-set-key (kbd "C-c j") #'basis/join-next-line)
+(basis/define-keys global-map
+  ("C-c C-j" #'basis/join-next-line)
+  ("C-c j"   #'basis/join-next-line)
+  ("ESC M-q" #'basis/unfill-paragraph))
 
 ;; Transpose stuff with M-t
 (define-prefix-command 'basis/transposition-map)

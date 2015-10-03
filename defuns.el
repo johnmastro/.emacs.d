@@ -553,6 +553,12 @@ If no region is active, examine the full buffer."
   (interactive "*p")
   (cycle-spacing n nil 'fast))
 
+(defun basis/unfill-paragraph ()
+  "Un-fill the current paragraph."
+  (interactive)
+  (let ((fill-column most-positive-fixnum))
+    (fill-paragraph nil t)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
@@ -2128,6 +2134,12 @@ kill the current session even if there are multiple frames."
   (let ((overlay (make-overlay start end)))
     (overlay-put overlay 'face 'secondary-selection)
     (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
+
+(defun basis/string-before-p (string)
+  "Return non-nil if STRING is right before point."
+  (string= string (ignore-errors
+                    (buffer-substring-no-properties
+                     (- (point) (length string)) (point)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
