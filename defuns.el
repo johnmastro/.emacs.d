@@ -875,7 +875,8 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
     (font-lock-add-keywords
      'emacs-lisp-mode
      `((,(concat "(\\s-*" (regexp-opt keywords 'paren) "\\_>")
-        1 font-lock-keyword-face)) 'append)
+        1 font-lock-keyword-face))
+     'append)
     (mapc (lambda (buffer)
             (with-current-buffer buffer
               (when (and (eq major-mode 'emacs-lisp-mode)
@@ -883,18 +884,23 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
                 (font-lock-refresh-defaults))))
           (buffer-list))))
 
-(defun basis/elisp-quote (beg end)
-  "Put the region from BEG to END in Emacs Lisp-style quotes.
-If called interactively without an active region, the symbol at
-point is used instead, if any."
-  (interactive (basis/bounds-of-region-or-thing 'symbol))
-  (unless (and beg end)
-    (error "Invalid region"))
-  (let ((end (move-marker (make-marker) end)))
-    (goto-char beg)
-    (insert "`")
-    (goto-char end)
-    (insert "'")))
+(defun basis/elisp-quote (beg end &optional curly)
+  "Surround the region from BEG to END in Emacs Lisp-style quotes.
+If called interactively without an active region, use the symbol
+at point, if any. With a prefix argument, use ‘curly quotes’."
+  (interactive (append (or (basis/bounds-of-region-or-thing 'symbol)
+                           (list (point) (point)))
+                       (list current-prefix-arg)))
+  (let ((quotes (if curly "‘’" "`'")))
+    (if (eq beg end)
+        (progn (goto-char beg)
+               (insert quotes)
+               (forward-char -1))
+      (let ((end (move-marker (make-marker) end)))
+        (goto-char beg)
+        (insert (elt quotes 0))
+        (goto-char end)
+        (insert (elt quotes 1))))))
 
 (defun basis/bug-number-at-point ()
   "Return the bug number at point, if any, as a string."
