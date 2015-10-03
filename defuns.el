@@ -9,12 +9,28 @@
   (declare (indent 1))
   `(progn
      ,@(mapcar (lambda (keydef)
-                 (let ((key (if (vectorp (car keydef))
-                                (car keydef)
-                              (read-kbd-macro (car keydef))))
-                       (def (cadr keydef)))
-                   `(define-key ,keymap ,key ,def)))
+                 (let* ((key (car keydef))
+                        (def (cadr keydef))
+                        (kbd (if (vectorp key) key `(kbd ,key))))
+                   `(define-key ,keymap ,kbd ,def)))
                keydefs)))
+
+(defmacro basis/define-map (name args &rest keydefs)
+  "Define a prefix map named NAME."
+  (declare (indent 2))
+  (let* ((key (plist-get args :key))
+         (kbd (cond ((vectorp key) key)
+                    ((stringp key) `(kbd ,key))
+                    ((null key) nil)
+                    (t (error "Invalid key: %s" key))))
+         (map (or (plist-get args :map) 'global-map))
+         (guide-key (plist-get args :guide-key)))
+    `(progn
+       (define-prefix-command ',name)
+       (basis/define-keys ,name ,@keydefs)
+       ,(and key `(define-key ,map ,kbd ',name))
+       ,(and key guide-key `(add-to-list 'guide-key/guide-key-sequence ,key))
+       ',name)))
 
 (defmacro basis/define-eval-keys (keymap &rest keydefs)
   "Define evaluation key bindings for various units of code.
@@ -24,9 +40,10 @@ See `basis/eval-keys'."
      ,@(mapcar (lambda (keydef)
                  (let* ((sym (car keydef))
                         (def (cadr keydef))
-                        (key (cdr (assq sym basis/eval-keys))))
+                        (key (cdr (assq sym basis/eval-keys)))
+                        (kbd (if (vectorp key) key `(kbd ,key))))
                    (if key
-                       `(define-key ,keymap (kbd ,key) ,def)
+                       `(define-key ,keymap ,kbd ,def)
                      (error "No eval key for '%s'" sym))))
                keydefs)))
 
@@ -41,7 +58,7 @@ See `basis/eval-keys'."
 
 (defmacro basis/create-simple-keybinding-command (name key)
   `(defun ,name (def &optional keymap)
-     (define-key (or keymap global-map) (read-kbd-macro ,key) def)))
+     (define-key (or keymap global-map) (kbd ,key) def)))
 
 (basis/create-simple-keybinding-command f1 "<f1>")
 (basis/create-simple-keybinding-command f2 "<f2>")

@@ -535,9 +535,6 @@ it doesn't exist."
   (`darwin     (basis/init-modifiers-for-os-x))
   (`windows-nt (basis/init-modifiers-for-windows)))
 
-(use-package hydra
-  :ensure t)
-
 (use-package guide-key
   :ensure t
   :config (progn
@@ -602,10 +599,7 @@ it doesn't exist."
   ("ESC M-q" #'basis/unfill-paragraph))
 
 ;; Transpose stuff with M-t
-(define-prefix-command 'basis/transposition-map)
-(global-set-key (kbd "M-t") 'basis/transposition-map)
-
-(basis/define-keys basis/transposition-map
+(basis/define-map basis/transposition-map (:key "M-t")
   ("l"   #'transpose-lines)
   ("w"   #'transpose-words)
   ("s"   #'transpose-sexps)
@@ -669,20 +663,15 @@ it doesn't exist."
 (global-set-key (kbd "<C-prior>") #'previous-buffer)
 (global-set-key (kbd "<C-next>") #'next-buffer)
 
-;; File operations
-(defhydra basis/hydra-file (:color blue :columns 2)
-  "Files"
-  ("c" helm-locate "locate")
-  ("d" basis/diff-buffer-with-file "diff")
-  ("r" basis/rename-current-buffer-file "rename")
-  ("D" basis/delete-current-buffer-file "delete")
-  ("f" find-name-dired "find name")
-  ("F" find-dired "find")
-  ("m" make-directory "make dir")
-  ("v" revert-buffer "revert buffer")
-  ("q" nil "cancel"))
-
-(global-set-key (kbd "C-c f") #'basis/hydra-file/body)
+(basis/define-map basis/file-map (:key "C-c f")
+  ("c" #'helm-locate)
+  ("d" #'basis/diff-buffer-with-file)
+  ("r" #'basis/rename-current-buffer-file)
+  ("D" #'basis/delete-current-buffer-file)
+  ("f" #'find-name-dired)
+  ("F" #'find-dired)
+  ("m" #'make-directory)
+  ("v" #'revert-buffer))
 
 ;; Open one or more files externally, using the `helm-external' machinery
 (global-set-key (kbd "C-c C-x") #'basis/open-file-externally)
@@ -691,10 +680,7 @@ it doesn't exist."
 (global-set-key (kbd "C-c q") #'basis/elisp-quote)
 
 ;; Random operations on regions
-(define-prefix-command 'basis/region-map)
-(global-set-key (kbd "C-c r") 'basis/region-map)
-
-(basis/define-keys basis/region-map
+(basis/define-map basis/region-map (:key "C-c r")
   ("a" #'align)
   ("c" #'basis/count-words)
   ("l" #'basis/count-sloc-region)
@@ -703,31 +689,27 @@ it doesn't exist."
 ;; Narrowing can be quite handy
 (put 'narrow-to-region 'disabled nil)
 
-(defhydra basis/hydra-find-lisp (:color blue :columns 2)
-  ("c" finder-commentary "finder commentary")
-  ("e" view-echo-area-messages "view echo area messages")
-  ("f" find-function "find function")
-  ("F" find-face-definition "find face definition")
-  ("i" info-apropos "info apropos")
-  ("k" find-function-on-key "find function on key")
-  ("l" find-library "find library")
-  ("m" info-display-manual "info display manual")
-  ("s" basis/scratch "scratch")
-  ("v" find-variable "find variable")
-  ("V" apropos-value "apropos value")
-  ("a" helm-apropos "helm apropos"))
+(basis/define-map basis/find-lisp-map (:key "<f1> e")
+  ("c" #'finder-commentary)
+  ("e" #'view-echo-area-messages)
+  ("f" #'find-function)
+  ("F" #'find-face-definition)
+  ("i" #'info-apropos)
+  ("k" #'find-function-on-key)
+  ("l" #'find-library)
+  ("m" #'info-display-manual)
+  ("s" #'basis/scratch)
+  ("v" #'find-variable)
+  ("V" #'apropos-value)
+  ("a" #'helm-apropos))
 
-(global-set-key (kbd "<f1> e") #'basis/hydra-find-lisp/body)
-
-(define-prefix-command 'basis/h-map)
+(basis/define-map basis/h-map ()
+  ("C-k" #'basis/kill-this-buffer)
+  ("C-h" #'mark-paragraph))
 
 ;; Note sure which will be better
 (global-set-key (kbd "C-h") 'basis/h-map)
 (global-set-key (kbd "M-h") 'basis/h-map)
-
-(basis/define-keys basis/h-map
-  ("C-k" #'basis/kill-this-buffer)
-  ("C-h" #'mark-paragraph))
 
 (defvar basis/eval-keys
   '((last-sexp  . "C-x C-e")
@@ -932,25 +914,22 @@ is read-only and empty."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; External search
 
-(defhydra basis/hydra-grep (:color blue :columns 2)
-  "Grep"
-  ("a"  ack-and-a-half "ack")
-  ("g"  grep "grep")
-  ("s"  lgrep "lgrep")
-  ("r"  rgrep "rgrep")
-  ("z"  zrgrep "zrgrep")
-  ("v"  projectile-grep "git grep project")
-  ("V"  vc-git-grep "git grep")
-  ("f"  find-grep "find-grep")
-  ("d"  find-grep-dired "find-grep-dired")
-  ("o"  occur "occur")
-  ("mo" multi-occur "multi-occur")
-  ("mm" multi-occur-in-matching-buffers "multi-occur matching")
-  ("q"  nil "cancel"))
+(basis/define-map basis/grep-map (:key "<f9>")
+  ("a"  #'ack-and-a-half)
+  ("g"  #'grep)
+  ("s"  #'lgrep)
+  ("r"  #'rgrep)
+  ("z"  #'zrgrep)
+  ("v"  #'projectile-grep)
+  ("V"  #'vc-git-grep)
+  ("f"  #'find-grep)
+  ("d"  #'find-grep-dired)
+  ("o"  #'occur)
+  ("mo" #'multi-occur)
+  ("mm" #'multi-occur-in-matching-buffers))
 
 (use-package grep
   :defer t
-  :init (global-set-key (kbd "<f9>") #'basis/hydra-grep/body)
   :config
   ;; On OS X, prefer GNU Grep if it's available
   (when (and (eq system-type 'darwin)
@@ -1047,8 +1026,7 @@ is read-only and empty."
                 helm-quick-update t
                 helm-truncate-lines t
                 helm-display-header-line nil)
-          (define-prefix-command 'basis/helm-map)
-          (basis/define-keys basis/helm-map
+          (basis/define-map basis/helm-map (:key "C-c h")
             ("a" #'helm-apropos)
             ("b" #'helm-buffers-list)
             ("c" #'helm-colors)
@@ -1069,8 +1047,7 @@ is read-only and empty."
             ("x" #'helm-M-x)
             ("y" #'helm-show-kill-ring)
             ("/" #'helm-find)
-            (":" #'helm-eval-expression-with-eldoc))
-          (global-set-key (kbd "C-c h") basis/helm-map))
+            (":" #'helm-eval-expression-with-eldoc)))
   :config (progn
             (require 'helm-utils) ; For the `helm-selection-line' face
             (basis/define-keys helm-map
@@ -2163,22 +2140,19 @@ Move forward by a line and indent if invoked directly between."
              (when (file-readable-p "~/Dropbox/dict/words")
                (setq ispell-alternate-dictionary "~/Dropbox/dict/words")))))
 
-(defhydra basis/hydra-flycheck (:color blue :columns 2)
-  ("c"   flycheck-buffer "check buffer")
-  ("n"   flycheck-next-error "next error")
-  ("p"   flycheck-previous-error "prev error")
-  ("l"   flycheck-list-errors "list errors")
-  ("s"   flycheck-select-checker "select checker")
-  ("C"   flycheck-clear "clear")
-  ("SPC" basis/flycheck-check-and-list-errors "check and list")
-  ("q"   nil "cancel"))
+(basis/define-map basis/flycheck-map (:key "C-h l")
+  ("c"   #'flycheck-buffer)
+  ("n"   #'flycheck-next-error)
+  ("p"   #'flycheck-previous-error)
+  ("l"   #'flycheck-list-errors)
+  ("s"   #'flycheck-select-checker)
+  ("C"   #'flycheck-clear)
+  ("SPC" #'basis/flycheck-check-and-list-errors))
 
 (use-package flycheck
   :ensure t
   :defer t
-  :init (progn
-          (global-set-key (kbd "C-h l") #'basis/hydra-flycheck/body)
-          (global-set-key (kbd "<f8>")  #'basis/flycheck-check-and-list-errors))
+  :init (global-set-key (kbd "<f8>")  #'basis/flycheck-check-and-list-errors)
   :config (progn
             (setq flycheck-check-syntax-automatically nil)
             (unless (basis/libxml-available-p)
@@ -2367,23 +2341,21 @@ Move forward by a line and indent if invoked directly between."
   :config
   (advice-add 'ibuffer-vc-root :around #'basis/ibuffer-vc-root-files-only))
 
-(defhydra basis/hydra-projectile (:color blue :columns 4)
-  "Projectile"
-  ("b"   projectile-switch-to-buffer "switch to buffer")
-  ("d"   projectile-find-dir "dir")
-  ("C-f" projectile-find-file "file")
-  ("ff"  projectile-find-file-dwim "file dwim")
-  ("fd"  projectile-find-file-in-directory "file in dir")
-  ("g"   projectile-grep "grep")
-  ("i"   projectile-ibuffer "ibuffer")
-  ("K"   projectile-kill-buffers "kill buffers")
-  ("o"   projectile-multi-occur "multi-occur")
-  ("p"   projectile-switch-project "switch")
-  ("r"   projectile-recentf "recentf")
-  ("x"   projectile-remove-known-project "remove known")
-  ("X"   projectile-cleanup-known-projects "cleanup non-existing")
-  ("z"   projectile-cache-current-file "cache current")
-  ("q"   nil "cancel"))
+(basis/define-map basis/projectile-map ()
+  ("b"   #'projectile-switch-to-buffer)
+  ("d"   #'projectile-find-dir)
+  ("C-f" #'projectile-find-file)
+  ("ff"  #'projectile-find-file-dwim)
+  ("fd"  #'projectile-find-file-in-directory)
+  ("g"   #'projectile-grep)
+  ("i"   #'projectile-ibuffer)
+  ("K"   #'projectile-kill-buffers)
+  ("o"   #'projectile-multi-occur)
+  ("p"   #'projectile-switch-project)
+  ("r"   #'projectile-recentf)
+  ("x"   #'projectile-remove-known-project)
+  ("X"   #'projectile-cleanup-known-projects)
+  ("z"   #'projectile-cache-current-file))
 
 (use-package projectile
   :ensure t
@@ -2403,7 +2375,7 @@ Move forward by a line and indent if invoked directly between."
                   projectile-enable-caching nil))
           (projectile-global-mode)
           (global-set-key projectile-keymap-prefix
-                          #'basis/hydra-projectile/body))
+                          'basis/projectile-map))
   :config
   (when (eq basis/system-type 'windows+cygwin)
     (define-key projectile-mode-map
