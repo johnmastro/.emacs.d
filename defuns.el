@@ -1606,14 +1606,15 @@ After quitting, restore the previous window configuration."
 (defun basis/magit-browse-pull-request-url ()
   "Visit the current branch's PR on GitHub."
   (interactive)
-  (browse-url
-   (format "https://github.com/%s/compare/%s"
-           ;; Or this? "https://github.com/%s/pull/new/%s"
-           (replace-regexp-in-string
-            "\\`.+github\\.com:\\(.+\\)\\.git\\'"
-            "\\1"
-            (magit-get "remote" (magit-get-remote) "url"))
-           (cdr (magit-get-remote-branch)))))
+  (if-let ((regexp "\\`.+github\\.com:\\(.+\\)\\.git\\'")
+           (remote (magit-get "remote" (magit-get-remote) "url"))
+           (repo (and (string-match regexp remote)
+                      (match-string 1 remote))))
+      ;; Or this? "https://github.com/%s/pull/new/%s"
+      (browse-url (format "https://github.com/%s/compare/%s"
+                          repo
+                          (cdr (magit-get-remote-branch))))
+    (error "No repo or remote associated with current buffer")))
 
 (defun basis/magit-expand-toplevel (result)
   "Advice for `magit-toplevel'.
