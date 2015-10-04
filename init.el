@@ -2433,9 +2433,13 @@ buffer."
       ([remap beginning-of-buffer] #'basis/dired-jump-to-top)
       ([remap end-of-buffer]       #'basis/dired-jump-to-bottom))
     (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
-          dired-recursive-deletes 'top
-          dired-listing-switches "-alh"
-          find-ls-option '("-exec ls -ldh {} +" . "-ldh"))
+          dired-recursive-deletes 'top)
+    (setq dired-listing-switches (if (eq system-type 'windows-nt)
+                                     "-alhGt"
+                                   "-alht"))
+    (setq find-ls-option (if (eq system-type 'windows-nt)
+                             '("-exec ls -ldhG {} +" . "-ldhG")
+                           '("-exec ls -ldh {} +" . "-ldh")))
     (put 'dired-find-alternate-file 'disabled nil)
     (add-hook 'dired-mode-hook #'dired-omit-mode)
     (advice-add 'dired-omit-expunge
