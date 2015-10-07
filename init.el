@@ -2398,15 +2398,6 @@ Move forward by a line and indent if invoked directly between."
                 compilation-scroll-output 'first-error
                 compilation-context-lines 2))
 
-(defun basis/dired-omit-expunge-quietly (function &rest args)
-  "Advice for `dired-omit-expunge'.
-Only print messages if the selected window contains a `dired'
-buffer."
-  (cl-letf (((symbol-value 'dired-omit-verbose)
-             (with-current-buffer (window-buffer (selected-window))
-               (eq major-mode 'dired-mode))))
-    (apply function args)))
-
 (use-package dired
   :defer t
   :config
@@ -2430,6 +2421,7 @@ buffer."
       ([remap beginning-of-buffer] #'basis/dired-jump-to-top)
       ([remap end-of-buffer]       #'basis/dired-jump-to-bottom))
     (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
+          dired-omit-verbose nil
           dired-recursive-deletes 'top)
     (setq dired-listing-switches (if (eq system-type 'windows-nt)
                                      "-alhGt"
@@ -2438,10 +2430,7 @@ buffer."
                              '("-exec ls -ldhG {} +" . "-ldhG")
                            '("-exec ls -ldh {} +" . "-ldh")))
     (put 'dired-find-alternate-file 'disabled nil)
-    (add-hook 'dired-mode-hook #'dired-omit-mode)
-    (advice-add 'dired-omit-expunge
-                :around
-                #'basis/dired-omit-expunge-quietly)))
+    (add-hook 'dired-mode-hook #'dired-omit-mode)))
 
 (use-package dired-x
   :defer t
