@@ -789,15 +789,12 @@ If already at the beginning of the field, call
 
 (defun basis/open-file-externally (files)
   "Open FILES externally.
-In `dired-mode', open the marked files; in `direx:direx-mode',
-open the file at point; otherwise, prompt for the file(s) to open
-with `helm-read-file-name'."
+In `dired-mode', open the marked files; otherwise, prompt for the
+file(s) to open with `helm-read-file-name'."
   (interactive
    (list (pcase major-mode
            (`dired-mode
             (dired-get-marked-files))
-           (`direx:direx-mode
-            (basis/direx-file-name-at-point))
            (_
             (helm-read-file-name
              "Open externally: "
@@ -1872,37 +1869,6 @@ If it doesn't exist, BUFFER is created automatically."
                        (error "Buffer not in `dired-mode'"))
                      (read-buffer "Destination buffer: ")))
   (basis/insert-files files (get-buffer-create buffer)))
-
-;; `direx' includes a package `direx-project', which implements its own project
-;; root finding. However, since I have `projectile' anyway it makes more sense
-;; to use it.
-
-(defun basis/direx-find-project-root-noselect ()
-  (when (projectile-project-p)
-    (direx:find-directory-noselect (projectile-project-root))))
-
-(defun basis/direx-jump-to-project-root-noselect ()
-  (interactive)
-  (if-let ((buffer (basis/direx-find-project-root-noselect)))
-      (progn (direx:maybe-goto-current-buffer-item buffer)
-             buffer)
-    ;; Or fall back to `default-directory'?
-    (error "Not in a project")))
-
-(defun basis/direx-jump-to-project-root ()
-  (interactive)
-  (switch-to-buffer (basis/direx-jump-to-project-root-noselect)))
-
-(defun basis/direx-jump-to-project-root-other-window ()
-  (interactive)
-  (switch-to-buffer-other-window (basis/direx-jump-to-project-root-noselect)))
-
-(defun basis/direx-file-name-at-point (&optional point)
-  "Return the absolute file name of the item at POINT."
-  (ignore-errors
-    (thread-first (direx:item-at-point point)
-      (direx:item-name)
-      (direx:canonical-filename))))
 
 (defun basis/download-file (url destination &optional visit)
   "Download URL to DESTINATION.

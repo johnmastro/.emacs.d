@@ -2440,14 +2440,6 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t)
 
-(use-package direx
-  :ensure t
-  :defer t
-  :init (global-set-key (kbd "C-h j") #'direx:jump-to-directory)
-  :config
-  (define-key direx:direx-mode-map (kbd "M-n") #'direx:next-sibling-item)
-  (define-key direx:direx-mode-map (kbd "M-p") #'direx:previous-sibling-item))
-
 (defun basis/init-comint-mode ()
   (setq comint-scroll-to-bottom-on-input 'this))
 
