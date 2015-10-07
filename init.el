@@ -521,24 +521,16 @@ it doesn't exist."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Key bindings
 
-(defun basis/init-modifiers-for-linux ()
-  'pass)
-
-(defun basis/init-modifiers-for-os-x ()
-  (setq mac-command-modifier 'meta
-        mac-option-modifier 'super))
-
-(defun basis/init-modifiers-for-windows ()
-  (setq w32-pass-apps-to-system nil
-        w32-pass-lwindow-to-system nil
-        w32-pass-rwindow-to-system nil
-        w32-lwindow-modifier 'super
-        w32-rwindow-modifier 'super))
-
 (pcase system-type
-  (`gnu/linux  (basis/init-modifiers-for-linux))
-  (`darwin     (basis/init-modifiers-for-os-x))
-  (`windows-nt (basis/init-modifiers-for-windows)))
+  (`darwin
+   (setq mac-command-modifier 'meta
+         mac-option-modifier 'super))
+  (`windows-nt
+   (setq w32-pass-apps-to-system nil
+         w32-pass-lwindow-to-system nil
+         w32-pass-rwindow-to-system nil
+         w32-lwindow-modifier 'super
+         w32-rwindow-modifier 'super)))
 
 (use-package guide-key
   :ensure t
