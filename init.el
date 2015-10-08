@@ -167,8 +167,17 @@ it doesn't exist."
 ;; A graphical Emacs on OS X doesn't automatically inherit $PATH
 (use-package exec-path-from-shell
   :ensure t
-  :if (memq window-system '(mac ns))
+  :if (eq window-system 'ns)
   :config (exec-path-from-shell-initialize))
+
+;; Because there's a bug with `visible-bell' on OS X 10.11 (El Capitan)
+(use-package echo-bell
+  :ensure t
+  :if (eq window-system 'ns)
+  :init (echo-bell-mode)
+  :config (progn (setq echo-bell-string (substring echo-bell-string 0 3)
+                       echo-bell-background "#073642")
+                 (echo-bell-update)))
 
 (defvar basis/system-type
   (if (and (eq system-type 'windows-nt)
@@ -216,7 +225,8 @@ it doesn't exist."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Various settings
 
-(setq inhibit-default-init t
+(setq visible-bell t
+      inhibit-default-init t
       inhibit-startup-screen t
       inhibit-startup-message t
       initial-scratch-message nil
@@ -230,12 +240,6 @@ it doesn't exist."
       gc-cons-threshold (* 20 1024 1024)
       temporary-file-directory (basis/emacs-dir "tmp/")
       enable-recursive-minibuffers t)
-
-;; Work around an issue with `visible-bell' on OS X 10.11 (El Capitan)
-(if (eq system-type 'darwin)
-    (setq visible-bell nil
-          ring-bell-function #'ignore)
-  (setq visible-bell t))
 
 ;; Prevent point from entering the minibuffer prompt
 (setq minibuffer-prompt-properties
