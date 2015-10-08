@@ -1357,6 +1357,7 @@ Use `paredit' in these modes rather than `smartparens'.")
     (basis/maybe-enable-flycheck)))
 
 (use-package elisp-mode
+  :mode ("\\.eld\\'" . emacs-lisp-mode)
   :config
   (progn
     (basis/define-eval-keys emacs-lisp-mode-map
