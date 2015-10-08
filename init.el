@@ -2500,10 +2500,9 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t
   :init (progn (setq elfeed-db-directory (basis/emacs-dir "var/elfeed/"))
-               (when (file-exists-p (basis/emacs-file "feeds.el"))
-                 (setq elfeed-feeds (thread-first "feeds.el"
-                                      basis/emacs-file
-                                      basis/elfeed-load-feeds)))))
+               (let ((feeds (basis/emacs-file "feeds.eld")))
+                 (when (file-exists-p feeds)
+                   (setq elfeed-feeds (basis/elfeed-load-feeds feeds))))))
 
 (defun basis/shr-tag-body-no-color (function &rest args)
   "Advice for `shr-tag-body'; don't colorize the region."
