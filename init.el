@@ -2504,15 +2504,9 @@ Move forward by a line and indent if invoked directly between."
                  (when (file-exists-p feeds)
                    (setq elfeed-feeds (basis/elfeed-load-feeds feeds))))))
 
-(defun basis/shr-tag-body-no-color (function &rest args)
-  "Advice for `shr-tag-body'; don't colorize the region."
-  (cl-letf (((symbol-function 'shr-colorize-region)
-             #'ignore))
-    (apply function args)))
-
 (use-package shr
   :defer t
-  :config (advice-add 'shr-tag-body :around #'basis/shr-tag-body-no-color))
+  :config (advice-add 'shr-colorize-region :override #'ignore))
 
 (use-package eww
   :defer t
