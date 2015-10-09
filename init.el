@@ -2403,6 +2403,11 @@ Move forward by a line and indent if invoked directly between."
                 compilation-scroll-output 'first-error
                 compilation-context-lines 2))
 
+(use-package ls-lisp
+  :defer t
+  :init (when (eq basis/system-type 'windows+cygwin)
+          (setq ls-lisp-use-insert-directory-program t)))
+
 (use-package dired
   :defer t
   :config
