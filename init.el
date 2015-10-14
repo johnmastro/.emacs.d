@@ -259,6 +259,9 @@ it doesn't exist."
       (remq 'process-kill-buffer-query-function
             kill-buffer-query-functions))
 
+(when (boundp 'w32-pipe-read-delay)
+  (setq w32-pipe-read-delay 0))
+
 (fset 'display-startup-echo-area-message #'ignore)
 
 (fset 'yes-or-no-p #'y-or-n-p)
