@@ -2235,6 +2235,10 @@ Move forward by a line and indent if invoked directly between."
             (mapcar #'directory-file-name)))
     (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
     (when (eq basis/system-type 'windows+cygwin)
+      (setq magit-need-cygwin-noglob t)
+      (when (file-executable-p "/bin/git.exe")
+        (setq magit-git-executable "/bin/git.exe")
+        (setq magit-git-environment nil))
       (advice-add 'magit-toplevel
                   :filter-return
                   #'basis/magit-expand-toplevel)
