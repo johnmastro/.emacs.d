@@ -1668,6 +1668,16 @@ See also `basis/cygwin-fix-file-name'."
                                    process-environment)))
     (apply function args)))
 
+(defun basis/magit-display-buffer (buffer)
+  "Display BUFFER via `magit-display-buffer-traditional'.
+If BUFFER is in `magit-status-mode', delete any other windows."
+  (let ((window (magit-display-buffer-traditional buffer)))
+    (when (and (window-live-p window)
+               (eq (with-current-buffer buffer major-mode) 'magit-status-mode))
+      (with-selected-window window
+        (delete-other-windows)))
+    window))
+
 (defun basis/magit-cygwin-save-repository-buffers (&optional arg)
   "Alternative `magit-save-repository-buffers'.
 Use `expand-file-name' to canonicalize file names to Emacs's

@@ -2224,6 +2224,7 @@ Move forward by a line and indent if invoked directly between."
     (setq magit-popup-use-prefix-argument 'default)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
+    (setq magit-display-buffer-function #'basis/magit-display-buffer)
     (setq magit-repository-directories
           (thread-last projectile-known-projects
             (seq-remove #'tramp-tramp-file-p)
@@ -2233,7 +2234,6 @@ Move forward by a line and indent if invoked directly between."
             ;; Remove the trailing slashes
             (mapcar #'directory-file-name)))
     (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
-    (add-hook 'magit-status-mode-hook #'delete-other-windows)
     (when (eq basis/system-type 'windows+cygwin)
       (advice-add 'magit-toplevel
                   :filter-return
