@@ -1994,6 +1994,14 @@ Only group a buffer with a VC if its visiting a file."
         (when this-win-2nd
           (other-window 1))))))
 
+(defun basis/recenter-top-bottom ()
+  "Like `recenter-top-bottom' but don't treat `C-u' specially."
+  (interactive)
+  (let ((current-prefix-arg (if (equal current-prefix-arg '(4))
+                                4
+                              current-prefix-arg)))
+    (call-interactively #'recenter-top-bottom)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface

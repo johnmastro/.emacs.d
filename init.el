@@ -553,6 +553,9 @@ it doesn't exist."
 (global-set-key (kbd "C-x 2") #'basis/split-window-below)
 (global-set-key (kbd "C-x 3") #'basis/split-window-right)
 
+;; Treat `C-u C-l' the same as `C-u 4 C-l'
+(global-set-key (kbd "C-l") #'basis/recenter-top-bottom)
+
 ;; C-c <left>/<right> to move backward/forward through window configurations
 (use-package winner
   :config (winner-mode))
