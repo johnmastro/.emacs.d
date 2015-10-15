@@ -1197,6 +1197,10 @@ is read-only and empty."
   :ensure t
   :defer t)
 
+(use-package helm-flycheck
+  :ensure t
+  :defer t)
+
 (use-package helm-open-github
   :ensure t
   :defer t)
@@ -2165,7 +2169,8 @@ Move forward by a line and indent if invoked directly between."
   ("l"   #'flycheck-list-errors)
   ("s"   #'flycheck-select-checker)
   ("C"   #'flycheck-clear)
-  ("SPC" #'basis/flycheck-check-and-list-errors))
+  ("SPC" #'basis/flycheck-check-and-list-errors)
+  ("h"   #'helm-flycheck))
 
 (use-package flycheck
   :ensure t
