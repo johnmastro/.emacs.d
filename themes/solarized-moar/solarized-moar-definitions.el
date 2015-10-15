@@ -89,7 +89,7 @@
                 (helm-M-x-key (,@fg-yellow ,@fmt-undr))
                 ;; helm-files
                 (helm-ff-prefix (,@bg-yellow ,@fg-base03))
-                (helm-ff-file (@,fg-base0))
+                (helm-ff-file (,@fg-base0))
                 (helm-ff-executable (,@fg-green))
                 (helm-ff-directory (,@fg-blue))
                 (helm-ff-dotted-directory (,@fg-blue))
@@ -219,10 +219,5 @@
                 ;; which-func
                 (which-func (,@fg-base1))
                 )))))
-
-;;;###autoload
-(when (boundp 'custom-theme-load-path)
-  (add-to-list 'custom-theme-load-path
-               (file-name-as-directory (file-name-directory load-file-name))))
 
 (provide 'solarized-moar-definitions)
