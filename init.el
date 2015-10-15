@@ -1248,6 +1248,10 @@ is read-only and empty."
     (advice-add 'company-auto-begin
                 :around
                 #'basis/company-sh-no-complete-fi)
+    (when (eq basis/current-hostname 'sierra)
+      (advice-add 'company-auto-begin
+                  :around
+                  #'basis/company-no-srv-completion))
     (when (eq system-type 'windows-nt)
       (advice-add 'company-auto-begin
                   :around

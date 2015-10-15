@@ -707,6 +707,23 @@ Work around a bug I haven't figured out yet."
                (basis/in-string-p))
     (funcall function)))
 
+(defvar basis/current-hostname
+  (when-let ((hostname (executable-find "hostname")))
+    (-> (with-output-to-string (call-process "hostname" nil standard-output))
+      string-trim-right
+      intern))
+  "The machine's ‘hostname’.")
+
+(defun basis/company-no-srv-completion (function)
+  "Advice for `company-auto-begin'.
+For use on a particular host - prevent completion of directories
+under \"/srv/\" (ugh)."
+  (unless (and (eq major-mode 'shell-mode)
+               (save-excursion
+                 (skip-syntax-backward "^ ")
+                 (looking-at-p "/srv/")))
+    (funcall function)))
+
 (defun basis/company-no-tramp-completion (function)
   "Advice for `company-auto-begin'.
 Work around TRAMP freezes on my Windows machine at work."
