@@ -715,7 +715,7 @@ Work around TRAMP freezes on my Windows machine at work."
                ;; that looks like a TRAMP file name.
                (save-excursion
                  (skip-syntax-backward "^ ")
-                 (looking-at-p "\\(\\w+@\\)?\\w\\{2,\\}:/")))
+                 (looking-at-p "\\(\\w+@\\)?\\w\\{2,\\}:")))
     (funcall function)))
 
 (defun basis/company-sh-no-complete-fi (function)
