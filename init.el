@@ -855,7 +855,7 @@ See `basis/define-eval-keys'.")
   :init (progn (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i)
                      avy-style 'pre)
                (global-set-key (kbd "M-SPC") #'avy-goto-word-1)
-               (global-set-key (kbd "M-s-SPC") #'avy-goto-line))
+               (global-set-key (kbd "M-g g") #'avy-goto-line))
   :config (advice-add 'avy-push-mark :after #'basis/avy-push-mark))
 
 (defun basis/ace-window-kludge (function arg)
@@ -1788,7 +1788,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   (setq indent-tabs-mode nil
         c-basic-offset 4)
   (setq-local comment-style 'extra-line)
-  (c-toggle-auto-newline 1)
+  ;; (c-toggle-auto-newline 1)
   (dolist (cleanup '(brace-else-brace
                      brace-elseif-brace
                      defun-close-semi
