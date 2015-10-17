@@ -246,6 +246,10 @@
                 (diredp-symlink (,@fg-cyan))
                 (diredp-tagged-autofile-name (:inherit default))
                 (diredp-write-priv (:inherit default))
+                ;; avy
+                (avy-lead-face-0 (:inherit match))
+                (avy-lead-face-1 (:inherit match))
+                (avy-lead-face (:inherit isearch))
                 )))))
 
 (provide 'solarized-moar-definitions)
