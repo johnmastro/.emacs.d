@@ -2165,6 +2165,37 @@ kill the current session even if there are multiple frames."
                     (buffer-substring-no-properties
                      (- (point) (length string)) (point)))))
 
+(defmacro basis/with-match-strings (vars string &rest body)
+  "Bind VARS to submatches of the last match and evaluate BODY.
+If the last match was against a string then STRING must be
+provided."
+  (declare (indent 2) (debug (listp form body)))
+  (let ((s (make-symbol "str"))
+        (n 0))
+    `(let* ,(cons (list s string)
+                  (save-match-data
+                    (mapcar (lambda (var)
+                              (list var (list 'match-string (setq n (1+ n)) s)))
+                            vars)))
+       ,@body)))
+
+(defun basis/time-function (function)
+  "Return the execution time in seconds of calling FUNCTION.
+Byte-compile FUNCTION before calling it."
+  (setq function (byte-compile function))
+  (let ((beg (float-time)))
+    (funcall function)
+    (/ (truncate (* (- (float-time (current-time))
+                       beg)
+                    10000))
+       10000.0)))
+
+(defmacro basis/time-forms (&rest body)
+  "Return the execution time in seconds of evaluating BODY.
+Wrap BODY in a lambda and use `basis/time-function' so that the
+forms are byte-compiled."
+  `(basis/time-function (lambda () (progn ,@body))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
