@@ -26,7 +26,7 @@ can be either `create' or `error'."
         (unless (file-directory-p dir)
           (pcase if-not-exists
             (`error
-             (error "Directory does not exist: '%s'" dir))
+             (error "Directory does not exist: ‘%s’" dir))
             (`create
              (make-directory dir t))))
         dir)

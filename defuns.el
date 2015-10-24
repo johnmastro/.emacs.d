@@ -44,7 +44,7 @@ See `basis/eval-keys'."
                         (kbd (if (vectorp key) key `(kbd ,key))))
                    (if key
                        `(define-key ,keymap ,kbd ,def)
-                     (error "No eval key for '%s'" sym))))
+                     (error "No eval key for ‘%s’" sym))))
                keydefs)))
 
 (defmacro basis/define-key-translations (&rest keydefs)
@@ -304,7 +304,7 @@ If PATTERN is non-nil, only include matching files (via
                                                            dir)
                                          t)))
       (basis/insert-files files nil)
-    (message "No files matching '%s' in '%s'" pattern dir)))
+    (message "No files matching ‘%s’ in ‘%s’" pattern dir)))
 
 (defalias 'basis/concat-directory-files #'basis/insert-directory-files)
 
@@ -1262,7 +1262,7 @@ With arg N, move backward that many times."
   (interactive
    (list (intern (completing-read  "Style: " '("caps" "none") nil t))))
   (unless (memq style '(caps none))
-    (error "Unknown capitalization style '%s'" style))
+    (error "Unknown capitalization style ‘%s’" style))
   (when (or (eq major-mode 'sql-mode)
             (y-or-n-p "Not in a SQL buffer. Proceed anyway?"))
     (save-excursion
@@ -1825,12 +1825,12 @@ user-error, automatically move point to the command line."
                                             destination)
                         destination)))
     (unless (and file (file-exists-p file))
-      (error "Buffer '%s' is not visiting a file" file))
+      (error "Buffer ‘%s’ is not visiting a file" file))
     (rename-file file destination 1)
     (set-visited-file-name destination)
     (set-buffer-modified-p nil)
     (apply #'message
-           "File '%s' renamed to '%s'"
+           "File ‘%s’ renamed to ‘%s’"
            (basis/maybe-abbreviate-files file destination))))
 
 (defun basis/delete-current-buffer-file ()
@@ -1843,7 +1843,7 @@ user-error, automatically move point to the command line."
       (when (yes-or-no-p "Are you sure you want to delete this file?")
         (delete-file filename)
         (kill-buffer buffer)
-        (message "File '%s' successfully deleted" filename)))))
+        (message "File ‘%s’ successfully deleted" filename)))))
 
 (defun basis/find-file-recentf ()
   "Find recently open files using ido and recentf."
