@@ -1364,7 +1364,8 @@ Use `paredit' in these modes rather than `smartparens'.")
 (defun basis/init-emacs-lisp-modes ()
   "Enable features useful when working with Emacs Lisp."
   ;; Paredit is enabled by `basis/init-lisp-generic'
-  (elisp-slime-nav-mode)
+  (unless (require 'xref nil t)
+    (elisp-slime-nav-mode))
   (basis/init-hippie-expand-for-elisp)
   (turn-on-eldoc-mode)
   ;; Normally `lexical-binding' should be set within a file, but that doesn't
