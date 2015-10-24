@@ -859,7 +859,7 @@ See `basis/define-eval-keys'.")
                      avy-style 'pre)
                (global-set-key (kbd "M-SPC") #'avy-goto-word-1)
                (global-set-key (kbd "M-g g") #'avy-goto-line))
-  :config (advice-add 'avy-push-mark :after #'basis/avy-push-mark))
+  :config (advice-add 'avy-push-mark :after #'basis/push-mark-noactivate))
 
 (defun basis/ace-window-kludge (function arg)
   "Advice for `ace-window'.
@@ -2079,6 +2079,7 @@ Move forward by a line and indent if invoked directly between."
   :config
   (progn
     (basis/define-keys paredit-mode-map
+      ("M-?"             nil) ; Make room for `xref-find-references'
       ("M-)"             #'basis/paredit-wrap-round-from-behind)
       ("M-e"             #'paredit-forward)
       ("M-a"             #'paredit-backward)
@@ -2374,6 +2375,12 @@ Move forward by a line and indent if invoked directly between."
   :defer t
   :config
   (advice-add 'ibuffer-vc-root :around #'basis/ibuffer-vc-root-files-only))
+
+(use-package xref
+  :if (>= emacs-major-version 25)
+  :config (let ((map xref--xref-buffer-mode-map))
+            (define-key map (kbd "M-}") #'basis/xref-next-group)
+            (define-key map (kbd "M-{") #'basis/xref-prev-group)))
 
 (basis/define-map basis/projectile-map ()
   ("b"   #'projectile-switch-to-buffer)

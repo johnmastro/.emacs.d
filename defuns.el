@@ -651,8 +651,8 @@ current search, with no context-dependent behavior."
   (interactive)
   (occur (regexp-opt basis/occur-show-note-strings t)))
 
-(defun basis/avy-push-mark (&rest _args)
-  "Advice for `avy-push-mark'."
+(defun basis/push-mark-noactivate (&rest _args)
+  "Advice to push the mark (without activating it)."
   (push-mark nil t nil))
 
 (defun basis/swiper-helm ()
@@ -1930,6 +1930,20 @@ If VISIT is non-nil, visit the file after downloading it."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
+
+(defun basis/xref-next-group (&optional n)
+  "Move forward to the N-th next group (i.e. file)."
+  (interactive "p")
+  (let ((n (or n 1)))
+    (forward-line n)
+    (while (and (not (eobp))
+                (get-text-property (point) 'xref-item))
+      (forward-line n))))
+
+(defun basis/xref-prev-group (&optional n)
+  "Move backward to the N-th previous group (i.e. file)."
+  (interactive "p")
+  (basis/xref-next-group (- (or n 1))))
 
 (defun basis/projectile-regenerate-tags ()
   "Copy of `projectile-regenerate-tags' modified for Cygwin paths.
