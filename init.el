@@ -7,13 +7,11 @@
 (eval-when-compile (require 'cl-lib))
 
 ;; Disable superfluous UI immediately to prevent momentary display
-(let* ((modes '(tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode))
-       (modes (if (eq system-type 'darwin)
-                  modes
-                (cons 'menu-bar-mode modes))))
-  (dolist (mode modes)
-    (when (fboundp mode)
-      (funcall mode -1))))
+(let ((modes '(menu tool scroll horizontal-scroll)))
+  (dolist (mode (if (eq window-system 'ns) (cdr modes) modes))
+    (let ((mode (intern (format "%s-bar-mode" mode))))
+      (when (fboundp mode)
+        (funcall mode -1)))))
 
 (defconst basis/emacs-dir
   (file-name-directory (file-chase-links (or load-file-name buffer-file-name)))
@@ -21,15 +19,16 @@
 
 (defun basis/emacs-dir (name &optional if-not-exists)
   "Return directory NAME expanded in `basis/emacs-dir'.
-If CREATE is non-nil, create the directory (including parents) if
-it doesn't exist."
+IF-NOT-EXISTS says what to do if the directory does not exist; it
+can be either `create' or `error'."
   (if (string-suffix-p "/" name)
       (let ((dir (expand-file-name name basis/emacs-dir)))
         (unless (file-directory-p dir)
-          (cond ((eq if-not-exists 'error)
-                 (error "Directory does not exist: '%s'" dir))
-                ((eq if-not-exists 'create)
-                 (make-directory dir t))))
+          (pcase if-not-exists
+            (`error
+             (error "Directory does not exist: '%s'" dir))
+            (`create
+             (make-directory dir t))))
         dir)
     ;; This isn't actually necessary but will catch places I meant to use
     ;; `basis/emacs-file' instead
@@ -387,7 +386,7 @@ it doesn't exist."
 (use-package savehist
   :init (setq savehist-additional-variables '(search-ring regexp-search-ring)
               savehist-file (basis/emacs-file "var/history"))
-  :config (savehist-mode t))
+  :config (savehist-mode))
 
 (use-package uniquify
   :init (setq uniquify-buffer-name-style 'forward
@@ -1358,7 +1357,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 (defun basis/init-emacs-lisp-modes ()
   "Enable features useful when working with Emacs Lisp."
   ;; Paredit is enabled by `basis/init-lisp-generic'
-  (elisp-slime-nav-mode t)
+  (elisp-slime-nav-mode)
   (basis/init-hippie-expand-for-elisp)
   (turn-on-eldoc-mode)
   ;; Normally `lexical-binding' should be set within a file, but that doesn't
