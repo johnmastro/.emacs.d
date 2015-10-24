@@ -110,6 +110,10 @@ can be either `create' or `error'."
                       (throw 'seq--break result))))
                 nil))))
 
+(use-package stream
+  :ensure t
+  :defer t)
+
 (use-package map
   :if (>= emacs-major-version 25))
 
