@@ -1029,13 +1029,16 @@ is read-only and empty."
   :init (progn (global-set-key (kbd "M-X") #'smex-major-mode-commands)
                (setq smex-save-file (basis/emacs-file "var/smex-items"))))
 
+(use-package helm-flx
+  :ensure t
+  :config (helm-flx-mode))
+
 (use-package helm-config
   :ensure helm
   :config (global-unset-key (kbd helm-command-prefix-key)))
 
 (use-package helm
   :ensure t
-  :defer t
   :init (progn
           (setq helm-split-window-default-side 'other
                 helm-split-window-in-side-p t
