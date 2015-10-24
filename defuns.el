@@ -1801,23 +1801,37 @@ user-error, automatically move point to the command line."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File utilities
 
+(defun basis/maybe-abbreviate-files (file1 file2)
+  (let* ((file-1 (expand-file-name file1))
+         (path-1 (file-name-directory file-1))
+         (file-2 (expand-file-name file2))
+         (path-2 (file-name-directory file-2)))
+    (cond ((string= path-1 path-2)
+           (list (file-name-nondirectory file-1)
+                 (file-name-nondirectory file-2)))
+          ((string-prefix-p path-1 file-2)
+           (list (file-name-nondirectory file-1)
+                 (file-relative-name file-2 path-1)))
+          (t
+           (list (abbreviate-file-name file-1)
+                 (abbreviate-file-name file-2))))))
+
 (defun basis/rename-current-buffer-file (destination)
   "Rename the current buffer's file to DESTINATION."
   (interactive "FDestination: ")
-  (let* ((name (buffer-name))
-         (file (buffer-file-name))
+  (let* ((file (buffer-file-name))
          (destination (if (file-directory-p destination)
                           (expand-file-name (file-name-nondirectory file)
                                             destination)
                         destination)))
-    (if (not (and file (file-exists-p file)))
-        (error "Buffer '%s' is not visiting a file" file)
-      (rename-file file destination 1)
-      (set-visited-file-name destination)
-      (set-buffer-modified-p nil)
-      (message "File '%s' renamed to '%s'"
-               name
-               (file-name-nondirectory destination)))))
+    (unless (and file (file-exists-p file))
+      (error "Buffer '%s' is not visiting a file" file))
+    (rename-file file destination 1)
+    (set-visited-file-name destination)
+    (set-buffer-modified-p nil)
+    (apply #'message
+           "File '%s' renamed to '%s'"
+           (basis/maybe-abbreviate-files file destination))))
 
 (defun basis/delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
