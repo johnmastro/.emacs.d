@@ -2034,13 +2034,16 @@ Move forward by a line and indent if invoked directly between."
 (use-package csv-mode
   :ensure t
   :defer t
-  :config
-  ;; Prevent `csv-mode' from being enabled automatically
-  (dolist (elt auto-mode-alist)
-    (pcase elt
-      ((and (or `(,rgx . ,sym) `(,rgx ,sym . ,_))
-            (guard (eq sym 'csv-mode)))
-       (add-to-list 'auto-mode-alist (cons rgx 'text-mode))))))
+  :init (setq auto-mode-alist
+              (seq-remove (lambda (elt)
+                            (or (eq (cdr elt) 'csv-mode)
+                                (eq (car-safe (cdr elt)) 'csv-mode)))
+                          auto-mode-alist))
+  :config (setq auto-mode-alist
+                (seq-remove (lambda (elt)
+                              (or (eq (cdr elt) 'csv-mode)
+                                  (eq (car-safe (cdr elt)) 'csv-mode)))
+                            auto-mode-alist)))
 
 (use-package ssh-config-mode
   :ensure t
