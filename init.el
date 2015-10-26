@@ -2582,6 +2582,20 @@ Move forward by a line and indent if invoked directly between."
   :defer t
   :init (setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs")))
 
+(use-package emms
+  :ensure t
+  :defer t
+  :init (progn
+          (setq emms-directory (basis/emacs-dir "var/emms/"))
+          (setq emms-source-file-default-directory
+                (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
+                  (seq-mapcat (lambda (dir) (list dir (downcase dir))))
+                  (seq-some (lambda (dir) (and (file-directory-p dir) dir))))))
+  :config (progn
+            (require 'emms-setup)
+            (emms-standard)
+            (emms-default-players)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Email & news
