@@ -989,9 +989,9 @@ at point, if any. With a prefix argument, use ‘curly quotes’."
   (insert-char ?\" 6)
   (backward-char 3))
 
-(defun basis/python-find-venv ()
-  (when-let ((prj (ignore-errors (projectile-project-root)))
-             (env (expand-file-name "env" prj)))
+(defun basis/python-find-venv (&optional dir)
+  (when-let ((dir (or dir (ignore-errors (projectile-project-root))))
+             (env (expand-file-name "env" dir)))
     (and (or (file-exists-p (expand-file-name "bin/activate" env))
              (file-exists-p (expand-file-name "Scripts/activate" env)))
          env)))
@@ -1001,23 +1001,31 @@ at point, if any. With a prefix argument, use ‘curly quotes’."
   (interactive
    (list (read-directory-name
           "Activate venv: "
-          (or (basis/python-find-venv)
-              (ignore-errors (projectile-project-root))))))
+          (when-let ((root (ignore-errors (projectile-project-root))))
+            (or (basis/python-find-venv root)
+                root)))))
   (if (eq major-mode 'python-mode)
       (pyvenv-activate dir)
     (error "Not in a python-mode buffer")))
 
-(defun basis/run-python (&optional _arg)
+(defun basis/run-python (&optional arg)
   "Run an inferior Python process.
-If a virtualenv associated with the project is found, prompt to
-activate it."
+If a (Projectile) project root is found, start the Python process
+with it as `default-directory'. If a virtualenv associated with
+the project is found, prompt to activate it. However, stick to
+the base `run-python' functionality with a prefix arg."
   (interactive "P")
   (unless (eq major-mode 'python-mode)
     (error "Not in a python-mode buffer"))
-  (let ((env (basis/python-find-venv)))
-    (when (and env (y-or-n-p (format "Activate venv (%s)? " env)))
-      (pyvenv-activate env)))
-  (call-interactively #'run-python))
+  (if arg
+      (call-interactively #'run-python)
+    (let* ((prj (ignore-errors (projectile-project-root)))
+           (env (basis/python-find-venv prj))
+           (default-directory (or prj default-directory)))
+      (when env
+        (pyvenv-activate env)
+        (message "Activated venv ‘%s’" env))
+      (call-interactively #'run-python))))
 
 (defun basis/python-mark-docstring (mark-inside)
   "Mark the docstring around point."
