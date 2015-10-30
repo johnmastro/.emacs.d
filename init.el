@@ -2380,7 +2380,12 @@ Move forward by a line and indent if invoked directly between."
   :config
   (advice-add 'ibuffer-vc-root :around #'basis/ibuffer-vc-root-files-only))
 
+(use-package etags
+  :defer t
+  :init (setq tags-revert-without-query t))
+
 (use-package xref
+  :defer t
   :if (>= emacs-major-version 25)
   :config (let ((map xref--xref-buffer-mode-map))
             (define-key map (kbd "M-}") #'basis/xref-next-group)
