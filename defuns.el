@@ -447,11 +447,20 @@ BUFFER defaults to the current buffer, if it is visiting a file."
 Do not save the string to the the kill ring."
   (funcall interprogram-cut-function str))
 
-(defun basis/clipboard-save-something (beg end)
+(defvar-local basis/clipboard-default-save-thing 'buffer
+  "Default \"thing\" to save with `basis/clipboard-save-something'.
+Any symbol that `bounds-of-thing-at-point' knows about can be
+used here.")
+
+(defun basis/clipboard-save-something (thing beg end)
   "Save the region or buffer to the system clipboard."
-  (interactive (basis/bounds-of-region-or-thing 'buffer))
+  (interactive
+   (let ((thing basis/clipboard-default-save-thing))
+     (cons thing (basis/bounds-of-region-or-thing thing))))
   (basis/clipboard-save-string (buffer-substring-no-properties beg end))
-  (setq deactivate-mark t))
+  (setq deactivate-mark t)
+  (when thing
+    (message "Copied thing to the clipboard: ‘%s’" thing)))
 
 (defun basis/kill-ring-save-indented (arg beg end)
   "Save region to the kill ring with ARG spaces of indentation added.
