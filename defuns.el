@@ -2130,11 +2130,6 @@ input."
           (call-interactively #'goto-line))
       (unless linum-enabled-p (linum-mode -1)))))
 
-(defun basis/kill-this-buffer ()
-  "Kill the currently active buffer."
-  (interactive)
-  (kill-buffer (current-buffer)))
-
 (defun basis/libxml-available-p ()
   "Return non-nil if libxml is available."
   (and (fboundp 'libxml-parse-html-region)
@@ -2258,10 +2253,7 @@ used rather than a list of symbols."
 
 (defun basis/elfeed-load-feeds (file)
   "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
-  (thread-last file
-    (basis/read-file)
-    (mapcar #'basis/elfeed-parse-group)
-    (apply #'nconc)))
+  (seq-mapcat #'basis/elfeed-parse-group (basis/read-file file)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

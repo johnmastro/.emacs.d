@@ -720,7 +720,7 @@ can be either `create' or `error'."
 (global-set-key (kbd "C-x C-z") #'repeat)
 
 (basis/define-map basis/h-map ()
-  ("C-k" #'basis/kill-this-buffer)
+  ("C-k" #'kill-this-buffer)
   ("C-h" #'mark-paragraph))
 
 ;; Note sure which will be better
