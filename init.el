@@ -1560,7 +1560,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :init (setq cljr-thread-all-but-last t
               cljr-favor-prefix-notation nil
               cljr-favor-private-functions nil)
-  :config (cljr-add-keybindings-with-prefix "C-h m")
+  :config (cljr-add-keybindings-with-prefix "C-c m")
   :diminish clj-refactor-mode)
 
 (use-package clojure-cheatsheet
@@ -1722,7 +1722,8 @@ Use `paredit' in these modes rather than `smartparens'.")
 (defun basis/init-js2-mode ()
   (setq tab-width 4)
   (subword-mode)
-  (js2-imenu-extras-setup))
+  (js2-imenu-extras-setup)
+  (js2-refactor-mode))
 
 (use-package js2-mode
   :ensure t
@@ -1735,7 +1736,6 @@ Use `paredit' in these modes rather than `smartparens'.")
                       js2-strict-missing-semi-warning nil
                       js2-strict-trailing-comma-warning t)
   :config (progn
-            (js2r-add-keybindings-with-prefix "C-h m")
             (define-key js2-mode-map (kbd "C-;") #'basis/eol-maybe-semicolon)
             (add-hook 'js2-mode-hook #'basis/init-js2-mode)))
 
@@ -1745,7 +1745,8 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package js2-refactor
   :ensure t
-  :defer t)
+  :defer t
+  :config (js2r-add-keybindings-with-prefix "C-c m"))
 
 (use-package skewer-mode
   :ensure t
