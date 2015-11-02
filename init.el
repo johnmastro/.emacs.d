@@ -1472,8 +1472,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (defun basis/init-clojure-mode ()
   (subword-mode)
-  (clj-refactor-mode)
-  (cljr-add-keybindings-with-prefix "C-h m"))
+  (clj-refactor-mode))
 
 (defun basis/init-cider-repl-mode ()
   (subword-mode)
@@ -1558,6 +1557,10 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package clj-refactor
   :ensure t
   :defer t
+  :init (setq cljr-thread-all-but-last t
+              cljr-favor-prefix-notation nil
+              cljr-favor-private-functions nil)
+  :config (cljr-add-keybindings-with-prefix "C-h m")
   :diminish clj-refactor-mode)
 
 (use-package clojure-cheatsheet
