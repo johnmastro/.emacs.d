@@ -625,8 +625,8 @@ can be either `create' or `error'."
   (define-key esc-map "*" #'tags-loop-continue))
 
 ;; More comfortable {next,previous}-error
-(global-set-key (kbd "M-g M-f") #'next-error)
-(global-set-key (kbd "M-g M-b") #'previous-error)
+(global-set-key (kbd "M-n") #'next-error)
+(global-set-key (kbd "M-p") #'previous-error)
 
 ;; Comment/uncomment stuff
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
