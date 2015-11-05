@@ -585,6 +585,25 @@ If no region is active, examine the full buffer."
   (let ((fill-column most-positive-fixnum))
     (fill-paragraph nil t)))
 
+(defun basis/insert-parentheses (&optional arg)
+  "Like `insert-parenthesis' but treat `C-u' specially.
+With `C-u', wrap as may sexps as possible, until reaching
+whitespace or an end-of-line. With any other prefix argument, or
+if the region is active, defer to `insert-parenthesis'."
+  ;; The idea is to be able to wrap the entirety of an expression like
+  ;; ‘foo.bar(1, 2)’
+  (interactive "P")
+  (if (and (equal current-prefix-arg '(4))
+           (not (use-region-p)))
+      (let ((beg (point)))
+        (skip-syntax-forward " ")
+        (while (not (looking-at-p "[[:space:]]\\|$"))
+          (forward-sexp 1))
+        (insert ")")
+        (goto-char beg)
+        (insert "("))
+    (call-interactively #'insert-parentheses)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search

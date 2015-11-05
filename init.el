@@ -648,6 +648,9 @@ can be either `create' or `error'."
 (global-set-key (kbd "M-e") #'forward-sexp)
 (global-set-key (kbd "M-a") #'backward-sexp)
 
+;; Treat `C-u' specially on `M-('
+(global-set-key (kbd "M-(") #'basis/insert-parentheses)
+
 ;; M-x shell
 (global-set-key (kbd "C-c <C-return>") #'shell)
 (global-set-key (kbd "C-c C-^") #'shell)
