@@ -2462,8 +2462,9 @@ Move forward by a line and indent if invoked directly between."
   :defer t
   :config
   (progn
-    (require 'dired+)
+    (require 'dired-x)
     (require 'find-dired)
+    (require 'dired+)
     (basis/define-keys dired-mode-map
       ("RET"                       #'dired-find-alternate-file)
       ("M-RET"                     #'dired-find-file)
@@ -2480,21 +2481,24 @@ Move forward by a line and indent if invoked directly between."
       ("M-o"                       nil)
       ([remap beginning-of-buffer] #'basis/dired-jump-to-top)
       ([remap end-of-buffer]       #'basis/dired-jump-to-bottom))
-    (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)
-          dired-omit-verbose nil
-          dired-recursive-deletes 'top)
+    (setq dired-recursive-deletes 'top)
     (setq dired-listing-switches (if (eq system-type 'windows-nt)
                                      "-alhGt"
                                    "-alht"))
-    (setq find-ls-option (if (eq system-type 'windows-nt)
-                             '("-exec ls -ldhG {} +" . "-ldhG")
-                           '("-exec ls -ldh {} +" . "-ldh")))
     (put 'dired-find-alternate-file 'disabled nil)
     (add-hook 'dired-mode-hook #'dired-omit-mode)))
 
 (use-package dired-x
   :defer t
-  :init (global-set-key (kbd "C-h C-j") #'dired-jump))
+  :init (progn (setq dired-omit-verbose nil)
+               (global-set-key (kbd "C-h C-j") #'dired-jump))
+  :config (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)))
+
+(use-package find-dired
+  :defer t
+  :init (setq find-ls-option (if (eq system-type 'windows-nt)
+                                 '("-exec ls -ldhG {} +" . "-ldhG")
+                               '("-exec ls -ldh {} +" . "-ldh"))))
 
 (use-package dired+
   :ensure t
