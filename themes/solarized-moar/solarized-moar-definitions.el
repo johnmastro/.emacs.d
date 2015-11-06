@@ -162,7 +162,7 @@
                 (magit-cherry-unmatched (,@fg-cyan))
                 (magit-cherry-equivalent (,@fg-magenta))
                 ;; magit-section
-                (magit-section-heading (,@fg-base03 ,@bg-base0))
+                (magit-section-heading (:inherit default ,@fmt-revb))
                 (magit-section-highlight (:inherit highlight))
                 ;; magit-diff
                 (magit-diff-file-heading (:inherit default ,@fmt-bold))
