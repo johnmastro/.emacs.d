@@ -1352,6 +1352,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package cl-indent
   :init (setq lisp-lambda-list-keyword-alignment t
               lisp-lambda-list-keyword-parameter-alignment t
+              lisp-loop-keyword-indentation 6
               lisp-loop-forms-indentation 6))
 
 (defun basis/init-lisp-generic ()
