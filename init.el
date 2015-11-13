@@ -1110,10 +1110,11 @@ is read-only and empty."
                      helm-ff-search-library-in-sexp t
                      helm-recentf-fuzzy-match t))
   :config (progn (basis/define-keys helm-find-files-map
-                   ("TAB"   #'helm-execute-persistent-action)
-                   ("M-s"   #'helm-select-action)
-                   ("DEL"   #'basis/helm-backspace)
-                   ("C-x g" #'basis/helm-ff-run-magit-status))
+                   ("TAB"     #'helm-execute-persistent-action)
+                   ("M-s"     #'helm-select-action)
+                   ("DEL"     #'basis/helm-backspace)
+                   ("C-c C-b" #'basis/helm-run-bookmarks)
+                   ("C-x g"   #'basis/helm-ff-run-magit-status))
                  ;; Disable `ffap' behavior
                  (advice-add 'helm-find-files-input :override #'ignore)))
 
@@ -1124,8 +1125,11 @@ is read-only and empty."
 (use-package helm-buffers
   :ensure helm
   :defer t
-  :init (progn (setq helm-buffers-fuzzy-matching t)
-               (global-set-key (kbd "C-x b") #'helm-mini)))
+  :init
+  (progn (setq helm-buffers-fuzzy-matching t)
+         (global-set-key (kbd "C-x b") #'helm-mini))
+  :config
+  (define-key helm-buffer-map (kbd "C-c C-b") #'basis/helm-run-bookmarks))
 
 (use-package helm-command
   :ensure helm

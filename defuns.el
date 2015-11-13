@@ -804,6 +804,12 @@ If already at the beginning of the field, call
         (error (helm-keyboard-quit)))
     (backward-delete-char n)))
 
+(defun basis/helm-run-bookmarks ()
+  "Run `helm-bookmarks'."
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action (lambda (&rest _) (helm-bookmarks)))))
+
 (defvar basis/helm-w32-shell-operations
   '("open"
     "opennew"
