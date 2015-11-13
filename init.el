@@ -1629,6 +1629,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package python
   :defer t
+  :init (setq python-indent-guess-indent-offset-verbose nil)
   :config
   (progn
     (basis/define-eval-keys python-mode-map
