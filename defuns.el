@@ -1884,11 +1884,11 @@ user-error, automatically move point to the command line."
     (when file
       (find-file file))))
 
-(defun basis/windows->unix (path)
-  "Convert a path from Windows-style to UNIX-style."
-  (thread-last path
+(defun basis/windows->unix (filename)
+  "Convert FILENAME from Windows-style to UNIX-style."
+  (thread-last filename
     (replace-regexp-in-string "\\\\" "/")
-    (replace-regexp-in-string "[a-zA-Z]:" "")))
+    (replace-regexp-in-string "\\`[a-zA-Z]:" "")))
 
 (defun basis/maybe-cygwinize-drive-letter (file)
   "Convert \"c:/foo\" to \"/foo\" or \"e:/foo\" to \"/e/foo\".
