@@ -1072,20 +1072,20 @@ is read-only and empty."
             ("/" #'helm-find)
             (":" #'helm-eval-expression-with-eldoc)))
   :config (progn
-            (require 'helm-utils) ; For the `helm-selection-line' face
+            (require 'helm-utils)       ; For the `helm-selection-line' face
+            (require 'helm-adaptive)
             (basis/define-keys helm-map
               ("TAB" #'helm-execute-persistent-action)
               ("M-s" #'helm-select-action)
-              ("DEL" #'basis/helm-backspace))
-            (set-face-attribute 'helm-source-header nil :height 1.0)
-            (require 'helm-adaptive)
-            ;; Always display Helm buffers at the bottom, using 40% of the
-            ;; frame's height
+              ("DEL" #'basis/helm-backspace)
+              ("M-y" #'helm-yank-text-at-point)
+              ("C-w" nil))
             (add-to-list 'display-buffer-alist
                          '("\\`\\*helm.*\\*\\'"
                            (display-buffer-in-side-window)
                            (inhibit-same-window . t)
-                           (window-height . 0.4)))))
+                           (window-height . 0.4)))
+            (set-face-attribute 'helm-source-header nil :height 1.0)))
 
 (use-package helm-adaptive
   :ensure helm
