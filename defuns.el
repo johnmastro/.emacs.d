@@ -1867,14 +1867,18 @@ user-error, automatically move point to the command line."
 (defun basis/delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
   (interactive)
-  (let ((buffer (current-buffer))
-        (filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (ido-kill-buffer)
-      (when (yes-or-no-p "Are you sure you want to delete this file?")
-        (delete-file filename)
+  (let* ((buffer (current-buffer))
+         (full-name (buffer-file-name))
+         (abbr-name (abbreviate-file-name full-name)))
+    (if (not (and full-name (file-exists-p full-name)))
+        (unless (and (buffer-modified-p)
+                     (not (y-or-n-p (format "Buffer ‘%s’ modified; kill anyway?"
+                                            (buffer-name)))))
+          (kill-buffer))
+      (when (y-or-n-p (format "Delete file ‘%s’?" abbr-name))
+        (delete-file full-name)
         (kill-buffer buffer)
-        (message "File ‘%s’ successfully deleted" filename)))))
+        (message "File ‘%s’ successfully deleted" abbr-name)))))
 
 (defun basis/find-file-recentf ()
   "Find recently open files using ido and recentf."
