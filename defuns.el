@@ -411,7 +411,7 @@ If `subword-mode' is active, use `subword-backward-kill'."
 (defun basis/smart-kill-almost-whole-line ()
   "Like `smart-kill-whole-line' but doesn't kill the newline."
   (interactive)
-  (basis/beginning-of-line-or-indentation)
+  (basis/beginning-of-line)
   (kill-line nil))
 
 (defun basis/kill-ring-save-something ()
@@ -460,7 +460,7 @@ used here.")
   (basis/clipboard-save-string (buffer-substring-no-properties beg end))
   (setq deactivate-mark t)
   (when thing
-    (message "Copied thing to the clipboard: ‘%s’" thing)))
+    (message "Copied %s to clipboard" thing)))
 
 (defun basis/kill-ring-save-indented (arg beg end)
   "Save region to the kill ring with ARG spaces of indentation added.
@@ -1843,26 +1843,29 @@ user-error, automatically move point to the command line."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File utilities
 
-(defun basis/rename-current-buffer-file (destination)
-  "Rename the current buffer's file to DESTINATION."
-  (interactive "FDestination: ")
-  (let* ((src (buffer-file-name))
-         (dst (if (file-directory-p destination)
-                  (expand-file-name (file-name-nondirectory src)
-                                    destination)
-                destination)))
-    (unless (and src (file-exists-p src))
-      (error "Buffer ‘%s’ is not visiting a file" src))
-    (rename-file src dst 1)
-    (set-visited-file-name dst)
-    (set-buffer-modified-p nil)
-    (apply #'message
-           "File ‘%s’ renamed to ‘%s’"
-           (if (file-in-directory-p dst (file-name-directory src))
-               (list (file-name-nondirectory src)
-                     (file-relative-name dst (file-name-directory src)))
-             (list (abbreviate-file-name src)
-                   (abbreviate-file-name dst))))))
+(defun basis/rename-current-buffer-file (buffer destination)
+  "Rename BUFFER and the file it's visiting to DESTINATION."
+  (interactive
+   (list (current-buffer)
+         (read-file-name "Destination: ")))
+  (with-current-buffer buffer
+    (let* ((src (buffer-file-name))
+           (dst (if (file-directory-p destination)
+                    (expand-file-name (file-name-nondirectory src)
+                                      destination)
+                  destination)))
+      (unless (and src (file-exists-p src))
+        (error "Buffer ‘%s’ is not visiting a file" src))
+      (rename-file src dst 1)
+      (set-visited-file-name dst)
+      (set-buffer-modified-p nil)
+      (apply #'message
+             "File ‘%s’ renamed to ‘%s’"
+             (if (file-in-directory-p dst (file-name-directory src))
+                 (list (file-name-nondirectory src)
+                       (file-relative-name dst (file-name-directory src)))
+               (list (abbreviate-file-name src)
+                     (abbreviate-file-name dst)))))))
 
 (defun basis/delete-current-buffer-file ()
   "Kill the current buffer and delete the file it's visiting."
