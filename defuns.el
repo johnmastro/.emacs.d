@@ -1583,20 +1583,28 @@ numeric argument)."
           (and result (not (looking-back regexp (line-beginning-position)))))
       result)))
 
-(defun basis/disable-relative-reindent (function &rest args)
-  "Advice to prevent relative reindentation by FUNCTION."
-  (if (memq indent-line-function '(indent-relative
-                                   python-indent-line-function
-                                   haskell-indentation-indent-line))
-      (cl-letf (((symbol-function 'indent-according-to-mode)
-                 #'ignore))
-        (apply function args))
-    (apply function args)))
+(defvar basis/sp-inhibit-cleanup-list
+  '(indent-relative
+    indent-relative-maybe
+    python-indent-line-function
+    haskell-indentation-indent-line)
+  "Indentation functions for which to inhibit smartparens's cleanup.")
 
-(defun basis/disable-relative-reindent-for (functions)
-  "Prevent automatic relative reindentation by FUNCTIONS."
-  (dolist (function functions)
-    (advice-add function :around #'basis/disable-relative-reindent)))
+(defsubst basis/sp-inhibit-cleanup-p ()
+  "Return non-nil if smartparens's cleanup should be inhibited.
+See `basis/sp-inhibit-cleanup-list'."
+  (memq indent-line-function basis/sp-inhibit-cleanup-list))
+
+(defun basis/sp-unwrap-no-cleanup (args)
+  "Advice for `sp--unwrap-sexp' to inhibit problematic cleanup."
+  (if (basis/sp-inhibit-cleanup-p)
+      (list (car args) t)
+    args))
+
+(defun basis/sp-cleanup-maybe-not (function &rest args)
+  "Advice for `sp--cleanup-after-kill' to inhibit problematic cleanup."
+  (unless (basis/sp-inhibit-cleanup-p)
+    (apply function args)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

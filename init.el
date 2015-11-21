@@ -2159,15 +2159,8 @@ Move forward by a line and indent if invoked directly between."
       ("M-a"             #'sp-backward-sexp)
       ("<C-M-backspace>" #'sp-backward-kill-sexp)
       ("C-M-_"           #'sp-backward-kill-sexp))
-    ;; These commands invoke `indent-according-to-mode' but, when
-    ;; `indent-line-function' is `indent-relative', that often doesn't work out
-    ;; too well.
-    (basis/disable-relative-reindent-for
-     '(sp-kill-word
-       sp-backward-kill-word
-       sp-kill-sexp
-       sp-kill-hybrid-sexp
-       basis/sp-kill-something))
+    (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
+    (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
     ;; Treat raw prefix arguments like numeric arguments
     (advice-add 'sp-backward-delete-char
                 :filter-args
