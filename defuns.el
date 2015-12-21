@@ -2172,6 +2172,13 @@ input."
   "Same as `looking-back' but don't change the match data."
   (save-match-data (looking-back regexp limit)))
 
+(defun basis/kill-this-buffer ()
+  "Kill the current buffer.
+Like `kill-this-buffer' but don't insist on the menu bar being
+displayed."
+  (interactive)
+  (kill-buffer (current-buffer)))
+
 (defun basis/kill-frame-or-terminal (&optional arg)
   "Kill the current frame or session.
 If there is more than one live frame, close the current one.
