@@ -436,6 +436,11 @@ can be either `create' or `error'."
                   ("IST-5:30" "Bangalore")
                   ("JST-9"    "Tokyo"))))
 
+(use-package minibuffer
+  :config
+  (let ((map minibuffer-inactive-mode-map))
+    (define-key map [mouse-1] #'basis/toggle-echo-area-messages)))
+
 (use-package mb-depth
   :config (minibuffer-depth-indicate-mode))
 

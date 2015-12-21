@@ -2268,6 +2268,19 @@ Wrap BODY in a lambda and use `basis/time-function' so that the
 forms are byte-compiled."
   `(basis/time-function (lambda () (progn ,@body))))
 
+(defun basis/toggle-echo-area-messages ()
+  "Toggle whether the \"*Messages*\" buffer is shown."
+  (interactive)
+  (let* ((buffer (messages-buffer))
+         (window (get-buffer-window buffer 'visible)))
+    (if window
+        (if (eq window (selected-window))
+            (bury-buffer)
+          (delete-window window))
+      (with-current-buffer buffer
+        (goto-char (point-max))
+        (display-buffer (current-buffer))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
