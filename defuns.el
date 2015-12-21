@@ -513,14 +513,10 @@ on whether the region is active."
 
 (defun basis/pop-to-mark-ensure-new-pos (function)
   "Advice for `pop-to-mark-command' to repeat until point moves."
-  (let ((p (point))
-        (n 10))
-    ;; (when (eq last-command 'kill-ring-save)
-    ;;   (dotimes (_ 3)
-    ;;     (funcall function)))
-    (while (and (> n 0) (= (point) p))
-      (funcall function)
-      (setq n (1- n)))))
+  (cl-loop with p = (point)
+           for _ below 10
+           while (= p (point))
+           do (funcall function)))
 
 (defun basis/untabify-buffer ()
   "Untabify the current buffer."
