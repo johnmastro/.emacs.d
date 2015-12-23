@@ -1785,8 +1785,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (defun basis/init-sql-mode ()
   (basis/sql-set-product)
-  (setq tab-width 4)
-  (basis/sql-modify-syntax-table))
+  (setq tab-width 4))
 
 (use-package sql
   :defer t
@@ -1808,7 +1807,13 @@ Use `paredit' in these modes rather than `smartparens'.")
              ("M-p"   #'basis/sql-backward-clause)
              ("C-M-a" #'basis/sql-beginning-of-defun)
              ("C-M-e" #'basis/sql-end-of-defun))
-           (add-hook 'sql-mode-hook #'basis/init-sql-mode)))
+           (add-hook 'sql-mode-hook #'basis/init-sql-mode)
+           ;; Put the advice on `sql-highlight-product' rather than
+           ;; `sql-set-product' because the former is potentially re-run later,
+           ;; as part of `hack-local-variables-hook', and would undo our
+           ;; changes.
+           (advice-add 'sql-highlight-product :after
+                       #'basis/sql-modify-syntax-table)))
 
 (defun basis/init-c-base ()
   (setq indent-tabs-mode nil

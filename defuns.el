@@ -1345,21 +1345,11 @@ With arg N, move backward that many times."
    (list (sql-read-product "SQL product: " (basis/sql-guess-product))))
   (sql-set-product (or product (basis/sql-guess-product))))
 
-(defun basis/sql-modify-syntax-table ()
-  "Set double quote's syntax to string delimiter.
-By default, SQL treats double quote as punctuation. That's
-arguably accurate (real strings are delimited with single quotes)
-but it's still natural to work with e.g. column names as
-strings."
-  (let ((buffer (current-buffer)))
-    (run-at-time
-     "1 sec"
-     nil
-     (lambda ()
-       ;; This doesn't work correctly if run immediately, I think because the
-       ;; syntax table for the particular SQL product isn't initialized yet.
-       (with-current-buffer buffer
-         (modify-syntax-entry ?\" "\""))))))
+(defun basis/sql-modify-syntax-table (&rest _)
+  "Set double quote's syntax to string delimiter."
+  (let ((table (make-syntax-table (syntax-table))))
+    (modify-syntax-entry ?\" "\"" table)
+    (set-syntax-table table)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
