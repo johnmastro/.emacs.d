@@ -1346,9 +1346,13 @@ With arg N, move backward that many times."
   (sql-set-product (or product (basis/sql-guess-product))))
 
 (defun basis/sql-modify-syntax-table (&rest _)
-  "Set double quote's syntax to string delimiter."
+  "Modify a couple syntax table entries for SQL.
+Make double quote a string delimiter and period a symbol
+constituent. This is most effective when run as ‘:after’ on
+`sql-highlight-product'."
   (let ((table (make-syntax-table (syntax-table))))
     (modify-syntax-entry ?\" "\"" table)
+    (modify-syntax-entry ?. "_" table)
     (set-syntax-table table)))
 
 
