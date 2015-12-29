@@ -549,8 +549,9 @@ can be either `create' or `error'."
 
 (use-package guide-key
   :ensure t
+  :defer t
   :config (progn
-            (guide-key-mode)
+            ;; (guide-key-mode)
             (setq guide-key/popup-window-position 'bottom)
             (setq guide-key/idle-delay 0.0)
             (setq guide-key/recursive-key-sequence-flag t)
@@ -560,6 +561,14 @@ can be either `create' or `error'."
                     (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
                     (calc-mode "V"))))
   :diminish guide-key-mode)
+
+(use-package which-key
+  :ensure t
+  :config (progn
+            (setq which-key-idle-delay 0.5)
+            (setq which-key-prevent-C-h-from-cycling nil)
+            (which-key-mode))
+  :diminish which-key-mode)
 
 ;; When splitting windows, select the newly created window
 (global-set-key (kbd "C-x 2") #'basis/split-window-below)
