@@ -1777,6 +1777,21 @@ representation before comparing them."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
 
+(defun basis/regenerate-tags ()
+  "Regenerate and reload TAGS via ‘make tags’.
+Obviously, this only works if a Makefile with a ‘tags’ target is
+available."
+  (interactive)
+  (if-let ((here (or (buffer-file-name) default-directory))
+           (dir (seq-some (lambda (name) (locate-dominating-file here name))
+                          '("Makefile" "GNUmakefile" "BSDmakefile")))
+           (tags (expand-file-name "TAGS" dir)))
+      (let ((default-directory dir))
+        (shell-command "make tags")
+        (when (file-exists-p tags)
+          (visit-tags-table tags)))
+    (message "Can't regenerate tags")))
+
 (defun basis/comint-input-goto-bottom-if-necessary (&rest _args)
   "Advice for `comint' {previous,next}-input commands.
 If an adviced command would signal a \"Not at command line\"

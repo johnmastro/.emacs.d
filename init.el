@@ -2480,7 +2480,8 @@ Move forward by a line and indent if invoked directly between."
 (use-package compile
   :defer t
   :init (progn (global-set-key (kbd "C-c b c") #'compile)
-               (global-set-key (kbd "C-c b b") #'recompile))
+               (global-set-key (kbd "C-c b b") #'recompile)
+               (global-set-key (kbd "C-c b t") #'basis/regenerate-tags))
   :config (setq compilation-ask-about-save nil
                 compilation-always-kill t
                 compilation-scroll-output 'first-error
