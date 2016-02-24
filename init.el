@@ -933,7 +933,11 @@ is read-only and empty."
   ("DEL"         #'basis/isearch-backspace)
   ("<backspace>" #'basis/isearch-backspace)
   ("C-t"         #'basis/isearch-yank-something)
-  ("C-g"         #'basis/isearch-cancel))
+  ("C-g"         #'basis/isearch-cancel)
+  ("<up>"        #'isearch-ring-retreat)
+  ("<down>"      #'isearch-ring-advance)
+  ("<left>"      #'isearch-repeat-backward)
+  ("<right>"     #'isearch-repeat-forward))
 
 (use-package swiper
   :ensure t
