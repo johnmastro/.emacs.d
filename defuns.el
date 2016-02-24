@@ -1765,7 +1765,7 @@ representation before comparing them."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
 
-(defun basis/regenerate-tags ()
+(defun basis/make-tags ()
   "Regenerate and reload TAGS via ‘make tags’.
 Obviously, this only works if a Makefile with a ‘tags’ target is
 available."
