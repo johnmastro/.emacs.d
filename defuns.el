@@ -2278,6 +2278,31 @@ forms are byte-compiled."
         (goto-char (point-max))
         (display-buffer (current-buffer))))))
 
+(defvar basis/related-file-rules
+  '(("\\.c\\'"   ".h")
+    ("\\.h\\'"   ".c")
+    ("\\.cpp\\'" ".hpp")
+    ("\\.hpp\\'" ".cpp")
+    ("\\.cpp\\'" ".h"))
+  "List of (REGEXP REPLACEMENT) rules for `basis/find-related-file'.")
+
+(defun basis/locate-related-file (file)
+  "Return the name of a file \"related\" to FILE."
+  (when-let ((this (expand-file-name file))
+             (that (seq-some (pcase-lambda (`(,regexp ,new))
+                               (when (string-match regexp this)
+                                 (replace-match new nil nil this)))
+                             basis/related-file-rules)))
+    (and (file-exists-p that)
+         that)))
+
+(defun basis/find-related-file (file)
+  "Visit a file \"related\" to FILE."
+  (interactive (list buffer-file-name))
+  (if-let ((related (basis/locate-related-file file)))
+      (find-file related)
+    (call-interactively #'find-file)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications

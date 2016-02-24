@@ -1870,6 +1870,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :config
   (progn
     (define-key c-mode-base-map (kbd "C-j") #'c-context-line-break)
+    (define-key c-mode-map (kbd "C-c C-v") #'basis/find-related-file)
     (add-hook 'c-mode-hook    #'basis/init-c)
     (add-hook 'c++-mode-hook  #'basis/init-c++)
     (add-hook 'java-mode-hook #'basis/init-java)))
