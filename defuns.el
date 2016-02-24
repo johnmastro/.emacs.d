@@ -769,9 +769,12 @@ between this and electric indentation annoying."
                  (looking-at-p "\\_<fi\\_>")))
     (funcall function)))
 
-(defun basis/enable-company-clang ()
-  "Enable `company-clang' for the current buffer."
-  (add-to-list 'company-backends #'company-clang))
+(defun basis/maybe-enable-company-clang ()
+  "Conditionally enable `company-clang' for the current buffer."
+  (when (and (buffer-file-name)
+             (not (basis/file-remote-p (buffer-file-name)))
+             (executable-find "clang"))
+    (add-to-list 'company-backends #'company-clang)))
 
 (defvar basis/ivy-format-selection-text
   (propertize "> " 'face 'font-lock-function-name-face)

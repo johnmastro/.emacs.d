@@ -1307,7 +1307,7 @@ is read-only and empty."
       (when-let ((args (basis/build-clang-args 'c)))
         (require 'company-clang)
         (setq company-clang-arguments args)
-        (add-hook 'c-mode-hook #'basis/enable-company-clang)))))
+        (add-hook 'c-mode-hook #'basis/maybe-enable-company-clang)))))
 
 (use-package company-statistics
   :ensure t
