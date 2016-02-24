@@ -1261,7 +1261,7 @@ is read-only and empty."
 
 (use-package ivy
   :ensure swiper
-  :init (setq ivy-format-function #'basis/ivy-format-function)
+  :init (setq ivy-format-function #'ivy-format-function-arrow)
   :config (define-key ivy-minibuffer-map (kbd "C-r") #'ivy-previous-line))
 
 (use-package counsel

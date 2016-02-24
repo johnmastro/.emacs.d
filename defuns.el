@@ -777,18 +777,6 @@ between this and electric indentation annoying."
   (propertize "> " 'face 'font-lock-function-name-face)
   "Text to place before the selection during `ivy' completion.")
 
-(defun basis/ivy-format-function (candidates)
-  "Function for use as `ivy-format-function'.
-Place a propertized \"> \" before the selected candidate."
-  (let ((i -1))
-    (mapconcat (lambda (s)
-                 (concat (if (eq (cl-incf i) ivy--index)
-                             basis/ivy-format-selection-text
-                           "  ")
-                         s))
-               candidates
-               "\n")))
-
 (defun basis/helm-backspace (n)
   "Delete N chars backwards.
 If already at the beginning of the field, call
