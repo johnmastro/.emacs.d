@@ -1133,11 +1133,14 @@ is read-only and empty."
 (use-package helm-files
   :ensure helm
   :defer t
-  :init (progn (global-set-key (kbd "C-x C-f") #'helm-find-files)
+  :init (progn (global-set-key (kbd "C-x C-f") #'basis/helm-find-files)
                (setq helm-ff-newfile-prompt-p nil
                      helm-ff-file-name-history-use-recentf t
                      helm-ff-search-library-in-sexp t
-                     helm-recentf-fuzzy-match t))
+                     helm-ff-skip-boring-files t
+                     helm-recentf-fuzzy-match t)
+               (setq helm-boring-file-regexp-list
+                     '("\\.o$" "\\.elc$" "\\.pyc$" "\\.pyo$")))
   :config (progn (basis/define-keys helm-find-files-map
                    ("TAB"     #'helm-execute-persistent-action)
                    ("M-s"     #'helm-select-action)

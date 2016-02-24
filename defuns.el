@@ -791,6 +791,18 @@ If already at the beginning of the field, call
         (error (helm-keyboard-quit)))
     (backward-delete-char n)))
 
+(defun basis/helm-find-files (&optional arg)
+  "Slightly augmented version of `helm-find-files'.
+If called with a negative argument, temporarily invert
+`helm-ff-skip-boring-files'. Otherwise, behave the same as
+`helm-find-files.'"
+  (interactive "P")
+  (pcase-let ((`(,helm-ff-skip-boring-files ,current-prefix-arg)
+               (if (eq arg '-)
+                   (list (not helm-ff-skip-boring-files) nil)
+                 (list helm-ff-skip-boring-files current-prefix-arg))))
+    (call-interactively #'helm-find-files)))
+
 (defun basis/helm-run-bookmarks ()
   "Run `helm-bookmarks'."
   (interactive)
