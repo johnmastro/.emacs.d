@@ -1965,6 +1965,28 @@ If it doesn't exist, BUFFER is created automatically."
                      (read-buffer "Destination buffer: ")))
   (basis/insert-files files (get-buffer-create buffer)))
 
+(defun basis/dired-rsync (files destination)
+  "Rsync FILES to DESTINATION.
+When called interactively, FILES is the list of marked files."
+  (interactive (list (dired-get-marked-files nil current-prefix-arg)
+                     (thread-first "Rsync to: "
+                       (read-file-name (dired-dwim-target-directory))
+                       (expand-file-name))))
+  (when (null files)
+    (error "No files selected"))
+  (pcase-let ((`(,files ,destination)
+               (if (eq basis/system-type 'windows+cygwin)
+                   (list (mapcar #'basis/windows->unix files)
+                         (basis/windows->unix destination))
+                 (list files destination))))
+    (let ((cmd (mapconcat #'identity
+                          (list "rsync -arvz --progress"
+                                (mapconcat #'shell-quote-argument files " ")
+                                (shell-quote-argument destination))
+                          " ")))
+      (async-shell-command cmd "*rsync*")
+      (other-window 1))))
+
 (defun basis/download-file (url destination &optional visit)
   "Download URL to DESTINATION.
 If VISIT is non-nil, visit the file after downloading it."

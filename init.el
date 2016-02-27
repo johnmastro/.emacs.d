@@ -2514,6 +2514,7 @@ Move forward by a line and indent if invoked directly between."
       ("e"                         #'basis/dired-open-files)
       ("-"                         #'diredp-up-directory-reuse-dir-buffer)
       ("^"                         #'diredp-up-directory-reuse-dir-buffer)
+      ("Y"                         #'basis/dired-rsync)
       ("M-^"                       #'diredp-up-directory)
       ("M-m"                       #'dired-omit-mode)
       ("M-n"                       #'diredp-next-subdir)
