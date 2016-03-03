@@ -2121,19 +2121,9 @@ Move forward by a line and indent if invoked directly between."
                                                cider-repl-mode)))
     (local-set-key (kbd "RET") #'paredit-newline)))
 
-(defun basis/maybe-enable-paredit-mode ()
-  "Enable Paredit during Lisp-related minibuffer commands."
-  (let ((paredit-minibuffer-commands '(eval-expression
-                                       pp-eval-expression
-                                       eval-expression-with-eldoc
-                                       slime-interactive-eval
-                                       helm-eval-expression-with-eldoc)))
-    (when (memq this-command paredit-minibuffer-commands)
-      (enable-paredit-mode))))
-
 (use-package paredit
   :ensure t
-  :init (add-hook 'minibuffer-setup-hook #'basis/maybe-enable-paredit-mode)
+  :init (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
   :config
   (progn
     (basis/define-keys paredit-mode-map
