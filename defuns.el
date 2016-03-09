@@ -600,6 +600,10 @@ if the region is active, defer to `insert-parenthesis'."
         (insert "("))
     (call-interactively #'insert-parentheses)))
 
+(defun basis/enable-comment-auto-fill ()
+  (setq-local comment-auto-fill-only-comments t)
+  (auto-fill-mode))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search

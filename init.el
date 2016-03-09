@@ -1357,6 +1357,7 @@ is read-only and empty."
 
 (use-package prog-mode
   :config
+  (add-hook 'prog-mode-hook #'basis/enable-comment-auto-fill)
   (add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
   (add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode))
 
