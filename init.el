@@ -1385,7 +1385,10 @@ Use `paredit' in these modes rather than `smartparens'.")
   :init (setq inferior-lisp-program (or (executable-find "sbcl")
                                         (executable-find "ccl")
                                         "lisp"))
-  :config (add-hook 'inferior-lisp-mode-hook #'basis/init-lisp-generic))
+  :config
+  (progn (add-hook 'inferior-lisp-mode-hook #'basis/init-lisp-generic)
+         (let ((map inferior-lisp-mode-map))
+           (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))))
 
 (use-package cl-indent
   :init (setq lisp-lambda-list-keyword-alignment t
@@ -1633,7 +1636,10 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package cmuscheme
   :defer t
-  :config (add-hook 'inferior-scheme-mode-hook #'basis/init-lisp-generic))
+  :config
+  (progn (add-hook 'inferior-scheme-mode-hook #'basis/init-lisp-generic)
+         (let ((map inferior-scheme-mode-map))
+           (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))))
 
 (use-package geiser-mode
   :ensure geiser
@@ -1650,7 +1656,10 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package geiser-repl
   :ensure geiser
   :defer t
-  :config (add-hook 'geiser-repl-mode-hook #'basis/init-lisp-generic))
+  :config
+  (progn (add-hook 'geiser-repl-mode-hook #'basis/init-lisp-generic)
+         (let ((map geiser-repl-mode-map))
+           (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))))
 
 (defun basis/init-python-mode ()
   (subword-mode)

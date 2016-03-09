@@ -1803,6 +1803,18 @@ user-error, automatically move point to the command line."
              (not (comint-after-pmark-p)))
     (goto-char (point-max))))
 
+(defun basis/comint-newline-or-send-input ()
+  (interactive)
+  (let ((parens (or (car (syntax-ppss)) 0)))
+    (cond ((zerop parens)
+           (if (derived-mode-p 'geiser-repl-mode)
+               (geiser-repl--send-input)
+             (comint-send-input)))
+          ((bound-and-true-p paredit-mode)
+           (paredit-newline))
+          (t
+           (newline-and-indent)))))
+
 (defun basis/eshell-kill-line-backward ()
   "Kill the current line backward, respecting Eshell's prompt."
   (interactive)
