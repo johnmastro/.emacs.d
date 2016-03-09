@@ -1990,11 +1990,10 @@ When called interactively, FILES is the list of marked files."
                        (expand-file-name))))
   (when (null files)
     (error "No files selected"))
-  (pcase-let ((`(,files ,destination)
+  (pcase-let ((`(,destination . ,files)
                (if (eq basis/system-type 'windows+cygwin)
-                   (list (mapcar #'basis/windows->unix files)
-                         (basis/windows->unix destination))
-                 (list files destination))))
+                   (mapcar #'basis/windows->unix (cons destination files))
+                 (cons destination files))))
     (let ((cmd (mapconcat #'identity
                           (list "rsync -arvz --progress"
                                 (mapconcat #'shell-quote-argument files " ")
