@@ -316,6 +316,10 @@ can be either `create' or `error'."
       (`windows-nt
        (add-hook 'before-save-hook #'basis/maybe-set-coding)))))
 
+(use-package windmove
+  :defer t
+  :init (windmove-default-keybindings))
+
 (use-package mouse
   :init (setq mouse-yank-at-point t))
 
