@@ -176,15 +176,6 @@ can be either `create' or `error'."
   :if (eq window-system 'ns)
   :config (exec-path-from-shell-initialize))
 
-;; Because there's a bug with `visible-bell' on OS X 10.11 (El Capitan)
-(use-package echo-bell
-  :ensure t
-  :if (eq window-system 'ns)
-  :init (echo-bell-mode)
-  :config (progn (setq echo-bell-string (substring echo-bell-string 0 3)
-                       echo-bell-background "#073642")
-                 (echo-bell-update)))
-
 (defvar basis/system-type
   (if (and (eq system-type 'windows-nt)
            (directory-files "c:/" nil "Cygwin")
