@@ -1454,6 +1454,8 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :config
   (progn
+    (let ((map inferior-emacs-lisp-mode-map))
+      (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))
     (add-hook 'inferior-emacs-lisp-mode-hook #'basis/init-lisp-generic)
     (add-hook 'inferior-emacs-lisp-mode-hook #'basis/init-emacs-lisp-modes)))
 
