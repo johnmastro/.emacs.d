@@ -1572,22 +1572,23 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package cider
   :ensure t
   :defer t
-  :config
-  (progn
-    (pcase basis/system-type
-      (`darwin
-       (basis/set-lein-command-for-mac))
-      (`windows+cygwin
-       (basis/set-lein-command-for-cygwin)))
-    (add-hook 'cider-mode-hook #'basis/init-cider-mode)
-    (basis/define-eval-keys cider-mode-map
-      (last-sexp  #'cider-eval-last-sexp)
-      (definition #'cider-eval-defun-at-point)
-      (region     #'cider-eval-region)
-      (buffer     #'cider-eval-buffer)
-      (something  #'basis/cider-eval-something)
-      (file       #'cider-load-current-buffer)
-      (expand     #'cider-macroexpand-1))))
+  :init (progn (setq cider-prompt-for-symbol nil)
+               (setq cider-font-lock-dynamically '(macros deprecated)))
+  :config (progn
+            (pcase basis/system-type
+              (`darwin
+               (basis/set-lein-command-for-mac))
+              (`windows+cygwin
+               (basis/set-lein-command-for-cygwin)))
+            (add-hook 'cider-mode-hook #'basis/init-cider-mode)
+            (basis/define-eval-keys cider-mode-map
+              (last-sexp  #'cider-eval-last-sexp)
+              (definition #'cider-eval-defun-at-point)
+              (region     #'cider-eval-region)
+              (buffer     #'cider-eval-buffer)
+              (something  #'basis/cider-eval-something)
+              (file       #'cider-load-current-buffer)
+              (expand     #'cider-macroexpand-1))))
 
 (use-package nrepl-client
   :ensure cider
