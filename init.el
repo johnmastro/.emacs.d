@@ -178,8 +178,7 @@ can be either `create' or `error'."
 
 (defvar basis/system-type
   (if (and (eq system-type 'windows-nt)
-           (directory-files "c:/" nil "Cygwin")
-           (file-directory-p "c:/bin"))
+           (file-executable-p "c:/bin/bash.exe"))
       'windows+cygwin
     system-type)
   "Like `system-type' but with the additional option `windows+cygwin'.")
