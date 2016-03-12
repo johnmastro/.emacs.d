@@ -68,7 +68,7 @@ can be either `create' or `error'."
 (package-initialize)
 
 ;; Opt out of automatically saving a list of installed packages
-(when (boundp 'package-selected-packages)
+(when (fboundp 'package--save-selected-packages)
   ;; TODO: Can I hook into `use-package' to build `package-selected-packages'?
   (advice-add 'package--save-selected-packages :override #'ignore))
 
@@ -99,8 +99,7 @@ can be either `create' or `error'."
 
 (use-package seq
   :ensure t
-  ;; Compatibility shim for older versions of `seq' that had `seq-some-p'
-  ;; instead of `seq-some'
+  ;; Compatibility shim for older versions of `seq' that didn't have `seq-some'
   :config (unless (fboundp 'seq-some)
             (defun seq-some (pred seq)
               (catch 'seq--break
@@ -118,13 +117,16 @@ can be either `create' or `error'."
   :if (>= emacs-major-version 25))
 
 (use-package dash
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package dash-functional
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package s
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package persistent-soft
   :ensure t
@@ -151,6 +153,7 @@ can be either `create' or `error'."
 ;; Compatibility shims for some of the new macros in Emacs 25's `subr-x', using
 ;; the `dash' implementations.
 (when (< emacs-major-version 25)
+  (require 'dash)
   (let* ((macros (seq-remove (lambda (list) (fboundp (car list)))
                              '((if-let       -if-let*   2)
                                (when-let     -when-let* 1)

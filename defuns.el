@@ -737,7 +737,8 @@ Work around a bug I haven't figured out yet."
 
 (defvar basis/current-hostname
   (when-let ((hostname (executable-find "hostname")))
-    (-> (with-output-to-string (call-process "hostname" nil standard-output))
+    (thread-first (with-output-to-string
+                    (call-process "hostname" nil standard-output))
       string-trim-right
       intern))
   "The machine's ‘hostname’.")
