@@ -1809,12 +1809,16 @@ user-error, automatically move point to the command line."
     (goto-char (point-max))))
 
 (defun basis/comint-newline-or-send-input ()
+  "Either enter a newline or call `comint-send-input'."
   (interactive)
   (let ((parens (or (car (syntax-ppss)) 0)))
     (cond ((zerop parens)
-           (if (derived-mode-p 'geiser-repl-mode)
-               (geiser-repl--send-input)
-             (comint-send-input)))
+           (cond ((derived-mode-p 'cider-repl-mode)
+                  (cider-repl-return))
+                 ((derived-mode-p 'geiser-repl-mode)
+                  (geiser-repl--send-input))
+                 (t
+                  (comint-send-input))))
           ((bound-and-true-p paredit-mode)
            (paredit-newline))
           (t

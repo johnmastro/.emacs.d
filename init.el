@@ -1599,7 +1599,8 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :init (setq cider-repl-use-pretty-printing t)
   :config (progn
-            (define-key cider-repl-mode-map (kbd "RET") #'cider-repl-return)
+            (let ((map cider-repl-mode-map))
+              (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))
             (add-hook 'cider-repl-mode-hook #'basis/init-lisp-generic)
             (add-hook 'cider-repl-mode-hook #'basis/init-cider-repl-mode)))
 
