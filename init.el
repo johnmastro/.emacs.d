@@ -702,7 +702,7 @@ can be either `create' or `error'."
 (global-set-key (kbd "C-c C-x") #'basis/open-file-externally)
 
 ;; Emacs Lisp-style quotes
-(global-set-key (kbd "C-c q") #'basis/elisp-quote)
+(global-set-key (kbd "C-c q") #'basis/quote-thing)
 
 ;; Random operations on regions
 (basis/define-map basis/region-map (:key "C-c r")

@@ -581,6 +581,35 @@ If no region is active, examine the full buffer."
   (let ((fill-column most-positive-fixnum))
     (fill-paragraph nil t)))
 
+(defun basis/quote-thing (beg end open close)
+  "Surround the region from BEG to END in OPEN and CLOSE quotes."
+  (interactive
+   (pcase-let* ((`(,beg . ,end)
+                 (let (bounds)
+                   (cond ((use-region-p)
+                          (cons (region-beginning) (region-end)))
+                         ((setq bounds (bounds-of-thing-at-point 'symbol))
+                          bounds)
+                         (t
+                          (cons (point) (point))))))
+                (`(,open . ,close)
+                 (pcase (read-char "Quote type: ")
+                   (?\` '(?` . ?'))
+                   (?\' '(?‘ . ?’))
+                   (?\" '(?“ . ?”))
+                   (c   `(,c . ,c)))))
+     (list beg end open close)))
+  (if (eq beg end)
+      (progn (goto-char beg)
+             (insert open close)
+             (forward-char -1))
+    (let ((end (move-marker (make-marker) end)))
+      (goto-char beg)
+      (insert open)
+      (goto-char end)
+      (insert close)
+      (set-marker end nil))))
+
 (defun basis/insert-parentheses (&optional arg)
   "Like `insert-parenthesis' but treat `C-u' specially.
 With `C-u', wrap as may sexps as possible, until reaching
@@ -935,24 +964,6 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
                          (bound-and-true-p font-lock-mode))
                 (font-lock-refresh-defaults))))
           (buffer-list))))
-
-(defun basis/elisp-quote (beg end &optional curly)
-  "Surround the region from BEG to END in Emacs Lisp-style quotes.
-If called interactively without an active region, use the symbol
-at point, if any. With a prefix argument, use ‘curly quotes’."
-  (interactive (append (or (basis/bounds-of-region-or-thing 'symbol)
-                           (list (point) (point)))
-                       (list current-prefix-arg)))
-  (let ((quotes (if curly "‘’" "`'")))
-    (if (eq beg end)
-        (progn (goto-char beg)
-               (insert quotes)
-               (forward-char -1))
-      (let ((end (move-marker (make-marker) end)))
-        (goto-char beg)
-        (insert (elt quotes 0))
-        (goto-char end)
-        (insert (elt quotes 1))))))
 
 (defun basis/bug-number-at-point ()
   "Return the bug number at point, if any, as a string."
