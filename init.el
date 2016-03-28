@@ -567,10 +567,6 @@ can be either `create' or `error'."
             (which-key-mode))
   :diminish which-key-mode)
 
-;; When splitting windows, select the newly created window
-(global-set-key (kbd "C-x 2") #'basis/split-window-below)
-(global-set-key (kbd "C-x 3") #'basis/split-window-right)
-
 ;; Treat `C-u C-l' the same as `C-u 4 C-l'
 (global-set-key (kbd "C-l") #'basis/recenter-top-bottom)
 

@@ -2161,16 +2161,6 @@ Only group a buffer with a VC if its visiting a file."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
 
-(defun basis/split-window-below (&optional size)
-  "Split the window and select the new window."
-  (interactive "P")
-  (select-window (split-window-below size)))
-
-(defun basis/split-window-right (&optional size)
-  "Split the window and select the new window."
-  (interactive "P")
-  (select-window (split-window-right size)))
-
 (defun basis/disable-themes (&optional themes)
   "Disable THEMES (defaults to `custom-enabled-themes')."
   (interactive)
