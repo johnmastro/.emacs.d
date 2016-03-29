@@ -242,10 +242,10 @@ can be either `create' or `error'."
       (append minibuffer-prompt-properties
               '(point-entered minibuffer-avoid-prompt)))
 
-(setq-default major-mode 'text-mode
-              indent-tabs-mode nil
-              fill-column 80
-              truncate-lines t)
+(setq-default major-mode 'text-mode)
+(setq-default indent-tabs-mode nil)
+(setq-default fill-column 80)
+(setq-default truncate-lines t)
 
 (when (file-exists-p custom-file)
   (load custom-file))
@@ -1349,11 +1349,14 @@ is read-only and empty."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Programming modes
 
+(defun basis/init-prog-mode ()
+  (setq indicate-buffer-boundaries 'right)
+  (basis/enable-comment-auto-fill)
+  (basis/maybe-enable-whitespace-mode)
+  (basis/maybe-enable-flyspell-prog-mode))
+
 (use-package prog-mode
-  :config
-  (add-hook 'prog-mode-hook #'basis/enable-comment-auto-fill)
-  (add-hook 'prog-mode-hook #'basis/maybe-enable-whitespace-mode)
-  (add-hook 'prog-mode-hook #'basis/maybe-enable-flyspell-prog-mode))
+  :config (add-hook 'prog-mode-hook #'basis/init-prog-mode))
 
 (defvar basis/lisp-modes
   '(lisp-mode
@@ -1919,6 +1922,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 ;;; Text, markup, and configuration modes
 
 (defun basis/init-text-mode ()
+  (setq indicate-buffer-boundaries 'right)
   (auto-fill-mode)
   (basis/maybe-enable-flyspell)
   (when ispell-alternate-dictionary
