@@ -2655,6 +2655,11 @@ Move forward by a line and indent if invoked directly between."
             (emms-standard)
             (emms-default-players)))
 
+(use-package define-word
+  :ensure t
+  :defer t
+  :init (global-set-key (kbd "C-c d") #'basis/define-word))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Email & news

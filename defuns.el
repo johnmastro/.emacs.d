@@ -2358,6 +2358,10 @@ used rather than a list of symbols."
   "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
   (seq-mapcat #'basis/elfeed-parse-group (basis/read-file file)))
 
+(defun basis/define-word (arg)
+  (interactive "P")
+  (call-interactively (if arg #'define-word #'define-word-at-point)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Email and news
