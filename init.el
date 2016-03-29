@@ -237,11 +237,6 @@ can be either `create' or `error'."
       temporary-file-directory (basis/emacs-dir "tmp/")
       enable-recursive-minibuffers t)
 
-;; Prevent point from entering the minibuffer prompt
-(setq minibuffer-prompt-properties
-      (append minibuffer-prompt-properties
-              '(point-entered minibuffer-avoid-prompt)))
-
 (setq-default major-mode 'text-mode)
 (setq-default indent-tabs-mode nil)
 (setq-default fill-column 80)
@@ -308,17 +303,24 @@ can be either `create' or `error'."
          (setq auto-save-list-file-prefix
                (concat (basis/emacs-dir "var/auto-save-list/") ".saves-")))
   :config
-  (progn
-    (pcase system-type
-      (`darwin
-       (when-let ((gls (executable-find "gls")))
-         (setq insert-directory-program gls)))
-      (`windows-nt
-       (add-hook 'before-save-hook #'basis/maybe-set-coding)))))
+  (pcase system-type
+    (`darwin
+     (when-let ((gls (executable-find "gls")))
+       (setq insert-directory-program gls)))
+    (`windows-nt
+     (add-hook 'before-save-hook #'basis/maybe-set-coding))))
 
 (use-package windmove
   :defer t
   :init (windmove-default-keybindings))
+
+(use-package cursor-sensor
+  :config
+  (let ((mpps minibuffer-prompt-properties)
+        (prop '(cursor-intangible t)))
+    (unless (memq 'cursor-intangible mpps)
+      (setq minibuffer-prompt-properties (append mpps prop)))
+    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)))
 
 (use-package mouse
   :init (setq mouse-yank-at-point t))
