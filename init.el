@@ -915,6 +915,7 @@ is read-only and empty."
 ;;; Search
 
 (setq search-default-regexp-mode #'character-fold-to-regexp)
+(setq isearch-regexp-lax-whitespace t)
 
 (basis/define-keys global-map
   ("C-s"     #'isearch-forward-regexp)
