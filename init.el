@@ -1119,6 +1119,7 @@ is read-only and empty."
 
 (use-package helm-mode
   :ensure helm
+  :diminish helm-mode
   :init (setq helm-mode-handle-completion-in-region nil)
   :config
   (progn (helm-mode)
@@ -1267,6 +1268,7 @@ is read-only and empty."
 
 (use-package company
   :ensure t
+  :diminish company-mode
   :config
   (progn
     (add-hook 'after-init-hook #'global-company-mode)
