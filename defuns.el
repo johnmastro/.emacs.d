@@ -309,10 +309,11 @@ If PATTERN is non-nil, only include matching files (via
 (defalias 'basis/concat-directory-files #'basis/insert-directory-files)
 
 (defvar-local basis/smart-hyphen-code-only t
-  "Whether to only perform hyphen substitutions in code.")
+  "If non-nil, only perform hyphen substitutions in code.")
 
 (defvar-local basis/smart-hyphen-style 'snake
-  "The style of substitutions to perform: snake or camel.")
+  "The style of substitutions to perform.
+Valid values are ‘snake’, ‘camel’, and nil.")
 
 (defun basis/smart-hyphen (n)
   "Conditionally insert a hyphen or upcase the next char."
@@ -342,7 +343,7 @@ If PATTERN is non-nil, only include matching files (via
                            (delete-char -1)
                            (format "_%c" next))
                           (other
-                           (error "Unknown smart hyphen style: %s" other)))
+                           (error "Unknown smart-hyphen style: ‘%s’" other)))
                       next)))
         (call-interactively command)))))
 
@@ -676,11 +677,16 @@ current search, with no context-dependent behavior."
 (defun basis/occur-dwim (regexp nlines)
   "Like `occur', but REGEXP defaults to the text at point."
   (interactive
-   (list (let ((str (apply #'buffer-substring-no-properties
-                           (basis/bounds-of-region-or-thing 'symbol))))
-           (read-regexp
-            (format "Occur (default %s): " (or str (car regexp-history)))
-            (and (not str) 'regexp-history-last)))
+   (list (pcase-let* ((bnd (basis/bounds-of-region-or-thing 'symbol))
+                      (str (when bnd
+                             (apply #'buffer-substring-no-properties bnd)))
+                      (`(,default ,history)
+                       (if str
+                           (list str nil)
+                         (list (car regexp-history) 'regexp-history-last))))
+           (read-regexp (format "Occur (default %s): " default)
+                        default
+                        history))
          (prefix-numeric-value current-prefix-arg)))
   (occur regexp nlines))
 

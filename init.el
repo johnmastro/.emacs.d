@@ -968,7 +968,7 @@ is read-only and empty."
   ("V"  #'vc-git-grep)
   ("f"  #'find-grep)
   ("d"  #'find-grep-dired)
-  ("o"  #'occur)
+  ("o"  #'basis/occur-dwim)
   ("mo" #'multi-occur)
   ("mm" #'multi-occur-in-matching-buffers))
 
