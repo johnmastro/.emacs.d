@@ -2746,5 +2746,8 @@ Move forward by a line and indent if invoked directly between."
               gnus-read-newsrc-file nil
               gnus-save-newsrc-file nil))
 
+(use-package mm-decode
+  :defer t
+  :config (add-to-list 'mm-discouraged-alternatives "text/html"))
 
 ;;; init.el ends here
