@@ -1407,7 +1407,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   (unless (require 'xref nil t)
     (elisp-slime-nav-mode))
   (basis/init-hippie-expand-for-elisp)
-  (turn-on-eldoc-mode)
   ;; Normally `lexical-binding' should be set within a file, but that doesn't
   ;; work for *scratch* and *ielm*
   (when (member (buffer-name) '("*scratch*" "*ielm*"))
@@ -1462,8 +1461,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :diminish elisp-slime-nav-mode)
 
 (use-package eldoc
-  :defer t
-  :init (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
+  :init (global-eldoc-mode)
   :diminish eldoc-mode)
 
 (use-package macrostep
@@ -1517,11 +1515,10 @@ Use `paredit' in these modes rather than `smartparens'.")
   (clj-refactor-mode))
 
 (defun basis/init-cider-repl-mode ()
-  (subword-mode)
-  (cider-turn-on-eldoc-mode))
+  (subword-mode))
 
 (defun basis/init-cider-mode ()
-  (cider-turn-on-eldoc-mode))
+  nil)
 
 (defun basis/set-lein-command-for-mac ()
   (when-let ((lein (executable-find "lein")))
