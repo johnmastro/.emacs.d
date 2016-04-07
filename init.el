@@ -1935,6 +1935,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 (add-hook 'text-mode-hook #'basis/init-text-mode)
 
 (use-package org
+  :ensure t
   :defer t
   :init
   (progn
@@ -1986,19 +1987,20 @@ Use `paredit' in these modes rather than `smartparens'.")
   (progn
     (define-key org-mode-map (kbd "RET") #'org-return-indent)
     (setq org-structure-template-alist
-          (mapcar (lambda (elt)
-                    (pcase-let ((`(,key ,val) elt))
-                      (list key (downcase val))))
+          (mapcar (pcase-lambda (`(,key ,val)) (list key (downcase val)))
                   org-structure-template-alist))
     (require 'ob)
     (require 'ob-tangle)
     (require 'ob-clojure)
     (org-babel-do-load-languages
      'org-babel-load-languages
-     '((emacs-lisp . t)
+     '((C          . t)
        (clojure    . t)
+       (emacs-lisp . t)
+       (haskell    . t)
        (python     . t)
-       (sh         . t)))))
+       (scheme     . t)
+       (shell      . t)))))
 
 (use-package ob-tangle
   :defer t
