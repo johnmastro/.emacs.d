@@ -2368,6 +2368,10 @@ used rather than a list of symbols."
   (interactive "P")
   (call-interactively (if arg #'define-word #'define-word-at-point)))
 
+(defun basis/delete-cookies ()
+  (when (fboundp 'url-cookie-delete-cookies)
+    (url-cookie-delete-cookies)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Email and news
