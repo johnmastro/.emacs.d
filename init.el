@@ -2296,14 +2296,11 @@ Move forward by a line and indent if invoked directly between."
   (progn
     (setq magit-revert-buffers 'silent)
     (setq magit-save-repository-buffers 'dontask)
-    (setq magit-push-always-verify nil)
     (setq magit-popup-use-prefix-argument 'default)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
     (setq magit-display-buffer-function #'basis/magit-display-buffer)
     ;; Set `magit-diff-expansion-threshold' to work around Magit issue #2388.
-    ;; Per a comment from @tarsius on that issue, the variable is expected to be
-    ;; removed after the performance improvements planned for version 2.5.
     (setq magit-diff-expansion-threshold 999.0)
     (setq magit-repository-directories
           (thread-last projectile-known-projects
@@ -2312,7 +2309,7 @@ Move forward by a line and indent if invoked directly between."
                           (file-directory-p (expand-file-name ".git" dir))))
             (cons "~/code/")
             (mapcar #'directory-file-name)))
-    (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
+    ;; (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
     (when (eq basis/system-type 'windows+cygwin)
       (setq magit-need-cygwin-noglob t)
       (setq magit-cygwin-mount-points nil)
