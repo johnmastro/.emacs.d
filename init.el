@@ -327,9 +327,11 @@ can be either `create' or `error'."
 
 (use-package url
   :defer t
-  :init (setq url-configuration-directory (basis/emacs-dir "var/url/")
+  :init (setq url-privacy-level 'high
+              url-configuration-directory (basis/emacs-dir "var/url/")
               url-cookie-file (basis/emacs-file "var/url/cookies"))
-  :config (add-hook 'kill-emacs-hook #'basis/delete-cookies))
+  :config (progn (url-setup-privacy-info)
+                 (add-hook 'kill-emacs-hook #'basis/delete-cookies)))
 
 (use-package bookmark
   :defer t
