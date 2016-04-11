@@ -1729,6 +1729,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (defun basis/init-haskell-mode ()
   (turn-on-haskell-indentation)
+  (haskell-decl-scan-mode)
   (interactive-haskell-mode))
 
 (use-package haskell-mode
