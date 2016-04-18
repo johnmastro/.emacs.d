@@ -1738,7 +1738,9 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package haskell-mode
   :ensure t
   :defer t
-  :init (add-hook 'haskell-mode-hook #'basis/init-haskell-mode))
+  :init (progn (setq haskell-process-log t)
+               (setq haskell-doc-prettify-types (display-graphic-p))
+               (add-hook 'haskell-mode-hook #'basis/init-haskell-mode)))
 
 (use-package interactive-haskell-mode
   :ensure haskell-mode
