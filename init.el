@@ -1760,20 +1760,17 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :mode "\\.ghci\\'")
 
-(defun basis/rust-set-compile-command ()
-  (unless (or (file-exists-p "Makefile")
-              (file-exists-p "makefile"))
-    (setq-local compile-command
-                (if (file-exists-p "Cargo.toml")
-                    "cargo build"
-                  (format "rustc %s"
-                          (if buffer-file-name
-                              (shell-quote-argument buffer-file-name)
-                            ""))))))
-
 (defun basis/init-rust-mode ()
   (subword-mode)
-  (basis/rust-set-compile-command))
+  (when (and (equal compile-command (default-value 'compile-command))
+             (not (or (file-exists-p "Makefile")
+                      (file-exists-p "makefile"))))
+    (let* ((name nil)
+           (cmd (cond ((file-exists-p "Cargo.toml")
+                       "cargo build")
+                      ((setq name (buffer-file-name))
+                       (format "rustc %s" (shell-quote-argument name))))))
+      (when cmd (setq-local compile-command cmd)))))
 
 (use-package rust-mode
   :ensure t
