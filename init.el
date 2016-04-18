@@ -1730,6 +1730,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t)
 
 (defun basis/init-haskell-mode ()
+  (subword-mode)
   (turn-on-haskell-indentation)
   (haskell-decl-scan-mode)
   (interactive-haskell-mode))
