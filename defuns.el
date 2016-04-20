@@ -594,11 +594,14 @@ If no region is active, examine the full buffer."
                          (t
                           (cons (point) (point))))))
                 (`(,open . ,close)
-                 (pcase (read-char "Quote type: ")
-                   (?\` '(?` . ?'))
-                   (?\' '(?‘ . ?’))
-                   (?\" '(?“ . ?”))
-                   (c   `(,c . ,c)))))
+                 (let ((char (read-char "Quote type: ")))
+                   (if current-prefix-arg
+                       (cons char char)
+                     (pcase char
+                       (?\` '(?` . ?'))
+                       (?\' '(?‘ . ?’))
+                       (?\" '(?“ . ?”))
+                       (c   `(,c . ,c)))))))
      (list beg end open close)))
   (if (eq beg end)
       (progn (goto-char beg)
