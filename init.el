@@ -2310,8 +2310,7 @@ Move forward by a line and indent if invoked directly between."
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
     (setq magit-display-buffer-function #'basis/magit-display-buffer)
-    ;; Set `magit-diff-expansion-threshold' to work around Magit issue #2388.
-    (setq magit-diff-expansion-threshold 999.0)
+    (setq magit-diff-expansion-threshold 999.0) ; Work around Magit issue #2388
     (setq magit-repository-directories
           (thread-last projectile-known-projects
             (seq-remove #'tramp-tramp-file-p)
@@ -2319,7 +2318,6 @@ Move forward by a line and indent if invoked directly between."
                           (file-directory-p (expand-file-name ".git" dir))))
             (cons "~/code/")
             (mapcar #'directory-file-name)))
-    ;; (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
     (when (eq basis/system-type 'windows+cygwin)
       (setq magit-need-cygwin-noglob t)
       (setq magit-cygwin-mount-points nil)
