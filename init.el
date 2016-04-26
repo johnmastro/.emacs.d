@@ -4,14 +4,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Early configuration
 
-(eval-when-compile (require 'cl-lib))
-
 ;; Disable superfluous UI immediately to prevent momentary display
-(let ((modes '(menu tool scroll horizontal-scroll)))
+(let ((modes '(menu-bar-mode
+               tool-bar-mode
+               scroll-bar-mode
+               horizontal-scroll-bar-mode)))
   (dolist (mode (if (eq window-system 'ns) (cdr modes) modes))
-    (let ((mode (intern (format "%s-bar-mode" mode))))
-      (when (fboundp mode)
-        (funcall mode -1)))))
+    (when (fboundp mode)
+      (funcall mode -1))))
 
 (defconst basis/emacs-dir
   (file-name-directory (file-chase-links (or load-file-name buffer-file-name)))
