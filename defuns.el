@@ -168,7 +168,7 @@ With optional prefix ARG, uncomment instead."
     (while (and (ignore-errors (backward-up-list) t)
                 (>= (point) beg))
       (skip-chars-backward (rx (syntax expression-prefix)))
-      (setq pos (point-marker)))
+      (set-marker pos (point)))
     ;; Re-comment everything before it
     (ignore-errors (comment-region beg pos))
     ;; And everything after it
@@ -183,7 +183,11 @@ With optional prefix ARG, uncomment instead."
       (when (= (car (syntax-after (point))) 5)
         (delete-indentation)))
     ;; Without a prefix, it's more useful to leave point where it was
-    (unless n (goto-char start))))
+    (prog1 (unless n (goto-char start))
+      (set-marker start nil)
+      (set-marker beg nil)
+      (set-marker end nil)
+      (set-marker pos nil))))
 
 (defun basis/comment-sexp-raw ()
   "Comment the sexp at point and move over it."
@@ -607,7 +611,7 @@ If no region is active, examine the full buffer."
       (progn (goto-char beg)
              (insert open close)
              (forward-char -1))
-    (let ((end (move-marker (make-marker) end)))
+    (let ((end (copy-marker end)))
       (goto-char beg)
       (insert open)
       (goto-char end)
@@ -1177,7 +1181,7 @@ Use `slime-expand-1' to produce the expansion."
           (while (< (point) end)
             (dotimes (_ n) (tab-to-tab-stop))
             (forward-line 1))
-          (move-marker end nil))
+          (set-marker end nil))
       (dotimes (_ n) (tab-to-tab-stop)))))
 
 (defvar basis/sql-backspace-dedent-hungrily t
@@ -1454,7 +1458,9 @@ If the region is not active, wrap the current line."
     (insert "</" tag ">")
     (indent-region beg end)
     (goto-char beg)
-    (setq deactivate-mark t)))
+    (setq deactivate-mark t)
+    (set-marker beg nil)
+    (set-marker end nil)))
 
 (defun basis/html-newline-and-indent ()
   (interactive)
