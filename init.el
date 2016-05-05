@@ -2712,7 +2712,8 @@ Move forward by a line and indent if invoked directly between."
     (global-set-key (kbd "C-x m") #'mu4e)
     (let ((dir "/usr/local/share/emacs/site-lisp/mu4e/"))
       (when (file-directory-p dir)
-        (add-to-list 'load-path dir)))
+        (add-to-list 'load-path dir)
+        (autoload 'mu4e "mu4e" "Launch mu4e." t)))
     ;; Mail
     (setq mu4e-get-mail-command "offlineimap"
           mu4e-maildir (expand-file-name ".maildir/fastmail" (getenv "HOME"))
