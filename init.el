@@ -261,6 +261,9 @@ can be either `create' or `error'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Basic packages
 
+(defun basis/init-eval-expression-minibuffer ()
+  (setq-local indent-line-function #'lisp-indent-line))
+
 (use-package simple
   :init (progn (setq shift-select-mode nil
                      line-number-mode t
@@ -273,7 +276,9 @@ can be either `create' or `error'."
             ;; Keep popping the mark until point actually moves
             (advice-add 'pop-to-mark-command
                         :around
-                        #'basis/pop-to-mark-ensure-new-pos)))
+                        #'basis/pop-to-mark-ensure-new-pos)
+            (add-hook 'eval-expression-minibuffer-setup-hook
+                      #'basis/init-eval-expression-minibuffer)))
 
 (use-package mule
   :config
@@ -2132,8 +2137,7 @@ Move forward by a line and indent if invoked directly between."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Brackets
 
-(defun basis/maybe-map-paredit-newline ()
-  "Map `paredit-newline' except in some interactive modes."
+(defun basis/init-paredit-mode ()
   (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
                                                inferior-lisp-mode
                                                inferior-scheme-mode
@@ -2167,7 +2171,7 @@ Move forward by a line and indent if invoked directly between."
                          'paredit-backward-up
                          'paredit-backward-down
                          'paredit-newline))
-    (add-hook 'paredit-mode-hook #'basis/maybe-map-paredit-newline)
+    (add-hook 'paredit-mode-hook #'basis/init-paredit-mode)
     (pcase-dolist (`(,sym . ,act) '((paredit-kill            . supersede)
                                     (paredit-forward-delete  . supersede)
                                     (paredit-backward-delete . supersede)
