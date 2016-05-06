@@ -920,13 +920,13 @@ is read-only and empty."
   :init (progn (global-set-key (kbd "M-m") #'jump-char-forward)
                (global-set-key (kbd "M-M") #'jump-char-backward)))
 
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
 (setq search-default-regexp-mode #'character-fold-to-regexp)
 (setq isearch-regexp-lax-whitespace t)
+(setq isearch-allow-scroll t)
 
 (basis/define-keys global-map
   ("C-s"     #'isearch-forward-regexp)
