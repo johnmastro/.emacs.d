@@ -770,51 +770,30 @@ no matches."
         ido-exit 'fallback)
   (exit-minibuffer))
 
-(defun basis/company-no-completion-in-docstring (function)
-  "Advice for `company-auto-begin'.
-Work around a bug I haven't figured out yet."
-  (unless (and (eq major-mode 'python-mode)
-               (basis/in-string-p))
-    (funcall function)))
+(defun basis/company-maybe-block-completion (&rest _args)
+  "Prevent `company-auto-begin' from running in some circumstances."
+  ;; Used as `:before-until' advice, so returning non-nil prevents completion.
+  (pcase major-mode
+    (`python-mode
+     (basis/in-string-p))
+    (`shell-mode
+     (and (eq system-type 'windows-nt)
+          (save-excursion
+            (skip-syntax-backward "^ ")
+            (looking-at-p "\\(\\w+@\\)?\\w\\{2,\\}:"))))
+    (`sh-mode
+     (save-excursion
+       (forward-char -2)
+       (looking-at-p "\\_<fi\\_>")))))
 
-(defvar basis/current-hostname
-  (when-let ((hostname (executable-find "hostname")))
-    (thread-first (with-output-to-string
-                    (call-process "hostname" nil standard-output))
-      string-trim-right
-      intern))
-  "The machine's ‘hostname’.")
-
-(defun basis/company-no-srv-completion (function)
+(defun basis/company-no-srv-completion (&rest _args)
   "Advice for `company-auto-begin'.
 For use on a particular host - prevent completion of directories
 under \"/srv/\" (ugh)."
-  (unless (and (eq major-mode 'shell-mode)
-               (save-excursion
-                 (skip-syntax-backward "^ ")
-                 (looking-at-p "/srv/")))
-    (funcall function)))
-
-(defun basis/company-no-tramp-completion (function)
-  "Advice for `company-auto-begin'.
-Work around TRAMP freezes on my Windows machine at work."
-  (unless (and (eq major-mode 'shell-mode)
-               ;; Skip backward to whitespace and see if we end up on something
-               ;; that looks like a TRAMP file name.
-               (save-excursion
-                 (skip-syntax-backward "^ ")
-                 (looking-at-p "\\(\\w+@\\)?\\w\\{2,\\}:")))
-    (funcall function)))
-
-(defun basis/company-sh-no-complete-fi (function)
-  "Advice for `company-auto-begin'.
-Prevent completion on \"fi\" in `sh-mode'. I find the interaction
-between this and electric indentation annoying."
-  (unless (and (eq major-mode 'sh-mode)
-               (save-excursion
-                 (forward-char -2)
-                 (looking-at-p "\\_<fi\\_>")))
-    (funcall function)))
+  (and (eq major-mode 'shell-mode)
+       (save-excursion
+         (skip-syntax-backward "^ ")
+         (looking-at-p "/srv/"))))
 
 (defun basis/maybe-enable-company-clang ()
   "Conditionally enable `company-clang' for the current buffer."

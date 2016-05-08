@@ -1301,19 +1301,12 @@ is read-only and empty."
     (setq company-minimum-prefix-length 2
           company-tooltip-flip-when-above t)
     (advice-add 'company-auto-begin
-                :around
-                #'basis/company-no-completion-in-docstring)
-    (advice-add 'company-auto-begin
-                :around
-                #'basis/company-sh-no-complete-fi)
-    (when (eq basis/current-hostname 'sierra)
+                :before-until
+                #'basis/company-maybe-block-completion)
+    (when (string-match-p "\\`sierra\\(\\.\\|$\\)" system-name)
       (advice-add 'company-auto-begin
-                  :around
+                  :before-until
                   #'basis/company-no-srv-completion))
-    (when (eq system-type 'windows-nt)
-      (advice-add 'company-auto-begin
-                  :around
-                  #'basis/company-no-tramp-completion))
     (with-eval-after-load 'cc-mode
       (when-let ((args (basis/build-clang-args 'c)))
         (require 'company-clang)
