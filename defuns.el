@@ -1790,20 +1790,28 @@ representation before comparing them."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
 
-(defun basis/make-tags ()
+(defun basis/make-tags (arg)
   "Regenerate and reload TAGS via ‘make tags’.
-Obviously, this only works if a Makefile with a ‘tags’ target is
+Of course, this only works if a Makefile with a ‘TAGS’ target is
 available."
-  (interactive)
-  (if-let ((here (or (buffer-file-name) default-directory))
-           (dir (seq-some (lambda (name) (locate-dominating-file here name))
-                          '("Makefile" "GNUmakefile" "BSDmakefile")))
-           (tags (expand-file-name "TAGS" dir)))
-      (let ((default-directory dir))
-        (shell-command "make tags")
-        (when (file-exists-p tags)
-          (visit-tags-table tags)))
-    (message "Can't regenerate tags")))
+  (interactive "P")
+  (let* ((project-root (ignore-errors (projectile-project-root)))
+         (default-directory (if (and (not arg) project-root)
+                                project-root
+                              default-directory))
+         (buffer (with-current-buffer (get-buffer-create "*make-TAGS*")
+                   (let ((inhibit-read-only t))
+                     (erase-buffer))
+                   (special-mode)
+                   (current-buffer))))
+    (set-process-sentinel
+     (start-process "make-TAGS" buffer "make" "TAGS")
+     (lambda (proc _event)
+       (when (eq (process-status proc) 'exit)
+         (pcase (process-exit-status proc)
+           (0 (message "Regenerated TAGS")
+              (unless (eq arg '-) (visit-tags-table "TAGS")))
+           (_ (pop-to-buffer buffer))))))))
 
 (defun basis/comint-input-goto-bottom-if-necessary (&rest _args)
   "Advice for `comint' {previous,next}-input commands.
