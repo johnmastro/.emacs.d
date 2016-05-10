@@ -2674,17 +2674,23 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package message
   :defer t
-  :init (setq user-mail-address "jbm@jbm.io"
-              user-full-name "John Mastro"
-              message-auto-save-directory (basis/emacs-dir "tmp/")
-              message-subject-trailing-was-query nil
-              message-signature "jbm"
-              message-kill-buffer-on-exit t
-              message-dont-reply-to-names nil
-              message-send-mail-function #'smtpmail-send-it)
-  :config (progn
-            (define-key message-mode-map (kbd "C-c n") #'org-footnote-action)
-            (add-hook 'message-mode-hook #'basis/init-message-mode)))
+  :init
+  (setq user-mail-address "jbm@jbm.io"
+        user-full-name "John Mastro"
+        mail-host-address "jbm.io"
+        message-user-fqdn "jbm.io"
+        message-auto-save-directory (basis/emacs-dir "tmp/")
+        message-subject-trailing-was-query nil
+        message-signature "jbm"
+        message-kill-buffer-on-exit t
+        message-dont-reply-to-names nil
+        message-send-mail-function #'smtpmail-send-it
+        message-citation-line-function #'message-insert-formatted-citation-line
+        message-citation-line-format "%N wrote:\n")
+  :config
+  (progn
+    (define-key message-mode-map (kbd "C-c n") #'org-footnote-action)
+    (add-hook 'message-mode-hook #'basis/init-message-mode)))
 
 (use-package sendmail
   :defer t
