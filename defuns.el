@@ -1840,6 +1840,11 @@ user-error, automatically move point to the command line."
           (t
            (newline-and-indent)))))
 
+(defun basis/colorize-compilation ()
+  "Colorize from `compilation-filter-start' to point."
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region compilation-filter-start (point))))
+
 (defun basis/eshell-kill-line-backward ()
   "Kill the current line backward, respecting Eshell's prompt."
   (interactive)

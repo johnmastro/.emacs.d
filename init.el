@@ -2490,13 +2490,17 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package compile
   :defer t
-  :init (progn (global-set-key (kbd "C-c b c") #'compile)
-               (global-set-key (kbd "C-c b b") #'recompile)
-               (global-set-key (kbd "C-c b t") #'basis/make-tags))
-  :config (setq compilation-ask-about-save nil
-                compilation-always-kill t
-                compilation-scroll-output 'first-error
-                compilation-context-lines 2))
+  :init (progn
+          (setq compilation-ask-about-save nil)
+          (setq compilation-always-kill t)
+          (setq compilation-scroll-output 'first-error)
+          (setq compilation-context-lines 2)
+          (global-set-key (kbd "C-c b c") #'compile)
+          (global-set-key (kbd "C-c b b") #'recompile)
+          (global-set-key (kbd "C-c b t") #'basis/make-tags))
+  :config (progn
+            (require 'ansi-color)
+            (add-hook 'compilation-filter-hook #'basis/colorize-compilation)))
 
 (use-package ls-lisp
   :defer t
