@@ -1680,7 +1680,8 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package python
   :defer t
-  :init (setq python-indent-guess-indent-offset-verbose nil)
+  :init (setq python-indent-guess-indent-offset-verbose nil
+              python-shell-unbuffered (not (eq system-type 'windows-nt)))
   :config
   (progn
     (basis/define-eval-keys python-mode-map
