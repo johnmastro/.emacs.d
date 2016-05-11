@@ -1353,7 +1353,11 @@ With arg N, move backward that many times."
 (defun basis/sql-set-product (&optional product)
   "Call `sql-set-product' based on file content."
   (interactive
-   (list (sql-read-product "SQL product: " (basis/sql-guess-product))))
+   (list (intern (completing-read "SQL product: "
+                                  (mapcar (lambda (p) (symbol-name (car p)))
+                                          sql-product-alist)
+                                  nil
+                                  t))))
   (sql-set-product (or product (basis/sql-guess-product))))
 
 (defun basis/sql-modify-syntax-table (&rest _)
