@@ -969,7 +969,7 @@ is read-only and empty."
 ;;; External search
 
 (basis/define-map basis/grep-map (:key "<f9>")
-  ("a"  #'ack-and-a-half)
+  ("a"  #'ag-regexp)
   ("g"  #'grep)
   ("s"  #'lgrep)
   ("r"  #'rgrep)
@@ -997,30 +997,9 @@ is read-only and empty."
     (unless (assoc alias grep-files-aliases)
       (add-to-list 'grep-files-aliases (cons alias files)))))
 
-(use-package ack-and-a-half
-  :defer t
-  :commands (ack-and-a-half)
-  :init (progn
-          (defalias 'ack #'ack-and-a-half)
-          (defalias 'ack-same #'ack-and-a-half-same)
-          (defalias 'ack-find-file #'ack-and-a-half-find-file)
-          (defalias 'ack-find-file-same #'ack-and-a-half-find-file-same)
-          (when (file-exists-p "~/bin/ack")
-            (setq ack-and-a-half-executable "~/bin/ack")))
-  :config
-  (progn
-    (basis/define-keys ack-and-a-half-mode-map
-      ("n" #'compilation-next-error)
-      ("p" #'compilation-previous-error)
-      ("]" #'compilation-next-file)
-      ("[" #'compilation-previous-file))
-    (setq ack-and-a-half-use-ido t)
-    ;; Make Cygwin happy
-    (when (and (eq basis/system-type 'windows+cygwin)
-               (stringp ack-and-a-half-executable)
-               (string-prefix-p "c:" ack-and-a-half-executable))
-      (setq ack-and-a-half-executable
-            (substring ack-and-a-half-executable 2)))))
+(use-package ag
+  :ensure t
+  :defer t)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
