@@ -1188,6 +1188,10 @@ is read-only and empty."
   :ensure t
   :init (setq helm-projectile-fuzzy-match t))
 
+(use-package helm-ag
+  :ensure t
+  :defer t)
+
 (use-package helm-swoop
   :ensure t
   :defer t
