@@ -405,10 +405,9 @@ can be either `create' or `error'."
               uniquify-ignore-buffers-re "^\\*"))
 
 (use-package whitespace
-  :init
-  (setq whitespace-style '(face trailing lines-tail tabs)
-        whitespace-line-column 80)
-  (put 'whitespace-line-column 'safe-local-variable #'integerp)
+  :init (progn (setq whitespace-style '(face trailing lines-tail tabs)
+                     whitespace-line-column 80)
+               (put 'whitespace-line-column 'safe-local-variable #'integerp))
   :diminish whitespace-mode)
 
 (use-package recentf

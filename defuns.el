@@ -1660,9 +1660,8 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
 (defun basis/maybe-enable-whitespace-mode ()
   "Enable `whitespace-mode' in programming modes (but not REPLs)."
   (interactive)
-  (unless (or (derived-mode-p 'comint-mode)
-              (memq major-mode '(eshell-mode cider-repl-mode)))
-    (whitespace-mode 1)))
+  (unless (derived-mode-p 'comint-mode 'cider-repl-mode 'eshell-mode)
+    (whitespace-mode)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
