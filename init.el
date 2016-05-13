@@ -464,9 +464,9 @@ can be either `create' or `error'."
 (use-package faces
   :config
   (let ((fonts (pcase system-type
-                 (`gnu/linux  '("Inconsolata-11"))
                  (`darwin     '("Source Code Pro-11" "Andale Mono-12"))
-                 (`windows-nt '("Consolas-10")))))
+                 (`windows-nt '("Consolas-10"))
+                 (_           '("Inconsolata-11")))))
     (catch 'done
       (dolist (font fonts)
         (when (ignore-errors (set-face-attribute 'default nil :font font)
