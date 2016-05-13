@@ -2735,12 +2735,20 @@ Move forward by a line and indent if invoked directly between."
                (cons "View in browser" #'basis/mu4e-action-view-in-browser)
                t))
 
-;; Retrieving passwords
+;; Retrieving credentials
 (use-package auth-source
   :defer t
-  :init (setq auth-sources (if (eq system-type 'darwin)
-                               '(macos-keychain-internet)
-                             '("~/.authinfo.gpg"))))
+  :config
+  (setq auth-sources
+        (cond ((and (featurep 'dbusbind)
+                    (require 'secrets nil t)
+                    (bound-and-true-p secrets-enabled))
+               ;; Probably only `default' and ~/.authinfo.gpg are needed (?)
+               '(default "secrets:session" "secrets:Login" "~/.authinfo.gpg"))
+              ((eq system-type 'darwin)
+               '(macos-keychain-internet))
+              (t
+               '("~/.authinfo.gpg")))))
 
 (use-package gnus
   :defer t
