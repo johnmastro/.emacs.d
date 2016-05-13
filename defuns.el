@@ -2240,12 +2240,15 @@ input."
   "Same as `looking-back' but don't change the match data."
   (save-match-data (looking-back regexp limit)))
 
-(defun basis/kill-this-buffer ()
-  "Kill the current buffer.
-Like `kill-this-buffer' but don't insist on the menu bar being
-displayed."
-  (interactive)
-  (kill-buffer (current-buffer)))
+(defun basis/kill-buffer (&optional buffer)
+  "Kill BUFFER.
+Like `kill-buffer' but, when called interactively, kill the
+current buffer without pompting, unless called with a prefix
+argument."
+  (interactive
+   (list (and current-prefix-arg
+              (read-buffer "Kill buffer: " (current-buffer) t))))
+  (kill-buffer (or buffer (current-buffer))))
 
 (defun basis/kill-frame-or-terminal (&optional arg)
   "Kill the current frame or session.

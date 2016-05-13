@@ -577,6 +577,9 @@ can be either `create' or `error'."
             (which-key-mode))
   :diminish which-key-mode)
 
+;; Don't prompt when using `C-x k'
+(global-set-key (kbd "C-x k") #'basis/kill-buffer)
+
 ;; Treat `C-u C-l' the same as `C-u 4 C-l'
 (global-set-key (kbd "C-l") #'basis/recenter-top-bottom)
 
@@ -741,7 +744,6 @@ can be either `create' or `error'."
 (global-set-key (kbd "C-x C-z") #'repeat)
 
 (basis/define-map basis/h-map ()
-  ("C-k" #'basis/kill-this-buffer)
   ("C-h" #'mark-paragraph))
 
 ;; Note sure which will be better
