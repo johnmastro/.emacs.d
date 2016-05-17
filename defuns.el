@@ -1727,15 +1727,10 @@ make sure its in the same form that Emacs uses (i.e.
   ;; Only necessary on my Cygwin setup
   (delete-dups (mapcar #'abbreviate-file-name result)))
 
-(defun basis/magit-display-buffer (buffer)
-  "Display BUFFER via `magit-display-buffer-traditional'.
-If BUFFER is in `magit-status-mode', delete any other windows."
-  (let ((window (magit-display-buffer-traditional buffer)))
-    (when (and (window-live-p window)
-               (eq (with-current-buffer buffer major-mode) 'magit-status-mode))
-      (with-selected-window window
-        (delete-other-windows)))
-    window))
+(defun basis/magit-maybe-delete-other-windows ()
+  "Give `magit-status-mode' buffers the whole frame."
+  (when (eq major-mode 'magit-status-mode)
+    (delete-other-windows)))
 
 (defun basis/magit-cygwin-save-repository-buffers (&optional arg)
   "Alternative `magit-save-repository-buffers'.

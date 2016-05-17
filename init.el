@@ -2283,7 +2283,6 @@ Move forward by a line and indent if invoked directly between."
     (setq magit-popup-use-prefix-argument 'default)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
-    (setq magit-display-buffer-function #'basis/magit-display-buffer)
     (setq magit-diff-expansion-threshold 999.0) ; Work around Magit issue #2388
     (setq magit-repository-directories
           (thread-last projectile-known-projects
@@ -2292,6 +2291,10 @@ Move forward by a line and indent if invoked directly between."
                           (file-directory-p (expand-file-name ".git" dir))))
             (cons "~/code/")
             (mapcar #'directory-file-name)))
+    (add-hook 'magit-post-display-buffer-hook
+              #'basis/magit-maybe-delete-other-windows)
+    (define-key magit-status-mode-map
+      (kbd "C-c C-v") #'basis/magit-browse-pull-request-url)
     (when (eq basis/system-type 'windows+cygwin)
       (setq magit-need-cygwin-noglob t)
       (setq magit-cygwin-mount-points nil)
@@ -2317,12 +2320,7 @@ Move forward by a line and indent if invoked directly between."
           (capitalize (symbol-name cmd))
           (intern (format "basis/magit-stash-%s" cmd))
           before
-          'prepend)))
-    ;; Add a command on `C-c C-v' to view the pull request URL. It would be even
-    ;; better to add this to Magit's menus but nowhere sticks out as obviously
-    ;; appropriate.
-    (define-key magit-status-mode-map
-      (kbd "C-c C-v") #'basis/magit-browse-pull-request-url)))
+          'prepend)))))
 
 (use-package with-editor
   :ensure t
