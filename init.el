@@ -2293,6 +2293,8 @@ Move forward by a line and indent if invoked directly between."
             (mapcar #'directory-file-name)))
     (add-hook 'magit-post-display-buffer-hook
               #'basis/magit-maybe-delete-other-windows)
+    (define-key basis/file-map "g" #'magit-find-file)
+    (define-key ctl-x-4-map "g" #'magit-find-file-other-window)
     (define-key magit-status-mode-map
       (kbd "C-c C-v") #'basis/magit-browse-pull-request-url)
     (when (eq basis/system-type 'windows+cygwin)
