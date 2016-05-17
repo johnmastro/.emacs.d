@@ -625,7 +625,6 @@ can be either `create' or `error'."
 
 ;; Join lines
 (basis/define-keys global-map
-  ("C-c C-j" #'basis/join-next-line)
   ("C-c j"   #'basis/join-next-line)
   ("ESC M-q" #'basis/unfill-paragraph))
 
@@ -704,6 +703,8 @@ can be either `create' or `error'."
   ("D" #'basis/delete-current-buffer-file)
   ("f" #'find-name-dired)
   ("F" #'find-dired)
+  ("j" #'dired-jump)
+  ("J" #'dired-jump-other-window)
   ("m" #'make-directory)
   ("v" #'revert-buffer))
 
@@ -1679,8 +1680,7 @@ Use `paredit' in these modes rather than `smartparens'.")
       ("DEL"     #'basis/sp-python-backspace)
       ("C-c C-D" #'python-eldoc-at-point)
       ("C-c C-p" #'basis/run-python)
-      ("C-h C-p" #'basis/insert-python-docstring-quotes)
-      ("C-c C-j" nil))
+      ("C-h C-p" #'basis/insert-python-docstring-quotes))
     (setq python-fill-docstring-style 'pep-257-nn)
     (add-hook 'python-mode-hook #'basis/init-python-mode)
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
@@ -2525,8 +2525,7 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package dired-x
   :defer t
-  :init (progn (setq dired-omit-verbose nil)
-               (global-set-key (kbd "C-h C-j") #'dired-jump))
+  :init (setq dired-omit-verbose nil)
   :config (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)))
 
 (use-package find-dired
