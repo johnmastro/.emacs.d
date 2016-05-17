@@ -1732,15 +1732,6 @@ See also `basis/cygwin-fix-file-name'."
   ;; Only necessary on my Cygwin setup
   (delete-dups (mapcar #'abbreviate-file-name result)))
 
-(defun basis/cygwin-noglob (function &rest args)
-  "Add \"CYGWIN=noglob\" to the environment while invoking `function'."
-  (let ((process-environment (cons (concat "CYGWIN="
-                                           (if-let ((val (getenv "CYGWIN")))
-                                               (concat val " noglob")
-                                             "noglob"))
-                                   process-environment)))
-    (apply function args)))
-
 (defun basis/magit-display-buffer (buffer)
   "Display BUFFER via `magit-display-buffer-traditional'.
 If BUFFER is in `magit-status-mode', delete any other windows."
