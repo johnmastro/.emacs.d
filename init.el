@@ -751,7 +751,6 @@ can be either `create' or `error'."
 
 ;; Note sure which will be better
 (global-set-key (kbd "C-h") 'basis/h-map)
-(global-set-key (kbd "M-h") 'basis/h-map)
 
 (defvar basis/eval-keys
   '((last-sexp  . "C-x C-e")
