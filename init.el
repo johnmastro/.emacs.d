@@ -212,7 +212,9 @@ can be either `create' or `error'."
     (setq locale-coding-system 'utf-8)
     ;; Since Emacs wasn't launched from a Cygwin shell, $LANG will be wonky
     ;; unless we fix it.
-    (setenv "LANG" "en_US.UTF-8")))
+    (setenv "LANG" "en_US.UTF-8")
+    (advice-add 'shell-quote-argument :filter-args
+                #'basis/cygwin-shell-quote-argument)))
 
 (when (eq basis/system-type 'windows+cygwin)
   (basis/init-for-cygwin))
@@ -1684,12 +1686,6 @@ Use `paredit' in these modes rather than `smartparens'.")
     (setq python-fill-docstring-style 'pep-257-nn)
     (add-hook 'python-mode-hook #'basis/init-python-mode)
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
-    (when (eq basis/system-type 'windows+cygwin)
-      (advice-add (if (fboundp 'python-shell-calculate-command)
-                      'python-shell-calculate-command
-                    'python-shell-parse-command)
-                  :filter-return
-                  #'basis/cygwin-fix-file-name))
     ;; Jedi has 2 Python dependencies: jedi and epc
     (when (basis/jedi-installed-p)
       (setq jedi:setup-keys t
@@ -2331,17 +2327,7 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package with-editor
   :ensure t
-  :defer t
-  ;; On Cygwin, fix `with-editor-emacsclient-executable' and advice
-  ;; `with-editor-locate-emacsclient' so that its result is accurate for any
-  ;; future uses.
-  :config (when (eq basis/system-type 'windows+cygwin)
-            (when-let ((client with-editor-emacsclient-executable)
-                       (client (basis/cygwin-fix-file-name client)))
-              (setq with-editor-emacsclient-executable client))
-            (advice-add 'with-editor-locate-emacsclient
-                        :filter-return
-                        #'basis/with-editor-cygwin-fix-file-name)))
+  :defer t)
 
 (use-package gist
   :ensure t

@@ -1722,11 +1722,6 @@ make sure its in the same form that Emacs uses (i.e.
 \"c:/path/to/somewhere\")."
   (and result (expand-file-name result)))
 
-(defun basis/with-editor-cygwin-fix-file-name (name)
-  "Advice for `with-editor-locate-emacsclient'.
-See also `basis/cygwin-fix-file-name'."
-  (and name (basis/cygwin-fix-file-name name)))
-
 (defun basis/magit-list-repos-uniquely (result)
   "Advice for `magit-list-repos'."
   ;; Only necessary on my Cygwin setup
@@ -1950,26 +1945,16 @@ user-error, automatically move point to the command line."
     (replace-regexp-in-string "\\`[a-zA-Z]:" "")))
 
 (defun basis/maybe-cygwinize-drive-letter (file)
-  "Convert \"c:/foo\" to \"/foo\" or \"e:/foo\" to \"/e/foo\".
-Assumes Cygwin's path prefix is \"/\"."
-  (cond ((string-match "\\`[Cc]:/" file)
-         (replace-match "/" t t file))
-        ((string-match "\\`\\([B-Zb-z]\\):/" file)
-         (replace-match (concat "/" (match-string 1 file) "/")
-                        t
-                        t
-                        file))
-        (t file)))
+  "Convert e.g. \"c:/foo\" to \"/c/foo\"."
+  (if (and file (string-match "\\`\\([A-Za-z]\\):\\(/.*\\)" file))
+      (concat "/" (match-string 1 file) (match-string 2 file))
+    file))
 
-(defun basis/cygwin-fix-file-name (name)
-  "Un-escape the colon drive letter separator in NAME.
-For example, given \"c\\:/path/to/file\" return
-\"c:/path/to/file\". Used to adjust the result of
-`python-shell-calculate-command' and
-`with-editor-locate-emacsclient'."
-  (if (and name (string-match "\\`[a-zA-Z]\\(\\\\\\):/" name))
-      (replace-match "" t t name 1)
-    name))
+(defun basis/cygwin-shell-quote-argument (args)
+  "Advice for `shell-quote-argument' on machines with Cygwin.
+Quote file names appropriately for POSIX-like shells."
+  ;; Used as :filter-args advice
+  (list (basis/maybe-cygwinize-drive-letter (car args))))
 
 (defun basis/read-file (file)
   "Read a Lisp form from FILE."
