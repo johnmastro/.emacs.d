@@ -365,6 +365,7 @@ can be either `create' or `error'."
             (server-start)))
 
 (use-package hl-line
+  :init (setq global-hl-line-sticky-flag t)
   :config (global-hl-line-mode))
 
 (use-package paren
