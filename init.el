@@ -1090,8 +1090,6 @@ is read-only and empty."
             ("/" #'helm-find)
             (":" #'helm-eval-expression-with-eldoc)))
   :config (progn
-            (require 'helm-utils)       ; For the `helm-selection-line' face
-            (require 'helm-adaptive)
             (basis/define-keys helm-map
               ("TAB" #'helm-execute-persistent-action)
               ("M-s" #'helm-select-action)
