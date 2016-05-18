@@ -2172,13 +2172,15 @@ If provided, BACKGROUND-MODE specifies which variant to use:
 ;;; Miscellaneous
 
 (defun basis/google (string)
-  "Run a Google search.
-Use the active region or symbol at point, if any, as initial
-input."
+  "Run a Google search for STRING.
+Use the active region or symbol at point, if any, as the default
+search term."
   (interactive
-   (list (thread-last 'symbol
-           (basis/bounds-of-region-or-thing)
-           (apply #'buffer-substring-no-properties)
+   (list (if-let ((bounds (basis/bounds-of-region-or-thing 'symbol))
+                  (string (apply #'buffer-substring-no-properties bounds)))
+             (read-string (format "Google (default %s) " string)
+                          nil nil
+                          string)
            (read-string "Google: "))))
   (browse-url
    (concat "https://www.google.com/search?ie=utf-8&oe=utf-8&q="
