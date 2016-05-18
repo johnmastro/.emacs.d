@@ -1114,10 +1114,11 @@ is read-only and empty."
   :ensure helm
   :diminish helm-mode
   :init (setq helm-mode-handle-completion-in-region nil)
-  :config
-  (progn (helm-mode)
-         ;; None of helm, ido, or ivy seem to handle `Info-goto-node'
-         (add-to-list 'helm-completing-read-handlers-alist '(Info-goto-node))))
+  :config (progn
+            (helm-mode)
+            (dolist (cons '((multi-occur . ido-completing-read)
+                            (Info-goto-node)))
+              (add-to-list 'helm-completing-read-handlers-alist cons))))
 
 (use-package helm-files
   :ensure helm
