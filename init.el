@@ -1060,7 +1060,6 @@ is read-only and empty."
   :config (helm-flx-mode))
 
 (use-package helm-config
-  :ensure helm
   :config (global-unset-key (kbd helm-command-prefix-key)))
 
 (use-package helm
@@ -1108,13 +1107,11 @@ is read-only and empty."
             (set-face-attribute 'helm-source-header nil :height 1.0)))
 
 (use-package helm-adaptive
-  :ensure helm
   :init (setq helm-adaptive-history-file
               (basis/emacs-file "var/helm-adaptive-history"))
   :config (helm-adaptive-mode))
 
 (use-package helm-mode
-  :ensure helm
   :diminish helm-mode
   :init (setq helm-mode-handle-completion-in-region nil)
   :config (progn
@@ -1124,7 +1121,6 @@ is read-only and empty."
               (add-to-list 'helm-completing-read-handlers-alist cons))))
 
 (use-package helm-files
-  :ensure helm
   :defer t
   :init (progn (global-set-key (kbd "C-x C-f") #'basis/helm-find-files)
                (setq helm-ff-newfile-prompt-p nil
@@ -1144,11 +1140,9 @@ is read-only and empty."
                  (advice-add 'helm-find-files-input :override #'ignore)))
 
 (use-package helm-locate
-  :ensure helm
   :init (setq helm-locate-fuzzy-match nil))
 
 (use-package helm-buffers
-  :ensure helm
   :defer t
   :init
   (progn (setq helm-buffers-fuzzy-matching t)
@@ -1157,33 +1151,28 @@ is read-only and empty."
   (define-key helm-buffer-map (kbd "C-c C-b") #'basis/helm-run-bookmarks))
 
 (use-package helm-command
-  :ensure helm
   :defer t
   :init (progn (setq helm-M-x-fuzzy-match t)
                (global-set-key (kbd "M-x") #'helm-M-x)))
 
 (use-package helm-imenu
-  :ensure helm
   :defer t
   :init (progn (setq helm-imenu-execute-action-at-once-if-one nil
                      helm-imenu-fuzzy-match t)
                (global-set-key (kbd "M-i") #'helm-imenu)))
 
 (use-package helm-ring
-  :ensure helm
   :defer t
   :init (progn (global-set-key (kbd "M-y") #'helm-show-kill-ring)
                (global-set-key (kbd "M-`") #'helm-all-mark-rings)))
 
 (use-package helm-elisp
-  :ensure helm
   :defer t
   :init (progn (setq helm-apropos-fuzzy-match t
                      helm-lisp-fuzzy-completion t)
                (global-set-key (kbd "<f1> SPC") #'helm-apropos)))
 
 (use-package helm-man
-  :ensure helm
   :init (unless basis/system-man-p
           (setq helm-man-or-woman-function #'woman)))
 
@@ -1213,20 +1202,17 @@ is read-only and empty."
             (define-key isearch-mode-map (kbd "M-i") nil)))
 
 (use-package helm-external
-  :ensure helm
   :defer t
-  :config
-  (when (eq system-type 'windows-nt)
-    (advice-add 'helm-open-file-externally
-                :override
-                #'basis/helm-open-file-w32)))
+  :config (when (eq system-type 'windows-nt)
+            (advice-add 'helm-open-file-externally
+                        :override
+                        #'basis/helm-open-file-w32)))
 
 ;; To prevent a delay the first time I use M-x
 (when (eq (key-binding (kbd "M-x")) #'helm-M-x)
   (require 'helm-command))
 
 (use-package helm-grep
-  :ensure helm
   :defer t
   ;; On OS X, prefer GNU grep if it's available
   :config
