@@ -2235,8 +2235,7 @@ kill the current session even if there are multiple frames."
 
 (defun basis/in-string-p ()
   "Return non-nil if point is within a string."
-  (let ((state (syntax-ppss)))
-    (and (nth 3 state) (nth 8 state))))
+  (nth 3 (syntax-ppss)))
 
 (defun basis/shr-html2text ()
   "Convert HTML to plain text in the current buffer using `shr'."
