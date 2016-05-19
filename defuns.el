@@ -2358,16 +2358,13 @@ used rather than a list of symbols."
 (defun basis/mu4e-action-view-in-browser (msg)
   "View MSG in a browser, via `browse-url'.
 For use as a `mu4e' message action."
-  (let ((html (or (mu4e-msg-field msg :body-html)
-                  (error "This message doesn't have an HTML part")))
-        (file (expand-file-name (format "%d.html" (random))
-                                temporary-file-directory)))
-    (with-temp-file file
-      (insert "<html>"
-              "<head><meta http-equiv=\"content-type\""
-              "content=\"text/html;charset=UTF-8\">"
-              html))
-    (browse-url (format "file://%s" file))))
+  (if-let ((html (mu4e-msg-field msg :body-html))
+           (file (make-temp-file "" nil ".html")))
+      (with-temp-buffer
+        (insert html)
+        (write-region nil nil file)
+        (browse-url (concat "file://" file)))
+    (error "This message doesn't have an HTML part")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
