@@ -534,6 +534,10 @@ can be either `create' or `error'."
   :defer t
   :init (setq apropos-do-all t))
 
+(use-package man
+  :defer t
+  :config (setq Man-notify-method 'aggressive))
+
 (defvar basis/system-man-p (executable-find "man")
   "Non-nil if a \"man\" executable is available on this system.")
 
