@@ -2217,15 +2217,13 @@ Move forward by a line and indent if invoked directly between."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Diffing
 
-(defun basis/init-diff-mode ()
-  (setq buffer-read-only t))
-
 (use-package diff-mode
   :defer t
   :config
-  ;; `diff-goto-source' is still available on C-c C-c.
-  (define-key diff-mode-map (kbd "M-o") nil)
-  (add-hook 'diff-mode-hook #'basis/init-diff-mode))
+  (progn
+    (setq diff-default-read-only t)
+    ;; `diff-goto-source' is still available on C-c C-c.
+    (define-key diff-mode-map (kbd "M-o") nil)))
 
 (defun basis/init-ediff ()
   (ediff-setup-keymap))
