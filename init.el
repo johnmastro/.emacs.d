@@ -236,6 +236,7 @@ can be either `create' or `error'."
       delete-by-moving-to-trash t
       gc-cons-threshold (* 20 1024 1024)
       temporary-file-directory (basis/emacs-dir "tmp/")
+      switch-to-buffer-preserve-window-point t
       enable-recursive-minibuffers t)
 
 (setq-default major-mode 'text-mode)
