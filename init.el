@@ -185,8 +185,7 @@ can be either `create' or `error'."
 
 (defvar basis/cygwin-path-directories
   '("/bin" "/usr/bin" "/usr/local/bin"
-    "/Python27" "/Python27/Scripts"
-    "/ProgramData/Oracle/Java/javapath")
+    "/Windows" "/ProgramData/Oracle/Java/javapath")
   "Directories to add to PATH on Cygwin.")
 
 (defun basis/init-for-cygwin ()
@@ -1669,10 +1668,13 @@ Use `paredit' in these modes rather than `smartparens'.")
       (setq jedi:setup-keys t
             jedi:tooltip-method nil)
       (add-hook 'python-mode-hook #'jedi:setup))
-    ;; Hopefully-temporary workaround
-    (when (and (eq system-type 'windows-nt)
-               (boundp 'python-shell-completion-native-enable))
-      (setq python-shell-completion-native-enable nil))))
+    (when (eq system-type 'windows-nt)
+      ;; Use the launcher when available
+      (when (executable-find "py")
+        (setq python-shell-interpreter "py"))
+      ;; Hopefully-temporary workaround
+      (when (boundp 'python-shell-completion-native-enable)
+        (setq python-shell-completion-native-enable nil)))))
 
 (use-package pyvenv
   :ensure t
