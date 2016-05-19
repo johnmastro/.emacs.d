@@ -994,10 +994,6 @@ is read-only and empty."
 (use-package grep
   :defer t
   :config
-  ;; On OS X, prefer GNU Grep if it's available
-  (when (and (eq system-type 'darwin)
-             (executable-find "ggrep"))
-    (setq grep-program "ggrep"))
   ;; Add some more file aliases
   (pcase-dolist (`(,alias . ,files)
                  '(("clj" . "*.clj *.cljs *.cljc")
@@ -1213,14 +1209,7 @@ is read-only and empty."
   (require 'helm-command))
 
 (use-package helm-grep
-  :defer t
-  ;; On OS X, prefer GNU grep if it's available
-  :config
-  (when (and (eq system-type 'darwin)
-             (executable-find "ggrep"))
-    (dolist (sym '(helm-grep-default-command helm-grep-default-recurse-command))
-      (let ((cmd (symbol-value sym)))
-        (set sym (replace-regexp-in-string "\\`grep" "ggrep" cmd))))))
+  :defer t)
 
 (use-package helm-make
   :ensure t
