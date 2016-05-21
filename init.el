@@ -2597,8 +2597,15 @@ Move forward by a line and indent if invoked directly between."
 (use-package sx
   :ensure t
   :defer t
-  :init (setq sx-cache-directory (basis/emacs-dir "var/sx/"))
-  :config (add-hook 'sx-question-mode-hook #'basis/init-sx-question-mode))
+  :init (setq sx-cache-directory (basis/emacs-dir "var/sx/")))
+
+(use-package sx-question-mode
+  :defer t
+  :config
+  (progn
+    (define-key sx-question-mode-map (kbd "<up>") nil)
+    (define-key sx-question-mode-map (kbd "<down>") nil)
+    (add-hook 'sx-question-mode-hook #'basis/init-sx-question-mode)))
 
 (use-package debbugs
   :ensure t
