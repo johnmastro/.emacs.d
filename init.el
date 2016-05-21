@@ -994,13 +994,17 @@ is read-only and empty."
 (use-package grep
   :defer t
   :config
-  ;; Add some more file aliases
-  (pcase-dolist (`(,alias . ,files)
-                 '(("clj" . "*.clj *.cljs *.cljc")
-                   ("cl"  . "*.lisp *.cl")
-                   ("txt" . "*.txt *.org *.rst *.md *.mkd *.markdown")))
-    (unless (assoc alias grep-files-aliases)
-      (add-to-list 'grep-files-aliases (cons alias files)))))
+  (progn
+    ;; Work around bug #23590
+    (when (string-match-p "zsh" shell-file-name)
+      (add-to-list 'grep-files-aliases '("all" . "* .[^.]* ..?*")))
+    ;; Add some more file aliases
+    (pcase-dolist (`(,alias . ,files)
+                   '(("clj" . "*.clj *.cljs *.cljc")
+                     ("cl"  . "*.lisp *.cl")
+                     ("txt" . "*.txt *.org *.rst *.md *.mkd *.markdown")))
+      (unless (assoc alias grep-files-aliases)
+        (add-to-list 'grep-files-aliases (cons alias files))))))
 
 (use-package ag
   :ensure t
