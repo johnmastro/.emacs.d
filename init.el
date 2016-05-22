@@ -519,9 +519,7 @@ can be either `create' or `error'."
   :defer t
   :config (basis/define-keys help-mode-map
             ("n" #'next-line)
-            ("p" #'previous-line)
-            ("b" #'help-go-back)
-            ("f" #'help-go-forward)))
+            ("p" #'previous-line)))
 
 (use-package info
   :defer t
