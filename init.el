@@ -2597,6 +2597,12 @@ Move forward by a line and indent if invoked directly between."
   :defer t
   :init (setq sx-cache-directory (basis/emacs-dir "var/sx/")))
 
+(use-package sx-question-list
+  :defer t
+  :config
+  (let ((map sx-question-list-mode-map))
+    (define-key map (kbd "M-RET") #'basis/sx-display-full-screen)))
+
 (use-package sx-question-mode
   :defer t
   :config

@@ -2189,12 +2189,12 @@ search term."
 (defun basis/goto-line-with-numbers ()
   "Invoke `goto-line' with `linum-mode' temporarily enabled."
   (interactive)
-  (let ((linum-enabled-p (bound-and-true-p linum-mode)))
+  (let ((enabled (bound-and-true-p linum-mode)))
     (unwind-protect
         (progn
-          (unless linum-enabled-p (linum-mode 1))
+          (unless enabled (linum-mode 1))
           (call-interactively #'goto-line))
-      (unless linum-enabled-p (linum-mode -1)))))
+      (unless enabled (linum-mode -1)))))
 
 (defun basis/libxml-available-p ()
   "Return non-nil if libxml is available."
@@ -2350,6 +2350,12 @@ used rather than a list of symbols."
 (defun basis/delete-cookies ()
   (when (fboundp 'url-cookie-delete-cookies)
     (url-cookie-delete-cookies)))
+
+(defun basis/sx-display-full-screen ()
+  "Like `sx-display' but also delete any other windows."
+  (interactive)
+  (call-interactively #'sx-display)
+  (delete-other-windows))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
