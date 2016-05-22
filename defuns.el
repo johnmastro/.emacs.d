@@ -47,23 +47,6 @@ See `basis/eval-keys'."
                      (error "No eval key for ‘%s’" sym))))
                keydefs)))
 
-(defmacro basis/create-simple-keybinding-command (name key)
-  `(defun ,name (def &optional keymap)
-     (define-key (or keymap global-map) (kbd ,key) def)))
-
-(basis/create-simple-keybinding-command f1 "<f1>")
-(basis/create-simple-keybinding-command f2 "<f2>")
-(basis/create-simple-keybinding-command f3 "<f3>")
-(basis/create-simple-keybinding-command f4 "<f4>")
-(basis/create-simple-keybinding-command f5 "<f5>")
-(basis/create-simple-keybinding-command f6 "<f6>")
-(basis/create-simple-keybinding-command f7 "<f7>")
-(basis/create-simple-keybinding-command f8 "<f8>")
-(basis/create-simple-keybinding-command f9 "<f9>")
-(basis/create-simple-keybinding-command f10 "<f10>")
-(basis/create-simple-keybinding-command f11 "<f11>")
-(basis/create-simple-keybinding-command f12 "<f12>")
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing utilities
