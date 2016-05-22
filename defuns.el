@@ -47,15 +47,6 @@ See `basis/eval-keys'."
                      (error "No eval key for ‘%s’" sym))))
                keydefs)))
 
-(defmacro basis/define-key-translations (&rest keydefs)
-  "Define multiple bindings in `key-translation-map'."
-  (declare (indent defun))
-  `(progn
-     ,@(mapcar (lambda (keydef)
-                 (pcase-let ((`(,key ,def) keydef))
-                   `(define-key key-translation-map (kbd ,key) (kbd ,def))))
-               keydefs)))
-
 (defmacro basis/create-simple-keybinding-command (name key)
   `(defun ,name (def &optional keymap)
      (define-key (or keymap global-map) (kbd ,key) def)))

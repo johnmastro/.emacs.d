@@ -766,63 +766,75 @@ can be either `create' or `error'."
   "Key bindings used to evaluate various units of code.
 See `basis/define-eval-keys'.")
 
-;; A number of non-alphanumeric keys don't work by default when Emacs is
-;; running in tmux. This attempts to fix that by adding entries to the
-;; `key-translation-map'. It's based on code from ArchWiki's Emacs page.
+(defvar basis/tmux-key-translations
+  (when (getenv "TMUX")
+    (append
+     '(("M-[ 1 ; 5 k" "C-=")
+       ("M-[ 1 ; 5 l" "C-,")
+       ("M-[ 1 ; 5 n" "C-.")
+       ("M-[ 1 ; 6 k" "C-+")
+       ("M-[ 1 ; 6 l" "C-<")
+       ("M-[ 1 ; 6 n" "C->")
+       ("M-[ 1 ; 6 y" "C-(")
+       ("M-[ 1 ; 7 k" "C-M-=")
+       ("M-[ 1 ; 7 n" "C-M-.")
+       ("M-[ 1 ; 7 l" "C-M-,"))
+     (seq-mapcat (pcase-lambda (`(,n ,k))
+                   `((,(format "M-[ 1 ; %d A" n)  ,(format "%s<up>" k))
+                     (,(format "M-[ 1 ; %d B" n)  ,(format "%s<down>" k))
+                     (,(format "M-[ 1 ; %d C" n)  ,(format "%s<right>" k))
+                     (,(format "M-[ 1 ; %d D" n)  ,(format "%s<left>" k))
+                     (,(format "M-[ 1 ; %d H" n)  ,(format "%s<home>" k))
+                     (,(format "M-[ 1 ; %d F" n)  ,(format "%s<end>" k))
+                     (,(format "M-[ 5 ; %d ~" n)  ,(format "%s<prior>" k))
+                     (,(format "M-[ 6 ; %d ~" n)  ,(format "%s<next>" k))
+                     (,(format "M-[ 2 ; %d ~" n)  ,(format "%s<delete>" k))
+                     (,(format "M-[ 3 ; %d ~" n)  ,(format "%s<delete>" k))
+                     (,(format "M-[ 1 ; %d P" n)  ,(format "%s<f1>" k))
+                     (,(format "M-[ 1 ; %d Q" n)  ,(format "%s<f2>" k))
+                     (,(format "M-[ 1 ; %d R" n)  ,(format "%s<f3>" k))
+                     (,(format "M-[ 1 ; %d S" n)  ,(format "%s<f4>" k))
+                     (,(format "M-[ 15 ; %d ~" n) ,(format "%s<f5>" k))
+                     (,(format "M-[ 17 ; %d ~" n) ,(format "%s<f6>" k))
+                     (,(format "M-[ 18 ; %d ~" n) ,(format "%s<f7>" k))
+                     (,(format "M-[ 19 ; %d ~" n) ,(format "%s<f8>" k))
+                     (,(format "M-[ 20 ; %d ~" n) ,(format "%s<f9>" k))
+                     (,(format "M-[ 21 ; %d ~" n) ,(format "%s<f10>" k))
+                     (,(format "M-[ 23 ; %d ~" n) ,(format "%s<f11>" k))
+                     (,(format "M-[ 24 ; %d ~" n) ,(format "%s<f12>" k))
+                     (,(format "M-[ 25 ; %d ~" n) ,(format "%s<f13>" k))
+                     (,(format "M-[ 26 ; %d ~" n) ,(format "%s<f14>" k))
+                     (,(format "M-[ 28 ; %d ~" n) ,(format "%s<f15>" k))
+                     (,(format "M-[ 29 ; %d ~" n) ,(format "%s<f16>" k))
+                     (,(format "M-[ 31 ; %d ~" n) ,(format "%s<f17>" k))
+                     (,(format "M-[ 32 ; %d ~" n) ,(format "%s<f18>" k))
+                     (,(format "M-[ 33 ; %d ~" n) ,(format "%s<f19>" k))
+                     (,(format "M-[ 34 ; %d ~" n) ,(format "%s<f20>" k))))
+                 '((2 "S-")
+                   (3 "M-")
+                   (4 "M-S-")
+                   (5 "C-")
+                   (6 "C-S-")
+                   (7 "C-M-")
+                   (8 "C-M-S-")))))
+  "Keys to add to `key-translation-map' when running in tmux.
 
-;; `setw -g xterm-keys on` must be set in ~/.tmux.conf for this to work.
+A number of non-alphanumeric keys don't work by default when
+Emacs is running in tmux. These keys are added to
+`key-translation-map' in an attempt to fix that. The list is
+based on code from ArchWiki's Emacs page.
 
-;; TODO: <home> and <end> still don't work
+`setw -g xterm-keys on` must be set in ~/.tmux.conf for this to
+work.
+
+TODO: <home> and <end> still don't work.")
+
+(defun basis/init-for-tmux ()
+  (pcase-dolist (`(,k1 ,k2) basis/tmux-key-translations)
+    (define-key key-translation-map (kbd k1) (kbd k2))))
+
 (when (getenv "TMUX")
-  (pcase-dolist (`(,n . ,k) '((2 . "S-")
-                              (3 . "M-")
-                              (4 . "M-S-")
-                              (5 . "C-")
-                              (6 . "C-S-")
-                              (7 . "C-M-")
-                              (8 . "C-M-S-")))
-    (basis/define-key-translations
-      ((format "M-[ 1 ; %d A" n)  (format "%s<up>" k))
-      ((format "M-[ 1 ; %d B" n)  (format "%s<down>" k))
-      ((format "M-[ 1 ; %d C" n)  (format "%s<right>" k))
-      ((format "M-[ 1 ; %d D" n)  (format "%s<left>" k))
-      ((format "M-[ 1 ; %d H" n)  (format "%s<home>" k))
-      ((format "M-[ 1 ; %d F" n)  (format "%s<end>" k))
-      ((format "M-[ 5 ; %d ~" n)  (format "%s<prior>" k))
-      ((format "M-[ 6 ; %d ~" n)  (format "%s<next>" k))
-      ((format "M-[ 2 ; %d ~" n)  (format "%s<delete>" k))
-      ((format "M-[ 3 ; %d ~" n)  (format "%s<delete>" k))
-      ((format "M-[ 1 ; %d P" n)  (format "%s<f1>" k))
-      ((format "M-[ 1 ; %d Q" n)  (format "%s<f2>" k))
-      ((format "M-[ 1 ; %d R" n)  (format "%s<f3>" k))
-      ((format "M-[ 1 ; %d S" n)  (format "%s<f4>" k))
-      ((format "M-[ 15 ; %d ~" n) (format "%s<f5>" k))
-      ((format "M-[ 17 ; %d ~" n) (format "%s<f6>" k))
-      ((format "M-[ 18 ; %d ~" n) (format "%s<f7>" k))
-      ((format "M-[ 19 ; %d ~" n) (format "%s<f8>" k))
-      ((format "M-[ 20 ; %d ~" n) (format "%s<f9>" k))
-      ((format "M-[ 21 ; %d ~" n) (format "%s<f10>" k))
-      ((format "M-[ 23 ; %d ~" n) (format "%s<f11>" k))
-      ((format "M-[ 24 ; %d ~" n) (format "%s<f12>" k))
-      ((format "M-[ 25 ; %d ~" n) (format "%s<f13>" k))
-      ((format "M-[ 26 ; %d ~" n) (format "%s<f14>" k))
-      ((format "M-[ 28 ; %d ~" n) (format "%s<f15>" k))
-      ((format "M-[ 29 ; %d ~" n) (format "%s<f16>" k))
-      ((format "M-[ 31 ; %d ~" n) (format "%s<f17>" k))
-      ((format "M-[ 32 ; %d ~" n) (format "%s<f18>" k))
-      ((format "M-[ 33 ; %d ~" n) (format "%s<f19>" k))
-      ((format "M-[ 34 ; %d ~" n) (format "%s<f20>" k))))
-  (basis/define-key-translations
-    ("M-[ 1 ; 5 k" "C-=")
-    ("M-[ 1 ; 5 l" "C-,")
-    ("M-[ 1 ; 5 n" "C-.")
-    ("M-[ 1 ; 6 k" "C-+")
-    ("M-[ 1 ; 6 l" "C-<")
-    ("M-[ 1 ; 6 n" "C->")
-    ("M-[ 1 ; 6 y" "C-(")
-    ("M-[ 1 ; 7 k" "C-M-=")
-    ("M-[ 1 ; 7 n" "C-M-.")
-    ("M-[ 1 ; 7 l" "C-M-,")))
+  (basis/init-for-tmux))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
