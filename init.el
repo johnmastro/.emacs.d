@@ -26,7 +26,7 @@ can be either `create' or `error'."
         (unless (file-directory-p dir)
           (pcase if-not-exists
             (`error
-             (error "Directory does not exist: ‘%s’" dir))
+             (error "Directory does not exist: `%s'" dir))
             (`create
              (make-directory dir t))))
         dir)
@@ -977,7 +977,7 @@ is read-only and empty."
   :ensure t
   :defer t)
 
-;; replace.el doesn't ‘(provide 'replace)’
+;; replace.el doesn't (provide 'replace)
 (defalias 'qrr #'query-replace-regexp)
 (global-set-key (kbd "ESC M-%") #'query-replace-regexp)
 (define-key occur-mode-map (kbd "n") #'occur-next)

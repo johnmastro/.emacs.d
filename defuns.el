@@ -44,7 +44,7 @@ See `basis/eval-keys'."
                         (kbd (if (vectorp key) key `(kbd ,key))))
                    (if key
                        `(define-key ,keymap ,kbd ,def)
-                     (error "No eval key for ‘%s’" sym))))
+                     (error "No eval key for `%s'" sym))))
                keydefs)))
 
 
@@ -282,7 +282,7 @@ If PATTERN is non-nil, only include matching files (via
                                                            dir)
                                          t)))
       (basis/insert-files files nil)
-    (message "No files matching ‘%s’ in ‘%s’" pattern dir)))
+    (message "No files matching `%s' in `%s'" pattern dir)))
 
 (defalias 'basis/concat-directory-files #'basis/insert-directory-files)
 
@@ -291,7 +291,7 @@ If PATTERN is non-nil, only include matching files (via
 
 (defvar-local basis/smart-hyphen-style 'snake
   "The style of substitutions to perform.
-Valid values are ‘snake’, ‘camel’, and nil.")
+Valid values are `snake', `camel', and nil.")
 
 (defun basis/smart-hyphen (n)
   "Conditionally insert a hyphen or upcase the next char."
@@ -321,7 +321,7 @@ Valid values are ‘snake’, ‘camel’, and nil.")
                            (delete-char -1)
                            (format "_%c" next))
                           (other
-                           (error "Unknown smart-hyphen style: ‘%s’" other)))
+                           (error "Unknown smart-hyphen style: `%s'" other)))
                       next)))
         (call-interactively command)))))
 
@@ -598,7 +598,7 @@ With `C-u', wrap as may sexps as possible, until reaching
 whitespace or an end-of-line. With any other prefix argument, or
 if the region is active, defer to `insert-parenthesis'."
   ;; The idea is to be able to wrap the entirety of an expression like
-  ;; ‘foo.bar(1, 2)’
+  ;; foo.bar(1, 2)
   (interactive "P")
   (if (and (equal current-prefix-arg '(4))
            (not (use-region-p)))
@@ -1039,7 +1039,7 @@ the base `run-python' functionality with a prefix arg."
            (default-directory (or prj default-directory)))
       (when env
         (pyvenv-activate env)
-        (message "Activated venv ‘%s’" env))
+        (message "Activated venv `%s'" env))
       (call-interactively #'run-python))))
 
 (defun basis/python-mark-docstring (mark-inside)
@@ -1285,7 +1285,7 @@ With arg N, move backward that many times."
   (interactive
    (list (intern (completing-read  "Style: " '("caps" "none") nil t))))
   (unless (memq style '(caps none))
-    (error "Unknown capitalization style ‘%s’" style))
+    (error "Unknown capitalization style `%s'" style))
   (when (or (eq major-mode 'sql-mode)
             (y-or-n-p "Not in a SQL buffer. Proceed anyway?"))
     (save-excursion
@@ -1337,7 +1337,7 @@ With arg N, move backward that many times."
 (defun basis/sql-modify-syntax-table (&rest _)
   "Modify a couple syntax table entries for SQL.
 Make double quote a string delimiter and period a symbol
-constituent. This is most effective when run as ‘:after’ on
+constituent. This is most effective when run as `:after' on
 `sql-highlight-product'."
   (let ((table (make-syntax-table (syntax-table))))
     (modify-syntax-entry ?\" "\"" table)
@@ -1749,8 +1749,8 @@ representation before comparing them."
 ;;; Processes and shells
 
 (defun basis/make-tags (arg)
-  "Regenerate and reload TAGS via ‘make tags’.
-Of course, this only works if a Makefile with a ‘TAGS’ target is
+  "Regenerate and reload TAGS via `make tags'.
+Of course, this only works if a Makefile with a `TAGS' target is
 available."
   (interactive "P")
   (let* ((project-root (ignore-errors (projectile-project-root)))
@@ -1871,12 +1871,12 @@ user-error, automatically move point to the command line."
                                       destination)
                   destination)))
       (unless (and src (file-exists-p src))
-        (error "Buffer ‘%s’ is not visiting a file" src))
+        (error "Buffer `%s' is not visiting a file" src))
       (rename-file src dst 1)
       (set-visited-file-name dst)
       (set-buffer-modified-p nil)
       (apply #'message
-             "File ‘%s’ renamed to ‘%s’"
+             "File `%s' renamed to `%s'"
              (if (file-in-directory-p dst (file-name-directory src))
                  (list (file-name-nondirectory src)
                        (file-relative-name dst (file-name-directory src)))
@@ -1891,13 +1891,13 @@ user-error, automatically move point to the command line."
          (abbr-name (abbreviate-file-name full-name)))
     (if (not (and full-name (file-exists-p full-name)))
         (unless (and (buffer-modified-p)
-                     (not (y-or-n-p (format "Buffer ‘%s’ modified; kill anyway?"
+                     (not (y-or-n-p (format "Buffer `%s' modified; kill anyway?"
                                             (buffer-name)))))
           (kill-buffer))
-      (when (y-or-n-p (format "Delete file ‘%s’?" abbr-name))
+      (when (y-or-n-p (format "Delete file `%s'?" abbr-name))
         (delete-file full-name)
         (kill-buffer buffer)
-        (message "File ‘%s’ successfully deleted" abbr-name)))))
+        (message "File `%s' successfully deleted" abbr-name)))))
 
 (defun basis/find-file-recentf ()
   "Find recently open files using ido and recentf."
@@ -2358,7 +2358,7 @@ For use as a `mu4e' message action."
   "Insert ARG paragraphs of \"lorem ipsum\" text at point."
   (interactive "p")
   (unless (file-exists-p basis/lorem-ipsum-file)
-    (error "Lorem ipsum file does not exist: ‘%s’" basis/lorem-ipsum-file))
+    (error "Lorem ipsum file does not exist: `%s'" basis/lorem-ipsum-file))
   (let* ((arg (or arg 1))
          (str (with-temp-buffer
                 (insert-file-contents basis/lorem-ipsum-file)
