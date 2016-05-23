@@ -2329,6 +2329,26 @@ forms are byte-compiled."
         (goto-char (point-max))
         (display-buffer (current-buffer))))))
 
+(defun basis/emacs-Q (arg)
+  "Start an `emacs -Q' with its home in \"/tmp\".
+If prefix ARG is non-nil, inherit the current Emacs's home."
+  ;; This is only really useful on Windows, where I use a Cygwin shell but a
+  ;; native Windows Emacs, so `emacs -Q' in my shell doesn't cut it.
+  (interactive "P")
+  (pcase-let ((`(,home ,emacs)
+               (if (eq system-type 'windows-nt)
+                   (list
+                    "e:\\tmp"
+                    (expand-file-name "runemacs.exe" invocation-directory))
+                 (list
+                  "/tmp"
+                  (expand-file-name invocation-name invocation-directory)))))
+    (let ((process-environment
+           (if arg
+               process-environment
+             (cons (concat "HOME=" home) process-environment))))
+      (start-process "emacs-Q" nil emacs "-Q"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
