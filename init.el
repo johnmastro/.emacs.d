@@ -1341,7 +1341,8 @@ is read-only and empty."
   (basis/maybe-enable-flyspell-prog-mode))
 
 (use-package prog-mode
-  :config (add-hook 'prog-mode-hook #'basis/init-prog-mode))
+  :config (progn (define-key prog-mode-map (kbd "RET") #'basis/electric-return)
+                 (add-hook 'prog-mode-hook #'basis/init-prog-mode)))
 
 (defvar basis/lisp-modes
   '(lisp-mode
@@ -1670,7 +1671,6 @@ Use `paredit' in these modes rather than `smartparens'.")
       (something  #'basis/python-send-something)
       (file       #'python-shell-send-file))
     (basis/define-keys python-mode-map
-      ("RET"     #'basis/electric-return)
       ("DEL"     #'basis/sp-python-backspace)
       ("C-c C-D" #'python-eldoc-at-point)
       ("C-c C-p" #'basis/run-python)
@@ -1749,9 +1749,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package rust-mode
   :ensure t
   :defer t
-  :config (progn
-            (define-key rust-mode-map (kbd "RET") #'basis/electric-return)
-            (add-hook 'rust-mode-hook #'basis/init-rust-mode)))
+  :config (add-hook 'rust-mode-hook #'basis/init-rust-mode))
 
 (defun basis/init-js2-mode ()
   (setq tab-width 4)
@@ -1819,7 +1817,6 @@ Use `paredit' in these modes rather than `smartparens'.")
               (apply #'sql-font-lock-keywords-builder
                      'font-lock-keyword-face nil more-keywords)))
            (basis/define-keys sql-mode-map
-             ("RET"   #'basis/electric-return)
              ("TAB"   #'basis/sql-indent)
              ("DEL"   #'basis/sql-backspace-dedent)
              ("M-n"   #'basis/sql-forward-clause)
