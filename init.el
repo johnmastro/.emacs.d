@@ -1870,6 +1870,14 @@ Use `paredit' in these modes rather than `smartparens'.")
     (add-hook 'c++-mode-hook  #'basis/init-c++)
     (add-hook 'java-mode-hook #'basis/init-java)))
 
+(use-package go-mode
+  :ensure t
+  :defer t)
+
+(use-package swift-mode
+  :ensure t
+  :defer t)
+
 (use-package nasm-mode
   :ensure t
   :defer t)
