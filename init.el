@@ -466,15 +466,13 @@ can be either `create' or `error'."
 
 (use-package faces
   :config
-  (let ((fonts (pcase system-type
-                 (`darwin     '("Source Code Pro-11" "Andale Mono-12"))
-                 (`windows-nt '("Consolas-10"))
-                 (_           '("Inconsolata-11")))))
-    (catch 'done
-      (dolist (font fonts)
-        (when (ignore-errors (set-face-attribute 'default nil :font font)
-                             t)
-          (throw 'done t))))))
+  (when-let ((font (seq-find
+                    (lambda (name) (find-font (font-spec :name name)))
+                    (pcase system-type
+                      (`darwin     '("Source Code Pro-11" "Andale Mono-12"))
+                      (`windows-nt '("Consolas-10"))
+                      (_           '("Inconsolata-11"))))))
+    (set-face-attribute 'default nil :font font)))
 
 (use-package solarized-theme
   :ensure color-theme-solarized
