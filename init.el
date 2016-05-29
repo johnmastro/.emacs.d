@@ -1005,7 +1005,10 @@ is read-only and empty."
   (progn
     ;; Work around bug #23590
     (when (string-match-p "zsh" shell-file-name)
-      (add-to-list 'grep-files-aliases '("all" . "* .[^.]* ..?*")))
+      (setq grep-files-aliases
+            (cons '("all" . "* .[^.]* ..?*")
+                  (seq-remove (lambda (elt) (equal (car elt) "all"))
+                              grep-files-aliases))))
     ;; Add some more file aliases
     (pcase-dolist (`(,alias . ,files)
                    '(("clj" . "*.clj *.cljs *.cljc")
