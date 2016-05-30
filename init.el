@@ -1351,6 +1351,7 @@ is read-only and empty."
     inferior-emacs-lisp-mode
     lisp-interaction-mode
     cider-repl-mode
+    clojure-mode
     clojure-mode-mode
     inferior-scheme-mode
     geiser-repl-mode
