@@ -1779,25 +1779,6 @@ user-error, automatically move point to the command line."
              (not (comint-after-pmark-p)))
     (goto-char (point-max))))
 
-(defun basis/comint-newline-or-send-input ()
-  "Either enter a newline or call `comint-send-input'."
-  (interactive)
-  (let ((parens (or (car (syntax-ppss)) 0)))
-    (cond ((zerop parens)
-           (call-interactively
-            (cond ((derived-mode-p 'cider-repl-mode)
-                   #'cider-repl-return)
-                  ((derived-mode-p 'geiser-repl-mode)
-                   #'geiser-repl--send-input)
-                  ((derived-mode-p 'inferior-emacs-lisp-mode)
-                   #'ielm-return)
-                  (t
-                   #'comint-send-input))))
-          ((bound-and-true-p paredit-mode)
-           (paredit-newline))
-          (t
-           (newline-and-indent)))))
-
 (defun basis/colorize-compilation ()
   "Colorize from `compilation-filter-start' to point."
   (let ((inhibit-read-only t))

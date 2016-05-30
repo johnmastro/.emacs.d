@@ -1370,10 +1370,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :init (setq inferior-lisp-program (or (executable-find "sbcl")
                                         (executable-find "ccl")
                                         "lisp"))
-  :config
-  (progn (add-hook 'inferior-lisp-mode-hook #'basis/init-lisp-generic)
-         (let ((map inferior-lisp-mode-map))
-           (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))))
+  :config (add-hook 'inferior-lisp-mode-hook #'basis/init-lisp-generic))
 
 (use-package cl-indent
   :init (setq lisp-lambda-list-keyword-alignment t
@@ -1440,8 +1437,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :config
   (progn
-    (let ((map inferior-emacs-lisp-mode-map))
-      (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))
     (add-hook 'inferior-emacs-lisp-mode-hook #'basis/init-lisp-generic)
     (add-hook 'inferior-emacs-lisp-mode-hook #'basis/init-emacs-lisp-modes)))
 
@@ -1580,8 +1575,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :init (setq cider-repl-use-pretty-printing t)
   :config (progn
-            (let ((map cider-repl-mode-map))
-              (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))
             (add-hook 'cider-repl-mode-hook #'basis/init-lisp-generic)
             (add-hook 'cider-repl-mode-hook #'basis/init-cider-repl-mode)))
 
@@ -1622,10 +1615,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package cmuscheme
   :defer t
-  :config
-  (progn (add-hook 'inferior-scheme-mode-hook #'basis/init-lisp-generic)
-         (let ((map inferior-scheme-mode-map))
-           (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))))
+  :config (add-hook 'inferior-scheme-mode-hook #'basis/init-lisp-generic))
 
 (use-package geiser-mode
   :ensure geiser
@@ -1642,10 +1632,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package geiser-repl
   :ensure geiser
   :defer t
-  :config
-  (progn (add-hook 'geiser-repl-mode-hook #'basis/init-lisp-generic)
-         (let ((map geiser-repl-mode-map))
-           (define-key map (kbd "RET") #'basis/comint-newline-or-send-input))))
+  :config (add-hook 'geiser-repl-mode-hook #'basis/init-lisp-generic))
 
 (defun basis/init-python-mode ()
   (subword-mode)
