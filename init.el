@@ -1858,9 +1858,13 @@ Use `paredit' in these modes rather than `smartparens'.")
     (add-hook 'c++-mode-hook  #'basis/init-c++)
     (add-hook 'java-mode-hook #'basis/init-java)))
 
+(defun basis/init-go-mode ()
+  (subword-mode))
+
 (use-package go-mode
   :ensure t
-  :defer t)
+  :defer t
+  :config (add-hook 'go-mode-hook #'basis/init-go-mode))
 
 (use-package swift-mode
   :ensure t
