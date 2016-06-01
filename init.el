@@ -619,7 +619,6 @@ can be either `create' or `error'."
   ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
   ("ESC <deletechar>"      #'basis/smart-kill-almost-whole-line)
   ("<C-M-backspace>"       #'backward-kill-sexp)
-  ("C-M-_"                 #'backward-kill-sexp)
   ("ESC M-DEL"             #'backward-kill-sexp))
 
 ;; Copy stuff
@@ -842,7 +841,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package undo-tree
   :ensure t
-  :config (global-undo-tree-mode)
+  :config (progn (global-undo-tree-mode)
+                 (define-key undo-tree-map (kbd "C-M-_") #'undo-tree-redo))
   :diminish undo-tree-mode)
 
 (use-package expand-region
@@ -2127,8 +2127,7 @@ Move forward by a line and indent if invoked directly between."
       ("M-k"             #'kill-sexp)
       ("C-w"             #'basis/paredit-kill-something)
       ("M-DEL"           #'basis/paredit-kill-something)
-      ("<C-M-backspace>" #'backward-kill-sexp)
-      ("C-M-_"           #'backward-kill-sexp))
+      ("<C-M-backspace>" #'backward-kill-sexp))
     (add-to-list 'paredit-space-for-delimiter-predicates
                  #'basis/paredit-doublequote-space-p)
     ;; Show `eldoc' messages after Paredit motion commands
@@ -2179,8 +2178,7 @@ Move forward by a line and indent if invoked directly between."
       ("M-k"             #'sp-kill-sexp)
       ("M-e"             #'sp-forward-sexp)
       ("M-a"             #'sp-backward-sexp)
-      ("<C-M-backspace>" #'sp-backward-kill-sexp)
-      ("C-M-_"           #'sp-backward-kill-sexp))
+      ("<C-M-backspace>" #'sp-backward-kill-sexp))
     (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
     ;; Treat raw prefix arguments like numeric arguments
