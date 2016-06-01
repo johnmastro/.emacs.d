@@ -230,7 +230,6 @@ can be either `create' or `error'."
       initial-major-mode 'emacs-lisp-mode
       sentence-end-double-space nil
       indicate-empty-lines t
-      custom-file (basis/emacs-file "custom.el")
       recenter-positions '(top middle bottom)
       scroll-preserve-screen-position t
       delete-by-moving-to-trash t
@@ -243,9 +242,6 @@ can be either `create' or `error'."
 (setq-default indent-tabs-mode nil)
 (setq-default fill-column 80)
 (setq-default truncate-lines t)
-
-(when (file-exists-p custom-file)
-  (load custom-file))
 
 ;; Don't prompt when killing buffers with live processes attached
 (setq kill-buffer-query-functions
@@ -262,6 +258,12 @@ can be either `create' or `error'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Basic packages
+
+(use-package custom
+  :config
+  (progn (setq custom-file (basis/emacs-file "custom.el"))
+         (when (file-exists-p custom-file)
+           (load custom-file))))
 
 (defun basis/init-eval-expression-minibuffer ()
   (setq-local indent-line-function #'lisp-indent-line))
