@@ -492,10 +492,12 @@ on whether the region is active."
 
 (defun basis/pop-to-mark-ensure-new-pos (function)
   "Advice for `pop-to-mark-command' to repeat until point moves."
-  (cl-loop with p = (point)
-           for _ below 10
-           while (= p (point))
-           do (funcall function)))
+  (let ((p (point))
+        (n 0))
+    (while (and (= p (point))
+                (< (prog1 n (setq n (1+ n)))
+                   10))
+      (funcall function))))
 
 (defun basis/untabify-buffer ()
   "Untabify the current buffer."
@@ -600,7 +602,7 @@ if the region is active, defer to `insert-parenthesis'."
   ;; The idea is to be able to wrap the entirety of an expression like
   ;; foo.bar(1, 2)
   (interactive "P")
-  (if (and (equal current-prefix-arg '(4))
+  (if (and (equal arg '(4))
            (not (use-region-p)))
       (let ((beg (point)))
         (skip-syntax-forward " ")
@@ -1868,17 +1870,17 @@ user-error, automatically move point to the command line."
   "Kill the current buffer and delete the file it's visiting."
   (interactive)
   (let* ((buffer (current-buffer))
-         (full-name (buffer-file-name))
-         (abbr-name (abbreviate-file-name full-name)))
-    (if (not (and full-name (file-exists-p full-name)))
-        (unless (and (buffer-modified-p)
-                     (not (y-or-n-p (format "Buffer `%s' modified; kill anyway?"
-                                            (buffer-name)))))
-          (kill-buffer))
-      (when (y-or-n-p (format "Delete file `%s'?" abbr-name))
-        (delete-file full-name)
-        (kill-buffer buffer)
-        (message "File `%s' successfully deleted" abbr-name)))))
+         (file (buffer-file-name))
+         (abbr (abbreviate-file-name file)))
+    (if (and file (file-exists-p file))
+        (when (y-or-n-p (format "Delete file `%s'?" abbr))
+          (delete-file file)
+          (kill-buffer buffer)
+          (message "File `%s' deleted" abbr))
+      (unless (and (buffer-modified-p)
+                   (not (y-or-n-p (format "Buffer `%s' modified; kill anyway?"
+                                          (buffer-name)))))
+        (kill-buffer)))))
 
 (defun basis/find-file-recentf ()
   "Find recently open files using ido and recentf."
