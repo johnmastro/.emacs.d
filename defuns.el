@@ -2379,6 +2379,19 @@ used rather than a list of symbols."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Email and news
 
+(defvar basis/message-delete-sig-dashes nil
+  "If non-nil, delete `message-mode' signature dashes.")
+
+(defun basis/message-maybe-delete-sig-dashes (&rest _)
+  "Advice for `message-insert-signature' to remove sig dashes."
+  ;; Used as :after advice
+  (when basis/message-delete-sig-dashes
+    (save-excursion
+      (beginning-of-line)
+      (forward-line -2)
+      (when (looking-at-p "^-- $")
+        (kill-whole-line)))))
+
 (defun basis/mu4e-action-view-in-browser (msg)
   "View MSG in a browser, via `browse-url'.
 For use as a `mu4e' message action."

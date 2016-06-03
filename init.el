@@ -2649,7 +2649,10 @@ Move forward by a line and indent if invoked directly between."
   :config
   (progn
     (define-key message-mode-map (kbd "C-c n") #'org-footnote-action)
-    (add-hook 'message-mode-hook #'basis/init-message-mode)))
+    (add-hook 'message-mode-hook #'basis/init-message-mode)
+    (advice-add 'message-insert-signature
+                :after
+                #'basis/message-maybe-delete-sig-dashes)))
 
 (use-package sendmail
   :defer t
