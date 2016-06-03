@@ -559,21 +559,6 @@ can be either `create' or `error'."
          w32-lwindow-modifier 'super
          w32-rwindow-modifier 'super)))
 
-(use-package guide-key
-  :ensure t
-  :defer t
-  :config (progn
-            ;; (guide-key-mode)
-            (setq guide-key/popup-window-position 'bottom)
-            (setq guide-key/idle-delay 0.0)
-            (setq guide-key/recursive-key-sequence-flag t)
-            (setq guide-key/guide-key-sequence
-                  '("C-x r" "C-x 4" "C-x v" "C-x 8"
-                    (dired-mode "*" "C-t")
-                    (ibuffer-mode "/" "*" "%" "M-s" "M-s a")
-                    (calc-mode "V"))))
-  :diminish guide-key-mode)
-
 (use-package which-key
   :ensure t
   :config (progn
