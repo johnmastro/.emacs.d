@@ -626,13 +626,6 @@ can be either `create' or `error'."
   ("M-w" #'basis/transpose-windows)
   ("M-s" #'basis/toggle-window-split))
 
-;; Slightly more SLIME-like interface for tags. But don't change anything if
-;; `xref' is available, since it has an improved interface.
-(unless (require 'xref nil t)
-  (define-key esc-map "." #'basis/find-tag)
-  (define-key esc-map "," #'pop-tag-mark)
-  (define-key esc-map "*" #'tags-loop-continue))
-
 ;; More comfortable {next,previous}-error
 (global-set-key (kbd "M-n") #'next-error)
 (global-set-key (kbd "M-p") #'previous-error)
