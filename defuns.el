@@ -2310,25 +2310,26 @@ forms are byte-compiled."
         (goto-char (point-max))
         (display-buffer (current-buffer))))))
 
-(defun basis/emacs-Q (arg)
-  "Start an `emacs -Q' with its home in \"/tmp\".
-If prefix ARG is non-nil, inherit the current Emacs's home."
+(defun basis/emacs-Q (emacs home)
+  "Run `EMACS -Q' with its home in HOME.
+If called interactively, use the current emacs and /tmp by
+default, unless called with a prefix argument."
   ;; This is only really useful on Windows, where I use a Cygwin shell but a
   ;; native Windows Emacs, so `emacs -Q' in my shell doesn't cut it.
-  (interactive "P")
-  (pcase-let ((`(,home ,emacs)
-               (if (eq system-type 'windows-nt)
-                   (list
-                    "e:\\tmp"
-                    (expand-file-name "runemacs.exe" invocation-directory))
-                 (list
-                  "/tmp"
-                  (expand-file-name invocation-name invocation-directory)))))
-    (let ((process-environment
-           (if arg
-               process-environment
-             (cons (concat "HOME=" home) process-environment))))
-      (start-process "emacs-Q" nil emacs "-Q"))))
+  (interactive
+   (pcase-let ((`(,self ,tmp)
+                (if (eq system-type 'windows-nt)
+                    (list (expand-file-name "runemacs.exe" invocation-directory)
+                          "e:\\tmp")
+                  (list (expand-file-name invocation-name invocation-directory)
+                        "/tmp"))))
+     (if current-prefix-arg
+         (list (read-file-name "Emacs: " nil self t nil #'file-executable-p)
+               (read-directory-name "HOME: " nil tmp t))
+       (list self tmp))))
+  (let ((emacs (expand-file-name emacs))
+        (process-environment (cons (concat "HOME=" home) process-environment)))
+    (start-process "emacs-Q" nil emacs "-Q")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
