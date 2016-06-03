@@ -629,7 +629,7 @@ can be either `create' or `error'."
 
 ;; Join lines
 (basis/define-keys global-map
-  ("C-c j"   #'basis/join-next-line)
+  ("M-^"     #'basis/delete-indentation)
   ("ESC M-q" #'basis/unfill-paragraph))
 
 ;; Transpose stuff with M-t

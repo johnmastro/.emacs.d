@@ -617,6 +617,15 @@ if the region is active, defer to `insert-parenthesis'."
   (setq-local comment-auto-fill-only-comments t)
   (auto-fill-mode))
 
+(defun basis/delete-indentation (&optional arg)
+  "Like `delete-indentation' but delete extra comments and whitespace."
+  (interactive "*P")
+  (delete-indentation arg)
+  (when (and (nth 4 (syntax-ppss))
+             (looking-at (format "\\(\\s<\\|%c\\|\\s-\\)+"
+                                 (elt comment-start 0))))
+    (replace-match " ")))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
