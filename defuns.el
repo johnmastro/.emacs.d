@@ -921,21 +921,6 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
                  names)
      ,@body))
 
-(defun basis/add-elisp-font-lock-keywords (keywords)
-  "Highlight KEYWORDS with `font-lock-keyword-face'."
-  (with-eval-after-load 'lisp-mode
-    (font-lock-add-keywords
-     'emacs-lisp-mode
-     `((,(concat "(\\s-*" (regexp-opt keywords 'paren) "\\_>")
-        1 font-lock-keyword-face))
-     'append)
-    (mapc (lambda (buffer)
-            (with-current-buffer buffer
-              (when (and (eq major-mode 'emacs-lisp-mode)
-                         (bound-and-true-p font-lock-mode))
-                (font-lock-refresh-defaults))))
-          (buffer-list))))
-
 (defun basis/bug-number-at-point ()
   "Return the bug number at point, if any, as a string."
   (save-excursion

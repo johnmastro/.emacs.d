@@ -97,24 +97,13 @@ can be either `create' or `error'."
 
 (use-package subr-x)
 
-(use-package seq
-  :ensure t
-  ;; Compatibility shim for older versions of `seq' that didn't have `seq-some'
-  :config (unless (fboundp 'seq-some)
-            (defun seq-some (pred seq)
-              (catch 'seq--break
-                (seq-doseq (elt seq)
-                  (let ((result (funcall pred elt)))
-                    (when result
-                      (throw 'seq--break result))))
-                nil))))
+(use-package seq)
 
 (use-package stream
   :ensure t
   :defer t)
 
-(use-package map
-  :if (>= emacs-major-version 25))
+(use-package map)
 
 (use-package dash
   :ensure t
@@ -149,22 +138,6 @@ can be either `create' or `error'."
 
 ;; Do this after init so that it can override anything set here
 (add-hook 'after-init-hook #'basis/maybe-load-local-init)
-
-;; Compatibility shims for some of the new macros in Emacs 25's `subr-x', using
-;; the `dash' implementations.
-(when (< emacs-major-version 25)
-  (require 'dash)
-  (let* ((macros (seq-remove (lambda (list) (fboundp (car list)))
-                             '((if-let       -if-let*   2)
-                               (when-let     -when-let* 1)
-                               (thread-first ->         1)
-                               (thread-last  ->>        1)))))
-    (pcase-dolist (`(,sym ,impl ,indent) macros)
-      (defalias sym impl)
-      (put sym 'lisp-indent-function indent))
-    (basis/add-elisp-font-lock-keywords
-     (cons "pcase-dolist" (mapcar (lambda (list) (symbol-name (car list)))
-                                  macros)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2393,7 +2366,6 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package xref
   :defer t
-  :if (>= emacs-major-version 25)
   :config (let ((map xref--xref-buffer-mode-map))
             (define-key map (kbd "M-}") #'basis/xref-next-group)
             (define-key map (kbd "M-{") #'basis/xref-prev-group)))
