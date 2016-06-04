@@ -203,10 +203,10 @@ can be either `create' or `error'."
     ;; Use zsh or bash as shell
     (let ((shell (or (executable-find "zsh")
                      (executable-find "bash"))))
-      (setq shell-file-name shell
-            explicit-shell-file-name shell
-            ediff-shell shell
-            null-device "/dev/null")
+      (setq shell-file-name shell)
+      (setq explicit-shell-file-name shell)
+      (setq ediff-shell shell)
+      (setq null-device "/dev/null")
       (setenv "SHELL" shell))
     (setq locale-coding-system 'utf-8)
     ;; Since Emacs wasn't launched from a Cygwin shell, $LANG will be wonky
@@ -222,21 +222,24 @@ can be either `create' or `error'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Various settings
 
-(setq visible-bell t
-      inhibit-default-init t
-      inhibit-startup-screen t
-      inhibit-startup-message t
-      initial-scratch-message nil
-      initial-major-mode 'emacs-lisp-mode
-      sentence-end-double-space nil
-      indicate-empty-lines t
-      recenter-positions '(top middle bottom)
-      scroll-preserve-screen-position t
-      delete-by-moving-to-trash t
-      gc-cons-threshold (* 20 1024 1024)
-      temporary-file-directory (basis/emacs-dir "tmp/")
-      switch-to-buffer-preserve-window-point t
-      enable-recursive-minibuffers t)
+(setq visible-bell t)
+(setq inhibit-default-init t)
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-message t)
+(setq initial-scratch-message nil)
+(setq initial-major-mode 'emacs-lisp-mode)
+(setq sentence-end-double-space nil)
+(setq indicate-empty-lines t)
+(setq recenter-positions '(top middle bottom))
+(setq scroll-preserve-screen-position t)
+(setq delete-by-moving-to-trash t)
+(setq gc-cons-threshold (* 20 1024 1024))
+(setq temporary-file-directory (basis/emacs-dir "tmp/"))
+(setq switch-to-buffer-preserve-window-point t)
+(setq enable-recursive-minibuffers t)
+(setq user-mail-address "jbm@jbm.io")
+(setq user-full-name "John Mastro")
+(setq mail-host-address "jbm.io")
 
 (setq-default major-mode 'text-mode)
 (setq-default indent-tabs-mode nil)
@@ -269,20 +272,20 @@ can be either `create' or `error'."
   (setq-local indent-line-function #'lisp-indent-line))
 
 (use-package simple
-  :init (progn (setq shift-select-mode nil
-                     line-number-mode t
-                     column-number-mode t)
-               ;; Let C-n add newlines, and don't deactivate the mark
-               (setq next-line-add-newlines t))
-  :config (progn
-            (size-indication-mode)
-            (advice-add 'next-line :around #'basis/next-line-no-deactivate-mark)
-            ;; Keep popping the mark until point actually moves
-            (advice-add 'pop-to-mark-command
-                        :around
-                        #'basis/pop-to-mark-ensure-new-pos)
-            (add-hook 'eval-expression-minibuffer-setup-hook
-                      #'basis/init-eval-expression-minibuffer)))
+  :config
+  (progn
+    (setq shift-select-mode nil)
+    (setq line-number-mode t)
+    (setq column-number-mode t)
+    (setq next-line-add-newlines t)
+    (size-indication-mode)
+    (advice-add 'next-line :around #'basis/next-line-no-deactivate-mark)
+    ;; Keep popping the mark until point actually moves
+    (advice-add 'pop-to-mark-command
+                :around
+                #'basis/pop-to-mark-ensure-new-pos)
+    (add-hook 'eval-expression-minibuffer-setup-hook
+              #'basis/init-eval-expression-minibuffer)))
 
 (use-package mule
   :config
@@ -301,27 +304,27 @@ can be either `create' or `error'."
     (set-buffer-file-coding-system 'utf-8-unix)))
 
 (use-package files
-  :init
-  (progn (setq-default require-final-newline t)
-         (setq confirm-nonexistent-file-or-buffer nil)
-         (setq backup-by-copying t)
-         (setq backup-directory-alist
-               `((".*" . ,(basis/emacs-dir "var/backups/"))))
-         (setq auto-save-file-name-transforms
-               `((".*" ,(basis/emacs-dir "var/autosaves/") t)))
-         (setq auto-save-list-file-prefix
-               (concat (basis/emacs-dir "var/auto-save-list/") ".saves-")))
   :config
-  (pcase system-type
-    (`darwin
-     (when-let ((gls (executable-find "gls")))
-       (setq insert-directory-program gls)))
-    (`windows-nt
-     (add-hook 'before-save-hook #'basis/maybe-set-coding))))
+  (progn
+    (setq-default require-final-newline t)
+    (setq confirm-nonexistent-file-or-buffer nil)
+    (setq backup-by-copying t)
+    (setq backup-directory-alist
+          `((".*" . ,(basis/emacs-dir "var/backups/"))))
+    (setq auto-save-file-name-transforms
+          `((".*" ,(basis/emacs-dir "var/autosaves/") t)))
+    (setq auto-save-list-file-prefix
+          (concat (basis/emacs-dir "var/auto-save-list/") ".saves-"))
+    (pcase system-type
+      (`darwin
+       (when-let ((gls (executable-find "gls")))
+         (setq insert-directory-program gls)))
+      (`windows-nt
+       (add-hook 'before-save-hook #'basis/maybe-set-coding)))))
 
 (use-package windmove
   :defer t
-  :init (windmove-default-keybindings))
+  :config (windmove-default-keybindings))
 
 (use-package cursor-sensor
   :config
@@ -332,28 +335,29 @@ can be either `create' or `error'."
     (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)))
 
 (use-package mouse
-  :init (setq mouse-yank-at-point t))
+  :config (setq mouse-yank-at-point t))
 
 (use-package url
   :defer t
-  :init (setq url-privacy-level 'high
-              url-configuration-directory (basis/emacs-dir "var/url/")
-              url-cookie-file (basis/emacs-file "var/url/cookies"))
-  :config (progn (url-setup-privacy-info)
-                 (add-hook 'kill-emacs-hook #'basis/delete-cookies)))
+  :config
+  (progn (setq url-privacy-level 'high)
+         (setq url-configuration-directory (basis/emacs-dir "var/url/"))
+         (setq url-cookie-file (basis/emacs-file "var/url/cookies"))
+         (url-setup-privacy-info)
+         (add-hook 'kill-emacs-hook #'basis/delete-cookies)))
 
 (use-package bookmark
   :defer t
-  :init (setq bookmark-default-file (basis/emacs-file "var/bookmarks")
-              bookmark-save-flag 1))
+  :config (progn (setq bookmark-default-file (basis/emacs-file "var/bookmarks"))
+                 (setq bookmark-save-flag 1)))
 
 (use-package ffap
   :defer t
-  :init (setq ffap-machine-p-known 'reject))
+  :config (setq ffap-machine-p-known 'reject))
 
 (use-package advice
   :defer t
-  :init (setq ad-redefinition-action 'accept))
+  :config (setq ad-redefinition-action 'accept))
 
 (defun basis/set-default-input-method (&optional method)
   (setq default-input-method (or method "TeX")))
@@ -362,13 +366,15 @@ can be either `create' or `error'."
 (add-hook 'after-init-hook #'basis/set-default-input-method)
 
 (use-package server
-  :init (setq server-auth-dir (basis/emacs-dir "var/server/"))
-  :config (unless (and server-name (server-running-p server-name))
-            (server-start)))
+  :config
+  (progn (setq server-auth-dir (basis/emacs-dir "var/server/"))
+         (unless (and server-name (server-running-p server-name))
+           (server-start))))
 
 (use-package hl-line
-  :init (setq global-hl-line-sticky-flag t)
-  :config (global-hl-line-mode))
+  :config
+  (progn (setq global-hl-line-sticky-flag t)
+         (global-hl-line-mode)))
 
 (use-package paren
   :config (show-paren-mode))
@@ -389,8 +395,8 @@ can be either `create' or `error'."
 
 (use-package autorevert
   :config (progn (global-auto-revert-mode)
-                 (setq global-auto-revert-non-file-buffers t
-                       auto-revert-verbose nil)))
+                 (setq global-auto-revert-non-file-buffers t)
+                 (setq auto-revert-verbose nil)))
 
 (use-package frame
   :config (blink-cursor-mode -1))
@@ -401,39 +407,42 @@ can be either `create' or `error'."
   (setq save-place-file (basis/emacs-file "var/places")))
 
 (use-package savehist
-  :init (setq savehist-additional-variables '(search-ring regexp-search-ring)
-              savehist-file (basis/emacs-file "var/history"))
-  :config (savehist-mode))
+  :config
+  (progn (setq savehist-additional-variables '(search-ring regexp-search-ring))
+         (setq savehist-file (basis/emacs-file "var/history"))
+         (savehist-mode)))
 
 (use-package uniquify
-  :init (setq uniquify-buffer-name-style 'forward
-              uniquify-ignore-buffers-re "^\\*"))
+  :config (progn (setq uniquify-buffer-name-style 'forward)
+                 (setq uniquify-ignore-buffers-re "^\\*")))
 
 (use-package whitespace
-  :init (progn (setq whitespace-style '(face trailing lines-tail tabs)
-                     whitespace-line-column 80)
-               (put 'whitespace-line-column 'safe-local-variable #'integerp))
+  :config (progn (setq whitespace-style '(face trailing lines-tail tabs))
+                 (setq whitespace-line-column 80)
+                 (put 'whitespace-line-column 'safe-local-variable #'integerp))
   :diminish whitespace-mode)
 
 (use-package recentf
-  :init (setq recentf-max-saved-items 50
-              recentf-save-file (basis/emacs-file "var/recentf")
-              recentf-exclude (list #'tramp-tramp-file-p #'file-remote-p))
-  :config (recentf-mode))
+  :config
+  (progn (setq recentf-max-saved-items 50)
+         (setq recentf-save-file (basis/emacs-file "var/recentf"))
+         (setq recentf-exclude (list #'tramp-tramp-file-p #'file-remote-p))
+         (recentf-mode)))
 
 (use-package tramp
   :defer t
-  :init
-  (setq tramp-default-method
-        (if (eq basis/system-type 'windows-nt)
-            "plinkx"
-          "sshx"))
-  (setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
-  ;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
-  (when (eq basis/system-type 'windows+cygwin)
-    (setq tramp-encoding-shell (executable-find "sh")
-          tramp-encoding-command-switch "-c"
-          tramp-encoding-command-interactive "-i")))
+  :config
+  (progn
+    (setq tramp-default-method
+          (if (eq basis/system-type 'windows-nt)
+              "plinkx"
+            "sshx"))
+    (setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
+    ;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
+    (when (eq basis/system-type 'windows+cygwin)
+      (setq tramp-encoding-shell (executable-find "sh"))
+      (setq tramp-encoding-command-switch "-c")
+      (setq tramp-encoding-command-interactive "-i"))))
 
 (use-package time
   :defer t
@@ -481,8 +490,8 @@ can be either `create' or `error'."
   :init (progn
           (set-frame-parameter nil 'background-mode 'dark)
           (set-terminal-parameter nil 'background-mode 'dark)
-          (setq solarized-termcolors 256
-                solarized-italic nil)
+          (setq solarized-termcolors 256)
+          (setq solarized-italic nil)
           ;; Some additional faces I've assembled
           (add-to-list 'custom-theme-load-path
                        (basis/emacs-dir "themes/solarized-moar/")))
@@ -530,7 +539,7 @@ can be either `create' or `error'."
 
 (use-package apropos
   :defer t
-  :init (setq apropos-do-all t))
+  :config (setq apropos-do-all t))
 
 (use-package man
   :defer t
@@ -550,14 +559,14 @@ can be either `create' or `error'."
 
 (pcase system-type
   (`darwin
-   (setq mac-command-modifier 'meta
-         mac-option-modifier 'super))
+   (setq mac-command-modifier 'meta)
+   (setq mac-option-modifier 'super))
   (`windows-nt
-   (setq w32-pass-apps-to-system nil
-         w32-pass-lwindow-to-system nil
-         w32-pass-rwindow-to-system nil
-         w32-lwindow-modifier 'super
-         w32-rwindow-modifier 'super)))
+   (setq w32-pass-apps-to-system nil)
+   (setq w32-pass-lwindow-to-system nil)
+   (setq w32-pass-rwindow-to-system nil)
+   (setq w32-lwindow-modifier 'super)
+   (setq w32-rwindow-modifier 'super)))
 
 (use-package which-key
   :ensure t
@@ -845,14 +854,14 @@ TODO: <home> and <end> still don't work.")
                  ("s"   #'mc/mark-all-symbols-like-this-in-defun)
                  ("w"   #'mc/mark-all-words-like-this-in-defun)
                  ("n"   #'mc/insert-numbers)
-                 ("l"   #'mc/insert-letters))
-               (setq mc/list-file (basis/emacs-file "var/mc-lists.el"))))
+                 ("l"   #'mc/insert-letters))))
 
 (use-package multiple-cursors-core
-  :ensure multiple-cursors
   :defer t
-  ;; Make RET exit multiple-cursors-mode in the terminal too
-  :config (define-key mc/keymap (kbd "RET") #'multiple-cursors-mode))
+  :config
+  (progn (setq mc/list-file (basis/emacs-file "var/mc-lists.el"))
+         ;; Make RET exit multiple-cursors-mode in the terminal too
+         (define-key mc/keymap (kbd "RET") #'multiple-cursors-mode)))
 
 (use-package move-text
   :ensure t
@@ -879,16 +888,18 @@ TODO: <home> and <end> still don't work.")
 
 (use-package imenu
   :defer t
-  :init (setq imenu-auto-rescan t))
+  :config (setq imenu-auto-rescan t))
 
 (use-package avy
   :ensure t
   :defer t
-  :init (progn (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i)
-                     avy-style 'pre)
-               (global-set-key (kbd "M-SPC") #'avy-goto-word-1)
-               (global-set-key (kbd "M-g g") #'avy-goto-line))
-  :config (advice-add 'avy-push-mark :after #'basis/push-mark-noactivate))
+  :init
+  (progn (global-set-key (kbd "M-SPC") #'avy-goto-word-1)
+         (global-set-key (kbd "M-g g") #'avy-goto-line))
+  :config
+  (progn (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i))
+         (setq avy-style 'pre)
+         (advice-add 'avy-push-mark :after #'basis/push-mark-noactivate)))
 
 (defun basis/ace-window-kludge (function arg)
   "Advice for `ace-window'.
@@ -905,10 +916,10 @@ is read-only and empty."
 (use-package ace-window
   :ensure t
   :defer t
-  :init (progn (setq aw-keys '(?h ?j ?k ?l ?n ?m)
-                     aw-scope 'frame)
-               (global-set-key (kbd "M-o") #'ace-window))
-  :config (advice-add 'ace-window :around #'basis/ace-window-kludge))
+  :init (global-set-key (kbd "M-o") #'ace-window)
+  :config (progn (setq aw-keys '(?h ?j ?k ?l ?n ?m))
+                 (setq aw-scope 'frame)
+                 (advice-add 'ace-window :around #'basis/ace-window-kludge)))
 
 (use-package jump-char
   :ensure t
@@ -944,12 +955,12 @@ is read-only and empty."
 (use-package swiper
   :ensure t
   :defer t
-  :init (progn (setq swiper-min-highlight 1)
-               (define-key isearch-mode-map (kbd "M-s") #'swiper-from-isearch))
-  :config (basis/define-keys swiper-map
-            ("M-%"   #'swiper-query-replace)
-            ("M-SPC" #'swiper-avy)
-            ("C-t"   #'basis/swiper-maybe-yank-something)))
+  :init (define-key isearch-mode-map (kbd "M-s") #'swiper-from-isearch)
+  :config (progn (setq swiper-min-highlight 1)
+                 (basis/define-keys swiper-map
+                   ("M-%"   #'swiper-query-replace)
+                   ("M-SPC" #'swiper-avy)
+                   ("C-t"   #'basis/swiper-maybe-yank-something))))
 
 (use-package swiper-helm
   :ensure t
@@ -1012,28 +1023,38 @@ is read-only and empty."
     ("C-c C-x" #'basis/ido-open-file-externally)))
 
 (use-package ido
-  :init (setq ido-enable-prefix nil
-              ido-enable-flex-matching t
-              ido-auto-merge-work-directories-length -1
-              ido-create-new-buffer 'always
-              ido-use-filename-at-point nil
-              ido-use-virtual-buffers t
-              ido-use-faces nil
-              ido-max-prospects 10
-              ido-ignore-extensions t
-              ido-save-directory-list-file (basis/emacs-file "var/ido.last"))
-  :config (add-hook 'ido-setup-hook #'basis/init-ido-keys))
+  :defer t
+  :config
+  (progn (setq ido-enable-prefix nil)
+         (setq ido-enable-flex-matching t)
+         (setq ido-auto-merge-work-directories-length -1)
+         (setq ido-create-new-buffer 'always)
+         (setq ido-use-filename-at-point nil)
+         (setq ido-use-virtual-buffers t)
+         (setq ido-use-faces nil)
+         (setq ido-max-prospects 10)
+         (setq ido-ignore-extensions t)
+         (setq ido-save-directory-list-file (basis/emacs-file "var/ido.last"))
+         (add-hook 'ido-setup-hook #'basis/init-ido-keys)))
 
 (use-package ido-ubiquitous
-  :ensure t)
+  :ensure t
+  :defer t
+  :after ido
+  :config (when (bound-and-true-p ido-mode)
+            (ido-ubiquitous-mode)))
 
 (use-package flx-ido
   :ensure t
-  :init (setq flx-ido-threshhold 10000)
-  :config (flx-ido-mode))
+  :defer t
+  :after ido
+  :config (progn (setq flx-ido-threshhold 10000)
+                 (flx-ido-mode)))
 
 (use-package ido-vertical-mode
   :ensure t
+  :defer t
+  :after ido
   :config (ido-vertical-mode))
 
 (use-package idomenu
@@ -1043,8 +1064,8 @@ is read-only and empty."
 (use-package smex
   :ensure t
   :defer t
-  :init (progn (global-set-key (kbd "M-X") #'smex-major-mode-commands)
-               (setq smex-save-file (basis/emacs-file "var/smex-items"))))
+  :init (global-set-key (kbd "M-X") #'smex-major-mode-commands)
+  :config (setq smex-save-file (basis/emacs-file "var/smex-items")))
 
 (use-package helm-flx
   :ensure t
@@ -1055,35 +1076,34 @@ is read-only and empty."
 
 (use-package helm
   :ensure t
-  :init (progn
-          (setq helm-split-window-default-side 'other
-                helm-split-window-in-side-p t
-                helm-quick-update t
-                helm-truncate-lines t
-                helm-display-header-line nil)
-          (basis/define-map basis/helm-map (:key "C-c h")
-            ("a" #'helm-apropos)
-            ("b" #'helm-buffers-list)
-            ("c" #'helm-colors)
-            ("e" #'helm-register)
-            ("f" #'helm-find-files)
-            ("g" #'helm-do-grep)
-            ("i" #'helm-info-at-point)
-            ("k" #'helm-man-woman)
-            ("l" #'helm-bookmarks)
-            ("m" #'helm-all-mark-rings)
-            ("o" #'helm-occur)
-            ("O" #'helm-multi-occur)
-            ("p" #'helm-list-emacs-process)
-            ("r" #'helm-regexp)
-            ("R" #'helm-resume)
-            ("s" #'helm-swoop)
-            ("t" #'helm-top)
-            ("x" #'helm-M-x)
-            ("y" #'helm-show-kill-ring)
-            ("/" #'helm-find)
-            (":" #'helm-eval-expression-with-eldoc)))
+  :init (basis/define-map basis/helm-map (:key "C-c h")
+          ("a" #'helm-apropos)
+          ("b" #'helm-buffers-list)
+          ("c" #'helm-colors)
+          ("e" #'helm-register)
+          ("f" #'helm-find-files)
+          ("g" #'helm-do-grep)
+          ("i" #'helm-info-at-point)
+          ("k" #'helm-man-woman)
+          ("l" #'helm-bookmarks)
+          ("m" #'helm-all-mark-rings)
+          ("o" #'helm-occur)
+          ("O" #'helm-multi-occur)
+          ("p" #'helm-list-emacs-process)
+          ("r" #'helm-regexp)
+          ("R" #'helm-resume)
+          ("s" #'helm-swoop)
+          ("t" #'helm-top)
+          ("x" #'helm-M-x)
+          ("y" #'helm-show-kill-ring)
+          ("/" #'helm-find)
+          (":" #'helm-eval-expression-with-eldoc))
   :config (progn
+            (setq helm-split-window-default-side 'other)
+            (setq helm-split-window-in-side-p t)
+            (setq helm-quick-update t)
+            (setq helm-truncate-lines t)
+            (setq helm-display-header-line nil)
             (basis/define-keys helm-map
               ("TAB" #'helm-execute-persistent-action)
               ("M-s" #'helm-select-action)
@@ -1098,14 +1118,15 @@ is read-only and empty."
             (set-face-attribute 'helm-source-header nil :height 1.0)))
 
 (use-package helm-adaptive
-  :init (setq helm-adaptive-history-file
-              (basis/emacs-file "var/helm-adaptive-history"))
-  :config (helm-adaptive-mode))
+  :config
+  (progn (setq helm-adaptive-history-file
+               (basis/emacs-file "var/helm-adaptive-history"))
+         (helm-adaptive-mode)))
 
 (use-package helm-mode
   :diminish helm-mode
-  :init (setq helm-mode-handle-completion-in-region nil)
   :config (progn
+            (setq helm-mode-handle-completion-in-region nil)
             (helm-mode)
             (dolist (cons '((multi-occur . ido-completing-read)
                             (Info-goto-node)))
@@ -1113,44 +1134,45 @@ is read-only and empty."
 
 (use-package helm-files
   :defer t
-  :init (progn (global-set-key (kbd "C-x C-f") #'basis/helm-find-files)
-               (setq helm-ff-newfile-prompt-p nil
-                     helm-ff-file-name-history-use-recentf t
-                     helm-ff-search-library-in-sexp t
-                     helm-ff-skip-boring-files t
-                     helm-recentf-fuzzy-match t)
-               (setq helm-boring-file-regexp-list
-                     '("\\.o$" "\\.elc$" "\\.pyc$" "\\.pyo$")))
-  :config (progn (basis/define-keys helm-find-files-map
-                   ("TAB"     #'helm-execute-persistent-action)
-                   ("M-s"     #'helm-select-action)
-                   ("DEL"     #'basis/helm-backspace)
-                   ("C-c C-b" #'basis/helm-run-bookmarks)
-                   ("C-x g"   #'basis/helm-ff-run-magit-status))
-                 ;; Disable `ffap' behavior
-                 (advice-add 'helm-find-files-input :override #'ignore)))
+  :init (global-set-key (kbd "C-x C-f") #'basis/helm-find-files)
+  :config
+  (progn
+    (setq helm-ff-newfile-prompt-p nil)
+    (setq helm-ff-file-name-history-use-recentf t)
+    (setq helm-ff-search-library-in-sexp t)
+    (setq helm-ff-skip-boring-files t)
+    (setq helm-recentf-fuzzy-match t)
+    (setq helm-boring-file-regexp-list '("\\.o$" "\\.elc$" "\\.pyc$" "\\.pyo$"))
+    (basis/define-keys helm-find-files-map
+      ("TAB"     #'helm-execute-persistent-action)
+      ("M-s"     #'helm-select-action)
+      ("DEL"     #'basis/helm-backspace)
+      ("C-c C-b" #'basis/helm-run-bookmarks)
+      ("C-x g"   #'basis/helm-ff-run-magit-status))
+    ;; Disable `ffap' behavior
+    (advice-add 'helm-find-files-input :override #'ignore)))
 
 (use-package helm-locate
-  :init (setq helm-locate-fuzzy-match nil))
+  :config (setq helm-locate-fuzzy-match nil))
 
 (use-package helm-buffers
   :defer t
-  :init
-  (progn (setq helm-buffers-fuzzy-matching t)
-         (global-set-key (kbd "C-x b") #'helm-mini))
+  :init (global-set-key (kbd "C-x b") #'helm-mini)
   :config
-  (define-key helm-buffer-map (kbd "C-c C-b") #'basis/helm-run-bookmarks))
+  (progn
+    (setq helm-buffers-fuzzy-matching t)
+    (define-key helm-buffer-map (kbd "C-c C-b") #'basis/helm-run-bookmarks)))
 
 (use-package helm-command
   :defer t
-  :init (progn (setq helm-M-x-fuzzy-match t)
-               (global-set-key (kbd "M-x") #'helm-M-x)))
+  :init (global-set-key (kbd "M-x") #'helm-M-x)
+  :config (setq helm-M-x-fuzzy-match t))
 
 (use-package helm-imenu
   :defer t
-  :init (progn (setq helm-imenu-execute-action-at-once-if-one nil
-                     helm-imenu-fuzzy-match t)
-               (global-set-key (kbd "M-i") #'helm-imenu)))
+  :init (global-set-key (kbd "M-i") #'helm-imenu)
+  :config (progn (setq helm-imenu-execute-action-at-once-if-one nil)
+                 (setq helm-imenu-fuzzy-match t)))
 
 (use-package helm-ring
   :defer t
@@ -1159,13 +1181,14 @@ is read-only and empty."
 
 (use-package helm-elisp
   :defer t
-  :init (progn (setq helm-apropos-fuzzy-match t
-                     helm-lisp-fuzzy-completion t)
-               (global-set-key (kbd "<f1> SPC") #'helm-apropos)))
+  :init (global-set-key (kbd "<f1> SPC") #'helm-apropos)
+  :config (progn (setq helm-apropos-fuzzy-match t)
+                 (setq helm-lisp-fuzzy-completion t)))
 
 (use-package helm-man
-  :init (unless basis/system-man-p
-          (setq helm-man-or-woman-function #'woman)))
+  :defer t
+  :config  (unless basis/system-man-p
+             (setq helm-man-or-woman-function #'woman)))
 
 (use-package helm-descbinds
   :ensure t
@@ -1174,7 +1197,7 @@ is read-only and empty."
 
 (use-package helm-projectile
   :ensure t
-  :init (setq helm-projectile-fuzzy-match t))
+  :config (setq helm-projectile-fuzzy-match t))
 
 (use-package helm-ag
   :ensure t
@@ -1183,10 +1206,9 @@ is read-only and empty."
 (use-package helm-swoop
   :ensure t
   :defer t
-  :init (progn
-          (setq helm-swoop-use-line-number-face t)
-          (define-key isearch-mode-map (kbd "M-s") #'helm-swoop-from-isearch))
+  :init (define-key isearch-mode-map (kbd "M-s") #'helm-swoop-from-isearch)
   :config (progn
+            (setq helm-swoop-use-line-number-face t)
             (define-key helm-swoop-map (kbd "C-s") #'helm-next-line)
             (define-key helm-swoop-map (kbd "C-r") #'helm-previous-line)
             ;; I prefer M-s for this
@@ -1231,8 +1253,9 @@ is read-only and empty."
 
 (use-package ivy
   :ensure swiper
-  :init (setq ivy-format-function #'ivy-format-function-arrow)
-  :config (define-key ivy-minibuffer-map (kbd "C-r") #'ivy-previous-line))
+  :config
+  (progn (setq ivy-format-function #'ivy-format-function-arrow)
+         (define-key ivy-minibuffer-map (kbd "C-r") #'ivy-previous-line)))
 
 (use-package counsel
   :ensure t)
@@ -1258,8 +1281,8 @@ is read-only and empty."
        (company-dabbrev-code company-gtags company-etags company-keywords)
        company-files
        company-dabbrev))
-    (setq company-minimum-prefix-length 2
-          company-tooltip-flip-when-above t)
+    (setq company-minimum-prefix-length 2)
+    (setq company-tooltip-flip-when-above t)
     (advice-add 'company-auto-begin
                 :before-until
                 #'basis/company-maybe-block-completion)
@@ -1275,9 +1298,9 @@ is read-only and empty."
 
 (use-package company-statistics
   :ensure t
-  :init (setq company-statistics-file
-              (basis/emacs-file "var/company-statistics-cache.el"))
-  :config (add-hook 'after-init-hook #'company-statistics-mode t))
+  :config (progn (setq company-statistics-file
+                       (basis/emacs-file "var/company-statistics-cache.el"))
+                 (add-hook 'after-init-hook #'company-statistics-mode t)))
 
 (use-package company-emoji
   :ensure t
@@ -1307,9 +1330,9 @@ is read-only and empty."
       ("TAB"   nil)
       ([(tab)] nil))
     (define-key yas-keymap (kbd "RET") #'yas-exit-all-snippets)
-    (setq yas-snippet-dirs (list (basis/emacs-dir "snippets/"))
-          yas-prompt-functions '(yas-ido-prompt yas-completing-prompt)
-          yas-wrap-around-region t)))
+    (setq yas-snippet-dirs (list (basis/emacs-dir "snippets/")))
+    (setq yas-prompt-functions '(yas-ido-prompt yas-completing-prompt))
+    (setq yas-wrap-around-region t)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1348,16 +1371,17 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package inf-lisp
   :defer t
-  :init (setq inferior-lisp-program (or (executable-find "sbcl")
-                                        (executable-find "ccl")
-                                        "lisp"))
-  :config (add-hook 'inferior-lisp-mode-hook #'basis/init-lisp-generic))
+  :config
+  (progn (setq inferior-lisp-program (or (executable-find "sbcl")
+                                         (executable-find "ccl")
+                                         "lisp"))
+         (add-hook 'inferior-lisp-mode-hook #'basis/init-lisp-generic)))
 
 (use-package cl-indent
-  :init (setq lisp-lambda-list-keyword-alignment t
-              lisp-lambda-list-keyword-parameter-alignment t
-              lisp-loop-keyword-indentation 6
-              lisp-loop-forms-indentation 6))
+  :config (progn (setq lisp-lambda-list-keyword-alignment t)
+                 (setq lisp-lambda-list-keyword-parameter-alignment t)
+                 (setq lisp-loop-keyword-indentation 6)
+                 (setq lisp-loop-forms-indentation 6)))
 
 (defun basis/init-lisp-generic ()
   "Enable features useful in all Lisp modes."
@@ -1427,7 +1451,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :diminish elisp-slime-nav-mode)
 
 (use-package eldoc
-  :init (global-eldoc-mode)
+  :config (global-eldoc-mode)
   :diminish eldoc-mode)
 
 (use-package macrostep
@@ -1440,7 +1464,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package redshank
   :ensure t
-  :init (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t)
+  :config (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t)
   :diminish redshank-mode)
 
 (defun basis/start-slime ()
@@ -1450,13 +1474,14 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package slime
   :ensure t
   :defer t
-  :init (progn (setq slime-lisp-implementations
-                     '((sbcl ("sbcl" "--noinform") :coding-system utf-8-unix)
-                       (ccl ("ccl"))))
-               (setq slime-default-lisp 'sbcl
-                     slime-contribs '(slime-fancy)))
   :config
   (progn
+    (setq slime-lisp-implementations
+          '((sbcl ("sbcl" "--noinform") :coding-system utf-8-unix)
+            (ccl ("ccl"))))
+    (setq slime-default-lisp 'sbcl)
+    (setq slime-contribs '(slime-fancy))
+    (setq slime-autodoc-use-multiline-p t)
     (basis/define-eval-keys slime-mode-map
       (last-sexp  #'slime-eval-last-expression)
       (definition #'slime-eval-defun)
@@ -1464,11 +1489,9 @@ Use `paredit' in these modes rather than `smartparens'.")
       (buffer     #'slime-eval-buffer)
       (something  #'basis/slime-eval-something)
       (file       #'slime-compile-and-load-file)
-      (expand     #'slime-expand-1))
-    (setq slime-autodoc-use-multiline-p t)))
+      (expand     #'slime-expand-1))))
 
 (use-package slime-repl
-  :ensure slime
   :defer t
   :config (add-hook 'slime-repl-mode-hook #'basis/init-lisp-generic))
 
@@ -1528,9 +1551,9 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package cider
   :ensure t
   :defer t
-  :init (progn (setq cider-prompt-for-symbol nil)
-               (setq cider-font-lock-dynamically '(macros deprecated)))
   :config (progn
+            (setq cider-prompt-for-symbol nil)
+            (setq cider-font-lock-dynamically '(macros deprecated))
             (pcase basis/system-type
               (`darwin
                (basis/set-lein-command-for-mac))
@@ -1547,25 +1570,23 @@ Use `paredit' in these modes rather than `smartparens'.")
               (expand     #'cider-macroexpand-1))))
 
 (use-package nrepl-client
-  :ensure cider
   :defer t
-  :init (setq nrepl-log-messages t))
+  :config (setq nrepl-log-messages t))
 
 (use-package cider-repl
-  :ensure cider
   :defer t
-  :init (setq cider-repl-use-pretty-printing t)
   :config (progn
+            (setq cider-repl-use-pretty-printing t)
             (add-hook 'cider-repl-mode-hook #'basis/init-lisp-generic)
             (add-hook 'cider-repl-mode-hook #'basis/init-cider-repl-mode)))
 
 (use-package clj-refactor
   :ensure t
   :defer t
-  :init (setq cljr-thread-all-but-last t
-              cljr-favor-prefix-notation nil
-              cljr-favor-private-functions nil)
-  :config (cljr-add-keybindings-with-prefix "C-c m")
+  :config (progn (setq cljr-thread-all-but-last t)
+                 (setq cljr-favor-prefix-notation nil)
+                 (setq cljr-favor-private-functions nil)
+                 (cljr-add-keybindings-with-prefix "C-c m"))
   :diminish clj-refactor-mode)
 
 (use-package clojure-cheatsheet
@@ -1575,11 +1596,11 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package quack
   :ensure t
   :defer t
-  :init (progn (setq quack-default-program
-                     (if (eq system-type 'windows-nt)
-                         "racket"
-                       "guile"))
-               (setq quack-fontify-style 'emacs)))
+  :config (progn (setq quack-default-program
+                       (if (eq system-type 'windows-nt)
+                           "racket"
+                         "guile"))
+                 (setq quack-fontify-style 'emacs)))
 
 (use-package scheme
   :defer t
@@ -1611,7 +1632,6 @@ Use `paredit' in these modes rather than `smartparens'.")
             (expand     #'basis/geiser-expand-something)))
 
 (use-package geiser-repl
-  :ensure geiser
   :defer t
   :config (add-hook 'geiser-repl-mode-hook #'basis/init-lisp-generic))
 
@@ -1629,10 +1649,11 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package python
   :defer t
-  :init (setq python-indent-guess-indent-offset-verbose nil
-              python-shell-unbuffered (not (eq system-type 'windows-nt)))
   :config
   (progn
+    (setq python-indent-guess-indent-offset-verbose nil)
+    (setq python-shell-unbuffered (not (eq system-type 'windows-nt)))
+    (setq python-fill-docstring-style 'pep-257-nn)
     (basis/define-eval-keys python-mode-map
       (definition #'python-shell-send-defun)
       (buffer     #'python-shell-send-buffer)
@@ -1644,13 +1665,12 @@ Use `paredit' in these modes rather than `smartparens'.")
       ("C-c C-D" #'python-eldoc-at-point)
       ("C-c C-p" #'basis/run-python)
       ("C-h C-p" #'basis/insert-python-docstring-quotes))
-    (setq python-fill-docstring-style 'pep-257-nn)
     (add-hook 'python-mode-hook #'basis/init-python-mode)
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
     ;; Jedi has 2 Python dependencies: jedi and epc
     (when (basis/jedi-installed-p)
-      (setq jedi:setup-keys t
-            jedi:tooltip-method nil)
+      (setq jedi:setup-keys t)
+      (setq jedi:tooltip-method nil)
       (add-hook 'python-mode-hook #'jedi:setup))
     (when (eq system-type 'windows-nt)
       ;; Use the launcher when available
@@ -1681,12 +1701,11 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package haskell-mode
   :ensure t
   :defer t
-  :init (progn (setq haskell-process-log t)
-               (setq haskell-doc-prettify-types (display-graphic-p))
-               (add-hook 'haskell-mode-hook #'basis/init-haskell-mode)))
+  :config (progn (setq haskell-process-log t)
+                 (setq haskell-doc-prettify-types (display-graphic-p))
+                 (add-hook 'haskell-mode-hook #'basis/init-haskell-mode)))
 
 (use-package interactive-haskell-mode
-  :ensure haskell-mode
   :defer t
   :config (basis/define-keys interactive-haskell-mode-map
             ("C-c C-z" #'haskell-interactive-bring)
@@ -1699,7 +1718,6 @@ Use `paredit' in these modes rather than `smartparens'.")
             ("C-c C-t" #'haskell-mode-show-type-at)))
 
 (use-package ghci-script-mode
-  :ensure haskell-mode
   :defer t
   :mode "\\.ghci\\'")
 
@@ -1730,13 +1748,13 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t
   :mode "\\.js\\'"
-  :init (setq-default js2-basic-offset 2
-                      js2-show-parse-errors nil
-                      js2-allow-rhino-new-expr-initializer nil
-                      js2-strict-inconsistent-return-warning nil
-                      js2-strict-missing-semi-warning nil
-                      js2-strict-trailing-comma-warning t)
   :config (progn
+            (setq-default js2-basic-offset 2)
+            (setq-default js2-show-parse-errors nil)
+            (setq-default js2-allow-rhino-new-expr-initializer nil)
+            (setq-default js2-strict-inconsistent-return-warning nil)
+            (setq-default js2-strict-missing-semi-warning nil)
+            (setq-default js2-strict-trailing-comma-warning t)
             (define-key js2-mode-map (kbd "C-;") #'basis/eol-maybe-semicolon)
             (add-hook 'js2-mode-hook #'basis/init-js2-mode)))
 
@@ -1751,19 +1769,21 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package skewer-mode
   :ensure t
-  :init (skewer-setup) ; hook into js2, html, and css modes
-  :config (basis/define-eval-keys skewer-mode-map
-            (last-sexp  #'skewer-eval-last-sexp)
-            (definition #'skewer-eval-defun)
-            (buffer     #'skewer-load-buffer)))
+  :defer t
+  :after (js2-mode sgml-mode css-mode)
+  :config (progn
+            (skewer-setup) ; hook into {js2,html,css}-mode
+            (basis/define-eval-keys skewer-mode-map
+              (last-sexp  #'skewer-eval-last-sexp)
+              (definition #'skewer-eval-defun)
+              (buffer     #'skewer-load-buffer))))
 
 (use-package skewer-repl
-  :ensure skewer-mode
   :defer t
   :config (define-key skewer-repl-mode-map (kbd "TAB") #'hippie-expand))
 
 (use-package skewer-css
-  :ensure skewer-mode
+  :defer t
   :config (basis/define-eval-keys skewer-css-mode-map
             (last-sexp  #'skewer-css-eval-current-declaration)
             (definition #'skewer-css-eval-current-rule)
@@ -1801,8 +1821,8 @@ Use `paredit' in these modes rather than `smartparens'.")
                        #'basis/sql-modify-syntax-table)))
 
 (defun basis/init-c-base ()
-  (setq indent-tabs-mode nil
-        c-basic-offset 4)
+  (setq indent-tabs-mode nil)
+  (setq c-basic-offset 4)
   (setq-local comment-style 'extra-line)
   ;; (c-toggle-auto-newline 1)
   (dolist (cleanup '(brace-else-brace
@@ -1895,32 +1915,33 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t
   :init
+  (basis/define-keys global-map
+    ("C-c a" #'org-agenda)
+    ("C-c c" #'org-capture)
+    ("C-c l" #'org-store-link))
+  :config
   (progn
-    (basis/define-keys global-map
-      ("C-c a" #'org-agenda)
-      ("C-c c" #'org-capture)
-      ("C-c l" #'org-store-link))
     ;; Paths
-    (setq org-directory "~/Dropbox/org/"
-          org-default-notes-file (expand-file-name "refile.org" org-directory)
-          org-archive-location "%s.archive::"
-          org-agenda-files (mapcar (lambda (name)
+    (setq org-directory "~/Dropbox/org/")
+    (setq org-default-notes-file (expand-file-name "refile.org" org-directory))
+    (setq org-archive-location "%s.archive::")
+    (setq org-agenda-files (mapcar (lambda (name)
                                      (expand-file-name name org-directory))
                                    '("todo.org" "work.org")))
     ;; Misc. options
-    (setq org-completion-use-ido t
-          org-outline-path-complete-in-steps nil
-          org-reverse-note-order t
-          org-log-done t
-          org-special-ctrl-a/e t
-          org-ellipsis "…")
+    (setq org-completion-use-ido t)
+    (setq org-outline-path-complete-in-steps nil)
+    (setq org-reverse-note-order t)
+    (setq org-log-done t)
+    (setq org-special-ctrl-a/e t)
+    (setq org-ellipsis "…")
     ;; Agenda
-    (setq org-agenda-start-on-weekday nil
-          org-agenda-skip-scheduled-if-done t
-          org-agenda-skip-deadline-if-done t)
+    (setq org-agenda-start-on-weekday nil)
+    (setq org-agenda-skip-scheduled-if-done t)
+    (setq org-agenda-skip-deadline-if-done t)
     ;; Code blocks & org-babel
-    (setq org-src-fontify-natively t
-          org-confirm-babel-evaluate nil)
+    (setq org-src-fontify-natively t)
+    (setq org-confirm-babel-evaluate nil)
     ;; Capture
     (setq org-capture-templates
           `(("t" "Todo" entry (file+headline ,org-default-notes-file "Tasks")
@@ -1931,17 +1952,15 @@ Use `paredit' in these modes rather than `smartparens'.")
             ("n" "Note" entry (file+headline "~/Dropbox/org/notes.org" "Notes")
              "* %u %?")))
     ;; Refiling
-    (setq org-refile-use-outline-path 'file
-          org-refile-allow-creating-parent-nodes 'confirm
-          org-refile-targets '((nil :maxlevel . 2)
+    (setq org-refile-use-outline-path 'file)
+    (setq org-refile-allow-creating-parent-nodes 'confirm)
+    (setq org-refile-targets '((nil :maxlevel . 2)
                                (org-agenda-files :maxlevel . 2)))
     ;; Todo keywords
     (setq org-todo-keywords
           '((sequence
              "TODO(t)" "STARTED(s@)" "WAITING(w@/!)" "DELEGATED(l@)" "|"
-             "DONE(d!)" "DEFERRED(f@)" "CANCELLED(c@)"))))
-  :config
-  (progn
+             "DONE(d!)" "DEFERRED(f@)" "CANCELLED(c@)")))
     (define-key org-mode-map (kbd "RET") #'org-return-indent)
     (setq org-structure-template-alist
           (mapcar (pcase-lambda (`(,key ,val)) (list key (downcase val)))
@@ -2053,9 +2072,9 @@ Move forward by a line and indent if invoked directly between."
 (use-package deft
   :ensure t
   :defer t
-  :init (setq deft-extension "md"
-              deft-directory "~/Dropbox/deft"
-              deft-text-mode  'gfm-mode))
+  :config (progn (setq deft-extension "md")
+                 (setq deft-directory "~/Dropbox/deft")
+                 (setq deft-text-mode 'gfm-mode)))
 
 (use-package csv-mode
   :ensure t
@@ -2126,17 +2145,17 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package smartparens
   :ensure t
-  :init (smartparens-global-strict-mode)
   :config
   (progn
+    (smartparens-global-strict-mode)
     ;; I still prefer Paredit with Lisps, and having Smartparens enabled messes
     ;; with argument handling in `magit-key-mode'.
     (dolist (mode (cons 'magit-key-mode basis/lisp-modes))
       (add-to-list 'sp-ignore-modes-list mode))
     (sp-use-paredit-bindings)
-    (setq sp-cancel-autoskip-on-backward-movement nil
-          sp-autoescape-string-quote nil
-          sp-use-subword t)
+    (setq sp-cancel-autoskip-on-backward-movement nil)
+    (setq sp-autoescape-string-quote nil)
+    (setq sp-use-subword t)
     (setq-default sp-autoskip-closing-pair 'always)
     (sp-pair "'" nil
              :unless '(basis/sp-point-after-word-p)
@@ -2170,14 +2189,15 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package ispell
   :defer t
-  :init (setq ispell-program-name (executable-find "aspell")
-              ispell-personal-dictionary "~/.aspell.en.pws"
-              ispell-extra-args '("--sug-mode=ultra"))
-  :config (condition-case nil
-              (lookup-words "whatever")
-            (error
-             (when (file-readable-p "~/Dropbox/dict/words")
-               (setq ispell-alternate-dictionary "~/Dropbox/dict/words")))))
+  :config
+  (progn (setq ispell-program-name (executable-find "aspell"))
+         (setq ispell-personal-dictionary "~/.aspell.en.pws")
+         (setq ispell-extra-args '("--sug-mode=ultra"))
+         (condition-case nil
+             (lookup-words "whatever")
+           (error
+            (when (file-readable-p "~/Dropbox/dict/words")
+              (setq ispell-alternate-dictionary "~/Dropbox/dict/words"))))))
 
 (basis/define-map basis/flycheck-map (:key "C-h l")
   ("c"   #'flycheck-buffer)
@@ -2223,9 +2243,9 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package ediff
   :defer t
-  :init (setq ediff-window-setup-function #'ediff-setup-windows-plain
-              ediff-split-window-function #'split-window-horizontally)
   :config (progn
+            (setq ediff-window-setup-function #'ediff-setup-windows-plain)
+            (setq ediff-split-window-function #'split-window-horizontally)
             (when (eq system-type 'windows-nt)
               (advice-add 'ediff-make-empty-tmp-file
                           :filter-args
@@ -2330,27 +2350,26 @@ Move forward by a line and indent if invoked directly between."
 ;; to make the most sense.
 (use-package ibuffer
   :defer t
-  :init (progn
-          (defalias 'ls #'ibuffer)
-          (global-set-key [remap list-buffers] #'ibuffer)
-          (setq ibuffer-formats
-                '((mark modified read-only " "
-                        (name 18 18 :left :elide)
-                        " "
-                        (size-h 9 -1 :right)
-                        " "
-                        (mode 16 16 :left :elide)
-                        " "
-                        (vc-status 16 16 :left)
-                        " "
-                        filename-and-process)
-                  (mark " "
-                        (name 18 18 :left :elide)
-                        " "
-                        filename)))
-          (setq ibuffer-show-empty-filter-groups nil))
+  :init (progn (defalias 'ls #'ibuffer)
+               (global-set-key [remap list-buffers] #'ibuffer))
   :config
   (progn
+    (setq ibuffer-formats
+          '((mark modified read-only " "
+                  (name 18 18 :left :elide)
+                  " "
+                  (size-h 9 -1 :right)
+                  " "
+                  (mode 16 16 :left :elide)
+                  " "
+                  (vc-status 16 16 :left)
+                  " "
+                  filename-and-process)
+            (mark " "
+                  (name 18 18 :left :elide)
+                  " "
+                  filename)))
+    (setq ibuffer-show-empty-filter-groups nil)
     (require 'ibuffer-vc)
     (basis/define-keys ibuffer-mode-map
       ("M-o"   nil) ;; don't shadow ace-window
@@ -2374,7 +2393,7 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package etags
   :defer t
-  :init (setq tags-revert-without-query t))
+  :config (setq tags-revert-without-query t))
 
 (use-package xref
   :defer t
@@ -2401,27 +2420,27 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package projectile
   :ensure t
-  :init (progn
-          (setq projectile-keymap-prefix (kbd "C-h p")
-                projectile-completion-system 'helm)
-          (setq projectile-known-projects-file
-                (basis/emacs-file "var/projectile-bookmarks.eld"))
-          (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
-          (setq projectile-use-git-grep t)
-          ;; Projectile defaults to native indexing on Windows, but if we have
-          ;; Cygwin set up we can use "alien".
-          (if (eq basis/system-type 'windows-nt)
-              (setq projectile-indexing-method 'native
-                    projectile-enable-caching t)
-            (setq projectile-indexing-method 'alien
-                  projectile-enable-caching nil))
-          (projectile-global-mode)
-          (global-set-key projectile-keymap-prefix
-                          'basis/projectile-map))
   :config
-  (when (eq basis/system-type 'windows+cygwin)
-    (define-key projectile-mode-map
-      [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags))
+  (progn
+    (setq projectile-keymap-prefix (kbd "C-h p"))
+    (setq projectile-completion-system 'helm)
+    (setq projectile-known-projects-file
+          (basis/emacs-file "var/projectile-bookmarks.eld"))
+    (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
+    (setq projectile-use-git-grep t)
+    ;; Projectile defaults to native indexing on Windows, but if we have
+    ;; Cygwin set up we can use "alien".
+    (if (eq basis/system-type 'windows-nt)
+        (progn (setq projectile-indexing-method 'native)
+               (setq projectile-enable-caching t))
+      (setq projectile-indexing-method 'alien)
+      (setq projectile-enable-caching nil))
+    (projectile-global-mode)
+    (global-set-key projectile-keymap-prefix
+                    'basis/projectile-map)
+    (when (eq basis/system-type 'windows+cygwin)
+      (define-key projectile-mode-map
+        [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags)))
   :diminish projectile-mode)
 
 
@@ -2431,21 +2450,21 @@ Move forward by a line and indent if invoked directly between."
 (use-package compile
   :defer t
   :init (progn
-          (setq compilation-ask-about-save nil)
-          (setq compilation-always-kill t)
-          (setq compilation-scroll-output 'first-error)
-          (setq compilation-context-lines 2)
           (global-set-key (kbd "C-c b c") #'compile)
           (global-set-key (kbd "C-c b b") #'recompile)
           (global-set-key (kbd "C-c b t") #'basis/make-tags))
   :config (progn
+            (setq compilation-ask-about-save nil)
+            (setq compilation-always-kill t)
+            (setq compilation-scroll-output 'first-error)
+            (setq compilation-context-lines 2)
             (require 'ansi-color)
             (add-hook 'compilation-filter-hook #'basis/colorize-compilation)))
 
 (use-package ls-lisp
   :defer t
-  :init (when (eq basis/system-type 'windows+cygwin)
-          (setq ls-lisp-use-insert-directory-program t)))
+  :config (when (eq basis/system-type 'windows+cygwin)
+            (setq ls-lisp-use-insert-directory-program t)))
 
 (use-package dired
   :defer t
@@ -2480,14 +2499,15 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package dired-x
   :defer t
-  :init (setq dired-omit-verbose nil)
-  :config (setq dired-omit-extensions (remove ".bak" dired-omit-extensions)))
+  :config
+  (progn (setq dired-omit-verbose nil)
+         (setq dired-omit-extensions (remove ".bak" dired-omit-extensions))))
 
 (use-package find-dired
   :defer t
-  :init (setq find-ls-option (if (eq system-type 'windows-nt)
-                                 '("-exec ls -ldhG {} +" . "-ldhG")
-                               '("-exec ls -ldh {} +" . "-ldh"))))
+  :config (setq find-ls-option (if (eq system-type 'windows-nt)
+                                   '("-exec ls -ldhG {} +" . "-ldhG")
+                                 '("-exec ls -ldh {} +" . "-ldh"))))
 
 (use-package dired+
   :ensure t
@@ -2521,13 +2541,16 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package shell
   :defer t
+  :config (add-hook 'shell-mode-hook #'basis/init-shell-mode))
+
+(use-package dirtrack
+  :defer t
   ;; Not sure why comint/dirtrack see junk in front of my prompt with Cygwin's
   ;; zsh, so just work around it
-  :init (setq-default dirtrack-list
-                      (if (eq basis/system-type 'windows+cygwin)
-                          '("^%[ \r]*\\(.+\\)>" 1)
-                        '("^[^:\n]+@[^:\n]+:\\(.+\\)>" 1)))
-  :config (add-hook 'shell-mode-hook #'basis/init-shell-mode))
+  :config (setq-default dirtrack-list
+                        (if (eq basis/system-type 'windows+cygwin)
+                            '("^%[ \r]*\\(.+\\)>" 1)
+                          '("^[^:\n]+@[^:\n]+:\\(.+\\)>" 1))))
 
 (defun basis/init-eshell ()
   (basis/define-keys eshell-mode-map
@@ -2536,8 +2559,8 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package esh-mode
   :defer t
-  :init (setq eshell-directory-name (basis/emacs-dir "var/eshell/"))
-  :config (add-hook 'eshell-mode-hook #'basis/init-eshell))
+  :config (progn (setq eshell-directory-name (basis/emacs-dir "var/eshell/"))
+                 (add-hook 'eshell-mode-hook #'basis/init-eshell)))
 
 ;; Proced
 (use-package proced
@@ -2551,10 +2574,10 @@ Move forward by a line and indent if invoked directly between."
 (use-package elfeed
   :ensure t
   :defer t
-  :init (progn (setq elfeed-db-directory (basis/emacs-dir "var/elfeed/"))
-               (let ((feeds (basis/emacs-file "feeds.eld")))
-                 (when (file-exists-p feeds)
-                   (setq elfeed-feeds (basis/elfeed-load-feeds feeds))))))
+  :config (progn (setq elfeed-db-directory (basis/emacs-dir "var/elfeed/"))
+                 (let ((feeds (basis/emacs-file "feeds.eld")))
+                   (when (file-exists-p feeds)
+                     (setq elfeed-feeds (basis/elfeed-load-feeds feeds))))))
 
 (use-package shr
   :defer t
@@ -2583,7 +2606,7 @@ Move forward by a line and indent if invoked directly between."
 (use-package sx
   :ensure t
   :defer t
-  :init (setq sx-cache-directory (basis/emacs-dir "var/sx/")))
+  :config (setq sx-cache-directory (basis/emacs-dir "var/sx/")))
 
 (use-package sx-question-list
   :defer t
@@ -2602,18 +2625,17 @@ Move forward by a line and indent if invoked directly between."
 (use-package debbugs
   :ensure t
   :defer t
-  :init (setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs")))
+  :config (setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs")))
 
 (use-package emms
   :ensure t
   :defer t
-  :init (progn
-          (setq emms-directory (basis/emacs-dir "var/emms/"))
-          (setq emms-source-file-default-directory
-                (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
-                  (seq-mapcat (lambda (dir) (list dir (downcase dir))))
-                  (seq-some (lambda (dir) (and (file-directory-p dir) dir))))))
   :config (progn
+            (setq emms-directory (basis/emacs-dir "var/emms/"))
+            (setq emms-source-file-default-directory
+                  (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
+                    (seq-mapcat (lambda (dir) (list dir (downcase dir))))
+                    (seq-some (lambda (dir) (and (file-directory-p dir) dir)))))
             (require 'emms-setup)
             (emms-standard)
             (emms-default-players)))
@@ -2633,21 +2655,18 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package message
   :defer t
-  :init
-  (setq user-mail-address "jbm@jbm.io"
-        user-full-name "John Mastro"
-        mail-host-address "jbm.io"
-        message-user-fqdn "jbm.io"
-        message-auto-save-directory (basis/emacs-dir "tmp/")
-        message-subject-trailing-was-query nil
-        message-signature "jbm"
-        message-kill-buffer-on-exit t
-        message-dont-reply-to-names nil
-        message-send-mail-function #'smtpmail-send-it
-        message-citation-line-function #'message-insert-formatted-citation-line
-        message-citation-line-format "%N wrote:\n")
   :config
   (progn
+    (setq message-user-fqdn "jbm.io")
+    (setq message-auto-save-directory (basis/emacs-dir "tmp/"))
+    (setq message-subject-trailing-was-query nil)
+    (setq message-signature "jbm")
+    (setq message-kill-buffer-on-exit t)
+    (setq message-dont-reply-to-names nil)
+    (setq message-send-mail-function #'smtpmail-send-it)
+    (setq message-citation-line-function
+          #'message-insert-formatted-citation-line)
+    (setq message-citation-line-format "%N wrote:\n")
     (define-key message-mode-map (kbd "C-c n") #'org-footnote-action)
     (add-hook 'message-mode-hook #'basis/init-message-mode)
     (advice-add 'message-insert-signature
@@ -2656,15 +2675,14 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package sendmail
   :defer t
-  :init (setq send-mail-function #'smtpmail-send-it
-              smtp-default-smtp-server "mail.messagingengine.com"))
+  :config (setq send-mail-function #'smtpmail-send-it))
 
 (use-package smtpmail
   :defer t
-  :init (setq smtpmail-smtp-server "mail.messagingengine.com"
-              smtpmail-smtp-user "jbm@fastmail.fm"
-              smtpmail-smtp-service 465
-              smtpmail-stream-type 'ssl))
+  :config (progn (setq smtpmail-smtp-server "mail.messagingengine.com")
+                 (setq smtpmail-smtp-user "jbm@fastmail.fm")
+                 (setq smtpmail-smtp-service 465)
+                 (setq smtpmail-stream-type 'ssl)))
 
 (use-package mu4e
   :defer t
@@ -2674,14 +2692,16 @@ Move forward by a line and indent if invoked directly between."
     (let ((dir "/usr/local/share/emacs/site-lisp/mu4e/"))
       (when (file-directory-p dir)
         (add-to-list 'load-path dir)
-        (autoload 'mu4e "mu4e" "Launch mu4e." t)))
+        (autoload 'mu4e "mu4e" "Launch mu4e." t))))
+  :config
+  (progn
     ;; Mail
-    (setq mu4e-get-mail-command "offlineimap"
-          mu4e-maildir (expand-file-name ".maildir/fastmail" (getenv "HOME"))
-          mu4e-sent-folder "/sent"
-          mu4e-drafts-folder "/drafts"
-          mu4e-trash-folder "/trash"
-          mu4e-compose-signature "jbm")
+    (setq mu4e-get-mail-command "offlineimap")
+    (setq mu4e-maildir (expand-file-name ".maildir/fastmail" (getenv "HOME")))
+    (setq mu4e-sent-folder "/sent")
+    (setq mu4e-drafts-folder "/drafts")
+    (setq mu4e-trash-folder "/trash")
+    (setq mu4e-compose-signature "jbm")
     ;; Shortcuts. Available as jX
     (setq mu4e-maildir-shortcuts '(("/archive" . ?a)
                                    ("/inbox"   . ?i)
@@ -2701,12 +2721,11 @@ Move forward by a line and indent if invoked directly between."
                          '("~/downloads" "~/Downloads" "~/"))))
       (setq mu4e-attachment-dir dir))
     ;; Composing messages
-    (setq mu4e-reply-to-address "jbm@jbm.io"
-          mu4e-sent-messages-behavior 'delete)) ; They're saved on the server
-  :config
-  (add-to-list 'mu4e-view-actions
-               (cons "View in browser" #'basis/mu4e-action-view-in-browser)
-               t))
+    (setq mu4e-reply-to-address "jbm@jbm.io")
+    (setq mu4e-sent-messages-behavior 'delete)
+    (add-to-list 'mu4e-view-actions
+                 (cons "View in browser" #'basis/mu4e-action-view-in-browser)
+                 t)))
 
 ;; Retrieving credentials
 (use-package auth-source
@@ -2725,10 +2744,10 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package gnus
   :defer t
-  :init (setq gnus-use-dribble-file nil
-              gnus-always-read-dribble-file nil
-              gnus-read-newsrc-file nil
-              gnus-save-newsrc-file nil))
+  :config (progn (setq gnus-use-dribble-file nil)
+                 (setq gnus-always-read-dribble-file nil)
+                 (setq gnus-read-newsrc-file nil)
+                 (setq gnus-save-newsrc-file nil)))
 
 (use-package mm-decode
   :defer t

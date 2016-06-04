@@ -358,12 +358,6 @@ if not."
       (goto-char start)
       (when message (message "No long lines found")))))
 
-(defun basis/kill-ring-save-string (str)
-  "Save STR to the kill ring."
-  (with-temp-buffer
-    (insert str)
-    (kill-ring-save (point-min) (point-max))))
-
 (defun basis/kill-something (arg)
   "Kill the region, or one or more words backward.
 If `subword-mode' is active, use `subword-backward-kill'."
@@ -419,7 +413,7 @@ BUFFER defaults to the current buffer, if it is visiting a file."
     get-buffer
     buffer-file-name
     abbreviate-file-name
-    basis/kill-ring-save-string))
+    kill-new))
 
 (defun basis/clipboard-save-string (str)
   "Save STR directly to the system clipboard.
@@ -751,8 +745,8 @@ no matches."
 (defun basis/ido-open-file-externally ()
   "Open a file externally during `ido' completion."
   (interactive)
-  (setq fallback 'basis/ido-open-file-externally-internal
-        ido-exit 'fallback)
+  (setq fallback 'basis/ido-open-file-externally-internal)
+  (setq ido-exit 'fallback)
   (exit-minibuffer))
 
 (defun basis/company-maybe-block-completion (&rest _args)
@@ -2019,9 +2013,10 @@ resulting file to contain invalid paths. Use
              shell-output exit-code)
         (with-temp-buffer
           (setq exit-code
-                (call-process-shell-command command nil (current-buffer))
-                shell-output (projectile-trim-string
-                              (buffer-substring (point-min) (point-max)))))
+                (call-process-shell-command command nil (current-buffer)))
+          (setq shell-output
+                (projectile-trim-string (buffer-substring (point-min)
+                                                          (point-max)))))
         (unless (zerop exit-code)
           (error shell-output))
         (visit-tags-table tags-file))
