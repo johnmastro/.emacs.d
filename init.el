@@ -611,9 +611,7 @@ can be either `create' or `error'."
   ([remap kill-whole-line] #'basis/kill-line-backward)
   ("<C-delete>"            #'basis/smart-kill-whole-line)
   ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
-  ("ESC <deletechar>"      #'basis/smart-kill-almost-whole-line)
-  ("<C-M-backspace>"       #'backward-kill-sexp)
-  ("ESC M-DEL"             #'backward-kill-sexp))
+  ("ESC <deletechar>"      #'basis/smart-kill-almost-whole-line))
 
 ;; Copy stuff
 (basis/define-keys global-map
@@ -2123,8 +2121,7 @@ Move forward by a line and indent if invoked directly between."
       ("M-a"             #'paredit-backward)
       ("M-k"             #'kill-sexp)
       ("C-w"             #'basis/paredit-kill-something)
-      ("M-DEL"           #'basis/paredit-kill-something)
-      ("<C-M-backspace>" #'backward-kill-sexp))
+      ("M-DEL"           #'basis/paredit-kill-something))
     (add-to-list 'paredit-space-for-delimiter-predicates
                  #'basis/paredit-doublequote-space-p)
     ;; Show `eldoc' messages after Paredit motion commands
@@ -2174,8 +2171,7 @@ Move forward by a line and indent if invoked directly between."
       ("C-w"             #'basis/sp-kill-something)
       ("M-k"             #'sp-kill-sexp)
       ("M-e"             #'sp-forward-sexp)
-      ("M-a"             #'sp-backward-sexp)
-      ("<C-M-backspace>" #'sp-backward-kill-sexp))
+      ("M-a"             #'sp-backward-sexp))
     (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
     ;; Treat raw prefix arguments like numeric arguments
