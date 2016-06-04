@@ -192,11 +192,6 @@ that many sexps before uncommenting."
     (dotimes (_ (or n 1))
       (basis/comment-sexp-raw))))
 
-(defun basis/join-next-line ()
-  "Join the next line up to the current one."
-  (interactive)
-  (join-line -1))
-
 (defun basis/open-line-below ()
   "Open a new line below the current one."
   (interactive)
@@ -211,32 +206,10 @@ that many sexps before uncommenting."
   (forward-line -1)
   (indent-according-to-mode))
 
-(defun basis/insert-blank-below (&optional count)
-  "Insert COUNT blank lines below point, without moving point."
-  (interactive "p")
-  (let ((count (or count 1)))
-    (save-excursion
-      (beginning-of-line)
-      (forward-line 1)
-      (while (> count 0)
-        (newline)
-        (setq count (1- count))))))
-
-(defun basis/insert-blank-above (&optional count)
-  "Insert COUNT blank lines above point, without moving point."
-  (interactive "p")
-  (let ((count (or count 1)))
-    (save-excursion
-      (forward-line -1)
-      (end-of-line)
-      (while (> count 0)
-        (newline)
-        (setq count (1- count))))))
-
 (defun basis/electric-return ()
   "Typical \"electric\" return, similar to that in CC Mode."
   (interactive)
-  (when (memql (char-after) '(?\) ?\] ?}))
+  (when (memq (char-after) '(?\) ?\] ?}))
     (save-excursion (newline-and-indent)))
   (newline-and-indent))
 
