@@ -192,19 +192,26 @@ that many sexps before uncommenting."
     (dotimes (_ (or n 1))
       (basis/comment-sexp-raw))))
 
-(defun basis/open-line-below ()
+(defun basis/open-line-below (&optional arg)
   "Open a new line below the current one."
-  (interactive)
-  (end-of-line)
-  (newline-and-indent))
+  (interactive "*p")
+  (let ((arg (or arg 1)))
+    (if (< arg 0)
+        (basis/open-line-above (- arg))
+      (end-of-line)
+      (newline arg)
+      (indent-according-to-mode))))
 
-(defun basis/open-line-above ()
+(defun basis/open-line-above (&optional arg)
   "Open a new line above the current one."
-  (interactive)
-  (beginning-of-line)
-  (newline)
-  (forward-line -1)
-  (indent-according-to-mode))
+  (interactive "*p")
+  (let ((arg (or arg 1)))
+    (if (< arg 0)
+        (basis/open-line-below (- arg))
+      (beginning-of-line)
+      (newline arg)
+      (forward-line (- arg))
+      (indent-according-to-mode))))
 
 (defun basis/electric-return ()
   "Typical \"electric\" return, similar to that in CC Mode."
