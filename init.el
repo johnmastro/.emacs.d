@@ -552,9 +552,6 @@ can be either `create' or `error'."
 ;; Don't prompt when using `C-x k'
 (global-set-key (kbd "C-x k") #'basis/kill-buffer)
 
-;; Treat `C-u C-l' the same as `C-u 4 C-l'
-(global-set-key (kbd "C-l") #'basis/recenter-top-bottom)
-
 ;; C-c <left>/<right> to move backward/forward through window configurations
 (use-package winner
   :config (winner-mode))
@@ -594,8 +591,8 @@ can be either `create' or `error'."
 
 ;; Join lines
 (basis/define-keys global-map
-  ("M-^"     #'basis/delete-indentation)
-  ("ESC M-q" #'basis/unfill-paragraph))
+  ("M-^" #'basis/delete-indentation)
+  ("M-q" #'basis/fill-or-unfill-paragraph))
 
 ;; Transpose stuff with M-t
 (basis/define-map basis/transposition-map (:key "M-t")
@@ -668,6 +665,7 @@ can be either `create' or `error'."
   ("j" #'dired-jump)
   ("J" #'dired-jump-other-window)
   ("m" #'make-directory)
+  ("n" #'basis/kill-ring-save-buffer-file-name)
   ("v" #'revert-buffer))
 
 ;; Open one or more files externally, using the `helm-external' machinery
@@ -695,7 +693,6 @@ can be either `create' or `error'."
   ("k" #'find-function-on-key)
   ("l" #'find-library)
   ("m" #'info-display-manual)
-  ("s" #'basis/scratch)
   ("v" #'find-variable)
   ("V" #'apropos-value)
   ("a" #'helm-apropos))
@@ -1311,9 +1308,11 @@ is read-only and empty."
 
 (defun basis/init-prog-mode ()
   (setq indicate-buffer-boundaries 'right)
-  (basis/enable-comment-auto-fill)
   (basis/maybe-enable-whitespace-mode)
-  (basis/maybe-enable-flyspell-prog-mode))
+  (basis/maybe-enable-flyspell-prog-mode)
+  (unless (eq major-mode 'sql-mode)
+    (setq-local comment-auto-fill-only-comments t)
+    (auto-fill-mode)))
 
 (use-package prog-mode
   :config (progn (define-key prog-mode-map (kbd "RET") #'basis/electric-return)

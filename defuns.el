@@ -243,29 +243,6 @@ that many sexps before uncommenting."
     (insert "}")
     (indent-for-tab-command)))
 
-(defun basis/insert-files (files &optional buffer)
-  "Insert the contents of FILES into BUFFER.
-If BUFFER is nil, use the current buffer."
-  (let ((buffer (or buffer (current-buffer))))
-    (with-current-buffer (get-buffer buffer)
-      (mapc #'insert-file-contents files))))
-
-(defun basis/insert-directory-files (dir &optional pattern)
-  "Insert the contents of DIR's files into BUFFER.
-If PATTERN is non-nil, only include matching files (via
-`file-expand-wildcards')."
-  (interactive
-   (list (read-directory-name "Directory: " nil nil t)
-         (when current-prefix-arg
-           (read-string "Pattern: "))))
-  (if-let ((files (file-expand-wildcards (expand-file-name (or pattern "*")
-                                                           dir)
-                                         t)))
-      (basis/insert-files files nil)
-    (message "No files matching `%s' in `%s'" pattern dir)))
-
-(defalias 'basis/concat-directory-files #'basis/insert-directory-files)
-
 (defvar-local basis/smart-hyphen-code-only t
   "If non-nil, only perform hyphen substitutions in code.")
 
@@ -372,11 +349,6 @@ If `subword-mode' is active, use `subword-backward-kill'."
   (interactive)
   (apply #'kill-ring-save (basis/bounds-of-region-or-thing 'line)))
 
-(defun basis/kill-ring-save-buffer ()
-  "Save the buffer's content to the kill ring."
-  (interactive)
-  (kill-ring-save (point-min) (point-max)))
-
 (defun basis/kill-ring-save-buffer-file-name (&optional buffer)
   "Save BUFFER's associated file name to the kill ring.
 BUFFER defaults to the current buffer, if it is visiting a file."
@@ -389,10 +361,11 @@ BUFFER defaults to the current buffer, if it is visiting a file."
                               (mapcar #'buffer-name))
                             nil
                             t))))
-  (thread-first (or buffer (current-buffer))
+  (thread-last (or buffer (current-buffer))
     get-buffer
     buffer-file-name
     abbreviate-file-name
+    (message "%s")
     kill-new))
 
 (defun basis/clipboard-save-string (str)
@@ -530,11 +503,13 @@ If no region is active, examine the full buffer."
   (interactive "*p")
   (cycle-spacing n nil 'fast))
 
-(defun basis/unfill-paragraph ()
-  "Un-fill the current paragraph."
+(defun basis/fill-or-unfill-paragraph ()
   (interactive)
-  (let ((fill-column most-positive-fixnum))
-    (fill-paragraph nil t)))
+  (let ((fill-column (if (eq last-command 'basis/fill-or-unfill-paragraph)
+                         (progn (setq this-command nil)
+                                (point-max))
+                       fill-column)))
+    (call-interactively #'fill-paragraph)))
 
 (defun basis/quote-thing (beg end open close)
   "Surround the region from BEG to END in OPEN and CLOSE quotes."
@@ -586,10 +561,6 @@ if the region is active, defer to `insert-parenthesis'."
         (goto-char beg)
         (insert "("))
     (call-interactively #'insert-parentheses)))
-
-(defun basis/enable-comment-auto-fill ()
-  (setq-local comment-auto-fill-only-comments t)
-  (auto-fill-mode))
 
 (defun basis/delete-indentation (&optional arg)
   "Like `delete-indentation' but delete extra comments and whitespace."
@@ -656,29 +627,15 @@ current search, with no context-dependent behavior."
          (prefix-numeric-value current-prefix-arg)))
   (occur regexp nlines))
 
-(defvar basis/occur-show-note-strings
-  (if (require 'hl-todo nil t)
-      (mapcar #'car hl-todo-keyword-faces)
-    '("HOLD"
-      "TODO"
-      "NEXT"
-      "THEM"
-      "PROG"
-      "OKAY"
-      "DONT"
-      "FAIL"
-      "DONE"
-      "NOTE"
-      "KLUDGE"
-      "FIXME"
-      "XXX"
-      "???"))
-  "List of strings `basis/occur-show-notes' will search for.")
+(defvar basis/occur-show-note-regexp
+  (regexp-opt '("TODO" "DONE" "NOTE" "KLUDGE" "FIXME" "FAIL" "XXX" "???")
+              t)
+  "Regexp used by `basis/occur-show-notes'")
 
 (defun basis/occur-show-notes ()
   "Search for common \"TODO\"-style notes."
   (interactive)
-  (occur (regexp-opt basis/occur-show-note-strings t)))
+  (occur basis/occur-show-note-regexp))
 
 (defun basis/push-mark-noactivate (&rest _args)
   "Advice to push the mark (without activating it)."
@@ -860,11 +817,11 @@ or comment starters."
         (narrow-to-page)
         (beginning-of-line)
         (while (and (not (eobp))
-                    (looking-at-p (format "^[[:space:]%s]*$" comment-start)))
+                    (looking-at-p (format "^\\(\\s<\\|%c\\|\\s-\\)*$"
+                                          (elt comment-start 0))))
           (forward-line))
-        (let* ((start (progn (beginning-of-line) (point)))
-               (end (progn (end-of-line) (point))))
-          (buffer-substring-no-properties start end))))))
+        (buffer-substring-no-properties (line-beginning-position)
+                                        (line-end-position))))))
 
 (defun basis/yas-expand-or-insert ()
   "Call `yas-expand' or `yas-insert-snippet' depending on context.
@@ -963,10 +920,9 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 (defun basis/jedi-installed-p ()
   "Return t if Python, Jedi, and EPC are installed, otherwise nil."
-  (when (executable-find "python")
-    (let* ((cmd "python -c \"import jedi; import epc; exit()\"")
-           (out (shell-command-to-string cmd)))
-      (zerop (length out)))))
+  (with-temp-buffer
+    (zerop (shell-command "python -c \"import jedi; import epc; exit()\""
+                          (current-buffer)))))
 
 (defun basis/insert-python-docstring-quotes ()
   "Insert the 6 double quotes for a Python docstring."
@@ -1897,6 +1853,12 @@ Quote file names appropriately for POSIX-like shells."
   (goto-char (point-max))
   (dired-next-line -1))
 
+(defun basis/insert-files (files &optional buffer)
+  "Insert the contents of FILES into BUFFER.
+If BUFFER is nil, use the current buffer."
+  (with-current-buffer (or buffer (current-buffer))
+    (mapc #'insert-file-contents files)))
+
 (defun basis/dired-slurp-files (files buffer)
   "Insert the contents of marked FILES into BUFFER.
 If it doesn't exist, BUFFER is created automatically."
@@ -2056,14 +2018,6 @@ Only group a buffer with a VC if its visiting a file."
         (when this-win-2nd
           (other-window 1))))))
 
-(defun basis/recenter-top-bottom ()
-  "Like `recenter-top-bottom' but don't treat `C-u' specially."
-  (interactive)
-  (let ((current-prefix-arg (if (equal current-prefix-arg '(4))
-                                4
-                              current-prefix-arg)))
-    (call-interactively #'recenter-top-bottom)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
@@ -2219,37 +2173,11 @@ kill the current session even if there are multiple frames."
              (tags (locate-dominating-file file "TAGS")))
     (visit-tags-table (expand-file-name "TAGS" tags) t)))
 
-(defun basis/scratch (&optional arg)
-  "Switch to the scratch buffer, creating it if necessary."
-  (interactive "P")
-  (funcall (if arg #'switch-to-buffer #'switch-to-buffer-other-window)
-           (get-buffer-create "*scratch*")))
-
 (defun basis/flash-region (start end &optional timeout)
   "Temporarily highlight region from START to END."
   (let ((overlay (make-overlay start end)))
     (overlay-put overlay 'face 'secondary-selection)
     (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
-
-(defun basis/string-before-p (string)
-  "Return non-nil if STRING is right before point."
-  (string= string (ignore-errors
-                    (buffer-substring-no-properties
-                     (- (point) (length string)) (point)))))
-
-(defmacro basis/with-match-strings (vars string &rest body)
-  "Bind VARS to submatches of the last match and evaluate BODY.
-If the last match was against a string then STRING must be
-provided."
-  (declare (indent 2) (debug (listp form body)))
-  (let ((s (make-symbol "str"))
-        (n 0))
-    `(let* ,(cons (list s string)
-                  (save-match-data
-                    (mapcar (lambda (var)
-                              (list var (list 'match-string (setq n (1+ n)) s)))
-                            vars)))
-       ,@body)))
 
 (defun basis/time-function (function)
   "Return the execution time in seconds of calling FUNCTION.
@@ -2367,8 +2295,7 @@ For use as a `mu4e' message action."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Lorem ipsum
 
-(defvar basis/lorem-ipsum-file
-  (basis/emacs-file "lorem-ipsum.txt")
+(defvar basis/lorem-ipsum-file (basis/emacs-file "lorem-ipsum.txt")
   "File containing \"lorem ipsum\" placeholder text.")
 
 (defun basis/insert-lorem-ipsum (&optional arg)
