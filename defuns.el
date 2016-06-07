@@ -921,8 +921,10 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 (defun basis/jedi-installed-p ()
   "Return t if Python, Jedi, and EPC are installed, otherwise nil."
   (with-temp-buffer
-    (zerop (shell-command "python -c \"import jedi; import epc; exit()\""
-                          (current-buffer)))))
+    (let ((inhibit-message t)
+          (message-log-max nil))
+      (zerop (shell-command "python -c \"import jedi; import epc; exit()\""
+                            (current-buffer))))))
 
 (defun basis/insert-python-docstring-quotes ()
   "Insert the 6 double quotes for a Python docstring."
