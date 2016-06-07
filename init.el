@@ -1366,8 +1366,6 @@ Use `paredit' in these modes rather than `smartparens'.")
 (defun basis/init-emacs-lisp-modes ()
   "Enable features useful when working with Emacs Lisp."
   ;; Paredit is enabled by `basis/init-lisp-generic'
-  (unless (require 'xref nil t)
-    (elisp-slime-nav-mode))
   (basis/init-hippie-expand-for-elisp)
   ;; Normally `lexical-binding' should be set within a file, but that doesn't
   ;; work for *scratch* and *ielm*
@@ -1414,11 +1412,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   (progn
     (add-hook 'inferior-emacs-lisp-mode-hook #'basis/init-lisp-generic)
     (add-hook 'inferior-emacs-lisp-mode-hook #'basis/init-emacs-lisp-modes)))
-
-(use-package elisp-slime-nav
-  :ensure t
-  :defer t
-  :diminish elisp-slime-nav-mode)
 
 (use-package eldoc
   :config (global-eldoc-mode)
