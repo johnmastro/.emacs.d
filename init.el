@@ -2405,9 +2405,8 @@ Move forward by a line and indent if invoked directly between."
     (projectile-global-mode)
     (global-set-key projectile-keymap-prefix
                     'basis/projectile-map)
-    (when (eq basis/system-type 'windows+cygwin)
-      (define-key projectile-mode-map
-        [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags)))
+    (define-key projectile-mode-map
+      [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags))
   :diminish projectile-mode)
 
 

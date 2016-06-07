@@ -1932,24 +1932,26 @@ resulting file to contain invalid paths. Use
 `basis/maybe-cygwinize-drive-letter' to convert the path to e.g.
 \"/foo/TAGS\". This assumes the Cygwin path prefix is \"/\"."
   (interactive)
-  (if (eq basis/system-type 'windows+cygwin)
-      (let* ((project-root (projectile-project-root))
-             (tags-exclude (projectile-tags-exclude-patterns))
-             (default-directory project-root)
-             (tags-file (expand-file-name projectile-tags-file-name))
-             (tags-file (basis/maybe-cygwinize-drive-letter tags-file))
-             (command (format projectile-tags-command tags-file tags-exclude))
-             shell-output exit-code)
-        (with-temp-buffer
-          (setq exit-code
-                (call-process-shell-command command nil (current-buffer)))
-          (setq shell-output
-                (projectile-trim-string (buffer-substring (point-min)
-                                                          (point-max)))))
-        (unless (zerop exit-code)
-          (error shell-output))
-        (visit-tags-table tags-file))
-    (call-interactively #'projectile-regenerate-tags)))
+  (let* ((root (or (ignore-errors (projectile-project-root))
+                   default-directory))
+         (pred (lambda ()
+                 (string-prefix-p root (file-truename (buffer-file-name))))))
+    (save-some-buffers nil pred)
+    (if (eq basis/system-type 'windows+cygwin)
+        (let* ((default-directory root)
+               (tags-file (expand-file-name projectile-tags-file-name))
+               (command (format projectile-tags-command
+                                (basis/maybe-cygwinize-drive-letter tags-file)
+                                (projectile-tags-exclude-patterns))))
+          (with-temp-buffer
+            (unless (zerop (call-process-shell-command command
+                                                       nil
+                                                       (current-buffer)))
+              (thread-last (buffer-substring (point-min) (point-max))
+                string-trim
+                (error "%s"))))
+          (visit-tags-table tags-file))
+      (call-interactively #'projectile-regenerate-tags))))
 
 (defun basis/ibuffer-vc-root-files-only (function buf)
   "Advice for `ibuffer-vc-root'.
