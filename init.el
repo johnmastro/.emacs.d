@@ -1556,19 +1556,9 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t)
 
-(use-package quack
-  :ensure t
-  :defer t
-  :config (progn (setq quack-default-program
-                       (if (eq system-type 'windows-nt)
-                           "racket"
-                         "guile"))
-                 (setq quack-fontify-style 'emacs)))
-
 (use-package scheme
   :defer t
   :config (progn
-            (require 'quack)
             (basis/define-eval-keys scheme-mode-map
               (last-sexp  #'scheme-send-last-sexp)
               (definition #'scheme-send-definition)
@@ -1577,6 +1567,16 @@ Use `paredit' in these modes rather than `smartparens'.")
               (file       #'scheme-load-file)
               (expand     #'scheme-expand-current-form))
             (add-hook 'scheme-mode-hook #'basis/init-lisp-generic)))
+
+(use-package quack
+  :ensure t
+  :defer t
+  :after scheme
+  :config (progn (setq quack-default-program
+                       (if (eq system-type 'windows-nt)
+                           "racket"
+                         "guile"))
+                 (setq quack-fontify-style 'emacs)))
 
 (use-package cmuscheme
   :defer t
@@ -1965,8 +1965,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :config
   (progn
-    (require 'tagedit)
-    (require 'simplezen)
     (basis/define-keys html-mode-map
       ([remap forward-paragraph]  #'basis/move-to-next-blank-line)
       ([remap backward-paragraph] #'basis/move-to-previous-blank-line)
@@ -1976,8 +1974,6 @@ Use `paredit' in these modes rather than `smartparens'.")
       ("C-c w"                    #'basis/html-wrap-in-tag))
     (add-hook 'sgml-mode-hook #'basis/init-simplezen)
     (add-hook 'html-mode-hook #'basis/init-html-mode)
-    (tagedit-add-paredit-like-keybindings)
-    (tagedit-add-experimental-features)
     (advice-add 'sgml-delete-tag :after #'basis/sgml-delete-tag-reindent)))
 
 (defun basis/tagedit-toggle-multiline-maybe-forward (function &rest args)
@@ -1992,13 +1988,17 @@ Move forward by a line and indent if invoked directly between."
 (use-package tagedit
   :ensure t
   :defer t
-  :config (advice-add 'tagedit-toggle-multiline-tag
-                      :around
-                      #'basis/tagedit-toggle-multiline-maybe-forward))
+  :after sgml-mode
+  :config (progn (tagedit-add-paredit-like-keybindings)
+                 (tagedit-add-experimental-features)
+                 (advice-add 'tagedit-toggle-multiline-tag
+                             :around
+                             #'basis/tagedit-toggle-multiline-maybe-forward)))
 
 (use-package simplezen
   :ensure t
-  :defer t)
+  :defer t
+  :after sgml-mode)
 
 (defun basis/init-markdown-mode ()
   (setq tab-width 4)
@@ -2331,11 +2331,9 @@ Move forward by a line and indent if invoked directly between."
                   " "
                   filename)))
     (setq ibuffer-show-empty-filter-groups nil)
-    (require 'ibuffer-vc)
     (basis/define-keys ibuffer-mode-map
       ("M-o"   nil) ;; don't shadow ace-window
-      ("C-M-o" #'ibuffer-visit-buffer-1-window)
-      ("\\"    #'basis/ibuffer-toggle-vc-grouping))
+      ("C-M-o" #'ibuffer-visit-buffer-1-window))
     (define-ibuffer-column size-h
       ;; a more readable size column
       (:name "Size" :inline t)
@@ -2349,8 +2347,11 @@ Move forward by a line and indent if invoked directly between."
 (use-package ibuffer-vc
   :ensure t
   :defer t
+  :after ibuffer
   :config
-  (advice-add 'ibuffer-vc-root :around #'basis/ibuffer-vc-root-files-only))
+  (progn
+    (define-key ibuffer-mode-map "\\" #'basis/ibuffer-toggle-vc-grouping)
+    (advice-add 'ibuffer-vc-root :around #'basis/ibuffer-vc-root-files-only)))
 
 (use-package etags
   :defer t
@@ -2429,9 +2430,6 @@ Move forward by a line and indent if invoked directly between."
   :defer t
   :config
   (progn
-    (require 'dired-x)
-    (require 'find-dired)
-    (require 'dired+)
     (basis/define-keys dired-mode-map
       ("RET"                       #'dired-find-alternate-file)
       ("M-RET"                     #'dired-find-file)
@@ -2458,6 +2456,7 @@ Move forward by a line and indent if invoked directly between."
 
 (use-package dired-x
   :defer t
+  :after dired
   :config
   (progn (setq dired-omit-verbose nil)
          (setq dired-omit-extensions (remove ".bak" dired-omit-extensions))))
@@ -2466,11 +2465,13 @@ Move forward by a line and indent if invoked directly between."
   :defer t
   :config (setq find-ls-option (if (eq system-type 'windows-nt)
                                    '("-exec ls -ldhG {} +" . "-ldhG")
-                                 '("-exec ls -ldh {} +" . "-ldh"))))
+                                 '("-exec ls -ldh {} +" . "-ldh")))
+  :after dired)
 
 (use-package dired+
   :ensure t
-  :defer t)
+  :defer t
+  :after dired)
 
 (defun basis/init-comint-mode ()
   (setq comint-scroll-to-bottom-on-input 'this))
@@ -2589,15 +2590,19 @@ Move forward by a line and indent if invoked directly between."
 (use-package emms
   :ensure t
   :defer t
-  :config (progn
-            (setq emms-directory (basis/emacs-dir "var/emms/"))
-            (setq emms-source-file-default-directory
-                  (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
-                    (seq-mapcat (lambda (dir) (list dir (downcase dir))))
-                    (seq-some (lambda (dir) (and (file-directory-p dir) dir)))))
-            (require 'emms-setup)
-            (emms-standard)
-            (emms-default-players)))
+  :config
+  (progn
+    (setq emms-directory (basis/emacs-dir "var/emms/"))
+    (setq emms-source-file-default-directory
+          (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
+            (seq-mapcat (lambda (dir) (list dir (downcase dir))))
+            (seq-some (lambda (dir) (and (file-directory-p dir) dir)))))))
+
+(use-package emms-setup
+  :defer t
+  :after emms
+  :config (progn (emms-standard)
+                 (emms-default-players)))
 
 (use-package define-word
   :ensure t
