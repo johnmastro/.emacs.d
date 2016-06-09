@@ -280,12 +280,12 @@ Valid values are `snake', `camel', and nil.")
                       next)))
         (call-interactively command)))))
 
-(defun basis/next-line-no-deactivate-mark (function &rest args)
+(defun basis/next-line-no-deactivate-mark (original &rest args)
   "Advice for `next-line'.
 Bind `deactivate-mark' so that `next-line-add-newlines' doesn't
 cause the mark to be deactivated."
   (let ((deactivate-mark))
-    (apply function args)))
+    (apply original args)))
 
 (defun basis/next-long-line (&optional threshold message)
   "Move forward to the next overly-long line.
@@ -424,14 +424,14 @@ on whether the region is active."
         (t
          (capitalize-word arg))))
 
-(defun basis/pop-to-mark-ensure-new-pos (function)
+(defun basis/pop-to-mark-ensure-new-pos (original)
   "Advice for `pop-to-mark-command' to repeat until point moves."
   (let ((p (point))
         (n 0))
     (while (and (= p (point))
                 (< (prog1 n (setq n (1+ n)))
                    10))
-      (funcall function))))
+      (funcall original))))
 
 (defun basis/untabify-buffer ()
   "Untabify the current buffer."
@@ -1497,10 +1497,10 @@ See `basis/sp-inhibit-cleanup-list'."
       (list (car args) t)
     args))
 
-(defun basis/sp-cleanup-maybe-not (function &rest args)
+(defun basis/sp-cleanup-maybe-not (original &rest args)
   "Advice for `sp--cleanup-after-kill' to inhibit problematic cleanup."
   (unless (basis/sp-inhibit-cleanup-p)
-    (apply function args)))
+    (apply original args)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1912,7 +1912,7 @@ If VISIT is non-nil, visit the file after downloading it."
   (interactive "p")
   (basis/xref-next-group (- (or n 1))))
 
-(defun basis/projectile-regenerate-tags (function &rest args)
+(defun basis/projectile-regenerate-tags (original &rest args)
   "Advice for `projectile-regenerate-tags'.
 Call `save-some-buffers' for buffers visiting files inside the
 project before regenerating tags. On Cygwin, use Cygwin-style
@@ -1939,13 +1939,13 @@ paths when calling the tags command."
                (error "%s"))))
          (visit-tags-table tags-file)))
       (_
-       (apply function args)))))
+       (apply original args)))))
 
-(defun basis/ibuffer-vc-root-files-only (function buf)
+(defun basis/ibuffer-vc-root-files-only (original buf)
   "Advice for `ibuffer-vc-root'.
 Only group a buffer with a VC if its visiting a file."
   (when (buffer-file-name buf)
-    (funcall function buf)))
+    (funcall original buf)))
 
 (defvar basis/ibuffer-grouped-by-vc-p nil
   "Non-nil is grouping by VC root is enabled.")
@@ -2171,12 +2171,12 @@ kill the current session even if there are multiple frames."
     (overlay-put overlay 'face 'secondary-selection)
     (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
 
-(defun basis/time-function (function)
-  "Return the execution time in seconds of calling FUNCTION.
-Byte-compile FUNCTION before calling it."
-  (setq function (byte-compile function))
+(defun basis/time-function (fn)
+  "Return the execution time in seconds of calling FN.
+Byte-compile FN before calling it."
+  (setq fn (byte-compile fn))
   (let ((beg (float-time)))
-    (funcall function)
+    (funcall fn)
     (/ (truncate (* (- (float-time (current-time))
                        beg)
                     10000))

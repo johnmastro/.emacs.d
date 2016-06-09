@@ -869,7 +869,7 @@ TODO: <home> and <end> still don't work.")
          (setq avy-style 'pre)
          (advice-add 'avy-push-mark :after #'basis/push-mark-noactivate)))
 
-(defun basis/ace-window-kludge (function arg)
+(defun basis/ace-window-kludge (original arg)
   "Advice for `ace-window'.
 Ensure it always works with two windows, even when one (or both)
 is read-only and empty."
@@ -879,7 +879,7 @@ is read-only and empty."
         (4  (basis/transpose-windows 1))
         (16 (delete-other-windows))
         (_  (other-window 1)))
-    (funcall function arg)))
+    (funcall original arg)))
 
 (use-package ace-window
   :ensure t
@@ -1976,11 +1976,11 @@ Use `paredit' in these modes rather than `smartparens'.")
     (add-hook 'html-mode-hook #'basis/init-html-mode)
     (advice-add 'sgml-delete-tag :after #'basis/sgml-delete-tag-reindent)))
 
-(defun basis/tagedit-toggle-multiline-maybe-forward (function &rest args)
+(defun basis/tagedit-toggle-multiline-maybe-forward (original &rest args)
   "Advice for `tagedit-toggle-multiline-tag'.
 Move forward by a line and indent if invoked directly between."
   (let ((move-forward-p (and (eq (char-before) ?>) (eq (char-after) ?<))))
-    (apply function args)
+    (apply original args)
     (when move-forward-p
       (forward-line 1)
       (indent-according-to-mode))))
