@@ -2399,8 +2399,8 @@ Move forward by a line and indent if invoked directly between."
     (projectile-global-mode)
     (global-set-key projectile-keymap-prefix
                     'basis/projectile-map)
-    (define-key projectile-mode-map
-      [remap projectile-regenerate-tags] #'basis/projectile-regenerate-tags))
+    (advice-add 'projectile-regenerate-tags :around
+                #'basis/projectile-regenerate-tags))
   :diminish projectile-mode)
 
 

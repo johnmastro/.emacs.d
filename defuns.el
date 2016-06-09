@@ -1912,33 +1912,34 @@ If VISIT is non-nil, visit the file after downloading it."
   (interactive "p")
   (basis/xref-next-group (- (or n 1))))
 
-(defun basis/projectile-regenerate-tags ()
-  "Copy of `projectile-regenerate-tags' modified for Cygwin paths.
-Using a tags file name of e.g. \"c:/foo/TAGS\" causes the
-resulting file to contain invalid paths. Use
-`basis/maybe-cygwinize-drive-letter' to convert the path to e.g.
-\"/foo/TAGS\". This assumes the Cygwin path prefix is \"/\"."
-  (interactive)
-  (let* ((root (or (ignore-errors (projectile-project-root))
-                   default-directory))
+(defun basis/projectile-regenerate-tags (function &rest args)
+  "Advice for `projectile-regenerate-tags'.
+Call `save-some-buffers' for buffers visiting files inside the
+project before regenerating tags. On Cygwin, use Cygwin-style
+paths when calling the tags command."
+  (let* ((root (projectile-project-root))
          (pred (lambda ()
                  (string-prefix-p root (file-truename (buffer-file-name))))))
     (save-some-buffers nil pred)
-    (if (eq basis/system-type 'windows+cygwin)
-        (let* ((default-directory root)
-               (tags-file (expand-file-name projectile-tags-file-name))
-               (command (format projectile-tags-command
-                                (basis/maybe-cygwinize-drive-letter tags-file)
-                                (projectile-tags-exclude-patterns))))
-          (with-temp-buffer
-            (unless (zerop (call-process-shell-command command
-                                                       nil
-                                                       (current-buffer)))
-              (thread-last (buffer-substring (point-min) (point-max))
-                string-trim
-                (error "%s"))))
-          (visit-tags-table tags-file))
-      (call-interactively #'projectile-regenerate-tags))))
+    (pcase basis/system-type
+      (`windows+cygwin
+       ;; Duplicate the logic from `projectile-regenerate-tags' here because
+       ;; there's no good way to "cygwnize" the tags file's name
+       (let* ((default-directory root)
+              (tags-file (expand-file-name projectile-tags-file-name))
+              (command (format projectile-tags-command
+                               (basis/maybe-cygwinize-drive-letter tags-file)
+                               (projectile-tags-exclude-patterns))))
+         (with-temp-buffer
+           (unless (zerop (call-process-shell-command command
+                                                      nil
+                                                      (current-buffer)))
+             (thread-last (buffer-substring (point-min) (point-max))
+               string-trim
+               (error "%s"))))
+         (visit-tags-table tags-file)))
+      (_
+       (apply function args)))))
 
 (defun basis/ibuffer-vc-root-files-only (function buf)
   "Advice for `ibuffer-vc-root'.
