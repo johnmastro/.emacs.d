@@ -23,13 +23,11 @@
                     ((stringp key) `(kbd ,key))
                     ((null key) nil)
                     (t (error "Invalid key: %s" key))))
-         (map (or (plist-get args :map) 'global-map))
-         (guide-key (plist-get args :guide-key)))
+         (map (or (plist-get args :map) 'global-map)))
     `(progn
        (define-prefix-command ',name)
        (basis/define-keys ,name ,@keydefs)
        ,(and key `(define-key ,map ,kbd ',name))
-       ,(and key guide-key `(add-to-list 'guide-key/guide-key-sequence ,key))
        ',name)))
 
 (defmacro basis/define-eval-keys (keymap &rest keydefs)
