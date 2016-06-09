@@ -347,24 +347,13 @@ If `subword-mode' is active, use `subword-backward-kill'."
   (interactive)
   (apply #'kill-ring-save (basis/bounds-of-region-or-thing 'line)))
 
-(defun basis/kill-ring-save-buffer-file-name (&optional buffer)
+(defun basis/kill-ring-save-buffer-file-name (&optional arg)
   "Save BUFFER's associated file name to the kill ring.
-BUFFER defaults to the current buffer, if it is visiting a file."
-  (interactive
-   (when (or current-prefix-arg
-             (not (buffer-file-name (current-buffer))))
-     (list (completing-read "Buffer: "
-                            (thread-last (buffer-list)
-                              (seq-filter #'buffer-file-name)
-                              (mapcar #'buffer-name))
-                            nil
-                            t))))
-  (thread-last (or buffer (current-buffer))
-    get-buffer
-    buffer-file-name
-    abbreviate-file-name
-    (message "%s")
-    kill-new))
+Abbreviate the file name, unless called with prefix ARG."
+  (interactive "P")
+  (if-let ((file (buffer-file-name)))
+      (kill-new (message "%s" (if arg file (abbreviate-file-name file))))
+    (user-error "Current buffer is not visiting a file")))
 
 (defun basis/clipboard-save-string (str)
   "Save STR directly to the system clipboard.
