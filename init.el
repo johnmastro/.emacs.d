@@ -595,7 +595,7 @@ can be either `create' or `error'."
   ("M-q" #'basis/fill-or-unfill-paragraph))
 
 ;; Transpose stuff with M-t
-(basis/define-map basis/transposition-map (:key "M-t")
+(basis/define-map basis/transposition-map ("M-t")
   ("l"   #'transpose-lines)
   ("w"   #'transpose-words)
   ("s"   #'transpose-sexps)
@@ -655,7 +655,7 @@ can be either `create' or `error'."
 (global-set-key (kbd "<C-prior>") #'previous-buffer)
 (global-set-key (kbd "<C-next>") #'next-buffer)
 
-(basis/define-map basis/file-map (:key "C-c f")
+(basis/define-map basis/file-map ("C-c f")
   ("c" #'helm-locate)
   ("d" #'basis/diff-buffer-with-file)
   ("r" #'basis/rename-current-buffer-file)
@@ -675,7 +675,7 @@ can be either `create' or `error'."
 (global-set-key (kbd "C-c q") #'basis/quote-thing)
 
 ;; Random operations on regions
-(basis/define-map basis/region-map (:key "C-c r")
+(basis/define-map basis/region-map ("C-c r")
   ("a" #'align)
   ("c" #'basis/count-words)
   ("l" #'basis/count-sloc-region)
@@ -684,7 +684,7 @@ can be either `create' or `error'."
 ;; Narrowing can be quite handy
 (put 'narrow-to-region 'disabled nil)
 
-(basis/define-map basis/find-lisp-map (:key "<f1> e")
+(basis/define-map basis/find-lisp-map ("<f1> e")
   ("c" #'finder-commentary)
   ("e" #'view-echo-area-messages)
   ("f" #'find-function)
@@ -698,16 +698,13 @@ can be either `create' or `error'."
   ("a" #'helm-apropos))
 
 ;; Make it harder to accidentally `suspend-frame'
-(basis/define-map basis/ctl-z-map (:key "C-z")
+(basis/define-map basis/ctl-z-map ("C-z")
   ("C-z" #'suspend-frame))
 
 (global-set-key (kbd "C-x C-z") #'repeat)
 
-(basis/define-map basis/h-map ()
+(basis/define-map basis/ctl-h-map ("C-h")
   ("C-h" #'mark-paragraph))
-
-;; Note sure which will be better
-(global-set-key (kbd "C-h") 'basis/h-map)
 
 (defvar basis/eval-keys
   '((last-sexp  . "C-x C-e")
@@ -812,7 +809,7 @@ TODO: <home> and <end> still don't work.")
                  ("M-]" #'mc/mark-next-like-this)
                  ("C->" #'mc/mark-next-like-this)
                  ("C-<" #'mc/mark-previous-like-this))
-               (basis/define-map basis/mc-map (:key "C-c m")
+               (basis/define-map basis/mc-map ("C-c m")
                  ("e"   #'mc/edit-lines)
                  ("C-a" #'mc/edit-beginnings-of-lines)
                  ("C-e" #'mc/edit-ends-of-lines)
@@ -944,7 +941,7 @@ is read-only and empty."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; External search
 
-(basis/define-map basis/grep-map (:key "<f9>")
+(basis/define-map basis/grep-map ("<f9>")
   ("a"  #'ag-regexp)
   ("g"  #'grep)
   ("s"  #'lgrep)
@@ -1044,7 +1041,7 @@ is read-only and empty."
 
 (use-package helm
   :ensure t
-  :init (basis/define-map basis/helm-map (:key "C-c h")
+  :init (basis/define-map basis/helm-map ("C-c h")
           ("a" #'helm-apropos)
           ("b" #'helm-buffers-list)
           ("c" #'helm-colors)
@@ -2160,7 +2157,7 @@ Move forward by a line and indent if invoked directly between."
             (when (file-readable-p "~/Dropbox/dict/words")
               (setq ispell-alternate-dictionary "~/Dropbox/dict/words"))))))
 
-(basis/define-map basis/flycheck-map (:key "C-h l")
+(basis/define-map basis/flycheck-map (basis/ctl-h-map "l")
   ("c"   #'flycheck-buffer)
   ("n"   #'flycheck-next-error)
   ("p"   #'flycheck-previous-error)

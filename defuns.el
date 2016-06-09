@@ -16,14 +16,22 @@
                keydefs)))
 
 (defmacro basis/define-map (name args &rest keydefs)
-  "Define a prefix map named NAME."
+  "Define a prefix map named NAME.
+ARGS specifies a key binding for the prefix map and can be of the
+form (MAP KEY) or (KEY), in which case the binding is created in
+`global-map'."
   (declare (indent 2))
-  (let* ((key (plist-get args :key))
-         (kbd (cond ((vectorp key) key)
-                    ((stringp key) `(kbd ,key))
-                    ((null key) nil)
-                    (t (error "Invalid key: %s" key))))
-         (map (or (plist-get args :map) 'global-map)))
+  (pcase-let* ((`(,map ,key)
+                (pcase args
+                  (`(,map ,key) (list map key))
+                  (`(,key)      (list 'global-map key))
+                  (`()          (list nil nil))
+                  (_            (error "Too many arguments"))))
+               (kbd
+                (cond ((vectorp key) key)
+                      ((stringp key) `(kbd ,key))
+                      ((null key) nil)
+                      (t (error "Invalid key: %s" key)))))
     `(progn
        (define-prefix-command ',name)
        (basis/define-keys ,name ,@keydefs)
