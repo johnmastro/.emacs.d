@@ -1866,7 +1866,8 @@ Use `paredit' in these modes rather than `smartparens'.")
   (setq indicate-buffer-boundaries 'right)
   (auto-fill-mode)
   (basis/maybe-enable-flyspell)
-  (when ispell-alternate-dictionary
+  (when (and ispell-alternate-dictionary
+             (not (derived-mode-p 'sgml-mode 'nxml-mode)))
     (add-to-list 'company-backends 'company-ispell)))
 
 (add-hook 'text-mode-hook #'basis/init-text-mode)
