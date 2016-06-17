@@ -2532,6 +2532,9 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t
   :config (progn (setq elfeed-db-directory (basis/emacs-dir "var/elfeed/"))
+                 (when-let ((curl (executable-find "curl")))
+                   (setq elfeed-curl-program-name curl)
+                   (setq elfeed-use-curl t))
                  (let ((feeds (basis/emacs-file "feeds.eld")))
                    (when (file-exists-p feeds)
                      (setq elfeed-feeds (basis/elfeed-load-feeds feeds))))))
