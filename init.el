@@ -1304,7 +1304,6 @@ is read-only and empty."
 ;;; Programming modes
 
 (defun basis/init-prog-mode ()
-  (setq indicate-buffer-boundaries 'right)
   (basis/maybe-enable-whitespace-mode)
   (basis/maybe-enable-flyspell-prog-mode)
   (unless (eq major-mode 'sql-mode)
