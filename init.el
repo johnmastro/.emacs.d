@@ -545,7 +545,6 @@ can be either `create' or `error'."
   :ensure t
   :config (progn
             (setq which-key-idle-delay 0.5)
-            (setq which-key-prevent-C-h-from-cycling nil)
             (which-key-mode))
   :diminish which-key-mode)
 
