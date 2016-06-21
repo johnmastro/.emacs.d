@@ -646,7 +646,7 @@ can be either `create' or `error'."
 (defalias 'sayonara #'save-buffers-kill-terminal)
 
 ;; Google stuff
-(global-set-key (kbd "C-c g") #'basis/google)
+(global-set-key (kbd "<f9>") #'basis/google)
 
 ;; Re-open recent files
 (global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
@@ -941,7 +941,7 @@ is read-only and empty."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; External search
 
-(basis/define-map basis/grep-map ("<f9>")
+(basis/define-map basis/grep-map ("C-c g")
   ("a"  #'ag-regexp)
   ("g"  #'grep)
   ("s"  #'lgrep)
