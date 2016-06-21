@@ -2151,11 +2151,16 @@ Move forward by a line and indent if invoked directly between."
   (progn (setq ispell-program-name (executable-find "aspell"))
          (setq ispell-personal-dictionary "~/.aspell.en.pws")
          (setq ispell-extra-args '("--sug-mode=ultra"))
-         (condition-case nil
-             (lookup-words "whatever")
-           (error
-            (when (file-readable-p "~/Dropbox/dict/words")
-              (setq ispell-alternate-dictionary "~/Dropbox/dict/words"))))))
+         (let ((file "~/Dropbox/dict/words"))
+           (when (and (not ispell-alternate-dictionary)
+                      (file-readable-p file)
+                      (not (ignore-errors (lookup-words "whatever"))))
+             (setq ispell-alternate-dictionary file)))
+         ;; Ugly kludge to make the personal dictionary work on my
+         ;; Windows+Cygwin setup.
+         (when (eq basis/system-type 'windows+cygwin)
+           (advice-add 'ispell-init-process :around
+                       #'basis/ispell-init-process))))
 
 (basis/define-map basis/flycheck-map (basis/ctl-h-map "l")
   ("c"   #'flycheck-buffer)

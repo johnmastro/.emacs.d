@@ -116,7 +116,8 @@ With optional prefix ARG, uncomment instead."
   "Whitespace characters, for e.g. `skip-chars-forward'.")
 
 (defun basis/uncomment-sexp (&optional n)
-  "Uncomment the sexp at pont."
+  "Uncomment the sexp at point.
+"
   (interactive "p")
   (let* ((start (point-marker))
          (pos nil)
@@ -1560,6 +1561,14 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
   (unless (derived-mode-p 'comint-mode 'cider-repl-mode 'eshell-mode)
     (whitespace-mode)))
 
+(defun basis/ispell-init-process (original &rest args)
+  "Advice for `ispell-init-process' on Cygwin.
+Let-bind `ispell-current-personal-dictionary' to a
+Cygwin-friendly name so that the personal dictionary works."
+  (let ((ispell-current-personal-dictionary
+         (basis/maybe-cygwinize-file-name ispell-current-personal-dictionary)))
+    (apply original args)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Diffing
@@ -1817,17 +1826,21 @@ user-error, automatically move point to the command line."
     (replace-regexp-in-string "\\\\" "/")
     (replace-regexp-in-string "\\`[a-zA-Z]:" "")))
 
-(defun basis/maybe-cygwinize-drive-letter (file)
+(defun basis/maybe-cygwinize-file-name (file)
   "Convert e.g. \"c:/foo\" to \"/c/foo\"."
   (if (and file (string-match "\\`\\([A-Za-z]\\):\\(/.*\\)" file))
-      (concat "/" (match-string 1 file) (match-string 2 file))
+      (let ((drive (match-string 1 file))
+            (name (match-string 2 file)))
+        (if (member drive '("c" "C"))
+            name
+          (concat "/" drive name)))
     file))
 
 (defun basis/cygwin-shell-quote-argument (args)
   "Advice for `shell-quote-argument' on machines with Cygwin.
 Quote file names appropriately for POSIX-like shells."
   ;; Used as :filter-args advice
-  (list (basis/maybe-cygwinize-drive-letter (car args))))
+  (list (basis/maybe-cygwinize-file-name (car args))))
 
 (defun basis/read-file (file)
   "Read a Lisp form from FILE."
@@ -1936,7 +1949,7 @@ paths when calling the tags command."
        (let* ((default-directory root)
               (tags-file (expand-file-name projectile-tags-file-name))
               (command (format projectile-tags-command
-                               (basis/maybe-cygwinize-drive-letter tags-file)
+                               (basis/maybe-cygwinize-file-name tags-file)
                                (projectile-tags-exclude-patterns))))
          (with-temp-buffer
            (unless (zerop (call-process-shell-command command
