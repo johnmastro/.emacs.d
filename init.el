@@ -487,12 +487,6 @@ can be either `create' or `error'."
   :ensure t
   :defer t)
 
-(use-package page-break-lines
-  :ensure t
-  :defer t
-  ;; :config (global-page-break-lines-mode)
-  :diminish page-break-lines-mode)
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Documentation modes
