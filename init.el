@@ -2126,7 +2126,8 @@ Move forward by a line and indent if invoked directly between."
       ("C-w"             #'basis/sp-kill-something)
       ("M-k"             #'sp-kill-sexp)
       ("M-e"             #'sp-forward-sexp)
-      ("M-a"             #'sp-backward-sexp))
+      ("M-a"             #'sp-backward-sexp)
+      ("C-M-u"           #'basis/sp-backward-up))
     (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
     ;; Treat raw prefix arguments like numeric arguments

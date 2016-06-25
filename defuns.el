@@ -1474,6 +1474,24 @@ numeric argument)."
 
 (put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
 
+(defun basis/sp-backward-up (&optional arg interactive)
+  "Like `sp-backward-up-sexp' but augmented in `python-mode'.
+In `python-mode', fall back to `python-nav-backward-up-list' if
+`sp-backward-up-sexp' doesn't move point."
+  (interactive "^p\np")
+  (if (eq major-mode 'python-mode)
+      (catch 'done
+        (let ((arg (or arg 1)))
+          (while (> arg 0)
+            (let ((point (point)))
+              (sp-backward-up-sexp 1 1)
+              (when (= (point) point)
+                (python-nav-backward-up-list 1))
+              (when (= (point) point)
+                (throw 'done t))
+              (setq arg (1- arg))))))
+    (call-interactively #'sp-backward-up-sexp)))
+
 (defun basis/sp-point-after-word-p (id action context)
   "Like `sp-point-after-word-p' but handle Python and SQL Unicode strings."
   (let ((result (sp-point-after-word-p id action context))
