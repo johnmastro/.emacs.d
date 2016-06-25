@@ -2040,20 +2040,6 @@ Only group a buffer with a VC if its visiting a file."
   (interactive)
   (mapc #'disable-theme (or themes custom-enabled-themes)))
 
-(defun basis/reload-solarized (&optional background-mode)
-  "Load (or reload) the Solarized theme.
-If provided, BACKGROUND-MODE specifies which variant to use:
-`dark' or `light'."
-  (interactive
-   (list (and current-prefix-arg
-              (intern (completing-read "Background: " '(dark light) nil t)))))
-  (basis/disable-themes)
-  (when background-mode
-    (set-frame-parameter nil 'background-mode background-mode)
-    (set-terminal-parameter nil 'background-mode background-mode))
-  (load-theme 'solarized t)
-  (load-theme 'solarized-moar t))
-
 (defun basis/maybe-set-emoji-font (&optional frame)
   "Set a system-specific font for symbols (including emojis)."
   (when-let ((font-spec (pcase system-type
