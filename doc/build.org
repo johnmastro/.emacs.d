@@ -33,3 +33,30 @@
     --with-x-toolkit=no \
     --without-xpm --without-jpeg --without-tiff --without-gif --without-png
 #+END_SRC
+
+** Cygwin --with-w32
+- If building from the repo, make sure the files have Unix-style line endings.
+  Make sure the tree is clean first, since we'll need to delete everything and
+  check it back out.
+  #+BEGIN_SRC sh
+  git config core.autocrlf false
+  git rm --cached -r .
+  git reset --hard
+  #+END_SRC
+- Use setup-x86{,_64}.exe to install dependencies:
+  - autoconf
+  - automake
+  - gcc-core
+  - libncurses-devel
+  - libxml2-devel
+  - libgnutls-devel
+  - zlib-devel
+  - libjpeg-devel
+  - libgif-devel
+  - libpng-devel
+  - libtiff-devel
+- Build it:
+  #+BEGIN_SRC sh
+    ./autogen.sh  # Only necessary if building from the repo
+    ./configure --with-w32 --with-xml2 --with-zlib --with-gnutls
+  #+END_SRC
