@@ -1606,8 +1606,8 @@ only prompt for BUFFER and use its associated file as FILE."
   "Advice for `ediff-make-empty-tmp-file'.
 Call `expand-file-name' on the proposed file name. Only necessary
 on Windows."
-  (pcase-let ((`(,proposed-name . ,rest) args))
-    (cons (expand-file-name proposed-name) rest)))
+  (cons (expand-file-name (car args))
+        (cdr args)))
 
 (defun basis/ediff-save-window-config (&rest _ignore)
   "Advice for `ediff-setup'.
@@ -1700,8 +1700,8 @@ representation before comparing them."
 
 (defun basis/make-tags (arg)
   "Regenerate and reload TAGS via `make tags'.
-Of course, this only works if a Makefile with a `TAGS' target is
-available."
+Of course, this only works if a Makefile with a \"TAGS\" target
+is available."
   (interactive "P")
   (let* ((project-root (ignore-errors (projectile-project-root)))
          (default-directory (if (and (not arg) project-root)
@@ -1746,45 +1746,39 @@ user-error, automatically move point to the command line."
   (kill-region (save-excursion (eshell-bol) (point))
                (line-end-position)))
 
+(defvar basis/clang-program "clang"
+  "The clang program used by `basis/find-clang-includes-path'.")
+
 (defun basis/find-clang-includes-path (&optional language)
   "Return clang's #include <...> search path."
   ;; This isn't a very satisfactory solution but it's "good enough"
-  (seq-filter #'file-directory-p
-              (pcase (or language 'c)
-                (`c
-                 (let* ((cmd "clang -v -xc -")
-                        (str (ignore-errors (shell-command-to-string cmd)))
-                        (str (or str ""))
-                        (lines (split-string str "\n" t "[[:space:]]+"))
-                        (result '()))
-                   (catch 'return
-                     (while lines
-                       (pcase-let ((`(,line . ,more) lines))
-                         (if (string= line "#include <...> search starts here:")
-                             (dolist (path more)
-                               (if (string= path "End of search list.")
-                                   (throw 'return (nreverse result))
-                                 (push path result)))
-                           (setq lines more)))))))
-                ;; Hardcoded based on an Ubuntu 12.04 box...
-                (`c++
-                 '("/usr/include/c++/4.6"
-                   "/usr/include/c++/4.6/i686-linux-gnu"
-                   "/usr/include/c++/4.6/backward"
-                   "/usr/local/include"
-                   "/usr/include/clang/3.3/include"
-                   "/usr/include/i386-linux-gnu"
-                   "/usr/include")))))
+  (let ((language (or language 'c)))
+    (unless (memq language '(c c++))
+      (error "Unknown language `%s'" language))
+    (with-temp-buffer
+      (apply #'call-process basis/clang-program nil t nil
+             (list "-E" (if (eq language 'c++) "-xc++" "-xc") "-" "-v"))
+      (goto-char (point-min))
+      (re-search-forward "^#include <\\.\\.\\.> search starts here:$")
+      (forward-line 1)
+      (let ((str (buffer-substring-no-properties
+                  (line-beginning-position)
+                  (progn (re-search-forward "^End of search list\\.$")
+                         (line-beginning-position)))))
+        (seq-filter #'file-directory-p
+                    (split-string str "\n" t "[[:space:]]+"))))))
 
 (defun basis/build-clang-args (&optional language)
-  (let* ((language (or language 'c))
-         (standard (pcase language
-                     (`c   "c11")
-                     (`c++ "c++11")))
-         (includes (basis/find-clang-includes-path language)))
-    (when (and standard includes)
-      (cons (format "-std=%s" standard)
-            (basis/find-clang-includes-path language)))))
+  (let ((language (or language 'c)))
+    (unless (memq language '(c c++))
+      (error "Unknown language `%s'" language))
+    (let* ((standard (if (eq language 'c++)
+                         "c++11"
+                       "c11"))
+           (includes (ignore-errors (basis/find-clang-includes-path language))))
+      (when includes
+        (cons (format "-std=%s" standard)
+              (basis/find-clang-includes-path language))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
