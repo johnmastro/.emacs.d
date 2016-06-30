@@ -1591,16 +1591,15 @@ Cygwin-friendly name so that the personal dictionary works."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Diffing
 
-(defun basis/diff-buffer-with-file (&optional buffer file)
+(defun basis/diff-buffer-with-file (buffer file)
   "View the differences between BUFFER and FILE.
 With a prefix arg, prompt for both BUFFER and FILE. Otherwise,
-only prompt for BUFFER and use its associated file as FILE."
-  (interactive
-   (list (read-buffer "Buffer: " (buffer-name) t)
-         (unless current-prefix-arg
-           (read-file-name "File: " nil nil t))))
-  (with-current-buffer (get-buffer (or buffer (current-buffer)))
-    (diff (or file buffer-file-name) (current-buffer) nil 'noasync)))
+use the current buffer and prompt for FILE."
+  (interactive (list (if current-prefix-arg
+                         (read-buffer "Buffer: " nil t)
+                       (current-buffer))
+                     (read-file-name "File: " nil nil t)))
+  (diff file buffer nil 'noasync))
 
 (defun basis/ediff-expand-tmp-name (args)
   "Advice for `ediff-make-empty-tmp-file'.
