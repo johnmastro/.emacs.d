@@ -1731,8 +1731,9 @@ user-error, automatically move point to the command line."
 
 (defun basis/colorize-compilation ()
   "Colorize from `compilation-filter-start' to point."
-  (let ((inhibit-read-only t))
-    (ansi-color-apply-on-region compilation-filter-start (point))))
+  (unless (string-match-p "\\*grep\\*" (buffer-name))
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region compilation-filter-start (point)))))
 
 (defun basis/eshell-kill-line-backward ()
   "Kill the current line backward, respecting Eshell's prompt."
