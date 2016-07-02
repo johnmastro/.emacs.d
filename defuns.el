@@ -839,12 +839,6 @@ otherwise call `yas-insert-snippet'."
         (setq deactivate-mark t))
     (call-interactively #'eval-defun)))
 
-(defun basis/eval-last-sexp (&optional arg)
-  (interactive "P")
-  (if (eq arg '-)
-      (basis/pp-eval-last-sexp nil)
-    (eval-last-sexp arg)))
-
 (defmacro basis/with-unique-names (names &rest body)
   "Create unique names for use in a macro definition.
 This idea also goes by the name `with-gensyms` in Common Lisp."
@@ -1023,7 +1017,7 @@ Use `slime-expand-1' to produce the expansion."
   (interactive)
   (call-interactively (if (use-region-p)
                           #'cider-eval-region
-                        #'cider-eval-expression-at-point)))
+                        #'cider-eval-defun-at-point)))
 
 (defun basis/helm-clj-headlines ()
   (interactive)
@@ -1264,8 +1258,8 @@ Make double quote a string delimiter and period a symbol
 constituent. This is most effective when run as `:after' on
 `sql-highlight-product'."
   (let ((table (make-syntax-table (syntax-table))))
-    (modify-syntax-entry ?\" "\"" table)
-    (modify-syntax-entry ?. "_" table)
+    (modify-syntax-entry ?\" "\"\"  " table)
+    (modify-syntax-entry ?. "_   " table)
     (set-syntax-table table)))
 
 
@@ -1300,8 +1294,7 @@ constituent. This is most effective when run as `:after' on
 
 (defun basis/org-babel-execute-in-cider-repl ()
   (interactive)
-  (let ((body (cadr (org-babel-get-src-block-info))))
-    (cider-eval-last-sexp-to-repl body)))
+  (cider-eval-last-sexp-to-repl (cadr (org-babel-get-src-block-info))))
 
 (defun basis/move-to-next-blank-line ()
   "Move point to the next blank line."
@@ -1330,12 +1323,12 @@ If the region is not active, wrap the current line."
                  (line-end-position)))))
   (let ((beg (copy-marker beg))
         (end (copy-marker end))
-        (one-line (= (line-number-at-pos beg) (line-number-at-pos end))))
+        (one (= (line-number-at-pos beg) (line-number-at-pos end))))
     (goto-char beg)
     (insert "<" tag ">")
-    (unless one-line (newline-and-indent))
+    (unless one (newline-and-indent))
     (goto-char end)
-    (unless one-line (newline-and-indent))
+    (unless one (newline-and-indent))
     (insert "</" tag ">")
     (indent-region beg end)
     (goto-char beg)
@@ -1474,7 +1467,7 @@ numeric argument)."
 
 (put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
 
-(defun basis/sp-backward-up (&optional arg interactive)
+(defun basis/sp-backward-up (&optional arg _interactive)
   "Like `sp-backward-up-sexp' but augmented in `python-mode'.
 In `python-mode', fall back to `python-nav-backward-up-list' if
 `sp-backward-up-sexp' doesn't move point."
@@ -1635,7 +1628,7 @@ After quitting, restore the previous window configuration."
       ;; Or this? "https://github.com/%s/pull/new/%s"
       (browse-url (format "https://github.com/%s/compare/%s"
                           repo
-                          (cdr (magit-get-remote-branch))))
+                          (magit-get-upstream-branch)))
     (error "No repo or remote associated with current buffer")))
 
 (defun basis/magit-expand-toplevel (result)
@@ -1772,13 +1765,9 @@ user-error, automatically move point to the command line."
   (let ((language (or language 'c)))
     (unless (memq language '(c c++))
       (error "Unknown language `%s'" language))
-    (let* ((standard (if (eq language 'c++)
-                         "c++11"
-                       "c11"))
-           (includes (ignore-errors (basis/find-clang-includes-path language))))
-      (when includes
-        (cons (format "-std=%s" standard)
-              (basis/find-clang-includes-path language))))))
+    (when-let ((std (if (eq language 'c++) "c++11" "c11"))
+               (inc (ignore-errors (basis/find-clang-includes-path language))))
+      (cons (format "-std=%s" std) inc))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2066,7 +2055,8 @@ Only group a buffer with a VC if its visiting a file."
   "Prompt to select one of CHOICES and return the result.
 CHOICES is a list of (CHAR DESCRIPTION)."
   (let ((cursor-in-echo-area t)
-        (prompt (if (get-text-property 0 'face prompt)
+        (prompt (if (or (not prompt)
+                        (get-text-property 0 'face prompt))
                     prompt
                   (propertize prompt
                               'face
@@ -2165,17 +2155,6 @@ kill the current session even if there are multiple frames."
   (let ((dom (libxml-parse-html-region (point-min) (point-max))))
     (erase-buffer)
     (shr-insert-document dom)))
-
-(defun basis/find-tag (symbol)
-  "Like `find-tag' but try to avoid prompting."
-  (interactive (list (thing-at-point 'symbol)))
-  (cond ((equal current-prefix-arg '(4))
-         (let ((current-prefix-arg nil))
-           (call-interactively #'find-tag)))
-        ((or current-prefix-arg (null symbol))
-         (call-interactively #'find-tag))
-        (t
-         (find-tag symbol))))
 
 (defun basis/visit-tags-file-auto ()
   "Automatically find and visit a TAGS file."

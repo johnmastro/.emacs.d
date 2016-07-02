@@ -17,18 +17,13 @@
   (file-name-directory (file-chase-links (or load-file-name buffer-file-name)))
   "This Emacs's configuration directory.")
 
-(defun basis/emacs-dir (name &optional if-not-exists)
+(defun basis/emacs-dir (name &optional create)
   "Return directory NAME expanded in `basis/emacs-dir'.
-IF-NOT-EXISTS says what to do if the directory does not exist; it
-can be either `create' or `error'."
+Create the directory if it does not exist and CREATE is non-nil."
   (if (string-suffix-p "/" name)
       (let ((dir (expand-file-name name basis/emacs-dir)))
-        (unless (file-directory-p dir)
-          (pcase if-not-exists
-            (`error
-             (error "Directory does not exist: `%s'" dir))
-            (`create
-             (make-directory dir t))))
+        (when (and create (not (file-directory-p dir)))
+          (make-directory dir t))
         dir)
     ;; This isn't actually necessary but will catch places I meant to use
     ;; `basis/emacs-file' instead
@@ -606,8 +601,7 @@ can be either `create' or `error'."
 ;; Unfortunately, this one doesn't work at the terminal
 (global-set-key (kbd "C-M-;") #'basis/comment-or-uncomment-sexp)
 
-;; Eval
-(global-set-key (kbd "C-x C-e") #'basis/eval-last-sexp)
+;; Eval and replace
 (global-set-key (kbd "C-c M-e") #'basis/eval-and-replace)
 
 ;; I use M-SPC for `avy-goto-word-1'
@@ -1374,7 +1368,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :config
   (progn
     (basis/define-eval-keys emacs-lisp-mode-map
-      (last-sexp  #'basis/eval-last-sexp)
+      (last-sexp  #'eval-last-sexp)
       (definition #'eval-defun)
       (region     #'eval-region)
       (buffer     #'eval-buffer)
