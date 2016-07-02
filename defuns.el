@@ -1739,7 +1739,20 @@ user-error, automatically move point to the command line."
   (kill-region (save-excursion (eshell-bol) (point))
                (line-end-position)))
 
-(defvar basis/clang-program "clang"
+(defvar basis/clang-program
+  (or (executable-find "clang")
+      ;; Some systems have clang-N.M but not plain clang. If multiple versions
+      ;; are installed, we ideally probably want to use the most recent version.
+      ;; The right way to do that would be with a predicate to `sort' based on
+      ;; `version<'. For now, however, I deem a reverse lexicographic sort to be
+      ;; good enough.
+      (let ((regexp "\\`clang-\\([0-9]+\\.[0-9]+\\)\\'"))
+        (seq-some (lambda (dir)
+                    (when (file-directory-p dir)
+                      (let ((files (directory-files dir t regexp)))
+                        (seq-find #'file-executable-p (nreverse files)))))
+                  exec-path))
+      "clang")
   "The clang program used by `basis/find-clang-includes-path'.")
 
 (defun basis/find-clang-includes-path (&optional language)
