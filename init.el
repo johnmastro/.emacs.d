@@ -1243,8 +1243,10 @@ is read-only and empty."
                   :before-until
                   #'basis/company-no-srv-completion))
     (with-eval-after-load 'cc-mode
-      (when-let ((args (basis/build-clang-args 'c)))
+      (when-let ((prog (basis/find-clang-program))
+                 (args (basis/build-clang-args 'c)))
         (require 'company-clang)
+        (setq company-clang-executable prog)
         (setq company-clang-arguments args)
         (add-hook 'c-mode-hook #'basis/maybe-enable-company-clang)))))
 

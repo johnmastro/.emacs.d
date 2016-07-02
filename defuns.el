@@ -711,7 +711,7 @@ under \"/srv/\" (ugh)."
   "Conditionally enable `company-clang' for the current buffer."
   (when (and (buffer-file-name)
              (not (basis/file-remote-p (buffer-file-name)))
-             (executable-find "clang"))
+             (bound-and-true-p company-clang-executable))
     (add-to-list 'company-backends #'company-clang)))
 
 (defvar basis/ivy-format-selection-text
@@ -1739,7 +1739,8 @@ user-error, automatically move point to the command line."
   (kill-region (save-excursion (eshell-bol) (point))
                (line-end-position)))
 
-(defvar basis/clang-program
+(defun basis/find-clang-program ()
+  "Return the clang program to be used by `company-clang'."
   (or (executable-find "clang")
       ;; Some systems have clang-N.M but not plain clang. If multiple versions
       ;; are installed, we ideally probably want to use the most recent version.
@@ -1751,18 +1752,18 @@ user-error, automatically move point to the command line."
                     (when (file-directory-p dir)
                       (let ((files (directory-files dir t regexp)))
                         (seq-find #'file-executable-p (nreverse files)))))
-                  exec-path))
-      "clang")
-  "The clang program used by `basis/find-clang-includes-path'.")
+                  exec-path))))
 
 (defun basis/find-clang-includes-path (&optional language)
   "Return clang's #include <...> search path."
   ;; This isn't a very satisfactory solution but it's "good enough"
-  (let ((language (or language 'c)))
+  (let ((language (or language 'c))
+        (program (or (bound-and-true-p company-clang-executable)
+                     (basis/find-clang-program))))
     (unless (memq language '(c c++))
       (error "Unknown language `%s'" language))
     (with-temp-buffer
-      (apply #'call-process basis/clang-program nil t nil
+      (apply #'call-process program nil t nil
              (list "-E" (if (eq language 'c++) "-xc++" "-xc") "-" "-v"))
       (goto-char (point-min))
       (re-search-forward "^#include <\\.\\.\\.> search starts here:$")
