@@ -256,15 +256,7 @@ Create the directory if it does not exist and CREATE is non-nil."
               #'basis/init-eval-expression-minibuffer)))
 
 (use-package mule
-  :config
-  (let ((fns (list #'prefer-coding-system
-                   #'set-default-coding-systems
-                   #'set-terminal-coding-system
-                   #'set-keyboard-coding-system
-                   #'set-language-environment
-                   #'set-selection-coding-system)))
-    (dolist (fn (if (eq system-type 'windows-nt) (butlast fns) fns))
-      (funcall fn 'utf-8))))
+  :config (prefer-coding-system 'utf-8))
 
 (defun basis/maybe-set-coding ()
   (when (and (eq system-type 'windows-nt)
