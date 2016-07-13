@@ -144,11 +144,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   :if (eq window-system 'ns)
   :config (exec-path-from-shell-initialize))
 
-(defvar basis/system-type
-  (if (and (eq system-type 'windows-nt)
-           (file-executable-p "c:/bin/bash.exe"))
-      'windows+cygwin
-    system-type)
+(defvar basis/system-type system-type
   "Like `system-type' but with the additional option `windows+cygwin'.")
 
 (defvar basis/cygwin-path-directories
@@ -157,17 +153,17 @@ Create the directory if it does not exist and CREATE is non-nil."
   "Directories to add to PATH on Cygwin.")
 
 (defun basis/init-for-cygwin ()
-  (let* ((dirs (seq-filter #'file-directory-p basis/cygwin-path-directories))
-         (home (getenv "HOME"))
-         (home/bin (and home (concat (basis/windows->unix home)
-                                     "/bin"))))
-    (when (and home (file-directory-p home) (not after-init-time))
+  (let* ((home (basis/windows->unix (or (getenv "HOME")
+                                        (error "HOME not defined"))))
+         (home/bin (concat (basis/windows->unix home)
+                           (unless (string-suffix-p "/" home) "/")
+                           "bin"))
+         (path (cons home/bin basis/cygwin-path-directories)))
+    (when (and (file-directory-p home) (not after-init-time))
       (cd home))
-    (when (and home/bin (file-directory-p home/bin))
-      (push home/bin dirs))
     ;; Set paths
-    (setenv "PATH" (mapconcat #'identity dirs ":"))
-    (setq exec-path (mapcar (lambda (dir) (concat "c:" dir)) dirs))
+    (setenv "PATH" (mapconcat #'identity path ":"))
+    (setq exec-path (mapcar (lambda (dir) (concat "c:" dir)) path))
     ;; Use zsh or bash as shell
     (let ((shell (or (executable-find "zsh")
                      (executable-find "bash"))))
@@ -181,10 +177,15 @@ Create the directory if it does not exist and CREATE is non-nil."
     ;; unless we fix it.
     (setenv "LANG" "en_US.UTF-8")
     (advice-add 'shell-quote-argument :filter-args
-                #'basis/cygwin-shell-quote-argument)))
+                #'basis/cygwin-shell-quote-argument)
+    (setq basis/system-type 'windows+cygwin)))
 
-(when (eq basis/system-type 'windows+cygwin)
-  (basis/init-for-cygwin))
+(when (and (eq system-type 'windows-nt)
+           (file-executable-p "c:/bin/bash.exe"))
+  (condition-case err (basis/init-for-cygwin)
+    (error (let* ((str (error-message-string err))
+                  (msg (concat "Cygwin init failed (" str ")")))
+             (display-warning :warning msg)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
