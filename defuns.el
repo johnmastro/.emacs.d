@@ -763,17 +763,15 @@ If called with a negative argument, temporarily invert
 
 (defun basis/helm-open-file-w32 (file)
   ;; Used as :override advice to `helm-open-file-externally' on Windows
-  (let* ((operation (and helm-current-prefix-arg
-                         (helm-comp-read
-                          "Operation: "
-                          basis/helm-w32-shell-operations
-                          :must-match t
-                          :name "Open file externally"
-                          :del-input nil)))
-         (operation (if (string= operation "default")
-                        nil
-                      operation)))
-    (w32-shell-execute operation (expand-file-name file))))
+  (let ((operation (and helm-current-prefix-arg
+                        (helm-comp-read
+                         "Operation: "
+                         basis/helm-w32-shell-operations
+                         :must-match t
+                         :name "Open file externally"
+                         :del-input nil))))
+    (w32-shell-execute (unless (string= operation "default") operation)
+                       (expand-file-name file))))
 
 (defun basis/open-file-externally (files)
   "Open FILES externally.
@@ -802,6 +800,15 @@ file(s) to open with `helm-read-file-name'."
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action #'magit-status)))
+
+(defun basis/insert-file-name (file)
+  "Read FILE with `helm' and insert it in the current buffer.
+Intended for use in `minibuffer-local-shell-command-map'."
+  (interactive (list (helm-read-file-name "File: ")))
+  (let ((file (abbreviate-file-name file)))
+    (insert (if (file-directory-p file)
+                (file-name-as-directory file)
+              file))))
 
 (defun basis/helm-pages-get-next-header ()
   "Alternative implementation of `helm-pages-get-next-header'.

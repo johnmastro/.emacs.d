@@ -247,8 +247,10 @@ Create the directory if it does not exist and CREATE is non-nil."
     (setq line-number-mode t)
     (setq column-number-mode t)
     (setq next-line-add-newlines t)
-    (size-indication-mode)
     (advice-add 'next-line :around #'basis/next-line-no-deactivate-mark)
+    (size-indication-mode)
+    (let ((map minibuffer-local-shell-command-map))
+      (define-key map (kbd "C-.") #'basis/insert-file-name))
     ;; Keep popping the mark until point actually moves
     (advice-add 'pop-to-mark-command
                 :around
