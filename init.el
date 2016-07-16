@@ -1245,9 +1245,9 @@ is read-only and empty."
 
 (use-package company-statistics
   :ensure t
-  :config (progn (setq company-statistics-file
-                       (basis/emacs-file "var/company-statistics-cache.el"))
-                 (add-hook 'after-init-hook #'company-statistics-mode t)))
+  :config (let ((file (basis/emacs-file "var/company-statistics-cache.el")))
+            (setq company-statistics-file file)
+            (add-hook 'after-init-hook #'company-statistics-mode t)))
 
 (use-package company-emoji
   :ensure t
@@ -2145,20 +2145,29 @@ Move forward by a line and indent if invoked directly between."
            (advice-add 'ispell-init-process :around
                        #'basis/ispell-init-process))))
 
-(basis/define-map basis/flycheck-map (basis/ctl-h-map "l")
-  ("c"   #'flycheck-buffer)
-  ("n"   #'flycheck-next-error)
-  ("p"   #'flycheck-previous-error)
-  ("l"   #'flycheck-list-errors)
-  ("s"   #'flycheck-select-checker)
-  ("C"   #'flycheck-clear)
-  ("SPC" #'basis/flycheck-check-and-list-errors)
-  ("h"   #'helm-flycheck))
+(use-package flyspell
+  :defer t
+  :config (basis/define-keys flyspell-mode-map
+            ("C-,"  nil)   ; `flyspell-goto-next-error'
+            ("C-."  nil)   ; `flyspell-auto-correct-word' (also on C-M-i)
+            ("C-;"  nil)   ; `flyspell-auto-correct-previous-word'
+            ("C-:"  #'flyspell-goto-next-error)
+            ("C-\"" #'flyspell-auto-correct-previous-word)))
 
 (use-package flycheck
   :ensure t
   :defer t
-  :init (global-set-key (kbd "<f8>")  #'basis/flycheck-check-and-list-errors)
+  :init (progn
+          (global-set-key (kbd "<f8>")  #'basis/flycheck-check-and-list-errors)
+          (basis/define-map basis/flycheck-map (basis/ctl-h-map "l")
+            ("c"   #'flycheck-buffer)
+            ("n"   #'flycheck-next-error)
+            ("p"   #'flycheck-previous-error)
+            ("l"   #'flycheck-list-errors)
+            ("s"   #'flycheck-select-checker)
+            ("C"   #'flycheck-clear)
+            ("SPC" #'basis/flycheck-check-and-list-errors)
+            ("h"   #'helm-flycheck)))
   :config (progn
             (setq flycheck-check-syntax-automatically nil)
             (unless (basis/libxml-available-p)
