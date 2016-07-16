@@ -685,9 +685,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key (kbd "C-x C-z") #'repeat)
 
-(basis/define-map basis/ctl-h-map ("C-h")
-  ("C-h" #'mark-paragraph))
-
 (defvar basis/eval-keys
   '((last-sexp  . "C-x C-e")
     (definition . "C-M-x")
@@ -1225,7 +1222,6 @@ is read-only and empty."
       ("<C-f1>" #'company-show-location)
       ("<M-f1>" #'company-show-location)
       ("C-w"    nil)
-      ("C-h"    nil)
       ("RET"    nil)
       ([return] nil))
     (set-default
@@ -1613,7 +1609,7 @@ Use `paredit' in these modes rather than `smartparens'.")
       ("DEL"     #'basis/sp-python-backspace)
       ("C-c C-D" #'python-eldoc-at-point)
       ("C-c C-p" #'basis/run-python)
-      ("C-h C-p" #'basis/insert-python-docstring-quotes))
+      ("C-c '"   #'basis/insert-python-docstring-quotes))
     (add-hook 'python-mode-hook #'basis/init-python-mode)
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
     ;; Jedi has 2 Python dependencies: jedi and epc
@@ -2166,16 +2162,15 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t
   :init (progn
-          (global-set-key (kbd "<f8>")  #'basis/flycheck-check-and-list-errors)
-          (basis/define-map basis/flycheck-map (basis/ctl-h-map "l")
-            ("c"   #'flycheck-buffer)
-            ("n"   #'flycheck-next-error)
-            ("p"   #'flycheck-previous-error)
-            ("l"   #'flycheck-list-errors)
-            ("s"   #'flycheck-select-checker)
-            ("C"   #'flycheck-clear)
-            ("SPC" #'basis/flycheck-check-and-list-errors)
-            ("h"   #'helm-flycheck)))
+          (basis/define-map basis/flycheck-map ("<f8>")
+            ("c"    #'flycheck-buffer)
+            ("n"    #'flycheck-next-error)
+            ("p"    #'flycheck-previous-error)
+            ("l"    #'flycheck-list-errors)
+            ("s"    #'flycheck-select-checker)
+            ("C"    #'flycheck-clear)
+            ("<f8>" #'basis/flycheck-check-and-list-errors)
+            ("h"    #'helm-flycheck)))
   :config (progn
             (setq flycheck-check-syntax-automatically nil)
             (unless (basis/libxml-available-p)
@@ -2384,7 +2379,7 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :config
   (progn
-    (setq projectile-keymap-prefix (kbd "C-h p"))
+    (setq projectile-keymap-prefix (kbd "C-c p"))
     (setq projectile-completion-system 'helm)
     (setq projectile-known-projects-file
           (basis/emacs-file "var/projectile-bookmarks.eld"))
