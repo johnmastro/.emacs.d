@@ -1109,6 +1109,7 @@ is read-only and empty."
 
 (use-package helm-command
   :defer t
+  :after helm
   :init (global-set-key (kbd "M-x") #'helm-M-x)
   :config (setq helm-M-x-fuzzy-match t))
 
@@ -1164,10 +1165,6 @@ is read-only and empty."
             (advice-add 'helm-open-file-externally
                         :override
                         #'basis/helm-open-file-w32)))
-
-;; To prevent a delay the first time I use M-x
-(when (eq (key-binding (kbd "M-x")) #'helm-M-x)
-  (require 'helm-command))
 
 (use-package helm-grep
   :defer t)
