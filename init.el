@@ -1200,6 +1200,12 @@ is read-only and empty."
   :ensure swiper
   :config
   (progn (setq ivy-format-function #'ivy-format-function-arrow)
+         (basis/define-keys ivy-minibuffer-map
+           ("C-r"     #'ivy-previous-line-or-history)
+           ("<up>"    #'ivy-previous-line-or-history)
+           ("<left>"  #'ivy-previous-line-or-history)
+           ("<down>"  #'ivy-next-line-or-history)
+           ("<right>" #'ivy-next-line-or-history))
          (define-key ivy-minibuffer-map (kbd "C-r") #'ivy-previous-line)))
 
 (use-package counsel
