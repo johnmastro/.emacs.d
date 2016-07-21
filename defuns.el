@@ -1273,36 +1273,6 @@ constituent. This is most effective when run as `:after' on
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Text, markup, and configuration modes
 
-(defun basis/process-clojure-output (s)
-  (mapconcat (lambda (line)
-               (thread-last line
-                 (string-remove-suffix "\r")
-                 (concat ";; ")))
-             (split-string (string-remove-suffix "\n" s) "\n")
-             "\n"))
-
-(defun basis/org-babel-execute:clojure (body _params)
-  (let* ((result (nrepl-sync-request:eval body (cider-current-ns)))
-         (value (plist-get result :value))
-         (stdout (when-let ((s (plist-get result :stdout)))
-                   (basis/process-clojure-output s)))
-         (stderr (when-let ((s (plist-get result :stderr)))
-                   (basis/process-clojure-output s)))
-         (output (concat stdout
-                         (when (and stdout (not (string-suffix-p "\n" stdout)))
-                           "\n")
-                         stderr)))
-    (concat output
-            (when (and output
-                       (not (string= output ""))
-                       (not (string-suffix-p "\n" output)))
-              "\n")
-            (when value (concat ";;=> " value)))))
-
-(defun basis/org-babel-execute-in-cider-repl ()
-  (interactive)
-  (cider-eval-last-sexp-to-repl (cadr (org-babel-get-src-block-info))))
-
 (defun basis/move-to-next-blank-line ()
   "Move point to the next blank line."
   (interactive)

@@ -1908,26 +1908,17 @@ Use `paredit' in these modes rather than `smartparens'.")
     (setq org-structure-template-alist
           (mapcar (pcase-lambda (`(,key ,val)) (list key (downcase val)))
                   org-structure-template-alist))
-    (require 'ob)
-    (require 'ob-tangle)
-    (require 'ob-clojure)
     (org-babel-do-load-languages
      'org-babel-load-languages
-     '((C          . t)
-       (clojure    . t)
-       (emacs-lisp . t)
-       (haskell    . t)
-       (python     . t)
-       (scheme     . t)
-       (shell      . t)))))
-
-(use-package ob-tangle
-  :defer t
-  :config (add-to-list 'org-babel-tangle-lang-exts '("clojure" . "clj")))
+     (mapcar (lambda (sym) (cons sym t))
+             (cons (if (locate-file "ob-shell" load-path '(".el" ".el.gz"))
+                       'shell
+                     'sh)
+                   '(C clojure emacs-lisp haskell python scheme))))))
 
 (use-package ob-clojure
   :defer t
-  :config (fset 'org-babel-execute:clojure #'basis/org-babel-execute:clojure))
+  :config (setq org-babel-clojure-backend 'cider))
 
 (defun basis/init-simplezen ()
   (setq-local yas-fallback-behavior
