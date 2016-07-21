@@ -2271,6 +2271,10 @@ Move forward by a line and indent if invoked directly between."
   :ensure t
   :defer t)
 
+(use-package git-commit
+  :ensure t
+  :config (global-git-commit-mode))
+
 (use-package gitattributes-mode
   :ensure t
   :defer t)
