@@ -1,4 +1,4 @@
-;;; minimal.el     -*- coding: utf-8; lexical-binding: t; no-byte-compile: t -*-
+;;; minimal.el     -*- coding: utf-8; no-byte-compile: t -*-
 
 ;; Something not quite `emacs -Q'
 
@@ -10,19 +10,19 @@
     (when (fboundp mode)
       (funcall mode -1))))
 
-(setq load-prefer-newer t
-      visible-bell t
-      inhibit-default-init t
-      inhibit-startup-screen t
-      inhibit-startup-message t
-      initial-scratch-message nil
-      indicate-empty-lines t
-      delete-by-moving-to-trash t
-      enable-recursive-minibuffers t)
+(setq load-prefer-newer t)
+(setq visible-bell t)
+(setq inhibit-default-init t)
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-message t)
+(setq initial-scratch-message nil)
+(setq indicate-empty-lines t)
+(setq delete-by-moving-to-trash t)
+(setq enable-recursive-minibuffers t)
 
-(setq-default indent-tabs-mode nil
-              fill-column 80
-              truncate-lines t)
+(setq-default indent-tabs-mode nil)
+(setq-default fill-column 80)
+(setq-default truncate-lines t)
 
 (fset 'display-startup-echo-area-message #'ignore)
 
@@ -35,10 +35,22 @@
 
 (global-set-key (kbd "M-o") #'other-window)
 
-(defun load-some-essentials ()
+(defun load-some-code ()
   "Load some essential libraries."
   (require 'subr-x)
   (require 'cl-lib)
   (require 'seq)
   (require 'map)
   (require 'pcase))
+
+(defun load-solarized ()
+  "Load the \"solarized\" theme."
+  (package-initialize)
+  (set-frame-parameter nil 'background-mode 'dark)
+  (set-terminal-parameter nil 'background-mode 'dark)
+  (setq solarized-termcolors 256)
+  (setq solarized-italic nil)
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized-moar/")
+  (load-theme 'solarized t)
+  (load-theme 'solarized-moar t))
+
