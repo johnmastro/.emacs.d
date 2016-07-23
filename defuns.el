@@ -658,6 +658,13 @@ in the global map."
                          (lookup-key global-map (this-command-keys)))))
       (call-interactively cmd))))
 
+(defun basis/grep-use-bash (original &rest args)
+  "Advice for `lgrep'.
+Invoke grep via bash, since zsh signals an error if there are any
+non-matching patterns. See bug #23590."
+  (let ((shell-file-name (executable-find "bash")))
+    (apply original args)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Completion

@@ -940,10 +940,7 @@ is read-only and empty."
   (progn
     ;; Work around bug #23590
     (when (string-match-p "zsh" shell-file-name)
-      (setq grep-files-aliases
-            (cons '("all" . "* .[^.]* ..?*")
-                  (seq-remove (lambda (elt) (equal (car elt) "all"))
-                              grep-files-aliases))))
+      (advice-add 'lgrep :around #'basis/grep-use-bash))
     ;; Add some more file aliases
     (pcase-dolist (`(,alias . ,files)
                    '(("clj" . "*.clj *.cljs *.cljc")
