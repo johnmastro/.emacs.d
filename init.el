@@ -75,6 +75,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Load some code
 
+(setq use-package-enable-imenu-support t)
+
 (require 'use-package)
 
 (use-package auto-compile
