@@ -550,8 +550,8 @@ if the region is active, defer to `insert-parenthesis'."
   (if (and (equal arg '(4))
            (not (use-region-p)))
       (let ((beg (point)))
-        (skip-syntax-forward " ")
-        (while (not (looking-at-p "[[:space:]]\\|$"))
+        (skip-chars-forward "[:blank:]")
+        (while (not (looking-at-p "[[:blank:]]\\|$"))
           (forward-sexp 1))
         (insert ")")
         (goto-char beg)
@@ -698,7 +698,7 @@ no matches."
     (`shell-mode
      (and (eq system-type 'windows-nt)
           (save-excursion
-            (skip-syntax-backward "^ ")
+            (skip-chars-backward "^[:blank:]")
             (looking-at-p "\\(\\w+@\\)?\\w\\{2,\\}:"))))
     (`sh-mode
      (save-excursion
@@ -711,7 +711,7 @@ For use on a particular host - prevent completion of directories
 under \"/srv/\" (ugh)."
   (and (eq major-mode 'shell-mode)
        (save-excursion
-         (skip-syntax-backward "^ ")
+         (skip-chars-backward "^[:blank:]")
          (looking-at-p "/srv/"))))
 
 (defun basis/maybe-enable-company-clang ()
@@ -865,7 +865,7 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 (defun basis/bug-number-at-point ()
   "Return the bug number at point, if any, as a string."
   (save-excursion
-    (skip-syntax-backward "^ " (line-beginning-position))
+    (skip-chars-backward "^[:blank:]" (line-beginning-position))
     (when (looking-at "#?\\([0-9]+\\)")
       (match-string 1))))
 
@@ -1085,7 +1085,7 @@ delete all whitespace backward. Use `sp-backward-delete-char' if
     (pcase-let ((`(,spaces ,stuff)
                  (let ((start (point)))
                    (save-excursion
-                     (skip-syntax-backward " " (line-beginning-position))
+                     (skip-chars-backward "[:blank:]" (line-beginning-position))
                      (list (- start (point)) (not (bolp)))))))
       (if (and basis/sql-backspace-dedent-hungrily (null n) stuff (> spaces 0))
           (progn (delete-horizontal-space t)
@@ -1179,7 +1179,7 @@ With arg N, move backward that many times."
                     (not (and (looking-at-p sql-ansi-statement-starters)
                               (save-excursion
                                 (forward-line -1)
-                                (looking-at-p  "^[[:space:]]*$")))))
+                                (looking-at-p "^[[:blank:]]*$")))))
           'keep-going)
       (let ((start (point)))
         (while (and (cadr state)
@@ -1197,10 +1197,10 @@ With arg N, move backward that many times."
     (if (= (car state) 0)
         ;; TODO: Lose the assumption that statements never contain blank lines
         (progn
-          (while (and (looking-at "^[[:space:]]*$")
+          (while (and (looking-at "^[[:blank:]]*$")
                       (not (eobp)))
             (forward-line 1))
-          (while (and (not (looking-at "^[[:space:]]*$"))
+          (while (and (not (looking-at "^[[:blank:]]*$"))
                       (not (eobp)))
             (forward-line 1)))
       ;; Seems a bit unfortunate to have to find the beginning of the defun in
@@ -1241,8 +1241,8 @@ With arg N, move backward that many times."
 
 ;; There's probably a better way to do this
 (defvar basis/transact-sql-regexps
-  '("^\\(use[[:space:]]+\[?[\\sw_]+]?;?\\|go\\)[[:space:]]*$"
-    "\\(^\\|[[:space:]]\\)object_id(")
+  '("^\\(use[[:blank:]]+\[?[\\sw_]+]?;?\\|go\\)[[:blank:]]*$"
+    "\\(^\\|[[:blank:]]\\)object_id(")
   "Regular expressions to identify Transact-SQL constructs.")
 
 (defun basis/sql-guess-product ()
@@ -1284,17 +1284,17 @@ constituent. This is most effective when run as `:after' on
   "Move point to the next blank line."
   (interactive)
   (let ((inhibit-changing-match-data t))
-    (skip-syntax-forward " >")
-    (unless (re-search-forward "^\\s *$" nil t)
-      (goto-char (point-max)))))
+    (skip-chars-forward "[:blank:]")
+    (or (re-search-forward "^[[:blank:]]*$" nil t)
+        (goto-char (point-max)))))
 
 (defun basis/move-to-previous-blank-line ()
   "Move point to the previous blank line."
   (interactive)
   (let ((inhibit-changing-match-data t))
-    (skip-syntax-backward " >")
-    (unless (re-search-backward "^\\s *$" nil t)
-      (goto-char (point-min)))))
+    (skip-chars-backward "[:blank:]")
+    (or (re-search-backward "^[[:blank:]]*$" nil t)
+        (goto-char (point-min)))))
 
 (defun basis/html-wrap-in-tag (tag beg end)
   "Wrap the selected region in TAG.
@@ -1757,7 +1757,7 @@ user-error, automatically move point to the command line."
                   (progn (re-search-forward "^End of search list\\.$")
                          (line-beginning-position)))))
         (seq-filter #'file-directory-p
-                    (split-string str "\n" t "[[:space:]]+"))))))
+                    (split-string str "\n" t "[[:blank:]]+"))))))
 
 (defun basis/build-clang-args (&optional language)
   (let ((language (or language 'c)))
