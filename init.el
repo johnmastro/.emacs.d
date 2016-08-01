@@ -1061,10 +1061,11 @@ is read-only and empty."
             (set-face-attribute 'helm-source-header nil :height 1.0)))
 
 (use-package helm-adaptive
+  :defer t
   :config
   (progn (setq helm-adaptive-history-file
                (basis/emacs-file "var/helm-adaptive-history"))
-         (helm-adaptive-mode)))
+         (and nil (helm-adaptive-mode)))) ; Not enabled
 
 (use-package helm-mode
   :diminish helm-mode
