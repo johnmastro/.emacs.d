@@ -522,8 +522,6 @@ Create the directory if it does not exist and CREATE is non-nil."
    (setq mac-option-modifier 'super))
   (`windows-nt
    (setq w32-pass-apps-to-system nil)
-   (setq w32-pass-lwindow-to-system nil)
-   (setq w32-pass-rwindow-to-system nil)
    (setq w32-lwindow-modifier 'super)
    (setq w32-rwindow-modifier 'super)))
 
