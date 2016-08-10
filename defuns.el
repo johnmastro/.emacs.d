@@ -1670,6 +1670,41 @@ representation before comparing them."
       (magit-refresh)
     (error "Unable to pop stash")))
 
+(defun basis/magit-show-commit (hash project-directory)
+  "Show the commit with HASH in PROJECT-DIRECTORY.
+When called interactively, HASH defaults to the hash at point (if
+any) and PROJECT-DIRECTORY defaults to the current `projectile'
+project."
+  (interactive
+   (list (if (save-excursion (skip-chars-backward "A-z0-9")
+                             (looking-at "\\b[A-z0-9]\\{4,40\\}\\b"))
+             (match-string-no-properties 0)
+           (user-error "No commit hash at point"))
+         (if (or current-prefix-arg (not (projectile-project-p)))
+             (completing-read "Project: " (projectile-relevant-known-projects))
+           (projectile-project-root))))
+  (let ((default-directory project-directory))
+    (magit-show-commit hash (car (magit-diff-arguments)))))
+
+(defun basis/magit-shorten-hash (&optional n)
+  "Shorten the hash at point to N characters.
+N must be between 4 and 40 and defaults to the result of calling
+`magit-abbrev-length'."
+  (interactive
+   (list (and current-prefix-arg (prefix-numeric-value current-prefix-arg))))
+  (let ((n (or n (magit-abbrev-length))))
+    (unless (<= 4 n 40)
+      (user-error "Hash must be between 4 and 40 characters"))
+    (save-excursion
+      (skip-chars-backward "A-z0-9")
+      (if (looking-at "\\b[A-z0-9]\\{5,40\\}\\b")
+          (let* ((hash (match-string 0))
+                 (len (length hash)))
+            (when (< len n)
+              (user-error "Desired hash length is greater than current"))
+            (replace-match (substring hash 0 n) 'fixedcase))
+        (user-error "No hash at point")))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
