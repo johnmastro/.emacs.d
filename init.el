@@ -942,6 +942,7 @@ is read-only and empty."
   :defer t
   :config
   (progn
+    (grep-apply-setting 'grep-command "grep --color=always -inHE -e ")
     ;; Work around bug #23590
     (when (string-match-p "zsh" shell-file-name)
       (advice-add 'lgrep :around #'basis/grep-use-bash))
