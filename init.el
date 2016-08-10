@@ -865,6 +865,10 @@ is read-only and empty."
                  (setq aw-scope 'frame)
                  (advice-add 'ace-window :around #'basis/ace-window-kludge)))
 
+(use-package ace-link
+  :ensure t
+  :config (ace-link-setup-default))
+
 (use-package jump-char
   :ensure t
   :defer t
