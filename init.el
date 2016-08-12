@@ -1619,8 +1619,11 @@ Use `paredit' in these modes rather than `smartparens'.")
       (add-hook 'python-mode-hook #'jedi:setup))
     (when (eq system-type 'windows-nt)
       ;; Use the launcher when available
-      (when (executable-find "py")
-        (setq python-shell-interpreter "py"))
+      (when-let ((python (cond ((executable-find "py")
+                                "py")
+                               ((file-executable-p "c:/Python27/python.exe")
+                                "c:/Python27/python.exe"))))
+        (setq python-shell-interpreter python))
       ;; Hopefully-temporary workaround
       (when (boundp 'python-shell-completion-native-enable)
         (setq python-shell-completion-native-enable nil)))))
