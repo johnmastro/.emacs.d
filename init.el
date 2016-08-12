@@ -1580,6 +1580,10 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :config (add-hook 'geiser-repl-mode-hook #'basis/init-lisp-generic))
 
+(use-package racket-mode
+  :ensure t
+  :defer t)
+
 (defun basis/init-python-mode ()
   (subword-mode)
   (basis/maybe-enable-flycheck)
