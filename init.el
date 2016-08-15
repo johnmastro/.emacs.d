@@ -368,8 +368,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package saveplace
   :config
-  (setq-default save-place t)
-  (setq save-place-file (basis/emacs-file "var/places")))
+  (progn (setq save-place-file (basis/emacs-file "var/places"))
+         (save-place-mode)))
 
 (use-package savehist
   :config
