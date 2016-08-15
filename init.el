@@ -235,9 +235,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package custom
   :config
-  (progn (setq custom-file (basis/emacs-file "custom.el"))
-         (when (file-exists-p custom-file)
-           (load custom-file))))
+  (when (file-exists-p (setq custom-file (basis/emacs-file "custom.el")))
+    (load custom-file)))
 
 (defun basis/init-eval-expression-minibuffer ()
   (setq-local indent-line-function #'lisp-indent-line))
@@ -462,15 +461,6 @@ Create the directory if it does not exist and CREATE is non-nil."
                        (basis/emacs-dir "themes/solarized-moar/")))
   :config (progn (load-theme 'solarized t)
                  (load-theme 'solarized-moar t)))
-
-(defun basis/get-frame-title ()
-  "Return a frame title including the current project directory."
-  (if-let ((file buffer-file-name))
-      (concat (abbreviate-file-name file)
-              (when (and (bound-and-true-p projectile-mode)
-                         (projectile-project-p))
-                (format " [%s]" (projectile-project-name))))
-    "%b"))
 
 (when (display-graphic-p)
   (setq frame-title-format '((:eval (basis/get-frame-title)))))
@@ -818,8 +808,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package visual-regexp
   :ensure t
-  :init (defalias 'vqr #'vr/query-replace)
-  :defer t)
+  :defer t
+  :init (defalias 'vqr #'vr/query-replace))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -839,18 +829,6 @@ TODO: <home> and <end> still don't work.")
   (progn (setq avy-keys '(?a ?s ?d ?e ?f ?h ?j ?k ?l ?n ?m ?u ?i))
          (setq avy-style 'pre)
          (advice-add 'avy-push-mark :after #'basis/push-mark-noactivate)))
-
-(defun basis/ace-window-kludge (original arg)
-  "Advice for `ace-window'.
-Ensure it always works with two windows, even when one (or both)
-is read-only and empty."
-  (if (and (eq aw-scope 'frame)
-           (= (length (window-list)) 2))
-      (pcase arg
-        (4  (basis/transpose-windows 1))
-        (16 (delete-other-windows))
-        (_  (other-window 1)))
-    (funcall original arg)))
 
 (use-package ace-window
   :ensure t
@@ -1407,10 +1385,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   :config (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t)
   :diminish redshank-mode)
 
-(defun basis/start-slime ()
-  (unless (slime-connected-p)
-    (save-excursion (slime))))
-
 (use-package slime
   :ensure t
   :defer t
@@ -1933,10 +1907,6 @@ Use `paredit' in these modes rather than `smartparens'.")
   (setq tab-width 4)
   (tagedit-mode))
 
-(defun basis/sgml-delete-tag-reindent (&rest _ignore)
-  "Advice for `sgml-delete-region' to reindent the buffer."
-  (indent-region (point-min) (point-max)))
-
 (use-package sgml-mode
   :defer t
   :config
@@ -1951,15 +1921,6 @@ Use `paredit' in these modes rather than `smartparens'.")
     (add-hook 'sgml-mode-hook #'basis/init-simplezen)
     (add-hook 'html-mode-hook #'basis/init-html-mode)
     (advice-add 'sgml-delete-tag :after #'basis/sgml-delete-tag-reindent)))
-
-(defun basis/tagedit-toggle-multiline-maybe-forward (original &rest args)
-  "Advice for `tagedit-toggle-multiline-tag'.
-Move forward by a line and indent if invoked directly between."
-  (let ((move-forward-p (and (eq (char-before) ?>) (eq (char-after) ?<))))
-    (apply original args)
-    (when move-forward-p
-      (forward-line 1)
-      (indent-according-to-mode))))
 
 (use-package tagedit
   :ensure t

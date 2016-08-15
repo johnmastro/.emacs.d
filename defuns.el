@@ -569,6 +569,22 @@ if the region is active, defer to `insert-parenthesis'."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Movement
+
+(defun basis/ace-window-kludge (original arg)
+  "Advice for `ace-window'.
+Ensure it always works with two windows, even when one (or both)
+is read-only and empty."
+  (if (and (eq aw-scope 'frame)
+           (= (length (window-list)) 2))
+      (pcase arg
+        (4  (basis/transpose-windows 1))
+        (16 (delete-other-windows))
+        (_  (other-window 1)))
+    (funcall original arg)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
 (defun basis/isearch-backspace (&optional _arg)
@@ -1296,6 +1312,10 @@ constituent. This is most effective when run as `:after' on
     (or (re-search-backward "^[[:blank:]]*$" nil t)
         (goto-char (point-min)))))
 
+(defun basis/sgml-delete-tag-reindent (&rest _ignore)
+  "Advice for `sgml-delete-region' to reindent the buffer."
+  (indent-region (point-min) (point-max)))
+
 (defun basis/html-wrap-in-tag (tag beg end)
   "Wrap the selected region in TAG.
 If the region is not active, wrap the current line."
@@ -1330,6 +1350,15 @@ If the region is not active, wrap the current line."
   (interactive)
   (simplezen-expand)
   (basis/html-newline-and-indent))
+
+(defun basis/tagedit-toggle-multiline-maybe-forward (original &rest args)
+  "Advice for `tagedit-toggle-multiline-tag'.
+Move forward by a line and indent if invoked directly between."
+  (let ((move-forward-p (and (eq (char-before) ?>) (eq (char-after) ?<))))
+    (apply original args)
+    (when move-forward-p
+      (forward-line 1)
+      (indent-according-to-mode))))
 
 (defun basis/yaml-multiple-docs-p ()
   "Return non-nil if the buffer contains a multiple-document stream."
@@ -2068,6 +2097,15 @@ Only group a buffer with a VC if its visiting a file."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
+
+(defun basis/get-frame-title ()
+  "Return a frame title including the current project directory."
+  (if-let ((file buffer-file-name))
+      (concat (abbreviate-file-name file)
+              (when (and (bound-and-true-p projectile-mode)
+                         (projectile-project-p))
+                (format " [%s]" (projectile-project-name))))
+    "%b"))
 
 (defun basis/disable-themes (&optional themes)
   "Disable THEMES (defaults to `custom-enabled-themes')."
