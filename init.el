@@ -585,10 +585,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("M-w" #'basis/transpose-windows)
   ("M-s" #'basis/toggle-window-split))
 
-;; More comfortable {next,previous}-error
-(global-set-key (kbd "M-n") #'next-error)
-(global-set-key (kbd "M-p") #'previous-error)
-
 ;; Comment/uncomment stuff
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
 (global-set-key (kbd "C-x ;") #'basis/comment-region-lines)
