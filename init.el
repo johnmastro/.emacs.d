@@ -2553,7 +2553,7 @@ Use `paredit' in these modes rather than `smartparens'.")
     (setq emms-source-file-default-directory
           (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
             (seq-mapcat (lambda (dir) (list dir (downcase dir))))
-            (seq-some (lambda (dir) (and (file-directory-p dir) dir)))))))
+            (seq-find #'file-directory-p)))))
 
 (use-package emms-setup
   :defer t
@@ -2638,9 +2638,8 @@ Use `paredit' in these modes rather than `smartparens'.")
                                      "html2text -utf8 -width 72"
                                    #'basis/shr-html2text))
     ;; Where to save attachments
-    (let ((dir (seq-some (lambda (dir) (and (file-directory-p dir) dir))
-                         '("~/downloads" "~/Downloads" "~/"))))
-      (setq mu4e-attachment-dir dir))
+    (let ((dirs '("~/downloads" "~/Downloads" "~/")))
+      (setq mu4e-attachment-dir (seq-find #'file-directory-p dirs)))
     ;; Composing messages
     (setq mu4e-reply-to-address "jbm@jbm.io")
     (setq mu4e-sent-messages-behavior 'delete)
