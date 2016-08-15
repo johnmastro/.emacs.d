@@ -1990,10 +1990,16 @@ Use `paredit' in these modes rather than `smartparens'.")
                                   (eq (car-safe (cdr elt)) 'csv-mode)))
                             auto-mode-alist)))
 
+(defun basis/init-ssh-config-mode ()
+  (setq-local tab-stop-list nil)
+  (setq-local tab-width 4))
+
 (use-package ssh-config-mode
   :ensure t
   :defer t
-  :mode (".ssh/config\\'"  "sshd?_config\\'"))
+  :config
+  (progn (add-hook 'ssh-config-mode-hook #'basis/init-ssh-config-mode)
+         (define-key ssh-config-mode-map (kbd "TAB") #'tab-to-tab-stop)))
 
 (use-package css-mode
   :defer t
