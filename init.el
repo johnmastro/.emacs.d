@@ -569,8 +569,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;; Copy stuff
 (basis/define-keys global-map
   ("M-w"    #'basis/kill-ring-save-something)
-  ("<f2>"   #'basis/clipboard-save-something)
-  ("s-w"    #'basis/kill-ring-save-indented))
+  ("<f2>"   #'basis/clipboard-save-something))
 
 ;; Join lines
 (basis/define-keys global-map
