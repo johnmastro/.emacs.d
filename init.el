@@ -154,7 +154,17 @@ Create the directory if it does not exist and CREATE is non-nil."
     "/Windows" "/ProgramData/Oracle/Java/javapath")
   "Directories to add to PATH on Cygwin.")
 
+(defvar basis/pre-cygwin-state nil
+  "Association list of state from before initializing for Cygwin.")
+
 (defun basis/init-for-cygwin ()
+  ;; Store a copy of `process-environment' before we change anything, for use in
+  ;; `basis/emacs-Q'
+  (unless (map-elt basis/pre-cygwin-state 'process-environment)
+    (map-put basis/pre-cygwin-state
+             'process-environment
+             (copy-sequence process-environment)))
+  ;; Set things up for use with Cygwin
   (let* ((home (basis/windows->unix (or (getenv "HOME")
                                         (error "HOME not defined"))))
          (home/bin (concat (basis/windows->unix home)

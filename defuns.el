@@ -2288,7 +2288,12 @@ default, unless called with a prefix argument."
                (read-directory-name "HOME: " nil tmp t))
        (list self tmp))))
   (let ((emacs (expand-file-name emacs))
-        (process-environment (cons (concat "HOME=" home) process-environment)))
+        (process-environment process-environment)
+        old)
+    (when (and (eq basis/system-type 'windows+cygwin)
+               (setq old (map-elt basis/pre-cygwin-state 'process-environment)))
+      (setq process-environment old))
+    (push (concat "HOME=" home) process-environment)
     (start-process "emacs-Q" nil emacs "-Q")))
 
 
