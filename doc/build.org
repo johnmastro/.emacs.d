@@ -1,49 +1,104 @@
 #    -*- mode: org -*-
 
 * Building Emacs from source
-  I often forget the names of dependencies for features I want, and the
-  arguments to give `configure'.
 
-  The below assumes Debian (or derived), but it's enough info to remind me of what
-  I'm doing for other builds too.
-  
-** GTK3
-#+BEGIN_SRC sh
-  sudo aptitude install build-essential pkg-config m4 \
-    automake libtool texinfo install-info \
-    libncurses-dev \
-    libgtk-3-dev \
-    libxml2 libxml2-dev \
-    libgnutls28 libgnutls28-dev \
-    zlib1g zlib1g-dev
-  ./autogen.sh  # Only necessary if building from the repo
-  ./configure --with-xml2 --with-zlib --with-gnutls --with-x-toolkit=gtk3
-#+END_SRC
+** Linux
 
-** No X
-#+BEGIN_SRC sh
-  sudo aptitude install build-essential pkg-config m4 \
-    automake libtool texinfo install-info \
-    libncurses-dev \
-    libxml2 libxml2-dev \
-    libgnutls28 libgnutls28-dev \
-    zlib1g zlib1g-dev
-  ./autogen.sh  # Only necessary if building from the repo
-  ./configure --with-xml2 --with-zlib --with-gnutls \
-    --with-x-toolkit=no \
-    --without-xpm --without-jpeg --without-tiff --without-gif --without-png
-#+END_SRC
+*** GTK3
 
-** Cygwin --with-w32
-- If building from the repo, make sure the files have Unix-style line endings.
-  Make sure the tree is clean first, since we'll need to delete everything and
-  check it back out.
-  #+BEGIN_SRC sh
-  git config core.autocrlf false
-  git rm --cached -r .
-  git reset --hard
-  #+END_SRC
-- Use setup-x86{,_64}.exe to install dependencies:
+#+begin_src sh
+sudo aptitude install build-essential pkg-config m4 \
+  automake libtool texinfo install-info \
+  libncurses-dev \
+  libgtk-3-dev \
+  libxml2 libxml2-dev \
+  libgnutls28 libgnutls28-dev \
+  zlib1g zlib1g-dev
+./autogen.sh  # Only necessary if building from the repo
+./configure --with-xml2 --with-zlib --with-gnutls --with-x-toolkit=gtk3
+make
+sudo make install  # Optional
+#+end_src
+
+*** No X
+
+#+begin_src sh
+sudo aptitude install build-essential pkg-config m4 \
+  automake libtool texinfo install-info \
+  libncurses-dev \
+  libxml2 libxml2-dev \
+  libgnutls28 libgnutls28-dev \
+  zlib1g zlib1g-dev
+./autogen.sh  # Only necessary if building from the repo
+./configure --with-xml2 --with-zlib --with-gnutls \
+  --with-x-toolkit=no \
+  --without-xpm --without-jpeg --without-tiff --without-gif --without-png
+make
+sudo make install  # Optional
+#+end_src
+
+
+** Windows
+
+If building from the repo, make sure the files have Unix-style line endings.
+Make sure the tree is clean first, since we'll need to delete everything and
+check it back out.
+
+#+begin_src sh
+cd /path/to/repo
+git config core.autocrlf false
+git rm --cached -r .
+git reset --hard
+#+end_src
+
+*** MSYS2/MinGW-W64
+
+- Run =msys2_shell.bat= to open a shell
+- Install dependencies
+  #+begin_src sh
+  pacman -S \
+  base-devel \
+  mingw-w64-x86_64-toolchain \
+  mingw-w64-x86_64-xpm-nox \
+  mingw-w64-x86_64-libtiff \
+  mingw-w64-x86_64-giflib \
+  mingw-w64-x86_64-libpng \
+  mingw-w64-x86_64-libjpeg-turbo \
+  mingw-w64-x86_64-librsvg \
+  mingw-w64-x86_64-libxml2 \
+  mingw-w64-x86_64-gnutls
+  #+end_src
+- Close the MSYS2 shell and open a mingw64 shell
+- =cd= into the source directory
+- Configure and build
+  #+begin_src sh
+  ./autogen.sh
+  PKG_CONFIG_PATH=/mingw64/lib/pkgconfig \
+  ./configure --prefix=/c/emacs/emacs-25 --without-imagemagick
+  make
+  make install
+  #+end_src
+- Optionally, copy the DLLs Emacs depends on into its =bin= directory
+  #+begin_src sh
+  cp /mingw64/bin/{libwinpthread-*.dll,libXpm-noX*.dll,libdbus-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libgomp-*.dll,libgcc_s_seh-*.dll,libglib-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libintl-*.dll,libiconv-*.dll,libgobject-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libffi-*.dll,libgdk_pixbuf-*.dll,libgio-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libgmodule-*.dll,zlib*.dll,librsvg-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libcairo-*.dll,libcroco-*.dll,libpango-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libpangocairo-*.dll,libxml2-*.dll,libfontconfig-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libfreetype-*.dll,libpixman-*.dll,libpng*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libpangoft*.dll,libpangowin32-*.dll,liblzma-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libexpat-*.dll,libharfbuzz-*.dll,libgnutls-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libgnutlsxx-*.dll,libtiff-*.dll,libtiffxx-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libjpeg-*.dll,libgif-*.dll,libbz2-*.dll,libjbig-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libgmp-*.dll,libhogweed-*.dll,libnettle-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libp11-kit-*.dll,libtasn1-*.dll} /c/emacs/emacs-25/bin
+  #+end_src
+
+*** Cygwin --with-w32
+
+- Use setup-x86_64.exe to install dependencies
   - autoconf
   - automake
   - gcc-core
@@ -55,8 +110,15 @@
   - libgif-devel
   - libpng-devel
   - libtiff-devel
-- Build it:
-  #+BEGIN_SRC sh
-    ./autogen.sh  # Only necessary if building from the repo
-    ./configure --with-w32 --with-xml2 --with-zlib --with-gnutls
-  #+END_SRC
+- Build it
+  #+begin_src sh
+  ./autogen.sh  # Only necessary if building from the repo
+  ./configure --with-w32 --with-xml2 --with-zlib --with-gnutls
+  make
+  sudo make install  # Optional
+  #+end_src
+
+
+# Local Variables:
+# whitespace-line-column: 100
+# End:
