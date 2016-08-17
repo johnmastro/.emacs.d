@@ -2124,35 +2124,36 @@ Only group a buffer with a VC if its visiting a file."
 
 (defun basis/read-choice (prompt choices)
   "Prompt to select one of CHOICES and return the result.
-CHOICES is a list of (CHAR DESCRIPTION)."
-  (let ((cursor-in-echo-area t)
-        (prompt (if (or (not prompt)
-                        (get-text-property 0 'face prompt))
-                    prompt
-                  (propertize prompt
-                              'face
-                              'minibuffer-prompt))))
+CHOICES is a list of (KEY DESCRIPTION). Each KEY can be any value
+supported by `single-key-description'; each DESCRIPTION can be
+any printable value."
+  (let* ((cursor-in-echo-area t)
+         (prompt (if (or (not prompt)
+                         (get-text-property 0 'face prompt))
+                     prompt
+                   (propertize prompt 'face 'minibuffer-prompt)))
+         (maxlen 0)
+         (display (mapcar (pcase-lambda (`(,key ,description))
+                            (let* ((str (single-key-description key))
+                                   (len (length str)))
+                              (when (> len maxlen) (setq maxlen len))
+                              (list len str description)))
+                          choices)))
     (save-window-excursion
       (pop-to-buffer " *Read choice*" t t)
       (fundamental-mode)
       (setq cursor-type nil)
       (erase-buffer)
-      (pcase-dolist (`(,char ,description) choices)
-        (unless (and (characterp char)
-                     (<= 33 char 126))
-          ;; TODO: Add support for any key
-          (user-error "%s is not a valid character"
-                      (key-description (vector char))))
-        (insert (propertize (string char)
-                            'face
-                            'font-lock-variable-name-face)
-                (format " %s\n" description)))
+      (pcase-dolist (`(,len ,str ,description) display)
+        (insert (propertize str 'face 'font-lock-variable-name-face))
+        (insert-char ?\s (- maxlen len))
+        (insert (format " %s\n" description)))
       (goto-char (point-min))
       (fit-window-to-buffer)
       (let ((choice (read-key prompt)))
-        (or (assoc choice choices)
+        (or (assq choice choices)
             (user-error "Invalid selection: %s"
-                        (key-description (vector choice))))))))
+                        (single-key-description choice)))))))
 
 (defun basis/google (string)
   "Run a Google search for STRING.
