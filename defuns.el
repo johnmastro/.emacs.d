@@ -2189,12 +2189,6 @@ Use `nlinum-mode' if available, or `linum-mode' otherwise."
          (insert "<html></html>")
          (not (null (libxml-parse-html-region (point-min) (point-max)))))))
 
-(defun basis/full-calc-frame ()
-  "Create a new frame and run `calc' in a full-size window."
-  (interactive)
-  (with-selected-frame (make-frame)
-    (calc nil t t)))
-
 (defun basis/looking-back-p (regexp &optional limit)
   "Same as `looking-back' but don't change the match data."
   (save-match-data (looking-back regexp limit)))
