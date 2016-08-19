@@ -545,10 +545,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 ;; Newlines
 (basis/define-keys global-map
-  ("S-RET"        #'basis/open-line-below)
-  ("<S-return>"   #'basis/open-line-below)
-  ("C-S-RET"      #'basis/open-line-above)
-  ("<C-S-return>" #'basis/open-line-above))
+  ("S-RET"      #'basis/open-line-above)
+  ("<S-return>" #'basis/open-line-above)
+  ("C-RET"      #'basis/open-line-below)
+  ("<C-return>" #'basis/open-line-below)
+  ("C-^"        #'basis/open-line-below))
 
 ;; Whitespace
 (global-set-key (kbd "M-\\") #'basis/cycle-spacing-fast)
