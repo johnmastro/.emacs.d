@@ -2361,18 +2361,25 @@ For use as a `mu4e' message action."
 (defvar basis/lorem-ipsum-file (basis/emacs-file "lorem-ipsum.txt")
   "File containing \"lorem ipsum\" placeholder text.")
 
+(defvar basis/lorem-ipsum-buffer nil
+  "Buffer containing \"lorem ipsum\" placeholder text.
+Created when needed by `basis/insert-lorem-ipsum'.")
+
 (defun basis/insert-lorem-ipsum (&optional arg)
   "Insert ARG paragraphs of \"lorem ipsum\" text at point."
   (interactive "p")
-  (unless (file-exists-p basis/lorem-ipsum-file)
-    (error "Lorem ipsum file does not exist: `%s'" basis/lorem-ipsum-file))
-  (let* ((arg (or arg 1))
-         (str (with-temp-buffer
-                (insert-file-contents basis/lorem-ipsum-file)
-                (goto-char (point-min))
+  (let* ((buf (if (buffer-live-p basis/lorem-ipsum-buffer)
+                  basis/lorem-ipsum-buffer
+                (setq basis/lorem-ipsum-buffer
+                      (with-current-buffer (get-buffer-create " *Lorem Ipsum*")
+                        (erase-buffer)
+                        (insert-file-contents basis/lorem-ipsum-file)
+                        (current-buffer)))))
+         (end (with-current-buffer buf
+                (goto-char 1)
                 (forward-paragraph arg)
-                (buffer-substring-no-properties (point-min) (point)))))
-    (insert str)))
+                (point))))
+    (insert-buffer-substring buf 1 end)))
 
 
 ;;; defuns.el ends here
