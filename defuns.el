@@ -583,6 +583,12 @@ is read-only and empty."
         (_  (other-window 1)))
     (funcall original arg)))
 
+(defun basis/helm-imenu (arg)
+  "Call `helm-imenu'.
+With prefix ARG, call `imenu-list-minor-mode' instead."
+  (interactive "P")
+  (call-interactively (if arg #'imenu-list-minor-mode #'helm-imenu)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search

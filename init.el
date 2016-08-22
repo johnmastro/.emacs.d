@@ -830,6 +830,10 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config (setq imenu-auto-rescan t))
 
+(use-package imenu-list
+  :ensure t
+  :defer t)
+
 (use-package avy
   :ensure t
   :defer t
@@ -1102,7 +1106,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package helm-imenu
   :defer t
-  :init (global-set-key (kbd "M-i") #'helm-imenu)
+  :init (global-set-key (kbd "M-i") #'basis/helm-imenu)
   :config (progn (setq helm-imenu-execute-action-at-once-if-one nil)
                  (setq helm-imenu-fuzzy-match t)))
 
