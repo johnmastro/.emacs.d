@@ -577,14 +577,15 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("M-^" #'basis/delete-indentation)
   ("M-q" #'basis/fill-or-unfill-paragraph))
 
-;; Transpose stuff with M-t
+;; Transpose and toggle stuff with M-t
 (basis/define-map basis/transposition-map ("M-t")
   ("l"   #'transpose-lines)
   ("w"   #'transpose-words)
   ("s"   #'transpose-sexps)
   ("c"   #'transpose-chars)
   ("M-w" #'basis/transpose-windows)
-  ("M-s" #'basis/toggle-window-split))
+  ("M-s" #'basis/toggle-window-split)
+  ("n"   #'basis/narrow-or-widen-dwim))
 
 ;; Comment/uncomment stuff
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)

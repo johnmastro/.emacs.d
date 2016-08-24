@@ -567,6 +567,19 @@ if the region is active, defer to `insert-parenthesis'."
                                  (elt comment-start 0))))
     (replace-match " ")))
 
+(defun basis/narrow-or-widen-dwim (arg)
+  "Widen if buffer is narrowed, otherwise narrow.
+When narrowing, narrow to the region if active, otherwise to the
+current defun. With prefix ARG, never widen; narrow even if the
+buffer is already narrowed."
+  (interactive "P")
+  (cond ((and (buffer-narrowed-p) (not arg))
+         (widen))
+        ((region-active-p)
+         (narrow-to-region (region-beginning) (region-end)))
+        (t
+         (narrow-to-defun))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement
