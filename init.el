@@ -1840,7 +1840,6 @@ Use `paredit' in these modes rather than `smartparens'.")
 ;;; Text, markup, and configuration modes
 
 (defun basis/init-text-mode ()
-  (setq indicate-buffer-boundaries 'right)
   (auto-fill-mode)
   (basis/maybe-enable-flyspell)
   (when (and ispell-alternate-dictionary
