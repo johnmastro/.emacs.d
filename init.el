@@ -1229,6 +1229,8 @@ TODO: <home> and <end> still don't work.")
        company-dabbrev))
     (setq company-minimum-prefix-length 2)
     (setq company-tooltip-flip-when-above t)
+    (setq company-show-numbers t)
+    (setq company-selection-wrap-around t)
     (advice-add 'company-auto-begin
                 :before-until
                 #'basis/company-maybe-block-completion)
