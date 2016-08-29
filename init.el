@@ -1394,7 +1394,9 @@ Use `paredit' in these modes rather than `smartparens'.")
     (add-hook 'inferior-emacs-lisp-mode-hook #'basis/init-emacs-lisp-modes)))
 
 (use-package eldoc
-  :config (global-eldoc-mode)
+  :config (progn (setq eldoc-idle-delay 0.1)
+                 (setq eldoc-echo-area-use-multiline-p t)
+                 (global-eldoc-mode))
   :diminish eldoc-mode)
 
 (use-package macrostep
