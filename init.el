@@ -2214,6 +2214,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   (progn
     (setq magit-revert-buffers 'silent)
     (setq magit-save-repository-buffers 'dontask)
+    (setq magit-clone-set-remote.pushDefault t)
     (setq magit-popup-use-prefix-argument 'default)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
