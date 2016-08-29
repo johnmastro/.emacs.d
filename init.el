@@ -235,7 +235,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 (when (boundp 'w32-pipe-read-delay)
   (setq w32-pipe-read-delay 0))
 
-(fset 'display-startup-echo-area-message #'ignore)
+(fset 'display-startup-echo-area-message
+      (lambda () (message "Hacks and glory await!")))
 
 (fset 'yes-or-no-p #'y-or-n-p)
 
