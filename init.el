@@ -217,6 +217,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (setq temporary-file-directory (basis/emacs-dir "tmp/"))
 (setq switch-to-buffer-preserve-window-point t)
 (setq enable-recursive-minibuffers t)
+(setq echo-keystrokes 0.5)
 (setq user-mail-address "jbm@jbm.io")
 (setq user-full-name "John Mastro")
 (setq mail-host-address "jbm.io")
