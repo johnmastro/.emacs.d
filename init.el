@@ -809,10 +809,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package multiple-cursors-core
   :defer t
-  :config
-  (progn (setq mc/list-file (basis/emacs-file "var/mc-lists.el"))
-         ;; Make RET exit multiple-cursors-mode in the terminal too
-         (define-key mc/keymap (kbd "RET") #'multiple-cursors-mode)))
+  :init (setq mc/list-file (basis/emacs-file "var/mc-lists.el"))
+  :config (define-key mc/keymap (kbd "RET") #'multiple-cursors-mode))
 
 (use-package move-text
   :ensure t
