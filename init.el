@@ -1068,13 +1068,13 @@ TODO: <home> and <end> still don't work.")
          (and nil (helm-adaptive-mode)))) ; Not enabled
 
 (use-package helm-mode
-  :diminish helm-mode
   :config (progn
             (setq helm-mode-handle-completion-in-region nil)
             (helm-mode)
             (dolist (cons '((multi-occur . ido-completing-read)
                             (Info-goto-node)))
-              (add-to-list 'helm-completing-read-handlers-alist cons))))
+              (add-to-list 'helm-completing-read-handlers-alist cons)))
+  :diminish helm-mode)
 
 (use-package helm-files
   :defer t
@@ -1097,6 +1097,7 @@ TODO: <home> and <end> still don't work.")
     (advice-add 'helm-find-files-input :override #'ignore)))
 
 (use-package helm-locate
+  :defer t
   :config (setq helm-locate-fuzzy-match nil))
 
 (use-package helm-buffers
@@ -1142,6 +1143,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package helm-projectile
   :ensure t
+  :defer t
   :config (setq helm-projectile-fuzzy-match t))
 
 (use-package helm-ag
@@ -1194,6 +1196,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package ivy
   :ensure swiper
+  :defer t
   :config
   (progn (setq ivy-format-function #'ivy-format-function-arrow)
          (basis/define-keys ivy-minibuffer-map
@@ -1201,15 +1204,14 @@ TODO: <home> and <end> still don't work.")
            ("<up>"    #'ivy-previous-line-or-history)
            ("<left>"  #'ivy-previous-line-or-history)
            ("<down>"  #'ivy-next-line-or-history)
-           ("<right>" #'ivy-next-line-or-history))
-         (define-key ivy-minibuffer-map (kbd "C-r") #'ivy-previous-line)))
+           ("<right>" #'ivy-next-line-or-history))))
 
 (use-package counsel
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package company
   :ensure t
-  :diminish company-mode
   :config
   (progn
     (add-hook 'after-init-hook #'global-company-mode)
@@ -1244,7 +1246,8 @@ TODO: <home> and <end> still don't work.")
         (require 'company-clang)
         (setq company-clang-executable prog)
         (setq company-clang-arguments args)
-        (add-hook 'c-mode-hook #'basis/maybe-enable-company-clang)))))
+        (add-hook 'c-mode-hook #'basis/maybe-enable-company-clang))))
+  :diminish company-mode)
 
 (use-package company-statistics
   :ensure t
