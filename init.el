@@ -1010,10 +1010,6 @@ TODO: <home> and <end> still don't work.")
   :init (global-set-key (kbd "M-X") #'smex-major-mode-commands)
   :config (setq smex-save-file (basis/emacs-file "var/smex-items")))
 
-(use-package helm-flx
-  :ensure t
-  :config (helm-flx-mode))
-
 (use-package helm-config
   :config (global-unset-key (kbd helm-command-prefix-key)))
 
@@ -1095,6 +1091,14 @@ TODO: <home> and <end> still don't work.")
       ("C-x g"   #'basis/helm-ff-run-magit-status))
     ;; Disable `ffap' behavior
     (advice-add 'helm-find-files-input :override #'ignore)))
+
+(use-package helm-flx
+  :ensure t
+  :defer t
+  :after (helm)
+  :config (progn (require 'helm)
+                 (require 'helm-files)
+                 (helm-flx-mode)))
 
 (use-package helm-locate
   :defer t
