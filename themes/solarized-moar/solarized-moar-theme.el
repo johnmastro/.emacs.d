@@ -248,7 +248,7 @@
                 (ivy-minibuffer-match-face-4 (:inherit match :inverse-video t))
                 (ivy-remote (,@fg-violet))
                 ;; whitespace
-                (whitespace-line (:foreground nil ,@bg-base02))
+                (whitespace-line (:foreground nil :underline (:color "#586e75")))
                 ;; smerge
                 ;; smerge-mine = red
                 ;; smerge-other = green
