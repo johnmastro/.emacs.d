@@ -240,12 +240,12 @@
                 (avy-lead-face (:inherit isearch))
                 ;; ivy
                 (ivy-confirm-face (,@fg-green))
-                (ivy-current-match (,@fmt-bold))
+                (ivy-current-match (,@fg-blue))
                 (ivy-match-required-face (,@fg-red))
-                (ivy-minibuffer-match-face-1 (:inherit match :inverse-video t))
-                (ivy-minibuffer-match-face-2 (:inherit match :inverse-video t))
-                (ivy-minibuffer-match-face-3 (:inherit match :inverse-video t))
-                (ivy-minibuffer-match-face-4 (:inherit match :inverse-video t))
+                (ivy-minibuffer-match-face-1 (:inherit highlight))
+                (ivy-minibuffer-match-face-2 (:inherit highlight))
+                (ivy-minibuffer-match-face-3 (:inherit highlight))
+                (ivy-minibuffer-match-face-4 (:inherit highlight))
                 (ivy-remote (,@fg-violet))
                 ;; whitespace
                 (whitespace-line (:foreground nil :underline (:color "#586e75")))
