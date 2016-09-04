@@ -514,14 +514,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :config (setq Man-notify-method 'aggressive))
 
-(defvar basis/system-man-p (executable-find "man")
-  "Non-nil if a \"man\" executable is available on this system.")
-
-(unless basis/system-man-p
-  (require 'man)
-  (fset 'original-man #'man)
-  (fset 'man #'woman))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Key bindings
@@ -1137,8 +1129,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package helm-man
   :defer t
-  :config  (unless basis/system-man-p
-             (setq helm-man-or-woman-function #'woman)))
+  :config (or (executable-find "man")
+              (setq helm-man-or-woman-function #'woman)))
 
 (use-package helm-descbinds
   :ensure t
