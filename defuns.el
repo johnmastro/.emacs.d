@@ -580,6 +580,16 @@ buffer is already narrowed."
         (t
          (narrow-to-defun))))
 
+(defun basis/next-trailing-whitespace ()
+  "Move point to the next occurrence of trailing whitespace."
+  (interactive)
+  (let ((start (point)))
+    (skip-chars-forward "[:blank:]")
+    (if (re-search-forward "[[:blank:]]+$" nil t)
+        (goto-char (match-beginning 0))
+      (goto-char start)
+      (message "No trailing whitespace"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement
