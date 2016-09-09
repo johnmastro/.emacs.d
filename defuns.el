@@ -1311,15 +1311,21 @@ With arg N, move backward that many times."
                                   t))))
   (sql-set-product (or product (basis/sql-guess-product))))
 
-(defun basis/sql-modify-syntax-table (&rest _)
+(defun basis/sql-modify-syntax-table ()
   "Modify a couple syntax table entries for SQL.
 Make double quote a string delimiter and period a symbol
-constituent. This is most effective when run as `:after' on
-`sql-highlight-product'."
+constituent."
   (let ((table (make-syntax-table (syntax-table))))
     (modify-syntax-entry ?\" "\"\"  " table)
     (modify-syntax-entry ?. "_   " table)
     (set-syntax-table table)))
+
+(defun basis/sql-after-highlight-product (&rest _)
+  "Advice for `sql-highlight-product'."
+  (basis/sql-modify-syntax-table)
+  (when (bound-and-true-p whitespace-mode)
+    ;; Re-enable `whitespace-mode'. Otherwise it will be "on" but have no effect
+    (whitespace-turn-on)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

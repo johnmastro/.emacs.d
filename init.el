@@ -1767,7 +1767,7 @@ Use `paredit' in these modes rather than `smartparens'.")
            ;; as part of `hack-local-variables-hook', and would undo our
            ;; changes.
            (advice-add 'sql-highlight-product :after
-                       #'basis/sql-modify-syntax-table)))
+                       #'basis/sql-after-highlight-product)))
 
 (defun basis/init-c-base ()
   (setq indent-tabs-mode nil)
