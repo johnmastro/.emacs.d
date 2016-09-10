@@ -643,8 +643,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("D" #'basis/delete-current-buffer-file)
   ("f" #'find-name-dired)
   ("F" #'find-dired)
-  ("j" #'dired-jump)
-  ("J" #'dired-jump-other-window)
   ("m" #'make-directory)
   ("n" #'basis/kill-ring-save-buffer-file-name)
   ("v" #'revert-buffer))
