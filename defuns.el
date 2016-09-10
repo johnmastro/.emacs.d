@@ -589,6 +589,18 @@ buffer is already narrowed."
       (goto-char start)
       (message "No trailing whitespace"))))
 
+(defun basis/find-non-text-character ()
+  "Find a non-text character, if any, in the current buffer.
+\"Non-text\" is not necessarily a well-defined term, but in this
+case it means anything matching the regular expression
+\"[^[:print:][:space:]\\n]\"."
+  (interactive)
+  (let ((start (point)))
+    (if (re-search-forward "[^[:print:][:space:]\n]" nil t)
+        (forward-char -1)
+      (goto-char start)
+      (message "No non-text characters found"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement
