@@ -1327,6 +1327,22 @@ constituent."
     ;; Re-enable `whitespace-mode'. Otherwise it will be "on" but have no effect
     (whitespace-turn-on)))
 
+(defun basis/c-backspace (&rest args)
+  "Smartparens-aware value for `c-backspace-function'."
+  (interactive)
+  (apply (if (bound-and-true-p smartparens-mode)
+             #'sp-backward-delete-char
+           #'backward-delete-char-untabify)
+         args))
+
+(defun basis/c-delete (&rest args)
+  "Smartparens-aware value for `c-delete-function'."
+  (interactive)
+  (apply (if (bound-and-true-p smartparens-mode)
+             #'sp-delete-char
+           #'delete-char)
+         args))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Text, markup, and configuration modes
