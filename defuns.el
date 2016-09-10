@@ -116,8 +116,7 @@ With optional prefix ARG, uncomment instead."
   "Whitespace characters, for e.g. `skip-chars-forward'.")
 
 (defun basis/uncomment-sexp (&optional n)
-  "Uncomment the sexp at point.
-"
+  "Uncomment the sexp at point."
   (interactive "p")
   (let* ((start (point-marker))
          (pos nil)
@@ -563,8 +562,8 @@ if the region is active, defer to `insert-parenthesis'."
   (interactive "*P")
   (delete-indentation arg)
   (when (and (nth 4 (syntax-ppss))
-             (looking-at (format "\\(\\s<\\|%c\\|\\s-\\)+"
-                                 (elt comment-start 0))))
+             (let ((char (elt comment-start 0)))
+               (looking-at (format "\\(\\s<\\|%c\\|\\s-\\)+" char))))
     (replace-match " ")))
 
 (defun basis/narrow-or-widen-dwim (arg)
