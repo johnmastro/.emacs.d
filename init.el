@@ -782,9 +782,11 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t
   :init (progn (basis/define-keys global-map
-                 ("M-]" #'mc/mark-next-like-this)
-                 ("C->" #'mc/mark-next-like-this)
-                 ("C-<" #'mc/mark-previous-like-this))
+                 ("M-]"              #'mc/mark-next-like-this)
+                 ("C->"              #'mc/mark-next-like-this)
+                 ("C-<"              #'mc/mark-previous-like-this)
+                 ("<M-down-mouse-1>" nil)
+                 ("<M-mouse-1>"      #'mc/add-cursor-on-click))
                (basis/define-map basis/mc-map ("C-c m")
                  ("e"   #'mc/edit-lines)
                  ("C-a" #'mc/edit-beginnings-of-lines)
