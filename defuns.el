@@ -117,7 +117,7 @@ With optional prefix ARG, uncomment instead."
 
 (defun basis/uncomment-sexp (&optional n)
   "Uncomment the sexp at point."
-  (interactive "p")
+  (interactive "*p")
   (let* ((start (point-marker))
          (pos nil)
          (end (save-excursion
@@ -186,7 +186,7 @@ With optional prefix ARG, uncomment instead."
 When commenting, a prefix argument N means comment that many
 sexps. When uncommenting, a prefix argument N means move forward
 that many sexps before uncommenting."
-  (interactive "p")
+  (interactive "*p")
   (if (or (elt (syntax-ppss) 4)
           (< (save-excursion
                (skip-chars-forward basis/whitespace-chars)
@@ -258,7 +258,7 @@ Valid values are `snake', `camel', and nil.")
 
 (defun basis/smart-hyphen (n)
   "Conditionally insert a hyphen or upcase the next char."
-  (interactive "p")
+  (interactive "*p")
   (if (or (not basis/smart-hyphen-style)
           (and basis/smart-hyphen-code-only
                (memq (get-text-property (point) 'face)
@@ -306,25 +306,27 @@ if not."
                        (and (bound-and-true-p whitespace-mode)
                             whitespace-line-column)
                        80))
-        (start (point))
-        line column)
+        (start (point)))
     (when (eolp) (forward-line 1))
     (catch 'done
       (while (not (eobp))
         (end-of-line)
-        (if (> (setq column (current-column)) threshold)
-            (progn
-              (setq line (line-number-at-pos))
-              (when message (message "Line %d is %d columns long" line column))
-              (throw 'done (cons line column)))
-          (forward-line 1)))
+        (let ((column (current-column)))
+          (if (> column threshold)
+              (let ((line (line-number-at-pos))
+                    (chars (- (point) (line-beginning-position))))
+                (when message
+                  (message "Line %d is %d columns (%d chars) long"
+                           line column chars))
+                (throw 'done (cons line column)))
+            (forward-line 1))))
       (goto-char start)
       (when message (message "No long lines found")))))
 
 (defun basis/kill-something (arg)
   "Kill the region, or one or more words backward.
 If `subword-mode' is active, use `subword-backward-kill'."
-  (interactive "p")
+  (interactive "*p")
   (cond ((use-region-p)
          (kill-region (region-beginning) (region-end)))
         ((bound-and-true-p subword-mode)
@@ -340,7 +342,7 @@ If `subword-mode' is active, use `subword-backward-kill'."
 
 (defun basis/smart-kill-whole-line (&optional arg)
   "A simple wrapper around `kill-whole-line' that respects indentation."
-  (interactive "P")
+  (interactive "*P")
   (kill-whole-line arg)
   (back-to-indentation))
 
@@ -400,7 +402,7 @@ Interactively, default to four spaces of indentation."
   "Upcase either the region or word(s).
 This will call `upcase-region' or `upcase-word' depending on
 whether the region is active."
-  (interactive "p")
+  (interactive "*p")
   (cond ((use-region-p)
          (upcase-region (region-beginning) (region-end)))
         ((bound-and-true-p subword-mode)
@@ -412,7 +414,7 @@ whether the region is active."
   "Downcase either the region or word(s).
 This will call `downcase-region' or `downcase-word' depending on
 whether the region is active."
-  (interactive "p")
+  (interactive "*p")
   (cond ((use-region-p)
          (downcase-region (region-beginning) (region-end)))
         ((bound-and-true-p subword-mode)
@@ -424,7 +426,7 @@ whether the region is active."
   "Capitalize either the region or word(s).
 This will call `capitalize-region' or `capitalize-word' depending
 on whether the region is active."
-  (interactive "p")
+  (interactive "*p")
   (cond ((use-region-p)
          (capitalize-region (region-beginning) (region-end)))
         ((bound-and-true-p subword-mode)
@@ -545,7 +547,7 @@ whitespace or an end-of-line. With any other prefix argument, or
 if the region is active, defer to `insert-parenthesis'."
   ;; The idea is to be able to wrap the entirety of an expression like
   ;; foo.bar(1, 2)
-  (interactive "P")
+  (interactive "*P")
   (if (and (equal arg '(4))
            (not (use-region-p)))
       (let ((beg (point)))
@@ -785,7 +787,7 @@ under \"/srv/\" (ugh)."
   "Delete N chars backwards.
 If already at the beginning of the field, call
 `helm-keyboard-quit'."
-  (interactive "p")
+  (interactive "*p")
   (if (= n 1)
       (condition-case nil
           (backward-delete-char 1)
@@ -1110,7 +1112,7 @@ Use `slime-expand-1' to produce the expansion."
 
 (defun basis/sql-indent (&optional n)
   "Insert spaces or tabs to the Nth next tab-stop column."
-  (interactive "p")
+  (interactive "*p")
   (let ((n (or n 1)))
     (if (use-region-p)
         (let ((beg (region-beginning))
@@ -1134,7 +1136,7 @@ If `basis/sql-backspace-dedent-hungrily' is non-nil, N is null,
 and there is non-whitespace before point on the current line,
 delete all whitespace backward. Use `sp-backward-delete-char' if
 `smartparens-mode' is active."
-  (interactive "P")
+  (interactive "*P")
   (if (or (bound-and-true-p multiple-cursors-mode)
           (use-region-p))
       (call-interactively #'backward-delete-char)
@@ -2429,7 +2431,7 @@ Created when needed by `basis/insert-lorem-ipsum'.")
 
 (defun basis/insert-lorem-ipsum (&optional arg)
   "Insert ARG paragraphs of \"lorem ipsum\" text at point."
-  (interactive "p")
+  (interactive "*p")
   (let* ((buf (if (buffer-live-p basis/lorem-ipsum-buffer)
                   basis/lorem-ipsum-buffer
                 (setq basis/lorem-ipsum-buffer
