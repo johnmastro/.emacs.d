@@ -552,7 +552,7 @@ if the region is active, defer to `insert-parenthesis'."
            (not (use-region-p)))
       (let ((beg (point)))
         (skip-chars-forward "[:blank:]")
-        (while (not (looking-at-p "[[:blank:]]\\|$"))
+        (while (not (looking-at-p "\\([[:blank:]]\\|\\s.?$\\)"))
           (forward-sexp 1))
         (insert ")")
         (goto-char beg)
