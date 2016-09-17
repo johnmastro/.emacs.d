@@ -2648,7 +2648,7 @@ Use `paredit' in these modes rather than `smartparens'.")
   :defer t
   :init
   (progn
-    (global-set-key (kbd "C-x m") #'mu4e)
+    (global-set-key (kbd "C-x M-m") #'mu4e)
     (let ((dir "/usr/local/share/emacs/site-lisp/mu4e/"))
       (when (file-directory-p dir)
         (add-to-list 'load-path dir)
