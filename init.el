@@ -1407,6 +1407,10 @@ Use `paredit' in these modes rather than `smartparens'.")
   :ensure t
   :defer t)
 
+(use-package el-search
+  :ensure t
+  :defer t)
+
 (use-package pcre2el
   :ensure t
   :defer t)
