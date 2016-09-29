@@ -161,9 +161,8 @@ Create the directory if it does not exist and CREATE is non-nil."
   ;; Store a copy of `process-environment' before we change anything, for use in
   ;; `basis/emacs-Q'
   (unless (map-elt basis/pre-cygwin-state 'process-environment)
-    (map-put basis/pre-cygwin-state
-             'process-environment
-             (copy-sequence process-environment)))
+    (setf (map-elt basis/pre-cygwin-state 'process-environment)
+          (copy-sequence process-environment)))
   ;; Set things up for use with Cygwin
   (let* ((home (basis/windows->unix (or (getenv "HOME")
                                         (error "HOME not defined"))))
@@ -1401,6 +1400,10 @@ Use `paredit' in these modes rather than `smartparens'.")
   :diminish eldoc-mode)
 
 (use-package macrostep
+  :ensure t
+  :defer t)
+
+(use-package elisp-refs
   :ensure t
   :defer t)
 
