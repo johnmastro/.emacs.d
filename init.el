@@ -1289,6 +1289,7 @@ TODO: <home> and <end> still don't work.")
 (defun basis/init-prog-mode ()
   (basis/maybe-enable-whitespace-mode)
   (basis/maybe-enable-flyspell-prog-mode)
+  (basis/maybe-enable-bug-reference-mode)
   (setq indicate-empty-lines t)
   (unless (eq major-mode 'sql-mode)
     (setq-local comment-auto-fill-only-comments t)
@@ -1872,6 +1873,13 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (add-hook 'text-mode-hook #'basis/init-text-mode)
 
+(defun basis/init-log-view-mode ()
+  (basis/maybe-enable-bug-reference-mode))
+
+(use-package log-view
+  :defer t
+  :config (add-hook 'log-view-mode-hook #'basis/init-log-view-mode))
+
 (use-package org
   :ensure t
   :defer t
@@ -2187,13 +2195,17 @@ Use `paredit' in these modes rather than `smartparens'.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Diffing
 
+(defun basis/init-diff-mode ()
+  (basis/maybe-enable-bug-reference-mode))
+
 (use-package diff-mode
   :defer t
   :config
   (progn
     (setq diff-default-read-only t)
     ;; `diff-goto-source' is still available on C-c C-c.
-    (define-key diff-mode-map (kbd "M-o") nil)))
+    (define-key diff-mode-map (kbd "M-o") nil)
+    (add-hook 'diff-mode-hook #'basis/init-diff-mode)))
 
 (defun basis/init-ediff ()
   (ediff-setup-keymap))

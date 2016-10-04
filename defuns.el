@@ -1649,6 +1649,13 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
   (unless (derived-mode-p 'comint-mode 'cider-repl-mode 'eshell-mode)
     (whitespace-mode)))
 
+(defun basis/maybe-enable-bug-reference-mode ()
+  (require 'bug-reference)
+  (when (stringp bug-reference-url-format)
+    (if (derived-mode-p 'prog-mode)
+        (bug-reference-prog-mode)
+      (bug-reference-mode))))
+
 (defun basis/ispell-init-process (original &rest args)
   "Advice for `ispell-init-process' on Cygwin.
 Let-bind `ispell-current-personal-dictionary' to a
