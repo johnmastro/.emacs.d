@@ -1356,6 +1356,19 @@ constituent."
            #'delete-char)
          args))
 
+(eval-when-compile (require 'cc-engine))
+
+(defun basis/c-align-macro-slashes (spacing)
+  "Align the line-continuation backslashes of a C macro."
+  (interactive "*p")
+  (let ((beg (c-save-buffer-state ()
+               (c-beginning-of-macro)
+               (point)))
+        (end (c-save-buffer-state ()
+               (c-end-of-macro)
+               (point))))
+    (align-regexp beg end "\\(\\s-*\\)\\\\" 1 spacing)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Text, markup, and configuration modes
