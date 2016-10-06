@@ -362,6 +362,19 @@ If `subword-mode' is active, use `subword-backward-kill'."
                  (save-excursion (forward-line 1)
                                  (line-beginning-position))))))
 
+(defun basis/duplicate-line (n)
+  "Duplicate the line at point.
+With an argument N, duplicate that many lines."
+  (interactive "*p")
+  (let ((col (current-column))
+        (beg (line-beginning-position))
+        (end (progn (forward-line n)
+                    (beginning-of-line)
+                    (point))))
+    (insert (buffer-substring beg end))
+    (forward-line (- n))
+    (move-to-column col)))
+
 (defun basis/kill-ring-save-buffer-file-name (&optional arg)
   "Save BUFFER's associated file name to the kill ring.
 Abbreviate the file name, unless called with prefix ARG."
