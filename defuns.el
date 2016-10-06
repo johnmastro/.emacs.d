@@ -355,7 +355,12 @@ If `subword-mode' is active, use `subword-backward-kill'."
 (defun basis/kill-ring-save-something ()
   "Save the contents of the active region or the current line."
   (interactive)
-  (apply #'kill-ring-save (basis/bounds-of-region-or-thing 'line)))
+  (apply #'kill-ring-save
+         (if (use-region-p)
+             (list (region-beginning) (region-end))
+           (list (line-beginning-position)
+                 (save-excursion (forward-line 1)
+                                 (line-beginning-position))))))
 
 (defun basis/kill-ring-save-buffer-file-name (&optional arg)
   "Save BUFFER's associated file name to the kill ring.
