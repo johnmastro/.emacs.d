@@ -2507,6 +2507,17 @@ Use `paredit' in these modes rather than `smartparens'.")
     (add-hook 'comint-mode-hook #'basis/init-comint-mode)))
 
 (defun basis/init-shell-mode ()
+  (let ((shell (thread-first (current-buffer)
+                 get-buffer-process
+                 process-command
+                 car
+                 file-name-nondirectory)))
+    (setq shell-dirstack-query
+          (cond ((string-match-p "bash" shell)
+                 "command dirs")
+                ((string-match-p "zsh" shell)
+                 "dirs -l")
+                (t shell-dirstack-query))))
   (setq comint-process-echoes t)
   (shell-dirtrack-mode -1)
   (dirtrack-mode))
