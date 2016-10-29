@@ -542,9 +542,9 @@ If no region is active, examine the full buffer."
                    (if current-prefix-arg
                        (cons char char)
                      (pcase char
-                       (?\` '(?` . ?'))
-                       (?\' '(?‘ . ?’))
-                       (?\" '(?“ . ?”))
+                       (?\` '(?\` . ?\'))
+                       (?\' '(?\‘ . ?\’))
+                       (?\" '(?\“ . ?\”))
                        (c   `(,c . ,c)))))))
      (list beg end open close)))
   (if (eq beg end)

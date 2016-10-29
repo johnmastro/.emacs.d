@@ -2298,7 +2298,11 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package git-commit
   :ensure t
-  :config (global-git-commit-mode))
+  :config
+  (progn
+    (global-git-commit-mode)
+    (when (boundp 'git-commit-style-convention-checks)
+      (add-to-list 'git-commit-style-convention-checks 'overlong-first-line))))
 
 (use-package gitattributes-mode
   :ensure t
