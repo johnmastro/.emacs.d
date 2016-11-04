@@ -2650,6 +2650,7 @@ Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package message
   :defer t
+  :init (global-set-key (kbd "C-x M") #'basis/compose-message)
   :config
   (progn
     (setq message-user-fqdn "jbm.io")

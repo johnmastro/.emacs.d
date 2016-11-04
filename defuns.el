@@ -2456,6 +2456,13 @@ For use as a `mu4e' message action."
         (browse-url (concat "file://" file)))
     (error "This message doesn't have an HTML part")))
 
+(defun basis/compose-message ()
+  "Create and display a new buffer in `message-mode'."
+  (interactive)
+  (with-current-buffer (generate-new-buffer "*unsent message*")
+    (message-mode)
+    (pop-to-buffer-same-window (current-buffer))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Lorem ipsum
