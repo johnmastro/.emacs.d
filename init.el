@@ -1819,6 +1819,16 @@ Use `paredit' in these modes rather than `smartparens'.")
     (add-hook 'c++-mode-hook  #'basis/init-c++-mode)
     (add-hook 'java-mode-hook #'basis/init-java-mode)))
 
+(defun basis/init-gud-mode ()
+  ;; I haven't had a chance to look into it, but company-mode seems to trigger a
+  ;; problem for me on text terminals specifically.
+  (unless (display-graphic-p)
+    (company-mode -1)))
+
+(use-package gud
+  :defer t
+  :config (add-hook 'gud-mode-hook #'basis/init-gud-mode))
+
 (defun basis/init-go-mode ()
   (subword-mode))
 
