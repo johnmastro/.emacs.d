@@ -1070,12 +1070,15 @@ TODO: <home> and <end> still don't work.")
   :init (global-set-key (kbd "C-x C-f") #'basis/helm-find-files)
   :config
   (progn
+    (require 'dired-x) ; For `dired-omit-extensions'
     (setq helm-ff-newfile-prompt-p nil)
     (setq helm-ff-file-name-history-use-recentf t)
     (setq helm-ff-search-library-in-sexp t)
     (setq helm-ff-skip-boring-files t)
     (setq helm-recentf-fuzzy-match t)
-    (setq helm-boring-file-regexp-list '("\\.o$" "\\.elc$" "\\.pyc$" "\\.pyo$"))
+    (setq helm-boring-file-regexp-list
+          (mapcar (lambda (e) (concat (regexp-quote e) "$"))
+                  dired-omit-extensions))
     (basis/define-keys helm-find-files-map
       ("TAB"     #'helm-execute-persistent-action)
       ("M-s"     #'helm-select-action)
