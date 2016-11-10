@@ -1316,6 +1316,31 @@ With arg N, move backward that many times."
           (forward-word 2)
           (backward-word 1))))))
 
+(defun basis/sql-toggle-column-alias-format ()
+  "Toggle a column alias at point between two formats."
+  ;; This is obviously far from a general solution but it does manage to be
+  ;; useful with the styles I work with most often.
+  (interactive)
+  (let ((new (cond ((looking-at "\\(\\sw\\|\\s_\\)+")
+                    (thread-last (match-string 0)
+                      (replace-regexp-in-string "_" " ")
+                      (replace-regexp-in-string "\\_<no\\_>" "#")
+                      (replace-regexp-in-string "\\_<pct\\_>" "%")
+                      (replace-regexp-in-string "\\_<dollars\\_>" "$")
+                      (capitalize)
+                      (format "\"%s\"")))
+                   ((looking-at "\".+\"")
+                    (thread-last (match-string 0)
+                      (replace-regexp-in-string "\"" "")
+                      (replace-regexp-in-string "\\s-" "_")
+                      (replace-regexp-in-string "#" "no")
+                      (replace-regexp-in-string "%" "pct")
+                      (replace-regexp-in-string "\\$" "dollars")
+                      (downcase))))))
+    (if new
+        (replace-match new)
+      (user-error "No column name at point"))))
+
 ;; There's probably a better way to do this
 (defvar basis/transact-sql-regexps
   '("^\\(use[[:blank:]]+\[?[\\sw_]+]?;?\\|go\\)[[:blank:]]*$"
