@@ -2255,6 +2255,8 @@ Use `paredit' in these modes rather than `smartparens'.")
     (setq magit-save-repository-buffers 'dontask)
     (setq magit-clone-set-remote.pushDefault t)
     (setq magit-popup-use-prefix-argument 'default)
+    (setq magit-popup-show-common-commands nil)
+    (setq magit-branch-popup-show-variables nil)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
     (setq magit-diff-expansion-threshold 999.0) ; Work around Magit issue #2388
