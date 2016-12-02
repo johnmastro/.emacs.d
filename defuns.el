@@ -2226,15 +2226,6 @@ Only group a buffer with a VC if its visiting a file."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
 
-(defun basis/get-frame-title ()
-  "Return a frame title including the current project directory."
-  (if-let ((file buffer-file-name))
-      (concat (abbreviate-file-name file)
-              (when (and (bound-and-true-p projectile-mode)
-                         (projectile-project-p))
-                (format " [%s]" (projectile-project-name))))
-    "%b"))
-
 (defun basis/disable-themes (&optional themes)
   "Disable THEMES (defaults to `custom-enabled-themes')."
   (interactive)

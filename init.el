@@ -477,18 +477,13 @@ Create the directory if it does not exist and CREATE is non-nil."
           (set-terminal-parameter nil 'background-mode 'dark)
           (setq solarized-termcolors 256)
           (setq solarized-italic nil)
-          ;; Some additional faces I've assembled
+          ;; Some additional faces I've accumulated
           (add-to-list 'custom-theme-load-path
                        (basis/emacs-dir "themes/solarized-moar/")))
   :config (progn (load-theme 'solarized t)
                  (load-theme 'solarized-moar t)))
 
-(when (display-graphic-p)
-  (setq frame-title-format '((:eval (basis/get-frame-title)))))
-
-(use-package leuven-theme
-  :ensure t
-  :defer t)
+(setq frame-title-format '("%b" " | " invocation-name "@" system-name))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
