@@ -416,41 +416,23 @@ Interactively, default to four spaces of indentation."
       (kill-ring-save (point-min) (point-max))))
   (setq deactivate-mark t))
 
-(defun basis/upcase-something (&optional arg)
-  "Upcase either the region or word(s).
-This will call `upcase-region' or `upcase-word' depending on
-whether the region is active."
-  (interactive "*p")
-  (cond ((use-region-p)
-         (upcase-region (region-beginning) (region-end)))
-        ((bound-and-true-p subword-mode)
-         (subword-upcase arg))
-        (t
-         (upcase-word arg))))
+(defmacro basis/def-case-op (op)
+  (let ((region-op  (intern (format "%s-region" op)))
+        (word-op    (intern (format "%s-word" op)))
+        (subword-op (intern (format "subword-%s" op))))
+    `(defun ,(intern (format "basis/%s-something" op)) (&optional count)
+       ,(format "%s the region or COUNT words." (capitalize (symbol-name op)))
+       (interactive "*p")
+       (cond ((use-region-p)
+              (,region-op (region-beginning) (region-end)))
+             ((bound-and-true-p subword-mode)
+              (,subword-op count))
+             (t
+              (,word-op count))))))
 
-(defun basis/downcase-something (&optional arg)
-  "Downcase either the region or word(s).
-This will call `downcase-region' or `downcase-word' depending on
-whether the region is active."
-  (interactive "*p")
-  (cond ((use-region-p)
-         (downcase-region (region-beginning) (region-end)))
-        ((bound-and-true-p subword-mode)
-         (subword-downcase arg))
-        (t
-         (downcase-word arg))))
-
-(defun basis/capitalize-something (&optional arg)
-  "Capitalize either the region or word(s).
-This will call `capitalize-region' or `capitalize-word' depending
-on whether the region is active."
-  (interactive "*p")
-  (cond ((use-region-p)
-         (capitalize-region (region-beginning) (region-end)))
-        ((bound-and-true-p subword-mode)
-         (subword-capitalize arg))
-        (t
-         (capitalize-word arg))))
+(basis/def-case-op upcase)
+(basis/def-case-op downcase)
+(basis/def-case-op capitalize)
 
 (defun basis/pop-to-mark-ensure-new-pos (original)
   "Advice for `pop-to-mark-command' to repeat until point moves."
@@ -2386,31 +2368,41 @@ forms are byte-compiled."
         (goto-char (point-max))
         (display-buffer (current-buffer))))))
 
-(defun basis/emacs-Q (emacs home)
-  "Run `EMACS -Q' with its home in HOME.
-If called interactively, use the current emacs and /tmp by
-default, unless called with a prefix argument."
+(defun basis/emacs-Q (emacs home args)
+  "Run \"EMACS -Q ARGS\" with its home in HOME.
+EMACS defaults to the current Emacs executable. HOME defaults to
+\"/tmp\"."
   ;; This is only really useful on Windows, where I use a Cygwin shell but a
   ;; native Windows Emacs, so `emacs -Q' in my shell doesn't cut it.
-  (interactive
-   (pcase-let ((`(,self ,tmp)
-                (if (eq system-type 'windows-nt)
-                    (list (expand-file-name "runemacs.exe" invocation-directory)
-                          "e:\\tmp")
-                  (list (expand-file-name invocation-name invocation-directory)
-                        "/tmp"))))
-     (if current-prefix-arg
-         (list (read-file-name "Emacs: " nil self t nil #'file-executable-p)
-               (read-directory-name "HOME: " nil tmp t))
-       (list self tmp))))
-  (let ((emacs (expand-file-name emacs))
-        (process-environment process-environment)
-        old)
-    (when (and (eq basis/system-type 'windows+cygwin)
-               (setq old (map-elt basis/pre-cygwin-state 'process-environment)))
-      (setq process-environment old))
-    (push (concat "HOME=" home) process-environment)
-    (start-process "emacs-Q" nil emacs "-Q")))
+  (interactive (list nil nil nil))
+  (let* ((emacs (or emacs (expand-file-name (if (eq system-type 'windows-nt)
+                                                "runemacs.exe"
+                                              invocation-name)
+                                            invocation-directory)))
+         (home (or home (if (eq system-type 'windows-nt)
+                            "e:\\tmp"
+                          "/tmp")))
+         (penv (or (map-elt basis/pre-cygwin-state 'process-environment)
+                   process-environment))
+         (process-environment (cons (concat "HOME=" home) penv)))
+    (apply #'start-process "emacs-Q" nil (expand-file-name emacs)
+           "-Q" "--eval" "(setq debug-on-error t)"
+           args)))
+
+(defun basis/emacs-Q+ (libs &optional load)
+  (interactive)
+  (basis/emacs-Q nil nil (append (seq-mapcat (lambda (dir) (list "-L" dir))
+                                             (thread-last libs
+                                               (mapcar #'locate-library)
+                                               (mapcar #'file-name-directory)
+                                               (delete-dups)))
+                                 (seq-mapcat (lambda (lib) (list "-l" lib))
+                                             load))))
+
+(defun basis/magit-emacs-Q ()
+  (interactive)
+  (basis/emacs-Q+ '("magit" "magit-popup" "with-editor" "git-commit" "dash")
+                  '("magit")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
