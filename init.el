@@ -162,7 +162,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   ;; `basis/emacs-Q'
   (unless (map-elt basis/pre-cygwin-state 'process-environment)
     (setf (map-elt basis/pre-cygwin-state 'process-environment)
-          (copy-sequence process-environment)))
+          (mapcar #'copy-sequence process-environment)))
   ;; Set things up for use with Cygwin
   (let* ((home (basis/windows->unix (or (getenv "HOME")
                                         (error "HOME not defined"))))
