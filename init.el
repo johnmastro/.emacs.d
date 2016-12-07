@@ -821,6 +821,105 @@ TODO: <home> and <end> still don't work.")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Brackets
+
+(defun basis/init-paredit-mode ()
+  (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
+                                               inferior-lisp-mode
+                                               inferior-scheme-mode
+                                               geiser-repl-mode
+                                               cider-repl-mode)))
+    (local-set-key (kbd "RET") #'paredit-newline)))
+
+(use-package paredit
+  :ensure t
+  :init (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
+  :config
+  (progn
+    (basis/define-keys paredit-mode-map
+      ("M-?"             nil) ; Make room for `xref-find-references'
+      ("M-)"             #'basis/paredit-wrap-round-from-behind)
+      ("M-e"             #'paredit-forward)
+      ("M-a"             #'paredit-backward)
+      ("M-k"             #'kill-sexp)
+      ("C-w"             #'basis/paredit-kill-something)
+      ("M-DEL"           #'basis/paredit-kill-something))
+    (add-to-list 'paredit-space-for-delimiter-predicates
+                 #'basis/paredit-doublequote-space-p)
+    ;; Show `eldoc' messages after Paredit motion commands
+    (with-eval-after-load 'eldoc
+      (eldoc-add-command 'paredit-forward
+                         'paredit-forward-up
+                         'paredit-forward-down
+                         'paredit-backward
+                         'paredit-backward-up
+                         'paredit-backward-down
+                         'paredit-newline))
+    (add-hook 'paredit-mode-hook #'basis/init-paredit-mode)
+    (pcase-dolist (`(,sym . ,act) '((paredit-kill            . supersede)
+                                    (paredit-forward-delete  . supersede)
+                                    (paredit-backward-delete . supersede)
+                                    (paredit-newline         . t)))
+      (put sym 'delete-selection act))))
+
+(defvar basis/sp-ignore-modes
+  '(lisp-mode
+    emacs-lisp-mode
+    inferior-emacs-lisp-mode
+    lisp-interaction-mode
+    cider-repl-mode
+    clojure-mode
+    clojure-mode-mode
+    inferior-scheme-mode
+    geiser-repl-mode
+    inferior-lisp-mode
+    scheme-mode
+    slime-repl-mode)
+  "List of modes in which not to active `smartparens'.
+In practice these are all Lisps, for which I prefer `paredit'.")
+
+(use-package smartparens
+  :ensure t
+  :config
+  (progn
+    (smartparens-global-strict-mode)
+    ;; I still prefer Paredit with Lisps, and having Smartparens enabled messes
+    ;; with argument handling in `magit-key-mode'.
+    (dolist (mode (cons 'magit-key-mode basis/sp-ignore-modes))
+      (add-to-list 'sp-ignore-modes-list mode))
+    (sp-use-paredit-bindings)
+    (setq sp-cancel-autoskip-on-backward-movement nil)
+    (setq sp-autoescape-string-quote nil)
+    (setq sp-use-subword t)
+    (setq-default sp-autoskip-closing-pair 'always)
+    (sp-pair "'" nil
+             :unless '(basis/sp-point-after-word-p)
+             :actions '(insert wrap autoskip))
+    (pcase-dolist (`(,mode ,open ,close ,actions)
+                   '((org-mode  "=" "=" (wrap))
+                     (rust-mode "'" nil (:rem insert autoskip))
+                     (c-mode    "{" "}" (:rem insert autoskip))
+                     (c++-mode  "{" "}" (:rem insert autoskip))
+                     (java-mode "{" "}" (:rem insert autoskip))))
+      (sp-local-pair mode open close :actions actions))
+    (basis/define-keys sp-keymap
+      ("M-DEL"           #'basis/sp-kill-something)
+      ("C-DEL"           #'basis/sp-kill-something)
+      ("<C-backspace>"   #'basis/sp-kill-something)
+      ("C-w"             #'basis/sp-kill-something)
+      ("M-k"             #'sp-kill-sexp)
+      ("M-e"             #'sp-forward-sexp)
+      ("M-a"             #'sp-backward-sexp)
+      ("C-M-u"           #'basis/sp-backward-up))
+    (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
+    (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
+    ;; Treat raw prefix arguments like numeric arguments
+    (advice-add 'sp-backward-delete-char
+                :filter-args
+                #'basis/sp-backward-delete-no-prefix)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement
 
 (use-package imenu
@@ -1298,22 +1397,6 @@ TODO: <home> and <end> still don't work.")
 (use-package prog-mode
   :config (progn (define-key prog-mode-map (kbd "RET") #'basis/electric-return)
                  (add-hook 'prog-mode-hook #'basis/init-prog-mode)))
-
-(defvar basis/lisp-modes
-  '(lisp-mode
-    emacs-lisp-mode
-    inferior-emacs-lisp-mode
-    lisp-interaction-mode
-    cider-repl-mode
-    clojure-mode
-    clojure-mode-mode
-    inferior-scheme-mode
-    geiser-repl-mode
-    inferior-lisp-mode
-    scheme-mode
-    slime-repl-mode)
-  "List of Lisp modes.
-Use `paredit' in these modes rather than `smartparens'.")
 
 (use-package lisp-mode
   :defer t
@@ -2064,89 +2147,6 @@ Use `paredit' in these modes rather than `smartparens'.")
 (use-package css-mode
   :defer t
   :init (put 'css-indent-offset 'safe-local-variable #'integerp))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Brackets
-
-(defun basis/init-paredit-mode ()
-  (unless (or (minibufferp) (memq major-mode '(inferior-emacs-lisp-mode
-                                               inferior-lisp-mode
-                                               inferior-scheme-mode
-                                               geiser-repl-mode
-                                               cider-repl-mode)))
-    (local-set-key (kbd "RET") #'paredit-newline)))
-
-(use-package paredit
-  :ensure t
-  :init (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
-  :config
-  (progn
-    (basis/define-keys paredit-mode-map
-      ("M-?"             nil) ; Make room for `xref-find-references'
-      ("M-)"             #'basis/paredit-wrap-round-from-behind)
-      ("M-e"             #'paredit-forward)
-      ("M-a"             #'paredit-backward)
-      ("M-k"             #'kill-sexp)
-      ("C-w"             #'basis/paredit-kill-something)
-      ("M-DEL"           #'basis/paredit-kill-something))
-    (add-to-list 'paredit-space-for-delimiter-predicates
-                 #'basis/paredit-doublequote-space-p)
-    ;; Show `eldoc' messages after Paredit motion commands
-    (with-eval-after-load 'eldoc
-      (eldoc-add-command 'paredit-forward
-                         'paredit-forward-up
-                         'paredit-forward-down
-                         'paredit-backward
-                         'paredit-backward-up
-                         'paredit-backward-down
-                         'paredit-newline))
-    (add-hook 'paredit-mode-hook #'basis/init-paredit-mode)
-    (pcase-dolist (`(,sym . ,act) '((paredit-kill            . supersede)
-                                    (paredit-forward-delete  . supersede)
-                                    (paredit-backward-delete . supersede)
-                                    (paredit-newline         . t)))
-      (put sym 'delete-selection act))))
-
-(use-package smartparens
-  :ensure t
-  :config
-  (progn
-    (smartparens-global-strict-mode)
-    ;; I still prefer Paredit with Lisps, and having Smartparens enabled messes
-    ;; with argument handling in `magit-key-mode'.
-    (dolist (mode (cons 'magit-key-mode basis/lisp-modes))
-      (add-to-list 'sp-ignore-modes-list mode))
-    (sp-use-paredit-bindings)
-    (setq sp-cancel-autoskip-on-backward-movement nil)
-    (setq sp-autoescape-string-quote nil)
-    (setq sp-use-subword t)
-    (setq-default sp-autoskip-closing-pair 'always)
-    (sp-pair "'" nil
-             :unless '(basis/sp-point-after-word-p)
-             :actions '(insert wrap autoskip))
-    (pcase-dolist (`(,mode ,open ,close ,actions)
-                   '((org-mode  "=" "=" (wrap))
-                     (rust-mode "'" nil (:rem insert autoskip))
-                     (c-mode    "{" "}" (:rem insert autoskip))
-                     (c++-mode  "{" "}" (:rem insert autoskip))
-                     (java-mode "{" "}" (:rem insert autoskip))))
-      (sp-local-pair mode open close :actions actions))
-    (basis/define-keys sp-keymap
-      ("M-DEL"           #'basis/sp-kill-something)
-      ("C-DEL"           #'basis/sp-kill-something)
-      ("<C-backspace>"   #'basis/sp-kill-something)
-      ("C-w"             #'basis/sp-kill-something)
-      ("M-k"             #'sp-kill-sexp)
-      ("M-e"             #'sp-forward-sexp)
-      ("M-a"             #'sp-backward-sexp)
-      ("C-M-u"           #'basis/sp-backward-up))
-    (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
-    (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
-    ;; Treat raw prefix arguments like numeric arguments
-    (advice-add 'sp-backward-delete-char
-                :filter-args
-                #'basis/sp-backward-delete-no-prefix)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
