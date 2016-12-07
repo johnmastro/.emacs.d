@@ -2163,8 +2163,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
                       (file-readable-p file)
                       (not (ignore-errors (lookup-words "whatever"))))
              (setq ispell-alternate-dictionary file)))
-         ;; Ugly kludge to make the personal dictionary work on my
-         ;; Windows+Cygwin setup.
+         ;; Ugly kludge to make the personal dictionary work on my Cygwin setup.
          (when (eq basis/system-type 'windows+cygwin)
            (advice-add 'ispell-init-process :around
                        #'basis/ispell-init-process))))
@@ -2249,15 +2248,11 @@ In practice these are all Lisps, for which I prefer `paredit'.")
           ("C-c M-g" #'magit-file-popup))
   :config
   (progn
-    (setq magit-revert-buffers 'silent)
     (setq magit-save-repository-buffers 'dontask)
     (setq magit-clone-set-remote.pushDefault t)
-    (setq magit-popup-use-prefix-argument 'default)
-    (setq magit-popup-show-common-commands nil)
     (setq magit-branch-popup-show-variables nil)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
-    (setq magit-diff-expansion-threshold 999.0) ; Work around Magit issue #2388
     (setq magit-repository-directories
           (thread-last projectile-known-projects
             (seq-remove #'tramp-tramp-file-p)
@@ -2285,8 +2280,8 @@ In practice these are all Lisps, for which I prefer `paredit'.")
       (fset 'magit-save-repository-buffers
             #'basis/magit-cygwin-save-repository-buffers)
       ;; I haven't figured out yet why the Magit commands for saving and popping
-      ;; stashes fail on my Windows+Cygwin setup at work, but this gives me
-      ;; quick access to the simplest usage in the meantime.
+      ;; stashes fail on my Cygwin setup at work, but this gives me quick access
+      ;; to the simplest usage in the meantime.
       (pcase-dolist (`(,key ,cmd ,before) '((?z save ?Z)
                                             (?Z snapshot ?p)
                                             (?p pop ?i)))
