@@ -183,9 +183,6 @@ Create the directory if it does not exist and CREATE is non-nil."
       (setq ediff-shell shell)
       (setq null-device "/dev/null")
       (setenv "SHELL" shell))
-    (dolist (pattern '("[bB][aA][sS][hH]" "[zZ][sS][hH]" "[gG][rR][eE][pP]"))
-      (add-to-list 'process-coding-system-alist
-                   (cons pattern '(utf-8 . cp1252))))
     ;; Since Emacs wasn't launched from a Cygwin shell, $LANG will be wonky
     ;; unless we fix it.
     (setenv "LANG" "en_US.UTF-8")
