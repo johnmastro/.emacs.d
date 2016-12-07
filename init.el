@@ -2314,8 +2314,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   :config
   (progn
     (global-git-commit-mode)
-    (when (boundp 'git-commit-style-convention-checks)
-      (add-to-list 'git-commit-style-convention-checks 'overlong-first-line))))
+    (add-to-list 'git-commit-style-convention-checks 'overlong-summary-line)))
 
 (use-package gitattributes-mode
   :ensure t
