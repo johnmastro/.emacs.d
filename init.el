@@ -498,9 +498,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package info
   :defer t
   :config
-  (let ((info-path (basis/emacs-dir "doc/info/")))
-    (when (file-directory-p info-path)
-      (add-to-list 'Info-additional-directory-list info-path))))
+  (let ((dir  (basis/emacs-dir "doc/info/"))
+        (font (face-attribute 'default :font)))
+    (when (file-directory-p dir)
+      (add-to-list 'Info-additional-directory-list dir))
+    (set-face-attribute 'Info-quoted nil :font font :slant 'italic)))
 
 (use-package apropos
   :defer t
