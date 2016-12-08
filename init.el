@@ -2303,11 +2303,15 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   :ensure t
   :defer t)
 
+(defun basis/init-git-commit-mode ()
+  (setq-local fill-column 72))
+
 (use-package git-commit
   :ensure t
   :config
   (progn
     (global-git-commit-mode)
+    (add-to-list 'git-commit-setup-hook #'basis/init-git-commit-mode)
     (add-to-list 'git-commit-style-convention-checks 'overlong-summary-line)))
 
 (use-package gitattributes-mode
