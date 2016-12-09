@@ -1153,9 +1153,8 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   :config (progn
             (setq helm-mode-handle-completion-in-region nil)
             (helm-mode)
-            (dolist (cons '((multi-occur . ido-completing-read)
-                            (Info-goto-node)))
-              (add-to-list 'helm-completing-read-handlers-alist cons)))
+            (add-to-list 'helm-completing-read-handlers-alist
+                         '(multi-occur . ido-completing-read)))
   :diminish helm-mode)
 
 (use-package helm-files
