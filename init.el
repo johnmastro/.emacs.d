@@ -1880,7 +1880,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   (c-set-offset 'innamespace 0)
   (c-set-offset 'inline-open 0)
   (c-set-offset 'member-init-intro 2)
-  (c-set-offset 'member-init-cont 2)
+  (c-set-offset 'member-init-cont 0)
   (dolist (cleanup '(brace-catch-brace scope-operator))
     (add-to-list 'c-cleanup-list cleanup)))
 
