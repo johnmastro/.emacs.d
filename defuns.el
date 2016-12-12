@@ -2338,22 +2338,21 @@ kill the current session even if there are multiple frames."
     (overlay-put overlay 'face 'secondary-selection)
     (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
 
-(defun basis/time-function (fn)
-  "Return the execution time in seconds of calling FN.
-Byte-compile FN before calling it."
-  (setq fn (byte-compile fn))
-  (let ((beg (float-time)))
+(defun basis/measure-time* (fn)
+  "Return the execution time in seconds of calling FN."
+  (let* ((fn (byte-compile fn))
+         (t0 (progn (garbage-collect)
+                    (float-time))))
     (funcall fn)
     (/ (truncate (* (- (float-time (current-time))
-                       beg)
+                       t0)
                     10000))
        10000.0)))
 
-(defmacro basis/time-forms (&rest body)
-  "Return the execution time in seconds of evaluating BODY.
-Wrap BODY in a lambda and use `basis/time-function' so that the
-forms are byte-compiled."
-  `(basis/time-function (lambda () (progn ,@body))))
+(defmacro basis/measure-time (&rest body)
+  "Return the execution time in seconds of evaluating BODY."
+  (declare (indent defun))
+  `(basis/measure-time* (lambda () ,@body)))
 
 (defun basis/toggle-echo-area-messages ()
   "Toggle whether the \"*Messages*\" buffer is shown."
