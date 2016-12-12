@@ -2213,12 +2213,6 @@ Only group a buffer with a VC if its visiting a file."
   (interactive)
   (mapc #'disable-theme (or themes custom-enabled-themes)))
 
-(defun basis/maybe-set-emoji-font (&optional frame)
-  "Set a system-specific font for symbols (including emojis)."
-  (when-let ((font-spec (pcase system-type
-                          (`darwin (font-spec :family "Apple Color Emoji")))))
-    (set-fontset-font t 'symbol font-spec frame 'prepend)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Miscellaneous

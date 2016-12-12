@@ -1349,10 +1349,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (use-package company-emoji
   :ensure t
-  :defer t
-  :init (when (eq system-type 'darwin)
-          (add-hook 'after-make-frame-functions #'basis/maybe-set-emoji-font))
-  :config (add-to-list 'company-backends #'company-emoji))
+  :defer t)
 
 (use-package hippie-exp
   :init (global-set-key (kbd "M-/") #'hippie-expand)
