@@ -57,6 +57,16 @@ See `basis/eval-keys'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing utilities
 
+(defun basis/in-string-p ()
+  "Return non-nil if point is within a string."
+  (nth 3 (syntax-ppss)))
+
+(defun basis/in-string-or-comment-p ()
+  "Return non-nil if point is in a string or comment."
+  (let ((state (syntax-ppss)))
+    (or (nth 3 state)
+        (nth 4 state))))
+
 (defun basis/bounds-of-region-or-thing (thing)
   "Return the bounds of the region if active or THING."
   ;; Note that whereas `bounds-of-thing-at-point' returns (BEG . END) we return
@@ -433,6 +443,27 @@ Interactively, default to four spaces of indentation."
 (basis/def-case-op upcase)
 (basis/def-case-op downcase)
 (basis/def-case-op capitalize)
+
+(defun basis/downcase-almost-everything (arg)
+  "Downcase everything not in a string or comment."
+  (interactive "P")
+  (let ((start (point))
+        (count 0)
+        (case-fold-search nil))
+    (and arg (goto-char (point-min)))
+    (while (re-search-forward "[[:upper:]]+" nil t)
+      (let ((state (syntax-ppss)))
+        (cond ((nth 3 state)  ; Inside a string
+               (goto-char (nth 8 state))
+               (forward-sexp 1))
+              ((nth 4 state)  ; Inside a comment
+               (goto-char (nth 8 state))
+               (forward-comment (buffer-size)))
+              (t
+               (replace-match (downcase (match-string 0)) t t)
+               (setq count (1+ count))))))
+    (and (zerop count) (goto-char start))
+    (message "Made %d replacements" count)))
 
 (defun basis/pop-to-mark-ensure-new-pos (original)
   "Advice for `pop-to-mark-command' to repeat until point moves."
@@ -1171,12 +1202,6 @@ delete all whitespace backward. Use `sp-backward-delete-char' if
       word-end)
   "Regexp matching SQL keywords that begin clauses.")
 
-(defun basis/sql-in-string-or-comment-p ()
-  "Return non-nil if point is in a string or comment."
-  (let ((state (syntax-ppss)))
-    (or (nth 3 state)
-        (nth 4 state))))
-
 (defun basis/sql-forward-clause (&optional n)
   "Move to the start of the next clause of the statement.
 With arg N, move forward that many times."
@@ -1191,7 +1216,7 @@ With arg N, move forward that many times."
           (setq start2 (goto-char (match-end 0))))
         (while (and (> n 0)
                     (re-search-forward basis/sql-clause-start-regexp nil t))
-          (unless (basis/sql-in-string-or-comment-p)
+          (unless (basis/in-string-or-comment-p)
             (setq n (- n 1))))
         ;; If that didn't get us anywhere, just do `forward-paragraph'
         (cond ((= (point) start1)
@@ -1213,7 +1238,7 @@ With arg N, move backward that many times."
       (let ((start (point)))
         (while (and (> n 0)
                     (re-search-backward basis/sql-clause-start-regexp nil t))
-          (unless (basis/sql-in-string-or-comment-p)
+          (unless (basis/in-string-or-comment-p)
             (setq n (- n 1))))
         (when (= (point) start)
           (backward-paragraph n))
@@ -1269,34 +1294,6 @@ With arg N, move backward that many times."
           (progn (goto-char (cadr state))
                  (forward-sexp))
         (goto-char start)))))
-
-(defun basis/sql-recapitalize-buffer (style)
-  "Recapitalize the current buffer to STYLE (caps or none)."
-  (interactive
-   (list (intern (completing-read  "Style: " '("caps" "none") nil t))))
-  (unless (memq style '(caps none))
-    (error "Unknown capitalization style `%s'" style))
-  (when (or (eq major-mode 'sql-mode)
-            (y-or-n-p "Not in a SQL buffer. Proceed anyway?"))
-    (save-excursion
-      (goto-char (point-min))
-      (let ((last -1))
-        (while (> (point) last)
-          (unless (basis/sql-in-string-or-comment-p)
-            (let ((face (get-text-property (point) 'face)))
-              (cond ((memq face '(font-lock-builtin-face
-                                  font-lock-keyword-face
-                                  font-lock-type-face))
-                     (if (eq style 'caps)
-                         (upcase-word 1)
-                       (downcase-word 1))
-                     (backward-word 1))
-                    ((null face)
-                     (downcase-word 1)
-                     (backward-word 1)))))
-          (setq last (point))
-          (forward-word 2)
-          (backward-word 1))))))
 
 (defun basis/sql-toggle-column-alias-format ()
   "Toggle a column alias at point between two formats."
@@ -2307,10 +2304,6 @@ kill the current session even if there are multiple frames."
   (if (or arg (null (cdr (frame-list))))
       (save-buffers-kill-terminal)
     (delete-frame)))
-
-(defun basis/in-string-p ()
-  "Return non-nil if point is within a string."
-  (nth 3 (syntax-ppss)))
 
 (defun basis/shr-html2text ()
   "Convert HTML to plain text in the current buffer using `shr'."
