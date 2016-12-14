@@ -451,12 +451,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
 
-;; See the commentary in `unicode-fonts' for the "minimum useful fonts" to
-;; install
-(use-package unicode-fonts
-  :ensure t
-  :config (unicode-fonts-setup))
-
 (use-package faces
   :config
   (when-let ((font (seq-find
