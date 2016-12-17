@@ -477,14 +477,12 @@ Interactively, default to four spaces of indentation."
 (defun basis/untabify-buffer ()
   "Untabify the current buffer."
   (interactive)
-  (save-excursion
-    (untabify (point-min) (point-max))))
+  (save-excursion (untabify (point-min) (point-max))))
 
 (defun basis/indent-buffer ()
   "Indent the current buffer."
   (interactive)
-  (save-excursion
-    (indent-region (point-min) (point-max))))
+  (save-excursion (indent-region (point-min) (point-max))))
 
 (defun basis/cleanup-buffer-safe ()
   "Clean up the whitespace content of a buffer conservatively."
@@ -532,6 +530,7 @@ If no region is active, examine the full buffer."
   (cycle-spacing n nil 'fast))
 
 (defun basis/fill-or-unfill-paragraph ()
+  "Fill or un-fill the paragraph at or after point."
   (interactive)
   (let ((fill-column (if (eq last-command 'basis/fill-or-unfill-paragraph)
                          (progn (setq this-command nil)
@@ -570,25 +569,6 @@ If no region is active, examine the full buffer."
       (goto-char end)
       (insert close)
       (set-marker end nil))))
-
-(defun basis/insert-parentheses (&optional arg)
-  "Like `insert-parenthesis' but treat `C-u' specially.
-With `C-u', wrap as may sexps as possible, until reaching
-whitespace or an end-of-line. With any other prefix argument, or
-if the region is active, defer to `insert-parenthesis'."
-  ;; The idea is to be able to wrap the entirety of an expression like
-  ;; foo.bar(1, 2)
-  (interactive "*P")
-  (if (and (equal arg '(4))
-           (not (use-region-p)))
-      (let ((beg (point)))
-        (skip-chars-forward "[:blank:]")
-        (while (not (looking-at-p "\\([[:blank:]]\\|\\s.?$\\)"))
-          (forward-sexp 1))
-        (insert ")")
-        (goto-char beg)
-        (insert "("))
-    (call-interactively #'insert-parentheses)))
 
 (defun basis/delete-indentation (&optional arg)
   "Like `delete-indentation' but delete extra comments and whitespace."
@@ -712,15 +692,14 @@ current search, with no context-dependent behavior."
          (prefix-numeric-value current-prefix-arg)))
   (occur regexp nlines))
 
-(defvar basis/occur-show-note-regexp
-  (regexp-opt '("TODO" "DONE" "NOTE" "KLUDGE" "FIXME" "FAIL" "XXX" "???")
-              t)
-  "Regexp used by `basis/occur-show-notes'")
+(defvar basis/occur-show-note-strings
+  '("TODO" "DONE" "NOTE" "KLUDGE" "FIXME" "FAIL" "XXX" "???")
+  "Strings searched for by `basis/occur-show-notes'.")
 
 (defun basis/occur-show-notes ()
   "Search for common \"TODO\"-style notes."
   (interactive)
-  (occur basis/occur-show-note-regexp))
+  (occur (regexp-opt basis/occur-show-note-strings t)))
 
 (defun basis/push-mark-noactivate (&rest _args)
   "Advice to push the mark (without activating it)."
@@ -844,18 +823,8 @@ If called with a negative argument, temporarily invert
     (helm-exit-and-execute-action (lambda (&rest _) (helm-bookmarks)))))
 
 (defvar basis/helm-w32-shell-operations
-  '("open"
-    "opennew"
-    "openas"
-    "print"
-    "printto"
-    "explore"
-    "edit"
-    "find"
-    "runas"
-    "properties"
-    "default")
-  "List of possible OPERATION arguments to `w32-shell-execute'.")
+  '(open opennew openas print explore edit find runas properties default)
+  "List of possible operations for `basis/helm-open-file-w32'.")
 
 (defun basis/helm-open-file-w32 (file)
   ;; Used as :override advice to `helm-open-file-externally' on Windows
@@ -894,8 +863,7 @@ file(s) to open with `helm-read-file-name'."
 (defun basis/helm-ff-run-magit-status ()
   "Run `magit-status' from `helm-source-find-files'."
   (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action #'magit-status)))
+  (with-helm-alive-p (helm-exit-and-execute-action #'magit-status)))
 
 (defun basis/insert-file-name (file)
   "Read FILE with `helm' and insert it in the current buffer.
@@ -977,15 +945,13 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 (defun basis/scheme-send-something ()
   (interactive)
-  (call-interactively (if (use-region-p)
-                          #'scheme-send-region
-                        #'scheme-send-definition)))
+  (call-interactively
+   (if (use-region-p) #'scheme-send-region #'scheme-send-definition)))
 
 (defun basis/geiser-eval-something ()
   (interactive)
-  (call-interactively (if (use-region-p)
-                          #'geiser-eval-region
-                        #'geiser-eval-definition)))
+  (call-interactively
+   (if (use-region-p) #'geiser-eval-region #'geiser-eval-definition)))
 
 (defun basis/geiser-eval-something-and-go ()
   (interactive)
@@ -995,16 +961,14 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
 
 (defun basis/geiser-expand-something ()
   (interactive)
-  (call-interactively (if (use-region-p)
-                          #'geiser-expand-region
-                        #'geiser-expand-last-sexp)))
+  (call-interactively
+   (if (use-region-p) #'geiser-expand-region #'geiser-expand-last-sexp)))
 
 (defun basis/python-send-something ()
   "Send the active region or the current defun."
   (interactive)
-  (call-interactively (if (use-region-p)
-                          #'python-shell-send-region
-                        #'python-shell-send-defun)))
+  (call-interactively
+   (if (use-region-p) #'python-shell-send-region #'python-shell-send-defun)))
 
 (defun basis/python-nav-backward-sexp (&optional arg)
   "Move backward by one sexp."
@@ -1093,9 +1057,8 @@ the base `run-python' functionality with a prefix arg."
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
   (interactive)
-  (call-interactively (if (use-region-p)
-                          #'slime-eval-region
-                        #'slime-eval-defun)))
+  (call-interactively
+   (if (use-region-p) #'slime-eval-region #'slime-eval-defun)))
 
 (defun basis/slime-expand-defun (&optional repeatedly)
   "Display the macro expansion of the form surrounding point.
@@ -1118,9 +1081,8 @@ Use `slime-expand-1' to produce the expansion."
 
 (defun basis/cider-eval-something ()
   (interactive)
-  (call-interactively (if (use-region-p)
-                          #'cider-eval-region
-                        #'cider-eval-defun-at-point)))
+  (call-interactively
+   (if (use-region-p) #'cider-eval-region #'cider-eval-defun-at-point)))
 
 (defun basis/helm-clj-headlines ()
   (interactive)
@@ -1320,33 +1282,6 @@ With arg N, move backward that many times."
         (replace-match new)
       (user-error "No column name at point"))))
 
-;; There's probably a better way to do this
-(defvar basis/transact-sql-regexps
-  '("^\\(use[[:blank:]]+\[?[\\sw_]+]?;?\\|go\\)[[:blank:]]*$"
-    "\\(^\\|[[:blank:]]\\)object_id(")
-  "Regular expressions to identify Transact-SQL constructs.")
-
-(defun basis/sql-guess-product ()
-  "Try to guess the SQL product for the current buffer."
-  (if (save-excursion
-        (seq-some (lambda (regexp)
-                    (goto-char (point-min))
-                    (re-search-forward regexp nil t))
-                  basis/transact-sql-regexps))
-      'ms
-    ;; Default to PostgreSQL because I use it the most
-    'postgres))
-
-(defun basis/sql-set-product (&optional product)
-  "Call `sql-set-product' based on file content."
-  (interactive
-   (list (intern (completing-read "SQL product: "
-                                  (mapcar (lambda (p) (symbol-name (car p)))
-                                          sql-product-alist)
-                                  nil
-                                  t))))
-  (sql-set-product (or product (basis/sql-guess-product))))
-
 (defun basis/sql-modify-syntax-table ()
   "Modify a couple syntax table entries for SQL.
 Make double quote a string delimiter and period a symbol
@@ -1520,9 +1455,8 @@ multiple-document stream."
 
 (defun basis/paredit-kill-something ()
   (interactive)
-  (call-interactively (if (use-region-p)
-                          #'kill-region
-                        #'paredit-backward-kill-word)))
+  (call-interactively
+   (if (use-region-p) #'kill-region #'paredit-backward-kill-word)))
 
 (defun basis/paredit-wrap-from-behind (wrapper &optional spacep)
   (paredit-backward)
@@ -1553,9 +1487,8 @@ numeric argument)."
 (defun basis/sp-kill-something ()
   "Call `sp-backward-kill-word' or `kill-region'. "
   (interactive)
-  (call-interactively (if (use-region-p)
-                          #'kill-region
-                        #'sp-backward-kill-word)))
+  (call-interactively
+   (if (use-region-p) #'kill-region #'sp-backward-kill-word)))
 
 (defmacro basis/with-sp-backward-delete (&rest body)
   "Execute BODY with `sp-backward-delete-char' overriding
@@ -1881,18 +1814,6 @@ user-error, automatically move point to the command line."
   (unless (string-match-p "\\*grep\\*" (buffer-name))
     (let ((inhibit-read-only t))
       (ansi-color-apply-on-region compilation-filter-start (point)))))
-
-(defun basis/eshell-kill-line-backward ()
-  "Kill the current line backward, respecting Eshell's prompt."
-  (interactive)
-  (kill-region (save-excursion (eshell-bol) (point))
-               (point)))
-
-(defun basis/eshell-kill-whole-line ()
-  "Kill the current line, respecting Eshell's prompt."
-  (interactive)
-  (kill-region (save-excursion (eshell-bol) (point))
-               (line-end-position)))
 
 (defun basis/find-clang-program ()
   "Return the clang program to be used by `company-clang'."

@@ -597,9 +597,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (global-set-key (kbd "M-e") #'forward-sexp)
 (global-set-key (kbd "M-a") #'backward-sexp)
 
-;; Treat `C-u' specially on `M-('
-(global-set-key (kbd "M-(") #'basis/insert-parentheses)
-
 ;; M-x shell
 (global-set-key (kbd "C-c <C-return>") #'shell)
 (global-set-key (kbd "C-c C-^") #'shell)
@@ -1819,8 +1816,8 @@ In practice these are all Lisps, for which I prefer `paredit'.")
             (buffer     #'skewer-css-eval-buffer)))
 
 (defun basis/init-sql-mode ()
-  (basis/sql-set-product)
-  (setq tab-width 4))
+  (setq tab-width 4)
+  (sql-set-product 'postgres))
 
 (use-package sql
   :defer t
@@ -2540,15 +2537,9 @@ In practice these are all Lisps, for which I prefer `paredit'.")
                             '("^%[ \r]*\\(.+\\)>" 1)
                           '("^[^:\n]+@[^:\n]+:\\(.+\\)>" 1))))
 
-(defun basis/init-eshell ()
-  (basis/define-keys eshell-mode-map
-    ("S-DEL"   #'basis/eshell-kill-line-backward)
-    ("C-S-DEL" #'basis/eshell-kill-whole-line)))
-
 (use-package esh-mode
   :defer t
-  :config (progn (setq eshell-directory-name (basis/emacs-dir "var/eshell/"))
-                 (add-hook 'eshell-mode-hook #'basis/init-eshell)))
+  :config (setq eshell-directory-name (basis/emacs-dir "var/eshell/")))
 
 ;; Proced
 (use-package proced
