@@ -2269,18 +2269,19 @@ kill the current session even if there are multiple frames."
   (declare (indent defun))
   `(basis/measure-time* (lambda () ,@body)))
 
-(defun basis/toggle-echo-area-messages ()
+(defun basis/toggle-echo-area-messages (arg)
   "Toggle whether the \"*Messages*\" buffer is shown."
-  (interactive)
-  (let* ((buffer (messages-buffer))
-         (window (get-buffer-window buffer 'visible)))
-    (if window
+  (interactive "P")
+  (let ((buffer (messages-buffer)))
+    (if-let ((window (get-buffer-window buffer 'visible)))
         (if (eq window (selected-window))
             (bury-buffer)
           (delete-window window))
       (with-current-buffer buffer
         (goto-char (point-max))
-        (display-buffer (current-buffer))))))
+        (if arg
+            (pop-to-buffer-same-window (current-buffer) t)
+          (display-buffer (current-buffer)))))))
 
 (defun basis/emacs-Q (emacs home args)
   "Run \"EMACS -Q ARGS\" with its home in HOME.

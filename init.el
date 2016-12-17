@@ -662,6 +662,8 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("V" #'apropos-value)
   ("a" #'helm-apropos))
 
+(global-set-key (kbd "C-h C-m") #'basis/toggle-echo-area-messages)
+
 ;; Make it harder to accidentally `suspend-frame'
 (basis/define-map basis/ctl-z-map ("C-z")
   ("C-z" #'suspend-frame))
