@@ -315,23 +315,30 @@ if not."
   (let ((threshold (or threshold
                        (and (bound-and-true-p whitespace-mode)
                             whitespace-line-column)
+                       (and (bound-and-true-p auto-fill-function)
+                            fill-column)
                        80))
-        (start (point)))
-    (when (eolp) (forward-line 1))
-    (catch 'done
-      (while (not (eobp))
-        (end-of-line)
-        (let ((column (current-column)))
-          (if (> column threshold)
-              (let ((line (line-number-at-pos))
-                    (chars (- (point) (line-beginning-position))))
-                (when message
-                  (message "Line %d is %d columns (%d chars) long"
-                           line column chars))
-                (throw 'done (cons line column)))
-            (forward-line 1))))
+        (start (point))
+        (line (line-number-at-pos))
+        result)
+    (when (eolp)
+      (forward-line 1)
+      (setq line (1+ line)))
+    (while (not (or result (eobp)))
+      (end-of-line)
+      (let ((column (current-column)))
+        (if (> column threshold)
+            (let ((chars (- (point) (line-beginning-position))))
+              (when message
+                (message "Line %d is %d columns (%d chars) long"
+                         line column chars))
+              (setq result (cons line column)))
+          (forward-line 1)
+          (setq line (1+ line)))))
+    (unless result
       (goto-char start)
-      (when message (message "No long lines found")))))
+      (when message (message "No long lines found")))
+    result))
 
 (defun basis/kill-something (arg)
   "Kill the region, or one or more words backward.
