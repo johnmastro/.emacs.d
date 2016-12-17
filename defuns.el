@@ -260,41 +260,40 @@ that many sexps before uncommenting."
     (indent-for-tab-command)))
 
 (defvar-local basis/smart-hyphen-code-only t
-  "If non-nil, only perform hyphen substitutions in code.")
+  "If non-nil, do not perform substitutions in strings or comments.")
 
 (defvar-local basis/smart-hyphen-style 'snake
-  "The style of substitutions to perform.
-Valid values are `snake', `camel', and nil.")
+  "The substitution style to use (`snake', `camel', or nil).")
 
 (defun basis/smart-hyphen (n)
   "Conditionally insert a hyphen or upcase the next char."
   (interactive "*p")
+  (unless (memq basis/smart-hyphen-style '(snake camel nil))
+    (error "Unknown smart-hyphen style: `%s'" basis/smart-hyphen-style))
   (if (or (not basis/smart-hyphen-style)
           (and basis/smart-hyphen-code-only
-               (memq (get-text-property (point) 'face)
-                     '(font-lock-doc-face
-                       font-lock-comment-face
-                       font-lock-string-face))))
+               (let ((state (syntax-ppss)))
+                 (or (nth 3 state)
+                     (nth 4 state)))))
       (self-insert-command n)
     (insert "-")
     (let ((command (key-binding (vector (read-event)))))
       (if (eq command 'self-insert-command)
           (insert (let ((next (elt (this-command-keys) 1)))
-                    (if (and (eq ?w (char-syntax next))
-                             ;; TODO: Do these next conditions make sense?
-                             (>= ?z next ?A)
-                             (not (save-excursion
-                                    (forward-char -2)
-                                    (looking-at-p "[0-9]"))))
+                    (if (and (memq (char-syntax next) '(?w ?_))
+                             ;; Don't perform the replacement if the preceding
+                             ;; expression is a literal number or simple numeric
+                             ;; expression (e.g. arithmetic)
+                             (save-excursion
+                               (skip-chars-backward "[:digit:][:punct:]()")
+                               (not (looking-at-p "\\_<\\|("))))
                         (pcase basis/smart-hyphen-style
                           (`camel
                            (delete-char -1)
                            (upcase next))
                           (`snake
                            (delete-char -1)
-                           (format "_%c" next))
-                          (other
-                           (error "Unknown smart-hyphen style: `%s'" other)))
+                           (format "_%c" next)))
                       next)))
         (call-interactively command)))))
 
