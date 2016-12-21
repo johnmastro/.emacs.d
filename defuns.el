@@ -1946,7 +1946,7 @@ Quote file names appropriately for POSIX-like shells."
     (read (current-buffer))))
 
 (defun basis/file-remote-p (name)
-  (and name (or (tramp-tramp-file-p name) (file-remote-p name))))
+  (and name (file-remote-p name)))
 
 (defun basis/dired-jump-to-top ()
   "Move point to the first line representing a file."

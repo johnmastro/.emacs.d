@@ -122,9 +122,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :ensure t
   :defer t)
 
-(autoload 'tramp-tramp-file-p "tramp"
-  "Return t if NAME is a string with Tramp file name syntax.")
-
 (load (basis/emacs-file "defuns") nil nil nil t)
 
 (defun basis/maybe-load-local-init ()
@@ -274,7 +271,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (defun basis/maybe-set-coding ()
   (when (and (eq system-type 'windows-nt)
-             (tramp-tramp-file-p buffer-file-name))
+             (when-let ((method (file-remote-p buffer-file-name 'method)))
+               (string-match-p "ssh\\|scp\\|plink" method)))
     (set-buffer-file-coding-system 'utf-8-unix)))
 
 (use-package files
@@ -412,7 +410,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config
   (progn (setq recentf-max-saved-items 50)
          (setq recentf-save-file (basis/emacs-file "var/recentf"))
-         (setq recentf-exclude (list #'tramp-tramp-file-p #'file-remote-p))
+         (setq recentf-exclude (list #'file-remote-p))
          (recentf-mode)))
 
 (use-package tramp
@@ -2247,7 +2245,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
     (setq magit-revision-show-gravatars nil)
     (setq magit-repository-directories
           (thread-last projectile-known-projects
-            (seq-remove #'tramp-tramp-file-p)
+            (seq-remove #'file-remote-p)
             (seq-filter (lambda (dir)
                           (file-directory-p (expand-file-name ".git" dir))))
             (cons "~/code/")
