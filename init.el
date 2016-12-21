@@ -2453,7 +2453,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
     (basis/define-keys dired-mode-map
       ("RET"                       #'dired-find-alternate-file)
       ("M-RET"                     #'dired-find-file)
-      ("e"                         #'basis/dired-open-files)
+      ("e"                         #'basis/open-file-externally)
       ("-"                         #'diredp-up-directory-reuse-dir-buffer)
       ("^"                         #'diredp-up-directory-reuse-dir-buffer)
       ("Y"                         #'basis/dired-rsync)
