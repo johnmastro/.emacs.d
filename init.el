@@ -635,7 +635,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("n" #'basis/kill-ring-save-buffer-file-name)
   ("v" #'revert-buffer))
 
-;; Open one or more files externally, using the `helm-external' machinery
 (global-set-key (kbd "C-c C-x") #'basis/open-file-externally)
 
 ;; Emacs Lisp-style quotes

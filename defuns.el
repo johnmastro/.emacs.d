@@ -747,19 +747,19 @@ non-matching patterns. See bug #23590."
   "Return the current selection during `ido' file completion.
 Return the current directory if no text is entered or there are
 no matches."
-  (if (or (string= ido-text "")
+  (if (or (equal ido-text "")
           (null ido-matches))
       default-directory
-    (expand-file-name (car ido-matches) default-directory)))
+    (expand-file-name (car ido-matches))))
 
-(defun basis/ido-open-file-externally-internal (file)
+(defun basis/ido-open-file-externally-1 (file)
   (interactive (list (basis/ido-selected-file)))
-  (helm-open-file-externally file))
+  (basis/open-file-externally file))
 
 (defun basis/ido-open-file-externally ()
   "Open a file externally during `ido' completion."
   (interactive)
-  (setq fallback 'basis/ido-open-file-externally-internal)
+  (setq fallback 'basis/ido-open-file-externally-1)
   (setq ido-exit 'fallback)
   (exit-minibuffer))
 
@@ -828,43 +828,9 @@ If called with a negative argument, temporarily invert
   (with-helm-alive-p
     (helm-exit-and-execute-action (lambda (&rest _) (helm-bookmarks)))))
 
-(defvar basis/helm-w32-shell-operations
-  '(open opennew openas print explore edit find runas properties default)
-  "List of possible operations for `basis/helm-open-file-w32'.")
-
 (defun basis/helm-open-file-w32 (file)
   ;; Used as :override advice to `helm-open-file-externally' on Windows
-  (let ((operation (and helm-current-prefix-arg
-                        (helm-comp-read
-                         "Operation: "
-                         basis/helm-w32-shell-operations
-                         :must-match t
-                         :name "Open file externally"
-                         :del-input nil))))
-    (w32-shell-execute (unless (string= operation "default") operation)
-                       (expand-file-name file))))
-
-(defun basis/open-file-externally (files)
-  "Open FILES externally.
-In `dired-mode', open the marked files; otherwise, prompt for the
-file(s) to open with `helm-read-file-name'."
-  (interactive
-   (list (pcase major-mode
-           (`dired-mode
-            (dired-get-marked-files))
-           (_
-            (helm-read-file-name
-             "Open externally: "
-             :must-match t
-             :marked-candidates t
-             :preselect (when-let ((file (buffer-file-name))
-                                   (base (file-name-nondirectory file)))
-                          (format "^%s$" (regexp-quote base)))
-             :persistent-action #'helm-open-file-externally)))))
-  (require 'helm-external)
-  (let ((helm-current-prefix-arg current-prefix-arg))
-    (mapc #'helm-open-file-externally
-          (if (listp files) files (list files)))))
+  (w32-shell-execute "open" (expand-file-name file)))
 
 (defun basis/helm-ff-run-magit-status ()
   "Run `magit-status' from `helm-source-find-files'."
@@ -1783,6 +1749,40 @@ N must be between 4 and 40 and defaults to the result of calling
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processes and shells
+
+(defun basis/default-program-for-file (_)
+  ;; TODO: Use `mailcap'?
+  (if (memq system-type '(darwin windows-nt))
+      "open"
+    "xdg-open"))
+
+(defun basis/open-file-externally-1 (program file)
+  (let ((file (expand-file-name file)))
+    (if (eq system-type 'windows-nt)
+        (w32-shell-execute program file)
+      (start-process "*open externally*" nil program file))))
+
+(defun basis/open-file-externally-file ()
+  (pcase (list major-mode (if (eq major-mode 'dired-mode)
+                              (ignore-errors (dired-get-file-for-visit))
+                            (buffer-file-name)))
+    (`(,_ nil)
+     (read-file-name "Open externally: " nil nil t))
+    (`(dired-mode ,file)
+     file)
+    (`(,_ ,file)
+     (let ((name (abbreviate-file-name file)))
+       (read-file-name (format "Open externally (default %s): " name)
+                       (file-name-directory file)
+                       (file-name-nondirectory file)
+                       t)))))
+
+(defun basis/open-file-externally (file)
+  "Open FILE in an external application."
+  (interactive (list (basis/open-file-externally-file)))
+  (if-let ((exe (basis/default-program-for-file file)))
+      (basis/open-file-externally-1 exe file)
+    (error "No external program defined for `%s'" (abbreviate-file-name file))))
 
 (defun basis/make-tags (arg)
   "Regenerate and reload TAGS via `make tags'.
