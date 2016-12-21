@@ -128,10 +128,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 (load (basis/emacs-file "defuns") nil nil nil t)
 
 (defun basis/maybe-load-local-init ()
-  "Load \"local.el\" if it exists."
-  (let ((local (basis/emacs-file "local.el")))
-    (when (file-exists-p local)
-      (load (string-remove-suffix ".el" local) nil nil nil t))))
+  "Load local initialization file(s), if any."
+  (dolist (name (list "local" system-name))
+    (let ((file (basis/emacs-file (concat name ".el"))))
+      (when (file-exists-p file)
+        (load (string-remove-suffix ".el" file) nil nil nil t)))))
 
 ;; Do this after init so that it can override anything set here
 (add-hook 'after-init-hook #'basis/maybe-load-local-init)
