@@ -1046,7 +1046,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
     ("C-c C-x" #'basis/ido-open-file-externally)))
 
 (use-package ido
-  :defer t
   :config
   (progn (setq ido-enable-prefix nil)
          (setq ido-enable-flex-matching t)
@@ -1058,26 +1057,21 @@ In practice these are all Lisps, for which I prefer `paredit'.")
          (setq ido-max-prospects 10)
          (setq ido-ignore-extensions t)
          (setq ido-save-directory-list-file (basis/emacs-file "var/ido.last"))
-         (add-hook 'ido-setup-hook #'basis/init-ido-keys)))
+         (add-hook 'ido-setup-hook #'basis/init-ido-keys)
+         (ido-mode)
+         (ido-everywhere)))
 
 (use-package ido-ubiquitous
   :ensure t
-  :defer t
-  :after ido
-  :config (when (bound-and-true-p ido-mode)
-            (ido-ubiquitous-mode)))
+  :config (ido-ubiquitous-mode))
 
 (use-package flx-ido
   :ensure t
-  :defer t
-  :after ido
   :config (progn (setq flx-ido-threshhold 10000)
                  (flx-ido-mode)))
 
 (use-package ido-vertical-mode
   :ensure t
-  :defer t
-  :after ido
   :config (ido-vertical-mode))
 
 (use-package idomenu
@@ -1086,18 +1080,20 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (use-package smex
   :ensure t
-  :defer t
-  :init (global-set-key (kbd "M-X") #'smex-major-mode-commands)
-  :config (setq smex-save-file (basis/emacs-file "var/smex-items")))
+  :config (progn (setq smex-save-file (basis/emacs-file "var/smex-items"))
+                 (global-set-key (kbd "M-x") #'smex)
+                 (global-set-key (kbd "M-X") #'smex-major-mode-commands)))
 
 (use-package helm-config
+  :defer t
   :config (global-unset-key (kbd helm-command-prefix-key)))
 
 (use-package helm
   :ensure t
+  :defer t
   :init (basis/define-map basis/helm-map ("C-c h")
           ("a" #'helm-apropos)
-          ("b" #'helm-buffers-list)
+          ("b" #'helm-mini)
           ("c" #'helm-colors)
           ("e" #'helm-register)
           ("f" #'helm-find-files)
@@ -1107,7 +1103,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
           ("l" #'helm-bookmarks)
           ("m" #'helm-all-mark-rings)
           ("o" #'helm-occur)
-          ("O" #'helm-multi-occur)
           ("p" #'helm-list-emacs-process)
           ("r" #'helm-regexp)
           ("R" #'helm-resume)
@@ -1136,24 +1131,16 @@ In practice these are all Lisps, for which I prefer `paredit'.")
                            (window-height . 0.4)))
             (set-face-attribute 'helm-source-header nil :height 1.0)))
 
-(use-package helm-adaptive
-  :defer t
-  :config
-  (progn (setq helm-adaptive-history-file
-               (basis/emacs-file "var/helm-adaptive-history"))
-         (and nil (helm-adaptive-mode)))) ; Not enabled
-
 (use-package helm-mode
+  :defer t
   :config (progn
             (setq helm-mode-handle-completion-in-region nil)
-            (helm-mode)
             (add-to-list 'helm-completing-read-handlers-alist
                          '(multi-occur . ido-completing-read)))
   :diminish helm-mode)
 
 (use-package helm-files
   :defer t
-  :init (global-set-key (kbd "C-x C-f") #'basis/helm-find-files)
   :config
   (progn
     (require 'dired-x) ; For `dired-omit-extensions'
@@ -1177,7 +1164,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 (use-package helm-flx
   :ensure t
   :defer t
-  :after (helm)
+  :after helm
   :config (progn (require 'helm)
                  (require 'helm-files)
                  (helm-flx-mode)))
@@ -1188,7 +1175,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (use-package helm-buffers
   :defer t
-  :init (global-set-key (kbd "C-x b") #'helm-mini)
   :config
   (progn
     (setq helm-buffers-fuzzy-matching t)
@@ -1197,7 +1183,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 (use-package helm-command
   :defer t
   :after helm
-  :init (global-set-key (kbd "M-x") #'helm-M-x)
   :config (setq helm-M-x-fuzzy-match t))
 
 (use-package helm-imenu
@@ -1219,8 +1204,9 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (use-package helm-man
   :defer t
-  :config (or (executable-find "man")
-              (setq helm-man-or-woman-function #'woman)))
+  :config (progn (global-set-key (kbd "C-h C-k") #'helm-man-woman)
+                 (or (executable-find "man")
+                     (setq helm-man-or-woman-function #'woman))))
 
 (use-package helm-descbinds
   :ensure t
