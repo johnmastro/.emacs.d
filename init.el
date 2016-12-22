@@ -126,7 +126,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (defun basis/maybe-load-local-init ()
   "Load local initialization file(s), if any."
-  (dolist (name (list "local" system-name))
+  (dolist (name (list "local" (system-name)))
     (let ((file (basis/emacs-file (concat name ".el"))))
       (when (file-exists-p file)
         (load (string-remove-suffix ".el" file) nil nil nil t)))))
@@ -476,7 +476,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config (progn (load-theme 'solarized t)
                  (load-theme 'solarized-moar t)))
 
-(setq frame-title-format '("%b" " | " invocation-name "@" system-name))
+(setq frame-title-format `("%b" " | " ,invocation-name "@" ,(system-name)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1308,7 +1308,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
     (advice-add 'company-auto-begin
                 :before-until
                 #'basis/company-maybe-block-completion)
-    (when (string-match-p "\\`sierra\\(\\.\\|$\\)" system-name)
+    (when (string= (system-name) "sierra")
       (advice-add 'company-auto-begin
                   :before-until
                   #'basis/company-no-srv-completion))
