@@ -779,14 +779,19 @@ no matches."
        (forward-char -2)
        (looking-at-p "\\_<fi\\_>")))))
 
-(defun basis/company-no-srv-completion (&rest _args)
-  "Advice for `company-auto-begin'.
-For use on a particular host - prevent completion of directories
-under \"/srv/\" (ugh)."
-  (and (eq major-mode 'shell-mode)
-       (save-excursion
-         (skip-chars-backward "^[:blank:]")
-         (looking-at-p "/srv/"))))
+(defun basis/company-no-srv-candidates (args)
+  "Advice for `company-update-candidates'.
+For use on a particular host - ignore all potential candidates
+under \"/srv/\"."
+  ;; Ugh
+  (let* ((prefix "/srv/")
+         (length (length prefix)))
+    (list (seq-remove (lambda (elt)
+                        (and (stringp elt)
+                             (>= (length elt) length)
+                             (eq (compare-strings prefix nil nil elt nil length)
+                                 t)))
+                      (car args)))))
 
 (defun basis/maybe-enable-company-clang ()
   "Conditionally enable `company-clang' for the current buffer."

@@ -1305,9 +1305,9 @@ In practice these are all Lisps, for which I prefer `paredit'.")
                 :before-until
                 #'basis/company-maybe-block-completion)
     (when (string= (system-name) "sierra")
-      (advice-add 'company-auto-begin
-                  :before-until
-                  #'basis/company-no-srv-completion))
+      (advice-add 'company-update-candidates
+                  :filter-args
+                  #'basis/company-no-srv-candidates))
     (with-eval-after-load 'cc-mode
       (when-let ((prog (basis/find-clang-program))
                  (args (basis/build-clang-args 'c)))
