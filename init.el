@@ -138,7 +138,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Operating system-specific configuration
 
-;; A graphical Emacs on OS X doesn't automatically inherit $PATH
+;; A graphical Emacs on MacOS doesn't automatically inherit $PATH
 (use-package exec-path-from-shell
   :ensure t
   :if (eq window-system 'ns)
