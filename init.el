@@ -152,14 +152,14 @@ Create the directory if it does not exist and CREATE is non-nil."
     "/Windows" "/ProgramData/Oracle/Java/javapath")
   "Directories to add to PATH on Cygwin.")
 
-(defvar basis/pre-cygwin-state nil
-  "Association list of state from before initializing for Cygwin.")
+(defvar basis/pre-cygwin-process-environment nil
+  "Value of `process-environment' before initializing Cygwin.")
 
 (defun basis/init-for-cygwin ()
   ;; Store a copy of `process-environment' before we change anything, for use in
   ;; `basis/emacs-Q'
-  (unless (map-elt basis/pre-cygwin-state 'process-environment)
-    (setf (map-elt basis/pre-cygwin-state 'process-environment)
+  (unless basis/pre-cygwin-process-environment
+    (setq basis/pre-cygwin-process-environment
           (mapcar #'copy-sequence process-environment)))
   ;; Set things up for use with Cygwin
   (let* ((home (basis/windows->unix (or (getenv "HOME")
@@ -182,18 +182,14 @@ Create the directory if it does not exist and CREATE is non-nil."
       (setq null-device "/dev/null")
       (setenv "SHELL" shell))
     ;; Since Emacs wasn't launched from a Cygwin shell, $LANG will be wonky
-    ;; unless we fix it.
     (setenv "LANG" "en_US.UTF-8")
     (advice-add 'shell-quote-argument :filter-args
                 #'basis/cygwin-shell-quote-argument)
     (setq basis/system-type 'windows+cygwin)))
 
-(when (and (eq system-type 'windows-nt)
+(when (and (eq basis/system-type 'windows-nt)
            (file-executable-p "c:/bin/bash.exe"))
-  (condition-case err (basis/init-for-cygwin)
-    (error (let* ((str (error-message-string err))
-                  (msg (concat "Cygwin init failed (" str ")")))
-             (display-warning :warning msg)))))
+  (basis/init-for-cygwin))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

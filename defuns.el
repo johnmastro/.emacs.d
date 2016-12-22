@@ -2296,7 +2296,7 @@ EMACS defaults to the current Emacs executable. HOME defaults to
          (home (or home (if (eq system-type 'windows-nt)
                             "e:\\tmp"
                           "/tmp")))
-         (penv (or (map-elt basis/pre-cygwin-state 'process-environment)
+         (penv (or basis/pre-cygwin-process-environment
                    process-environment))
          (process-environment (cons (concat "HOME=" home) penv)))
     (apply #'start-process "emacs-Q" nil (expand-file-name emacs)
