@@ -796,7 +796,7 @@ under \"/srv/\"."
 (defun basis/maybe-enable-company-clang ()
   "Conditionally enable `company-clang' for the current buffer."
   (when (and (buffer-file-name)
-             (not (basis/file-remote-p (buffer-file-name)))
+             (not (file-remote-p (buffer-file-name)))
              (bound-and-true-p company-clang-executable))
     (add-to-list 'company-backends #'company-clang)))
 
@@ -1551,7 +1551,7 @@ See `basis/sp-inhibit-cleanup-list'."
 
 (defun basis/maybe-enable-flycheck ()
   "Enable `flycheck-mode', except for remote files."
-  (unless (basis/file-remote-p buffer-file-name)
+  (unless (and buffer-file-name (file-remote-p buffer-file-name))
     (flycheck-mode)))
 
 (defun basis/flycheck-check-and-list-errors ()
@@ -1579,14 +1579,14 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
   "Enable `flyspell-mode', except for remote files."
   (require 'ispell)
   (when (and ispell-program-name
-             (not (basis/file-remote-p buffer-file-name)))
+             (not (and buffer-file-name (file-remote-p buffer-file-name))))
     (flyspell-mode)))
 
 (defun basis/maybe-enable-flyspell-prog-mode ()
   "Enable `flyspell-prog-mode', except for remote files."
   (require 'ispell)
   (when (and ispell-program-name
-             (not (basis/file-remote-p buffer-file-name)))
+             (not (and buffer-file-name (file-remote-p buffer-file-name))))
     (flyspell-prog-mode)))
 
 (defun basis/maybe-enable-whitespace-mode ()
@@ -1949,9 +1949,6 @@ Quote file names appropriately for POSIX-like shells."
   (with-temp-buffer
     (insert-file-contents file)
     (read (current-buffer))))
-
-(defun basis/file-remote-p (name)
-  (and name (file-remote-p name)))
 
 (defun basis/dired-jump-to-top ()
   "Move point to the first line representing a file."
