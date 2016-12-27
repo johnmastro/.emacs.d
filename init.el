@@ -2496,6 +2496,8 @@ In practice these are all Lisps, for which I prefer `paredit'.")
     (add-hook 'comint-mode-hook #'basis/init-comint-mode)))
 
 (defun basis/init-shell-mode ()
+  (setq comint-process-echoes t)
+  (setq-local scroll-conservatively 101)
   (let ((shell (thread-first (current-buffer)
                  get-buffer-process
                  process-command
@@ -2507,7 +2509,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
                 ((string-match-p "zsh" shell)
                  "dirs -l")
                 (t shell-dirstack-query))))
-  (setq comint-process-echoes t)
   (shell-dirtrack-mode -1)
   (dirtrack-mode))
 
