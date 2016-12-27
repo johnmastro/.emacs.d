@@ -330,12 +330,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :config (setq ad-redefinition-action 'accept))
 
-(defun basis/set-default-input-method (&optional method)
-  (setq default-input-method (or method "TeX")))
-
-;; Haven't yet bothered looking into why this needs to be done after init
-(add-hook 'after-init-hook #'basis/set-default-input-method)
-
 (use-package server
   :config
   (progn (setq server-auth-dir (basis/emacs-dir "var/server/"))
@@ -397,7 +391,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package uniquify
   :config (progn (setq uniquify-buffer-name-style 'forward)
-                 (setq uniquify-ignore-buffers-re "^\\*")))
+                 (setq uniquify-ignore-buffers-re "\\`\\*")))
 
 (use-package whitespace
   :config (progn (setq whitespace-style '(face trailing lines-tail tabs))
