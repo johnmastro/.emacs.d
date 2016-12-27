@@ -364,19 +364,22 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :diminish superword-mode)
 
+(defun basis/init-global-auto-revert-mode ()
+  ;; Emacs 25 automatically disables `auto-revert-use-notify' when you use
+  ;; `global-auto-revert-mode', because it can cause consume too many file
+  ;; descriptors (bug #22814). Force re-enable it here.
+  (let (set)
+    (when (and (not auto-revert-use-notify)
+               (setq set (get 'auto-revert-use-notify 'custom-set)))
+      (funcall set 'auto-revert-use-notify t))))
+
 (use-package autorevert
-  :config (progn (global-auto-revert-mode)
-                 ;; Emacs 25 automatically disables `auto-revert-use-notify'
-                 ;; when you use `global-auto-revert-mode', because it can cause
-                 ;; consume too many file descriptors (bug #22814). I don't
-                 ;; think I tend to have enough buffers open for that to be a
-                 ;; problem, and another option is to increase ulimit, so
-                 ;; re-enable the use of file notifications here.
-                 (unless (bound-and-true-p auto-revert-use-notify)
-                   (when-let ((set (get 'auto-revert-use-notify 'custom-set)))
-                     (funcall set 'auto-revert-use-notify t)))
-                 (setq global-auto-revert-non-file-buffers t)
-                 (setq auto-revert-verbose nil)))
+  :config (progn
+            (add-hook 'global-auto-revert-mode-hook
+                      #'basis/init-global-auto-revert-mode)
+            (setq global-auto-revert-non-file-buffers t)
+            (setq auto-revert-verbose nil)
+            (global-auto-revert-mode)))
 
 (use-package frame
   :config (blink-cursor-mode -1))
