@@ -743,6 +743,8 @@ non-matching patterns. See bug #23590."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Completion
 
+(eval-when-compile (require 'helm))     ; For `with-helm-alive-p'
+
 (defun basis/ido-selected-file ()
   "Return the current selection during `ido' file completion.
 Return the current directory if no text is entered or there are
@@ -855,17 +857,16 @@ Intended for use in `minibuffer-local-shell-command-map'."
   "Alternative implementation of `helm-pages-get-next-header'.
 Like the above but skip over lines that contain only whitespace
 or comment starters."
-  (with-helm-current-buffer
-    (save-restriction
-      (save-excursion
-        (narrow-to-page)
-        (beginning-of-line)
-        (while (and (not (eobp))
-                    (looking-at-p (format "^\\(\\s<\\|%c\\|\\s-\\)*$"
-                                          (elt comment-start 0))))
-          (forward-line))
-        (buffer-substring-no-properties (line-beginning-position)
-                                        (line-end-position))))))
+  (save-restriction
+    (save-excursion
+      (narrow-to-page)
+      (beginning-of-line)
+      (while (and (not (eobp))
+                  (looking-at-p (format "^\\(\\s<\\|%c\\|\\s-\\)*$"
+                                        (elt comment-start 0))))
+        (forward-line))
+      (buffer-substring-no-properties (line-beginning-position)
+                                      (line-end-position)))))
 
 (defun basis/yas-expand-or-insert ()
   "Call `yas-expand' or `yas-insert-snippet' depending on context.
@@ -2219,9 +2220,8 @@ Use `nlinum-mode' if available, or `linum-mode' otherwise."
 Like `kill-buffer' but, when called interactively, kill the
 current buffer without pompting, unless called with a prefix
 argument."
-  (interactive
-   (list (and current-prefix-arg
-              (read-buffer "Kill buffer: " (current-buffer) t))))
+  (interactive (list (and current-prefix-arg
+                          (read-buffer "Kill buffer: " (current-buffer) t))))
   (kill-buffer (or buffer (current-buffer))))
 
 (defun basis/kill-frame-or-terminal (&optional arg)
