@@ -649,7 +649,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;; Narrowing can be quite handy
 (put 'narrow-to-region 'disabled nil)
 
-(basis/define-map basis/find-lisp-map ("<f1> e")
+(basis/define-map basis/find-lisp-map ("C-h e")
   ("c" #'finder-commentary)
   ("e" #'view-echo-area-messages)
   ("f" #'find-function)
@@ -1196,7 +1196,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (use-package helm-elisp
   :defer t
-  :init (global-set-key (kbd "<f1> SPC") #'helm-apropos)
+  :init (global-set-key (kbd "C-h SPC") #'helm-apropos)
   :config (progn (setq helm-apropos-fuzzy-match t)
                  (setq helm-lisp-fuzzy-completion t)))
 
@@ -1209,7 +1209,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 (use-package helm-descbinds
   :ensure t
   :defer t
-  :init (global-set-key (kbd "<f1> b") #'helm-descbinds))
+  :init (global-set-key (kbd "C-h b") #'helm-descbinds))
 
 (use-package helm-projectile
   :ensure t
