@@ -214,7 +214,17 @@ Create the directory if it does not exist and CREATE is non-nil."
 (setq user-full-name "John Mastro")
 (setq mail-host-address "jbm.io")
 
-(setq-default major-mode 'text-mode)
+(defun basis/default-major-mode ()
+  (let ((case-fold-search (memq system-type '(windows-nt cygwin))))
+    ;; Ignore the more complicated case where the element of `auto-mode-alist'
+    ;; is (REGEXP FUNCTION NON-NIL)
+    (pcase (assoc-default (buffer-name) auto-mode-alist #'string-match)
+      ((and mode (pred functionp))
+       (funcall mode))
+      (_
+       (text-mode)))))
+
+(setq-default major-mode #'basis/default-major-mode)
 (setq-default indent-tabs-mode nil)
 (setq-default fill-column 80)
 (setq-default truncate-lines t)
