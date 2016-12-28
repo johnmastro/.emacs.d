@@ -2721,4 +2721,9 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   :defer t
   :config (add-to-list 'mm-discouraged-alternatives "text/html"))
 
+
+;; Local Variables:
+;; bug-reference-url-format: "http://debbugs.gnu.org/%s"
+;; End:
+
 ;;; init.el ends here

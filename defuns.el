@@ -2416,4 +2416,8 @@ Created when needed by `basis/insert-lorem-ipsum'.")
     (insert-buffer-substring buf 1 end)))
 
 
+;; Local Variables:
+;; bug-reference-url-format: "http://debbugs.gnu.org/%s"
+;; End:
+
 ;;; defuns.el ends here
