@@ -241,6 +241,9 @@ Create the directory if it does not exist and CREATE is non-nil."
   (when (file-exists-p (setq custom-file (basis/emacs-file "custom.el")))
     (load custom-file)))
 
+(defun basis/init-minibuffer ()
+  (setq-local next-line-add-newlines nil))
+
 (defun basis/init-eval-expression-minibuffer ()
   (setq-local indent-line-function #'lisp-indent-line))
 
@@ -259,6 +262,7 @@ Create the directory if it does not exist and CREATE is non-nil."
     (advice-add 'pop-to-mark-command
                 :around
                 #'basis/pop-to-mark-ensure-new-pos)
+    (add-hook 'minibuffer-setup-hook #'basis/init-minibuffer)
     (add-hook 'eval-expression-minibuffer-setup-hook
               #'basis/init-eval-expression-minibuffer)))
 
