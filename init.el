@@ -1684,8 +1684,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
     ;; Jedi has 2 Python dependencies: jedi and epc
     (when (basis/jedi-installed-p)
-      (setq jedi:setup-keys t)
-      (setq jedi:tooltip-method nil)
       (add-hook 'python-mode-hook #'jedi:setup))
     (when (eq system-type 'windows-nt)
       ;; Use the launcher when available
@@ -1704,7 +1702,9 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (use-package jedi
   :ensure t
-  :defer t)
+  :defer t
+  :config (progn (setq jedi:setup-keys t)
+                 (setq jedi:tooltip-method nil)))
 
 (use-package php-mode
   :ensure t
