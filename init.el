@@ -31,11 +31,9 @@ Create the directory if it does not exist and CREATE is non-nil."
       (expand-file-name name basis/emacs-dir)
     (error "File name should not end with a slash")))
 
-;; Make sure some directories exist
 (dolist (dir '("var/" "var/autosaves/" "tmp/"))
   (make-directory (basis/emacs-dir dir) t))
 
-;; Set up the load path
 (let ((dir (basis/emacs-dir "site-lisp/")))
   (make-directory dir t)
   (add-to-list 'load-path dir))
@@ -159,7 +157,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   (unless basis/pre-cygwin-process-environment
     (setq basis/pre-cygwin-process-environment
           (mapcar #'copy-sequence process-environment)))
-  ;; Set things up for use with Cygwin
   (let* ((home (basis/windows->unix (or (getenv "HOME")
                                         (error "HOME not defined"))))
          (home/bin (concat (basis/windows->unix home)
@@ -168,10 +165,8 @@ Create the directory if it does not exist and CREATE is non-nil."
          (path (cons home/bin basis/cygwin-path-directories)))
     (when (and (file-directory-p home) (not after-init-time))
       (cd home))
-    ;; Set paths
     (setenv "PATH" (mapconcat #'identity path ":"))
     (setq exec-path (mapcar (lambda (dir) (concat "c:" dir)) path))
-    ;; Use zsh or bash as shell
     (let ((shell (or (executable-find "zsh")
                      (executable-find "bash"))))
       (setq shell-file-name shell)
@@ -179,7 +174,6 @@ Create the directory if it does not exist and CREATE is non-nil."
       (setq ediff-shell shell)
       (setq null-device "/dev/null")
       (setenv "SHELL" shell))
-    ;; Since Emacs wasn't launched from a Cygwin shell, $LANG will be wonky
     (setenv "LANG" "en_US.UTF-8")
     (advice-add 'shell-quote-argument :filter-args
                 #'basis/cygwin-shell-quote-argument)
@@ -227,7 +221,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (setq-default fill-column 80)
 (setq-default truncate-lines t)
 
-;; Don't prompt when killing buffers with live processes attached
 (setq kill-buffer-query-functions
       (remq 'process-kill-buffer-query-function
             kill-buffer-query-functions))
@@ -266,7 +259,6 @@ Create the directory if it does not exist and CREATE is non-nil."
     (size-indication-mode)
     (let ((map minibuffer-local-shell-command-map))
       (define-key map (kbd "C-.") #'basis/insert-file-name))
-    ;; Keep popping the mark until point actually moves
     (advice-add 'pop-to-mark-command
                 :around
                 #'basis/pop-to-mark-ensure-new-pos)
@@ -377,7 +369,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package autorevert
   :config (progn
             ;; I would like to use `global-auto-revert-mode', but then it
-            ;; insists on not using "notify".
+            ;; refuses to use "notify"
             (setq auto-revert-use-notify t)
             (setq auto-revert-verbose nil)
             (add-hook 'find-file-hook #'basis/enable-auto-revert)
@@ -425,7 +417,6 @@ Create the directory if it does not exist and CREATE is non-nil."
               "plinkx"
             "sshx"))
     (setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
-    ;; Have TRAMP use Cygwin's sh rather than Windows's cmd.exe
     (when (eq basis/system-type 'windows+cygwin)
       (setq tramp-encoding-shell (executable-find "sh"))
       (setq tramp-encoding-command-switch "-c")
@@ -474,7 +465,6 @@ Create the directory if it does not exist and CREATE is non-nil."
           (set-terminal-parameter nil 'background-mode 'dark)
           (setq solarized-termcolors 256)
           (setq solarized-italic nil)
-          ;; Some additional faces I've accumulated
           (add-to-list 'custom-theme-load-path
                        (basis/emacs-dir "themes/solarized-moar/")))
   :config (progn (load-theme 'solarized t)
@@ -532,7 +522,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;; Don't prompt when using `C-x k'
 (global-set-key (kbd "C-x k") #'basis/kill-buffer)
 
-;; C-c <left>/<right> to move backward/forward through window configurations
 (use-package winner
   :config (winner-mode))
 
@@ -540,7 +529,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (global-set-key (kbd "C-n") #'basis/next-line)
 (global-set-key (kbd "<down>") #'basis/next-line)
 
-;; Newlines
 (basis/define-keys global-map
   ("S-RET"      #'basis/open-line-above)
   ("<S-return>" #'basis/open-line-above)
@@ -548,13 +536,10 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("<C-return>" #'basis/open-line-below)
   ("C-^"        #'basis/open-line-below))
 
-;; Whitespace
 (global-set-key (kbd "M-\\") #'basis/cycle-spacing-fast)
 
-;; Clever C-a
 (global-set-key (kbd "C-a") #'basis/beginning-of-line)
 
-;; Kill stuff
 (basis/define-keys global-map
   ("M-k"                   #'kill-sexp)
   ("C-w"                   #'basis/kill-something)
@@ -564,17 +549,14 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
   ("ESC <deletechar>"      #'basis/smart-kill-almost-whole-line))
 
-;; Copy stuff
 (basis/define-keys global-map
   ("M-w"    #'basis/kill-ring-save-something)
   ("<f2>"   #'basis/clipboard-save-something))
 
-;; Join lines
 (basis/define-keys global-map
   ("M-^" #'basis/delete-indentation)
   ("M-q" #'basis/fill-or-unfill-paragraph))
 
-;; Transpose and toggle stuff with M-t
 (basis/define-map basis/transposition-map ("M-t")
   ("l"   #'transpose-lines)
   ("w"   #'transpose-words)
@@ -584,30 +566,23 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("M-s" #'basis/toggle-window-split)
   ("n"   #'basis/narrow-or-widen-dwim))
 
-;; Comment/uncomment stuff
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
 (global-set-key (kbd "C-x ;") #'basis/comment-region-lines)
-;; Unfortunately, this one doesn't work at the terminal
 (global-set-key (kbd "C-M-;") #'basis/comment-or-uncomment-sexp)
 
-;; Eval and replace
 (global-set-key (kbd "C-c M-e") #'basis/eval-and-replace)
 
 ;; I use M-SPC for `avy-goto-word-1'
 (global-set-key (kbd "C-c SPC") #'just-one-space)
 
-;; goto-line, with line numbers
 (global-set-key (kbd "M-g M-g") #'basis/goto-line-with-numbers)
 
-;; Movement by sexp
 (global-set-key (kbd "M-e") #'forward-sexp)
 (global-set-key (kbd "M-a") #'backward-sexp)
 
-;; M-x shell
 (global-set-key (kbd "C-c <C-return>") #'shell)
 (global-set-key (kbd "C-c C-^") #'shell)
 
-;; Change word case
 (basis/define-keys global-map
   ("M-u" #'basis/upcase-something)
   ("M-l" #'basis/downcase-something)
@@ -615,16 +590,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 ;; DWIM C-x C-c
 (global-set-key (kbd "C-x C-c") #'basis/kill-frame-or-terminal)
-;; Kill Emacs with M-x sayonara
-(defalias 'sayonara #'save-buffers-kill-terminal)
 
-;; Google stuff
 (global-set-key (kbd "<f9>") #'basis/google)
 
-;; Re-open recent files
 (global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
 
-;; Previous/next buffer
 (global-set-key (kbd "<C-prior>") #'previous-buffer)
 (global-set-key (kbd "<C-next>") #'next-buffer)
 
@@ -641,17 +611,15 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key (kbd "C-c C-x") #'basis/open-file-externally)
 
-;; Emacs Lisp-style quotes
+;; Wrap text in various styles of quotes
 (global-set-key (kbd "C-c q") #'basis/quote-thing)
 
-;; Random operations on regions
 (basis/define-map basis/region-map ("C-c r")
   ("a" #'align)
   ("c" #'basis/count-words)
   ("l" #'basis/count-sloc-region)
   ("s" #'sort-lines))
 
-;; Narrowing can be quite handy
 (put 'narrow-to-region 'disabled nil)
 
 (basis/define-map basis/find-lisp-map ("C-h e")
@@ -860,7 +828,8 @@ TODO: <home> and <end> still don't work.")
       (put sym 'delete-selection act))))
 
 (defvar basis/sp-ignore-modes
-  '(lisp-mode
+  '(magit-key-mode
+    lisp-mode
     emacs-lisp-mode
     inferior-emacs-lisp-mode
     lisp-interaction-mode
@@ -872,17 +841,14 @@ TODO: <home> and <end> still don't work.")
     inferior-lisp-mode
     scheme-mode
     slime-repl-mode)
-  "List of modes in which not to active `smartparens'.
-In practice these are all Lisps, for which I prefer `paredit'.")
+  "List of modes in which not to active `smartparens'.")
 
 (use-package smartparens
   :ensure t
   :config
   (progn
     (smartparens-global-strict-mode)
-    ;; I still prefer Paredit with Lisps, and having Smartparens enabled messes
-    ;; with argument handling in `magit-key-mode'.
-    (dolist (mode (cons 'magit-key-mode basis/sp-ignore-modes))
+    (dolist (mode basis/sp-ignore-modes)
       (add-to-list 'sp-ignore-modes-list mode))
     (sp-use-paredit-bindings)
     (setq sp-cancel-autoskip-on-backward-movement nil)
@@ -910,7 +876,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
       ("C-M-u"           #'basis/sp-backward-up))
     (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
-    ;; Treat raw prefix arguments like numeric arguments
     (advice-add 'sp-backward-delete-char
                 :filter-args
                 #'basis/sp-backward-delete-no-prefix)))
@@ -1024,10 +989,8 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   :config
   (progn
     (grep-apply-setting 'grep-command "grep --color=always -inHE -e ")
-    ;; Work around bug #23590
     (when (string-match-p "zsh" shell-file-name)
       (advice-add 'lgrep :around #'basis/grep-use-bash))
-    ;; Add some more file aliases
     (pcase-dolist (`(,alias . ,files)
                    '(("clj" . "*.clj *.cljs *.cljc")
                      ("cl"  . "*.lisp *.cl")
@@ -1399,24 +1362,13 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   "Enable features useful in all Lisp modes."
   (paredit-mode))
 
-(defun basis/init-hippie-expand-for-elisp ()
-  "Enable Lisp symbol completion in `hippie-exp'."
+(defun basis/init-emacs-lisp-modes ()
+  "Enable features useful when working with Emacs Lisp."
+  (when (member (buffer-name) '("*scratch*" "*ielm*"))
+    (setq lexical-binding t))
   (let ((functions (make-local-variable 'hippie-expand-try-functions-list)))
     (add-to-list functions #'try-complete-lisp-symbol t)
     (add-to-list functions #'try-complete-lisp-symbol-partially t)))
-
-(defun basis/init-emacs-lisp-modes ()
-  "Enable features useful when working with Emacs Lisp."
-  ;; Paredit is enabled by `basis/init-lisp-generic'
-  (basis/init-hippie-expand-for-elisp)
-  ;; Normally `lexical-binding' should be set within a file, but that doesn't
-  ;; work for *scratch* and *ielm*
-  (when (member (buffer-name) '("*scratch*" "*ielm*"))
-    (setq lexical-binding t))
-  ;; Use `common-lisp-indent-function', if it knows about Emacs Lisp
-  ;; XXX: Disabled
-  (when (and nil (get 'if 'common-lisp-indent-function-for-elisp))
-    (setq-local lisp-indent-function #'common-lisp-indent-function)))
 
 (defun basis/init-emacs-lisp-mode ()
   (unless no-byte-compile
@@ -1554,7 +1506,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   (progn
     (add-hook 'clojure-mode-hook #'basis/init-lisp-generic)
     (add-hook 'clojure-mode-hook #'basis/init-clojure-mode)
-    ;; Indentation tweaks
     (pcase-dolist (`(,sym ,n) basis/clojure-indent-specs)
       (put-clojure-indent sym n))
     (put 'macrolet 'clojure-backtracking-indent '((2) 2))))
@@ -1682,11 +1633,9 @@ In practice these are all Lisps, for which I prefer `paredit'.")
       ("C-c '"   #'basis/insert-python-docstring-quotes))
     (add-hook 'python-mode-hook #'basis/init-python-mode)
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
-    ;; Jedi has 2 Python dependencies: jedi and epc
     (when (basis/jedi-installed-p)
       (add-hook 'python-mode-hook #'jedi:setup))
     (when (eq system-type 'windows-nt)
-      ;; Use the launcher when available
       (when-let ((python (cond ((executable-find "py")
                                 "py")
                                ((file-executable-p "c:/Python27/python.exe")
@@ -1790,7 +1739,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   :defer t
   :after (js2-mode sgml-mode css-mode)
   :config (progn
-            (skewer-setup) ; hook into {js2,html,css}-mode
+            (skewer-setup)
             (basis/define-eval-keys skewer-mode-map
               (last-sexp  #'skewer-eval-last-sexp)
               (definition #'skewer-eval-defun)
@@ -1816,33 +1765,30 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   ;; When using Emacs as $PSQL_EDITOR, open the files in `sql-mode'
   :mode ("/psql.edit.[0-9]+\\'" . sql-mode)
   :config (progn
-           ;; But I also work with other products and it's often easier not to
-           ;; switch `sql-product' around.
-           (let ((more-keywords '("unload" "elsif" "endif" "while")))
-             (add-to-list
-              'sql-mode-postgres-font-lock-keywords
-              (apply #'sql-font-lock-keywords-builder
-                     'font-lock-keyword-face nil more-keywords)))
-           (basis/define-keys sql-mode-map
-             ("TAB"   #'basis/sql-indent)
-             ("DEL"   #'basis/sql-backspace-dedent)
-             ("M-n"   #'basis/sql-forward-clause)
-             ("M-p"   #'basis/sql-backward-clause)
-             ("C-M-a" #'basis/sql-beginning-of-defun)
-             ("C-M-e" #'basis/sql-end-of-defun))
-           (add-hook 'sql-mode-hook #'basis/init-sql-mode)
-           ;; Put the advice on `sql-highlight-product' rather than
-           ;; `sql-set-product' because the former is potentially re-run later,
-           ;; as part of `hack-local-variables-hook', and would undo our
-           ;; changes.
-           (advice-add 'sql-highlight-product :after
-                       #'basis/sql-after-highlight-product)))
+            (let ((more-keywords '("unload" "elsif" "endif" "while")))
+              (add-to-list
+               'sql-mode-postgres-font-lock-keywords
+               (apply #'sql-font-lock-keywords-builder
+                      'font-lock-keyword-face nil more-keywords)))
+            (basis/define-keys sql-mode-map
+              ("TAB"   #'basis/sql-indent)
+              ("DEL"   #'basis/sql-backspace-dedent)
+              ("M-n"   #'basis/sql-forward-clause)
+              ("M-p"   #'basis/sql-backward-clause)
+              ("C-M-a" #'basis/sql-beginning-of-defun)
+              ("C-M-e" #'basis/sql-end-of-defun))
+            (add-hook 'sql-mode-hook #'basis/init-sql-mode)
+            ;; Put the advice on `sql-highlight-product' rather than
+            ;; `sql-set-product' because the former is potentially re-run later,
+            ;; as part of `hack-local-variables-hook', and would undo our
+            ;; changes.
+            (advice-add 'sql-highlight-product :after
+                        #'basis/sql-after-highlight-product)))
 
 (defun basis/init-c-base ()
   (setq indent-tabs-mode nil)
   (setq c-basic-offset 4)
   (setq-local comment-style 'extra-line)
-  ;; (c-toggle-auto-newline 1)
   (dolist (cleanup '(brace-else-brace
                      brace-elseif-brace
                      defun-close-semi
@@ -1883,7 +1829,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (defun basis/init-gud-mode ()
   ;; I haven't had a chance to look into it, but company-mode seems to trigger a
-  ;; problem for me on text terminals specifically.
+  ;; problem for me in GUD buffers on text terminals specifically.
   (unless (display-graphic-p)
     (company-mode -1)))
 
@@ -1964,28 +1910,23 @@ In practice these are all Lisps, for which I prefer `paredit'.")
     ("C-c l" #'org-store-link))
   :config
   (progn
-    ;; Paths
     (setq org-directory "~/Dropbox/org/")
     (setq org-default-notes-file (expand-file-name "refile.org" org-directory))
     (setq org-archive-location "%s.archive::")
     (setq org-agenda-files (mapcar (lambda (name)
                                      (expand-file-name name org-directory))
                                    '("todo.org" "work.org")))
-    ;; Misc. options
     (setq org-completion-use-ido t)
     (setq org-outline-path-complete-in-steps nil)
     (setq org-reverse-note-order t)
     (setq org-log-done t)
     (setq org-special-ctrl-a/e t)
     (setq org-ellipsis "…")
-    ;; Agenda
     (setq org-agenda-start-on-weekday nil)
     (setq org-agenda-skip-scheduled-if-done t)
     (setq org-agenda-skip-deadline-if-done t)
-    ;; Code blocks & org-babel
     (setq org-src-fontify-natively t)
     (setq org-confirm-babel-evaluate nil)
-    ;; Capture
     (setq org-capture-templates
           `(("t" "Todo" entry (file+headline ,org-default-notes-file "Tasks")
              "* TODO %?\n %i\n")
@@ -1994,12 +1935,10 @@ In practice these are all Lisps, for which I prefer `paredit'.")
              "* TODO %?\n %i\n")
             ("n" "Note" entry (file+headline "~/Dropbox/org/notes.org" "Notes")
              "* %u %?")))
-    ;; Refiling
     (setq org-refile-use-outline-path 'file)
     (setq org-refile-allow-creating-parent-nodes 'confirm)
     (setq org-refile-targets '((nil :maxlevel . 2)
                                (org-agenda-files :maxlevel . 2)))
-    ;; Todo keywords
     (setq org-todo-keywords
           '((sequence
              "TODO(t)" "STARTED(s@)" "WAITING(w@/!)" "DELEGATED(l@)" "|"
@@ -2141,7 +2080,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
                       (file-readable-p file)
                       (not (ignore-errors (lookup-words "whatever"))))
              (setq ispell-alternate-dictionary file)))
-         ;; Ugly kludge to make the personal dictionary work on my Cygwin setup.
+         ;; Kludge to make the personal dictionary work on my Cygwin setup.
          (when (eq basis/system-type 'windows+cygwin)
            (advice-add 'ispell-init-process :around
                        #'basis/ispell-init-process))))
@@ -2176,7 +2115,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
             (make-variable-buffer-local 'flycheck-idle-change-delay)
             (add-hook 'flycheck-after-syntax-check-hook
                       #'basis/adjust-flycheck-idle-change-delay)
-            ;; Keys for the errors buffer
             (basis/define-keys flycheck-error-list-mode-map
               ("n" #'flycheck-error-list-next-error)
               ("p" #'flycheck-error-list-previous-error))))
@@ -2313,8 +2251,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
 
-;; While "project management" doesn't quite fit `ibuffer' this is where it seems
-;; to make the most sense.
 (use-package ibuffer
   :defer t
   :init (progn (defalias 'ls #'ibuffer)
@@ -2341,7 +2277,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
       ("M-o"   nil) ;; don't shadow ace-window
       ("C-M-o" #'ibuffer-visit-buffer-1-window))
     (define-ibuffer-column size-h
-      ;; a more readable size column
       (:name "Size" :inline t)
       (cond ((> (buffer-size) 1000000)
              (format "%7.1fM" (/ (buffer-size) 1000000.0)))
@@ -2395,11 +2330,7 @@ In practice these are all Lisps, for which I prefer `paredit'.")
           (basis/emacs-file "var/projectile-bookmarks.eld"))
     (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
     (setq projectile-use-git-grep t)
-    ;; Projectile defaults to native indexing on Windows, but if we have
-    ;; Cygwin set up we can use "alien".
-    (if (eq basis/system-type 'windows-nt)
-        (progn (setq projectile-indexing-method 'native)
-               (setq projectile-enable-caching t))
+    (unless (eq basis/system-type 'windows-nt)
       (setq projectile-indexing-method 'alien)
       (setq projectile-enable-caching nil))
     (projectile-global-mode)
@@ -2534,7 +2465,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
   :defer t
   :config (setq eshell-directory-name (basis/emacs-dir "var/eshell/")))
 
-;; Proced
 (use-package proced
   :defer t
   :init (global-set-key (kbd "C-x p") #'proced))
@@ -2675,38 +2605,31 @@ In practice these are all Lisps, for which I prefer `paredit'.")
         (autoload 'mu4e "mu4e" "Launch mu4e." t))))
   :config
   (progn
-    ;; Mail
     (setq mu4e-get-mail-command "offlineimap")
     (setq mu4e-maildir (expand-file-name ".maildir/fastmail" (getenv "HOME")))
     (setq mu4e-sent-folder "/sent")
     (setq mu4e-drafts-folder "/drafts")
     (setq mu4e-trash-folder "/trash")
     (setq mu4e-compose-signature "jbm")
-    ;; Shortcuts. Available as jX
     (setq mu4e-maildir-shortcuts '(("/archive" . ?a)
                                    ("/inbox"   . ?i)
                                    ("/sent"    . ?s)))
-    ;; Addresses to consider "me" when searching
     (setq mu4e-user-mail-address-list '("jbm@jbm.io"
                                         "jbm@deft.li"
                                         "jbm@fastmail.com"
                                         "jbm@fastmail.fm"
                                         "jbm@mailforce.net"))
-    ;; Convert HTML->text if no text version is available
     (setq mu4e-html2text-command (if (executable-find "html2text")
                                      "html2text -utf8 -width 72"
                                    #'basis/shr-html2text))
-    ;; Where to save attachments
     (let ((dirs '("~/downloads" "~/Downloads" "~/")))
       (setq mu4e-attachment-dir (seq-find #'file-directory-p dirs)))
-    ;; Composing messages
     (setq mu4e-reply-to-address "jbm@jbm.io")
     (setq mu4e-sent-messages-behavior 'delete)
     (add-to-list 'mu4e-view-actions
                  (cons "View in browser" #'basis/mu4e-action-view-in-browser)
                  t)))
 
-;; Retrieving credentials
 (use-package auth-source
   :defer t
   :config
