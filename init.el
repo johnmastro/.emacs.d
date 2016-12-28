@@ -433,16 +433,17 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package time
   :defer t
-  ;; Show all continental US time zones
-  :config (setq display-time-world-list
-                '(("PST8PDT"  "Los Angeles")
-                  ("MST7MDT"  "Denver")
-                  ("CST6CDT"  "Chicago")
-                  ("EST5EDT"  "New York")
-                  ("GMT0BST"  "London")
-                  ("CET-1CDT" "Paris")
-                  ("IST-5:30" "Bangalore")
-                  ("JST-9"    "Tokyo"))))
+  :config (when (eq display-time-world-list zoneinfo-style-world-list)
+            (setq display-time-world-list
+                  '(("America/Los_Angeles" "Los Angeles")
+                    ("America/Denver"      "Denver")
+                    ("America/Chicago"     "Chicago")
+                    ("America/New_York"    "New York")
+                    ("Europe/London"       "London")
+                    ("Europe/Paris"        "Paris")
+                    ("Europe/Moscow"       "Moscow")
+                    ("Asia/Shanghai"       "Shanghai")
+                    ("Asia/Tokyo"          "Tokyo")))))
 
 (use-package minibuffer
   :config
