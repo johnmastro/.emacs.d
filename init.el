@@ -17,16 +17,12 @@
   (file-name-directory (file-chase-links (or load-file-name buffer-file-name)))
   "This Emacs's configuration directory.")
 
-(defun basis/emacs-dir (name &optional create)
+(defun basis/emacs-dir (name)
   "Return directory NAME expanded in `basis/emacs-dir'.
 Create the directory if it does not exist and CREATE is non-nil."
   (if (string-suffix-p "/" name)
-      (let ((dir (expand-file-name name basis/emacs-dir)))
-        (when (and create (not (file-directory-p dir)))
-          (make-directory dir t))
-        dir)
-    ;; This isn't actually necessary but will catch places I meant to use
-    ;; `basis/emacs-file' instead
+      (expand-file-name name basis/emacs-dir)
+    ;; This isn't actually necessary
     (error "Directory name should end with a slash")))
 
 (defun basis/emacs-file (name)
@@ -37,10 +33,12 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 ;; Make sure some directories exist
 (dolist (dir '("var/" "var/autosaves/" "tmp/"))
-  (basis/emacs-dir dir 'create))
+  (make-directory (basis/emacs-dir dir) t))
 
 ;; Set up the load path
-(add-to-list 'load-path (basis/emacs-dir "site-lisp/" 'create))
+(let ((dir (basis/emacs-dir "site-lisp/")))
+  (make-directory dir t)
+  (add-to-list 'load-path dir))
 
 ;; So e.g. `find-function' works on C functions in Emacsen I didn't build myself
 (unless (file-directory-p source-directory)
