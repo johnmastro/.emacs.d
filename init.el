@@ -1080,7 +1080,8 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (use-package idomenu
   :ensure t
-  :defer t)
+  :defer t
+  :init (global-set-key (kbd "M-i") #'idomenu))
 
 (use-package smex
   :ensure t
@@ -1191,7 +1192,6 @@ In practice these are all Lisps, for which I prefer `paredit'.")
 
 (use-package helm-imenu
   :defer t
-  :init (global-set-key (kbd "M-i") #'basis/helm-imenu)
   :config (progn (setq helm-imenu-execute-action-at-once-if-one nil)
                  (setq helm-imenu-fuzzy-match t)))
 
