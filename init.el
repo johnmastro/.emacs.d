@@ -372,22 +372,20 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :diminish superword-mode)
 
-(defun basis/init-global-auto-revert-mode ()
-  ;; Emacs 25 automatically disables `auto-revert-use-notify' when you use
-  ;; `global-auto-revert-mode', because it can cause consume too many file
-  ;; descriptors (bug #22814). Force re-enable it here.
-  (let (set)
-    (when (and (not auto-revert-use-notify)
-               (setq set (get 'auto-revert-use-notify 'custom-set)))
-      (funcall set 'auto-revert-use-notify t))))
+(defun basis/enable-auto-revert ()
+  (unless (or auto-revert-mode global-auto-revert-ignore-buffer)
+    (auto-revert-mode)))
 
 (use-package autorevert
   :config (progn
-            (add-hook 'global-auto-revert-mode-hook
-                      #'basis/init-global-auto-revert-mode)
-            (setq global-auto-revert-non-file-buffers t)
+            ;; I would like to use `global-auto-revert-mode', but then it
+            ;; insists on not using "notify".
+            (setq auto-revert-use-notify t)
             (setq auto-revert-verbose nil)
-            (global-auto-revert-mode)))
+            (add-hook 'find-file-hook #'basis/enable-auto-revert)
+            (add-hook 'after-save-hook #'basis/enable-auto-revert)
+            (with-eval-after-load 'dired
+              (add-hook 'dired-mode-hook #'basis/enable-auto-revert))))
 
 (use-package frame
   :config (blink-cursor-mode -1))
