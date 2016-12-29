@@ -897,20 +897,6 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
                  names)
      ,@body))
 
-(defun basis/bug-number-at-point ()
-  "Return the bug number at point, if any, as a string."
-  (save-excursion
-    (skip-chars-backward "^[:blank:]" (line-beginning-position))
-    (when (looking-at "#?\\([0-9]+\\)")
-      (match-string 1))))
-
-(defun basis/browse-emacs-bug (&optional number)
-  "Load Emacs bug NUMBER in a web browser."
-  (interactive (list (or (basis/bug-number-at-point)
-                         (read-string "Bug number: "))))
-  (browse-url (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
-                      number)))
-
 (defun basis/eval-and-replace ()
   "Replace the preceding sexp with its value."
   (interactive)
