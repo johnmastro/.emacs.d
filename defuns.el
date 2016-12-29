@@ -1989,7 +1989,12 @@ When called interactively, FILES is the list of marked files."
   "Download URL to DESTINATION.
 If VISIT is non-nil, visit the file after downloading it."
   (interactive
-   (let* ((url (read-string "URL: " (thing-at-point 'url)))
+   (let* ((def (thing-at-point 'url t))
+          (url (if def
+                   (read-string (format "URL (default %s): " def)
+                                nil nil
+                                def)
+                 (read-string "URL: ")))
           (name (thread-first url
                   url-generic-parse-url
                   url-path-and-query
