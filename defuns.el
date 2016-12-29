@@ -81,6 +81,14 @@ See `basis/eval-keys'."
        (when-let ((bounds (bounds-of-thing-at-point thing)))
          (list (car bounds) (cdr bounds)))))))
 
+(defun basis/region-substring-or-thing (thing &optional no-properties)
+  "Return the contents of the region if active or THING."
+  (when-let ((bounds (basis/bounds-of-region-or-thing thing))
+             (string (apply #'buffer-substring bounds)))
+    (if no-properties
+        (substring-no-properties string)
+      string)))
+
 (defun basis/next-line ()
   "Move point to the next line.
 Wrapper around `next-line' to let-bind `next-line-add-newlines'
@@ -685,9 +693,7 @@ current search, with no context-dependent behavior."
 (defun basis/occur-dwim (regexp nlines)
   "Like `occur', but REGEXP defaults to the text at point."
   (interactive
-   (list (pcase-let* ((bnd (basis/bounds-of-region-or-thing 'symbol))
-                      (str (when bnd
-                             (apply #'buffer-substring-no-properties bnd)))
+   (list (pcase-let* ((str (basis/region-substring-or-thing 'symbol t))
                       (`(,default ,history)
                        (if str
                            (list str nil)
@@ -2173,8 +2179,7 @@ any printable value."
 Use the active region or symbol at point, if any, as the default
 search term."
   (interactive
-   (list (if-let ((bounds (basis/bounds-of-region-or-thing 'symbol))
-                  (string (apply #'buffer-substring-no-properties bounds)))
+   (list (if-let ((string (basis/region-substring-or-thing 'symbol t)))
              (read-string (format "Google (default %s) " string)
                           nil nil
                           string)
@@ -2330,9 +2335,14 @@ used rather than a list of symbols."
   "Load feeds FILE. Return a list formatted for `elfeed-feeds'."
   (seq-mapcat #'basis/elfeed-parse-group (basis/read-file file)))
 
-(defun basis/define-word (arg)
-  (interactive "P")
-  (call-interactively (if arg #'define-word #'define-word-at-point)))
+(defun basis/define-word (word)
+  (interactive
+   (list (if-let ((default (basis/region-substring-or-thing 'word t)))
+             (read-string (format "Define word (default %s): " default)
+                          nil nil
+                          default)
+           (read-string "Define word: "))))
+  (define-word word))
 
 (defun basis/delete-cookies ()
   (when (fboundp 'url-cookie-delete-cookies)
