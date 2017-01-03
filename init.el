@@ -2304,6 +2304,10 @@ TODO: <home> and <end> still don't work.")
             (define-key map (kbd "M-}") #'basis/xref-next-group)
             (define-key map (kbd "M-{") #'basis/xref-prev-group)))
 
+(use-package ztree
+  :ensure t
+  :defer t)
+
 (basis/define-map basis/projectile-map ()
   ("b"   #'projectile-switch-to-buffer)
   ("d"   #'projectile-find-dir)
