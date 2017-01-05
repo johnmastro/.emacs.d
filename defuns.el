@@ -1968,7 +1968,9 @@ If it doesn't exist, BUFFER is created automatically."
                          (dired-get-marked-files)
                        (error "Buffer not in `dired-mode'"))
                      (read-buffer "Destination buffer: ")))
-  (basis/insert-files files (get-buffer-create buffer)))
+  (with-current-buffer (get-buffer-create buffer)
+    (mapc #'insert-file-contents files)
+    (pop-to-buffer (current-buffer))))
 
 (defun basis/dired-rsync (files destination)
   "Rsync FILES to DESTINATION.
