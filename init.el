@@ -38,7 +38,8 @@ Create the directory if it does not exist and CREATE is non-nil."
   (make-directory dir t)
   (add-to-list 'load-path dir))
 
-;; So e.g. `find-function' works on C functions in Emacsen I didn't build myself
+;; So `find-function' works for C functions in Emacsen I didn't build myself
+;; (i.e., on Windows)
 (unless (file-directory-p source-directory)
   (let ((dir (format "~/src/emacs/emacs-%s/" emacs-version)))
     (when (file-directory-p dir)
@@ -60,7 +61,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 ;; Opt out of automatically saving a list of installed packages
 (when (fboundp 'package--save-selected-packages)
-  ;; TODO: Can I hook into `use-package' to build `package-selected-packages'?
   (advice-add 'package--save-selected-packages :override #'ignore))
 
 (unless (package-installed-p 'use-package)
@@ -257,8 +257,9 @@ Create the directory if it does not exist and CREATE is non-nil."
     (setq next-line-add-newlines t)
     (advice-add 'next-line :around #'basis/next-line-no-deactivate-mark)
     (size-indication-mode)
-    (let ((map minibuffer-local-shell-command-map))
-      (define-key map (kbd "C-.") #'basis/insert-file-name))
+    (define-key minibuffer-local-shell-command-map
+      (kbd "C-.")
+      #'basis/insert-file-name)
     (advice-add 'pop-to-mark-command
                 :around
                 #'basis/pop-to-mark-ensure-new-pos)
@@ -438,8 +439,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package minibuffer
   :config
-  (let ((map minibuffer-inactive-mode-map))
-    (define-key map [mouse-1] #'basis/toggle-echo-area-messages)))
+  (define-key minibuffer-inactive-mode-map
+    [mouse-1]
+    #'basis/toggle-echo-area-messages))
 
 (use-package mb-depth
   :config (minibuffer-depth-indicate-mode))
@@ -1760,6 +1762,12 @@ TODO: <home> and <end> still don't work.")
   (setq tab-width 4)
   (sql-set-product 'postgres))
 
+(defun basis/init-sql-interactive-mode ()
+  ;; Smartparens needs to be enabled here specifically, despite
+  ;; `smartparens-global-strict-mode', because `sql-interactive-mode' does not
+  ;; derive from `comint-mode' but does have a `mode-class' of `special'
+  (smartparens-strict-mode))
+
 (use-package sql
   :defer t
   ;; When using Emacs as $PSQL_EDITOR, open the files in `sql-mode'
@@ -1778,6 +1786,8 @@ TODO: <home> and <end> still don't work.")
               ("C-M-a" #'basis/sql-beginning-of-defun)
               ("C-M-e" #'basis/sql-end-of-defun))
             (add-hook 'sql-mode-hook #'basis/init-sql-mode)
+            (add-hook 'sql-interactive-mode-hook
+                      #'basis/init-sql-interactive-mode)
             ;; Put the advice on `sql-highlight-product' rather than
             ;; `sql-set-product' because the former is potentially re-run later,
             ;; as part of `hack-local-variables-hook', and would undo our
@@ -2423,6 +2433,7 @@ TODO: <home> and <end> still don't work.")
   :config
   (progn
     (basis/define-keys comint-mode-map
+      ("C-d"     #'basis/sp-comint-delchar-or-maybe-eof)
       ("M-p"     #'comint-previous-matching-input-from-input)
       ("M-n"     #'comint-next-matching-input-from-input)
       ("C-c C-l" #'helm-comint-input-ring)
@@ -2520,8 +2531,9 @@ TODO: <home> and <end> still don't work.")
 (use-package sx-question-list
   :defer t
   :config
-  (let ((map sx-question-list-mode-map))
-    (define-key map (kbd "M-RET") #'basis/sx-display-full-screen)))
+  (define-key sx-question-list-mode-map
+    (kbd "M-RET")
+    #'basis/sx-display-full-screen))
 
 (use-package sx-question-mode
   :defer t

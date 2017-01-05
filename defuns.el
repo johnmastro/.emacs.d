@@ -1483,6 +1483,18 @@ numeric argument)."
 
 (put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
 
+(defun basis/sp-comint-delchar-or-maybe-eof (arg)
+  "Delete ARG characters or send an EOF to subprocess."
+  ;; Copy the code of `comint-delchar-or-maybe-eof' rather than using advice
+  ;; and/or `cl-letf' to avoid recursion errors.
+  (interactive "p")
+  (let ((proc (get-buffer-process (current-buffer))))
+    (if (and (eobp) proc (= (point) (marker-position (process-mark proc))))
+	(comint-send-eof)
+      (sp-delete-char arg))))
+
+(put 'basis/sp-comint-delchar-or-maybe-eof 'delete-selection 'supersede)
+
 (defun basis/sp-backward-up (&optional arg _interactive)
   "Like `sp-backward-up-sexp' but augmented in `python-mode'.
 In `python-mode', fall back to `python-nav-backward-up-list' if
