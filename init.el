@@ -260,8 +260,7 @@ Create the directory if it does not exist and CREATE is non-nil."
     (define-key minibuffer-local-shell-command-map
       (kbd "C-.")
       #'basis/insert-file-name)
-    (advice-add 'pop-to-mark-command
-                :around
+    (advice-add 'pop-to-mark-command :around
                 #'basis/pop-to-mark-ensure-new-pos)
     (add-hook 'minibuffer-setup-hook #'basis/init-minibuffer)
     (add-hook 'eval-expression-minibuffer-setup-hook
@@ -878,8 +877,7 @@ TODO: <home> and <end> still don't work.")
       ("C-M-u"           #'basis/sp-backward-up))
     (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
-    (advice-add 'sp-backward-delete-char
-                :filter-args
+    (advice-add 'sp-backward-delete-char :filter-args
                 #'basis/sp-backward-delete-no-prefix)))
 
 
@@ -1204,8 +1202,7 @@ TODO: <home> and <end> still don't work.")
 (use-package helm-external
   :defer t
   :config (when (eq system-type 'windows-nt)
-            (advice-add 'helm-open-file-externally
-                        :override
+            (advice-add 'helm-open-file-externally :override
                         #'basis/helm-open-file-w32)))
 
 (use-package helm-grep
@@ -1273,12 +1270,10 @@ TODO: <home> and <end> still don't work.")
     (setq company-tooltip-flip-when-above t)
     (setq company-show-numbers t)
     (setq company-selection-wrap-around t)
-    (advice-add 'company-auto-begin
-                :before-until
+    (advice-add 'company-auto-begin :before-until
                 #'basis/company-maybe-block-completion)
     (when (string= (system-name) "sierra")
-      (advice-add 'company-update-candidates
-                  :filter-args
+      (advice-add 'company-update-candidates :filter-args
                   #'basis/company-no-srv-candidates))
     (with-eval-after-load 'cc-mode
       (when-let ((prog (basis/find-clang-program))
@@ -1998,8 +1993,7 @@ TODO: <home> and <end> still don't work.")
   :after sgml-mode
   :config (progn (tagedit-add-paredit-like-keybindings)
                  (tagedit-add-experimental-features)
-                 (advice-add 'tagedit-toggle-multiline-tag
-                             :around
+                 (advice-add 'tagedit-toggle-multiline-tag :around
                              #'basis/tagedit-toggle-multiline-maybe-forward)))
 
 (use-package simplezen
@@ -2154,8 +2148,7 @@ TODO: <home> and <end> still don't work.")
             (setq ediff-window-setup-function #'ediff-setup-windows-plain)
             (setq ediff-split-window-function #'split-window-horizontally)
             (when (eq system-type 'windows-nt)
-              (advice-add 'ediff-make-empty-tmp-file
-                          :filter-args
+              (advice-add 'ediff-make-empty-tmp-file :filter-args
                           #'basis/ediff-expand-tmp-name))
             (advice-add 'ediff-setup :before #'basis/ediff-save-window-config)
             (advice-add 'ediff-quit :after #'basis/ediff-quit-restore)
@@ -2197,11 +2190,9 @@ TODO: <home> and <end> still don't work.")
       (when (file-executable-p "/bin/git.exe")
         (setq magit-git-executable "/bin/git.exe")
         (setq magit-git-environment nil))
-      (advice-add 'magit-toplevel
-                  :filter-return
+      (advice-add 'magit-toplevel :filter-return
                   #'basis/magit-expand-toplevel)
-      (advice-add 'magit-list-repos
-                  :filter-return
+      (advice-add 'magit-list-repos :filter-return
                   #'basis/magit-list-repos-uniquely)
       (fset 'magit-save-repository-buffers
             #'basis/magit-cygwin-save-repository-buffers)
@@ -2595,8 +2586,7 @@ TODO: <home> and <end> still don't work.")
     (setq message-citation-line-format "%N wrote:\n")
     (define-key message-mode-map (kbd "C-c n") #'org-footnote-action)
     (add-hook 'message-mode-hook #'basis/init-message-mode)
-    (advice-add 'message-insert-signature
-                :after
+    (advice-add 'message-insert-signature :after
                 #'basis/message-maybe-delete-sig-dashes)))
 
 (use-package sendmail
