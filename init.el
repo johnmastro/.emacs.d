@@ -1825,7 +1825,7 @@ TODO: <home> and <end> still don't work.")
   (progn
     (setq c-delete-function #'basis/c-delete)
     (setq c-backspace-function #'basis/c-backspace)
-    (define-key c-mode-base-map (kbd "<deletechar>") #'c-electric-delete-forward)
+    (define-key c-mode-base-map [deletechar] #'c-electric-delete-forward)
     (define-key c-mode-base-map (kbd "C-j") #'c-context-line-break)
     (define-key c-mode-map (kbd "C-c C-v") #'ff-find-other-file)
     (add-hook 'c-mode-hook    #'basis/init-c-mode)
