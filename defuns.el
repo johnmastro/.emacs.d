@@ -789,17 +789,15 @@ no matches."
 
 (defun basis/company-no-srv-candidates (args)
   "Advice for `company-update-candidates'.
-For use on a particular host - ignore all potential candidates
-under \"/srv/\"."
-  ;; Ugh
-  (let* ((prefix "/srv/")
-         (length (length prefix)))
-    (list (seq-remove (lambda (elt)
-                        (and (stringp elt)
-                             (>= (length elt) length)
-                             (eq (compare-strings prefix nil nil elt nil length)
-                                 t)))
-                      (car args)))))
+Ignore all potential candidates under \"/srv/\"."
+  ;; For use on a particular host, because reasons.
+  (if (and (eq major-mode 'shell-mode)
+           (let ((elt (caar args)))
+             (and (stringp elt)
+                  (> (length elt) 5)
+                  (eq (compare-strings "/srv/" nil nil elt nil 5) t))))
+      '(nil)
+    args))
 
 (defun basis/maybe-enable-company-clang ()
   "Conditionally enable `company-clang' for the current buffer."
