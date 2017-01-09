@@ -309,7 +309,7 @@ that many sexps before uncommenting."
   "Advice for `next-line'.
 Bind `deactivate-mark' so that `next-line-add-newlines' doesn't
 cause the mark to be deactivated."
-  (let ((deactivate-mark))
+  (let (deactivate-mark)
     (apply original args)))
 
 (defun basis/next-long-line (&optional threshold message)
@@ -776,7 +776,7 @@ no matches."
   ;; Used as `:before-until' advice, so returning non-nil prevents completion.
   (pcase major-mode
     (`python-mode
-     (basis/in-string-p))
+     (nth 3 (syntax-ppss)))
     (`shell-mode
      (and (eq system-type 'windows-nt)
           (save-excursion
@@ -1357,9 +1357,9 @@ If the region is not active, wrap the current line."
 (defun basis/tagedit-toggle-multiline-maybe-forward (original &rest args)
   "Advice for `tagedit-toggle-multiline-tag'.
 Move forward by a line and indent if invoked directly between."
-  (let ((move-forward-p (and (eq (char-before) ?>) (eq (char-after) ?<))))
+  (let ((forward (and (eq (char-before) ?>) (eq (char-after) ?<))))
     (apply original args)
-    (when move-forward-p
+    (when forward
       (forward-line 1)
       (indent-according-to-mode))))
 
@@ -1449,8 +1449,8 @@ multiple-document stream."
   "Advice for `sp-backward-delete-char'.
 Do not treat raw universal arguments specially (treat it as a
 numeric argument)."
-  (pcase-let ((`(,prefix . ,rest) args))
-    (cons (prefix-numeric-value prefix) rest)))
+  (cons (prefix-numeric-value (car args))
+        (cdr args)))
 
 (defun basis/sp-kill-something ()
   "Call `sp-backward-kill-word' or `kill-region'. "
@@ -1535,20 +1535,15 @@ Handle the special string constants in Python and SQL."
     haskell-indentation-indent-line)
   "Indentation functions for which to inhibit smartparens's cleanup.")
 
-(defsubst basis/sp-inhibit-cleanup-p ()
-  "Return non-nil if smartparens's cleanup should be inhibited.
-See `basis/sp-inhibit-cleanup-list'."
-  (memq indent-line-function basis/sp-inhibit-cleanup-list))
-
 (defun basis/sp-unwrap-no-cleanup (args)
   "Advice for `sp--unwrap-sexp' to inhibit problematic cleanup."
-  (if (basis/sp-inhibit-cleanup-p)
+  (if (memq indent-line-function basis/sp-inhibit-cleanup-list)
       (list (car args) t)
     args))
 
 (defun basis/sp-cleanup-maybe-not (original &rest args)
   "Advice for `sp--cleanup-after-kill' to inhibit problematic cleanup."
-  (unless (basis/sp-inhibit-cleanup-p)
+  (unless (memq indent-line-function basis/sp-inhibit-cleanup-list)
     (apply original args)))
 
 
@@ -1948,7 +1943,11 @@ user-error, automatically move point to the command line."
   "Advice for `shell-quote-argument' on machines with Cygwin.
 Quote file names appropriately for POSIX-like shells."
   ;; Used as :filter-args advice
-  (list (basis/maybe-cygwinize-file-name (car args))))
+  (let* ((arg (car args))
+         (new (basis/maybe-cygwinize-file-name arg)))
+    (if (eq new arg)
+        args
+      (list new))))
 
 (defun basis/read-file (file)
   "Read a Lisp form from FILE."
