@@ -1918,10 +1918,9 @@ user-error, automatically move point to the command line."
 (defun basis/find-file-recentf ()
   "Find recently open files using ido and recentf."
   (interactive)
-  (let* ((list (mapcar #'abbreviate-file-name recentf-list))
-         (file (completing-read "Recent file: " list nil t)))
-    (when file
-      (find-file file))))
+  (find-file (completing-read "Recent file: "
+                              (mapcar #'abbreviate-file-name recentf-list)
+                              nil t)))
 
 (defun basis/windows->unix (filename)
   "Convert FILENAME from Windows-style to UNIX-style."
