@@ -1514,18 +1514,21 @@ In `python-mode', fall back to `python-nav-backward-up-list' if
     (call-interactively #'sp-backward-up-sexp)))
 
 (defun basis/sp-point-after-word-p (id action context)
-  "Like `sp-point-after-word-p' but handle Python and SQL Unicode strings."
-  (let ((result (sp-point-after-word-p id action context))
-        (regexp (pcase (cons major-mode id)
-                  (`(,(or `python-mode `inferior-python-mode) . ,(or "'" "\""))
-                   (concat "\\(^\\|[^\\sw\\s_]\\)[bru]" (regexp-quote id)))
-                  (`(sql-mode . "'")
-                   (concat "\\(^\\|[^\\sw\\s_]\\)N" (regexp-quote id))))))
-    (if regexp
-        (let ((case-fold-search
-               (memq major-mode '(python-mode inferior-python-mode))))
-          (and result (not (looking-back regexp (line-beginning-position)))))
-      result)))
+  "Augmented version of `sp-point-after-word-p'.
+Handle the special string constants in Python and SQL."
+  (let ((result (sp-point-after-word-p id action context)))
+    (when result
+      (cond ((and (memq major-mode '(python-mode inferior-python-mode))
+                  (member id '("'" "\""))
+                  (save-excursion (forward-char -2)
+                                  (looking-at-p "\\_<[BbRrUu]")))
+             (setq result nil))
+            ((and (memq major-mode '(sql-mode sql-interactive-mode))
+                  (equal id "'")
+                  (save-excursion (forward-char -2)
+                                  (looking-a-p "\\_<[BbNnXx]")))
+             (setq result nil))))
+    result))
 
 (defvar basis/sp-inhibit-cleanup-list
   '(indent-relative
