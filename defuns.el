@@ -2057,7 +2057,7 @@ paths when calling the tags command."
     (pcase basis/system-type
       (`windows+cygwin
        ;; Duplicate the logic from `projectile-regenerate-tags' here because
-       ;; there's no good way to "cygwnize" the tags file's name
+       ;; there's no good way to "cygwinize" the tags file name
        (let* ((default-directory root)
               (tags-file (expand-file-name projectile-tags-file-name))
               (command (format projectile-tags-command
