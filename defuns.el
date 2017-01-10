@@ -944,12 +944,14 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
   (python-nav-forward-sexp (- arg)))
 
 (defun basis/jedi-installed-p ()
-  "Return t if Python, Jedi, and EPC are installed, otherwise nil."
-  (with-temp-buffer
-    (let ((inhibit-message t)
-          (message-log-max nil))
-      (zerop (shell-command "python -c \"import jedi; import epc; exit()\""
-                            (current-buffer))))))
+  "Return non-nil if Python, Jedi, and EPC are installed."
+  (condition-case nil
+      (with-temp-buffer
+        (let ((inhibit-message t)
+              (message-log-max nil))
+          (zerop (call-process python-shell-interpreter nil nil nil
+                               "-c" "import epc; import jedi; exit()"))))
+    (file-error nil)))
 
 (defun basis/insert-python-docstring-quotes ()
   "Insert the 6 double quotes for a Python docstring."
