@@ -287,12 +287,8 @@ Create the directory if it does not exist and CREATE is non-nil."
           `((".*" ,(basis/emacs-dir "var/autosaves/") t)))
     (setq auto-save-list-file-prefix
           (concat (basis/emacs-dir "var/auto-save-list/") ".saves-"))
-    (pcase system-type
-      (`darwin
-       (when-let ((gls (executable-find "gls")))
-         (setq insert-directory-program gls)))
-      (`windows-nt
-       (add-hook 'before-save-hook #'basis/maybe-set-coding)))))
+    (when (eq system-type 'windows-nt)
+      (add-hook 'before-save-hook #'basis/maybe-set-coding))))
 
 (use-package windmove
   :defer t
@@ -2368,6 +2364,13 @@ TODO: <home> and <end> still don't work.")
   :config (when (eq basis/system-type 'windows+cygwin)
             (setq ls-lisp-use-insert-directory-program t)))
 
+(defun basis/init-dired-mode ()
+  (dired-omit-mode)
+  (when (and (eq system-type 'darwin)
+             (not (file-remote-p default-directory))
+             (executable-find "gls"))
+    (setq-local insert-directory-program "gls")))
+
 (use-package dired
   :defer t
   :config
@@ -2394,7 +2397,7 @@ TODO: <home> and <end> still don't work.")
                                      "-alhGt"
                                    "-alht"))
     (put 'dired-find-alternate-file 'disabled nil)
-    (add-hook 'dired-mode-hook #'dired-omit-mode)))
+    (add-hook 'dired-mode-hook #'basis/init-dired-mode)))
 
 (use-package dired-x
   :defer t
