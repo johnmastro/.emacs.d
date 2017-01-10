@@ -152,8 +152,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   "Value of `process-environment' before initializing Cygwin.")
 
 (defun basis/init-for-cygwin ()
-  ;; Store a copy of `process-environment' before we change anything, for use in
-  ;; `basis/emacs-Q'
   (unless basis/pre-cygwin-process-environment
     (setq basis/pre-cygwin-process-environment
           (mapcar #'copy-sequence process-environment)))
@@ -281,8 +279,10 @@ Create the directory if it does not exist and CREATE is non-nil."
     (setq-default require-final-newline t)
     (setq confirm-nonexistent-file-or-buffer nil)
     (setq backup-by-copying t)
+    (setq version-control t)
+    (setq delete-old-versions t)
     (setq backup-directory-alist
-          `((".*" . ,(basis/emacs-dir "var/backups/"))))
+          `(("." . ,(basis/emacs-dir "var/backups/"))))
     (setq auto-save-file-name-transforms
           `((".*" ,(basis/emacs-dir "var/autosaves/") t)))
     (setq auto-save-list-file-prefix
