@@ -57,16 +57,6 @@ See `basis/eval-keys'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing utilities
 
-(defun basis/in-string-p ()
-  "Return non-nil if point is within a string."
-  (nth 3 (syntax-ppss)))
-
-(defun basis/in-string-or-comment-p ()
-  "Return non-nil if point is in a string or comment."
-  (let ((state (syntax-ppss)))
-    (or (nth 3 state)
-        (nth 4 state))))
-
 (defun basis/bounds-of-region-or-thing (thing)
   "Return the bounds of the region if active or THING."
   ;; Note that whereas `bounds-of-thing-at-point' returns (BEG . END) we return
@@ -1148,8 +1138,9 @@ With arg N, move forward that many times."
           (setq start2 (goto-char (match-end 0))))
         (while (and (> n 0)
                     (re-search-forward basis/sql-clause-start-regexp nil t))
-          (unless (basis/in-string-or-comment-p)
-            (setq n (- n 1))))
+          (let ((state (syntax-ppss)))
+            (unless (or (nth 3 state) (nth 4 state))
+              (setq n (- n 1)))))
         ;; If that didn't get us anywhere, just do `forward-paragraph'
         (cond ((= (point) start1)
                (forward-paragraph n))
@@ -1170,8 +1161,9 @@ With arg N, move backward that many times."
       (let ((start (point)))
         (while (and (> n 0)
                     (re-search-backward basis/sql-clause-start-regexp nil t))
-          (unless (basis/in-string-or-comment-p)
-            (setq n (- n 1))))
+          (let ((state (syntax-ppss)))
+            (unless (or (nth 3 state) (nth 4 state))
+              (setq n (- n 1)))))
         (when (= (point) start)
           (backward-paragraph n))
         (point)))))
