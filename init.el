@@ -945,7 +945,8 @@ TODO: <home> and <end> still don't work.")
 (use-package swiper
   :ensure t
   :defer t
-  :init (define-key isearch-mode-map (kbd "M-s") #'swiper-from-isearch)
+  :commands (swiper-from-isearch)
+  :init (define-key isearch-mode-map (kbd "M-i") #'swiper-from-isearch)
   :config (progn (setq swiper-min-highlight 1)
                  (basis/define-keys swiper-map
                    ("M-%"   #'swiper-query-replace)
@@ -1187,13 +1188,10 @@ TODO: <home> and <end> still don't work.")
 (use-package helm-swoop
   :ensure t
   :defer t
-  :init (define-key isearch-mode-map (kbd "M-s") #'helm-swoop-from-isearch)
   :config (progn
             (setq helm-swoop-use-line-number-face t)
             (define-key helm-swoop-map (kbd "C-s") #'helm-next-line)
-            (define-key helm-swoop-map (kbd "C-r") #'helm-previous-line)
-            ;; I prefer M-s for this
-            (define-key isearch-mode-map (kbd "M-i") nil)))
+            (define-key helm-swoop-map (kbd "C-r") #'helm-previous-line)))
 
 (use-package helm-external
   :defer t

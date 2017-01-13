@@ -681,7 +681,7 @@ current search, with no context-dependent behavior."
          ""))))
 
 (defun basis/occur-dwim (regexp nlines)
-  "Like `occur', but REGEXP defaults to the text at point."
+  "Like `occur', but REGEXP defaults to the symbol at point."
   (interactive
    (list (pcase-let* ((str (basis/region-substring-or-thing 'symbol t))
                       (`(,default ,history)
