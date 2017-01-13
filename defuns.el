@@ -943,11 +943,13 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
                                "-c" "import epc; import jedi; exit()"))))
     (file-error nil)))
 
-(defun basis/insert-python-docstring-quotes ()
-  "Insert the 6 double quotes for a Python docstring."
+(defun basis/python-insert-triple-quotes ()
+  "Insert Python triple-quotes and move point to the center."
   (interactive)
-  (insert-char ?\" 6)
-  (backward-char 3))
+  (let* ((keys (this-command-keys))
+         (char (elt keys (1- (length keys)))))
+    (insert-char char 6)
+    (forward-char -3)))
 
 (defun basis/python-find-venv (&optional dir)
   (when-let ((dir (or dir (ignore-errors (projectile-project-root))))
