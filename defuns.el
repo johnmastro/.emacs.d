@@ -1454,6 +1454,17 @@ numeric argument)."
   (call-interactively
    (if (use-region-p) #'kill-region #'sp-backward-kill-word)))
 
+(defun basis/sp-kill-sexp (&optional arg)
+  "Variant of `sp-kill-sexp'.
+If called inside a symbol, only kill to the end of the
+symbol (like `kill-sexp')."
+  (interactive "P")
+  (if (and (not arg)
+           (looking-at-p "\\sw\\|\\s_")
+           (not (looking-at-p "\\_<")))
+      (kill-sexp 1)
+    (sp-kill-sexp arg)))
+
 (defmacro basis/with-sp-backward-delete (&rest body)
   "Execute BODY with `sp-backward-delete-char' overriding
 `backward-delete-char' and `backward-delete-char-untabify'."
