@@ -1273,13 +1273,13 @@ TODO: <home> and <end> still don't work.")
     (when (string= (system-name) "sierra")
       (advice-add 'company-update-candidates :filter-args
                   #'basis/company-no-srv-candidates))
-    (with-eval-after-load 'cc-mode
-      (when-let ((prog (basis/find-clang-program))
-                 (args (basis/build-clang-args 'c)))
-        (require 'company-clang)
-        (setq company-clang-executable prog)
-        (setq company-clang-arguments args)
-        (add-hook 'c-mode-hook #'basis/maybe-enable-company-clang))))
+    (unless (eq system-type 'windows-nt)
+      (with-eval-after-load 'cc-mode
+        (when-let ((prog (basis/find-clang-program))
+                   (args (basis/build-clang-args 'c)))
+          (require 'company-clang)
+          (setq company-clang-executable prog)
+          (setq company-clang-arguments args)))))
   :diminish company-mode)
 
 (use-package company-statistics

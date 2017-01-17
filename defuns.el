@@ -1838,46 +1838,50 @@ user-error, automatically move point to the command line."
 (defun basis/find-clang-program ()
   "Return the clang program to be used by `company-clang'."
   (or (executable-find "clang")
-      ;; Some systems have clang-N.M but not plain clang. If multiple versions
-      ;; are installed, we ideally probably want to use the most recent version.
-      ;; The right way to do that would be with a predicate to `sort' based on
-      ;; `version<'. For now, however, I deem a reverse lexicographic sort to be
-      ;; good enough.
-      (let ((regexp "\\`clang-\\([0-9]+\\.[0-9]+\\)\\'"))
-        (seq-some (lambda (dir)
-                    (when (file-directory-p dir)
-                      (let ((files (directory-files dir t regexp)))
-                        (seq-find #'file-executable-p (nreverse files)))))
-                  exec-path))))
+      (let ((regexp "\\`clang-\\([0-9.]+\\)\\(alpha\\|beta\\|pre\\)?\\'")
+            (clangs ()))
+        (dolist (dir exec-path)
+          (when (file-directory-p dir)
+            (dolist (file (directory-files dir t))
+              (when (and (file-executable-p file)
+                         (string-match regexp file))
+                (push (cons file (concat (match-string 1 file)
+                                         (match-string 2 file)))
+                      clangs)))))
+        (caar (sort (nreverse clangs)   ; Maintain relative order from exec-path
+                    (lambda (a b) (version< (cdr b) (cdr a))))))))
 
-(defun basis/find-clang-includes-path (&optional language)
+(defun basis/find-clang-includes-path (language)
   "Return clang's #include <...> search path."
-  ;; This isn't a very satisfactory solution but it's "good enough"
-  (let ((language (or language 'c))
-        (program (or (bound-and-true-p company-clang-executable)
-                     (basis/find-clang-program))))
-    (unless (memq language '(c c++))
-      (error "Unknown language `%s'" language))
+  (unless (memq language '(c c++))
+    (error "Unknown language `%s'" language))
+  (let ((clang (or (and (boundp 'company-clang-executable)
+                        (symbol-value 'company-clang-executable))
+                   (basis/find-clang-program)
+                   (error "Clang executable not found")))
+        (path ()))
     (with-temp-buffer
-      (apply #'call-process program nil t nil
-             (list "-E" (if (eq language 'c++) "-xc++" "-xc") "-" "-v"))
+      (call-process clang nil t nil
+                    "-E" (if (eq language 'c++) "-xc++" "-xc") "-" "-v")
       (goto-char (point-min))
       (re-search-forward "^#include <\\.\\.\\.> search starts here:$")
       (forward-line 1)
-      (let ((str (buffer-substring-no-properties
-                  (line-beginning-position)
-                  (progn (re-search-forward "^End of search list\\.$")
-                         (line-beginning-position)))))
-        (seq-filter #'file-directory-p
-                    (split-string str "\n" t "[[:blank:]]+"))))))
+      (while (not (looking-at "^End of search list\\.$"))
+        (skip-chars-forward "[:blank:]")
+        (let* ((str (buffer-substring (point) (line-end-position)))
+               (dir (expand-file-name str)))
+          (when (and (file-directory-p dir)
+                     (not (member dir path)))
+            (push dir path)))
+        (forward-line 1))
+      (nreverse path))))
 
-(defun basis/build-clang-args (&optional language)
-  (let ((language (or language 'c)))
-    (unless (memq language '(c c++))
-      (error "Unknown language `%s'" language))
-    (when-let ((std (if (eq language 'c++) "c++11" "c11"))
-               (inc (ignore-errors (basis/find-clang-includes-path language))))
-      (cons (format "-std=%s" std) inc))))
+(defun basis/build-clang-args (language)
+  (unless (memq language '(c c++))
+    (error "Unknown language `%s'" language))
+  (when-let ((std (if (eq language 'c++) "c++11" "c11"))
+             (inc (ignore-errors (basis/find-clang-includes-path language))))
+    (cons (format "-std=%s" std) inc)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
