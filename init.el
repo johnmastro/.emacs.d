@@ -96,6 +96,10 @@ Create the directory if it does not exist and CREATE is non-nil."
   :ensure t
   :defer t)
 
+(use-package async
+  :ensure t
+  :defer t)
+
 (use-package map)
 
 (use-package dash
