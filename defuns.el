@@ -951,20 +951,20 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
     (insert-char char 6)
     (forward-char -3)))
 
-(defun basis/python-find-venv (&optional dir)
+(defun basis/python-find-virtual-env (&optional dir)
   (when-let ((dir (or dir (ignore-errors (projectile-project-root))))
              (env (expand-file-name "env" dir)))
     (and (or (file-exists-p (expand-file-name "bin/activate" env))
              (file-exists-p (expand-file-name "Scripts/activate" env)))
          env)))
 
-(defun basis/pyvenv-activate (dir)
+(defun basis/python-activate-virtual-env (dir)
   "Like `pyvenv-activate' but try to guess the directory."
   (interactive
    (list (read-directory-name
-          "Activate venv: "
+          "Activate virtual environment: "
           (when-let ((root (ignore-errors (projectile-project-root))))
-            (or (basis/python-find-venv root)
+            (or (basis/python-find-virtual-env root)
                 root)))))
   (if (eq major-mode 'python-mode)
       (pyvenv-activate dir)
@@ -974,19 +974,20 @@ This idea also goes by the name `with-gensyms` in Common Lisp."
   "Run an inferior Python process.
 If a (Projectile) project root is found, start the Python process
 with it as `default-directory'. If a virtualenv associated with
-the project is found, prompt to activate it. However, stick to
-the base `run-python' functionality with a prefix arg."
+the project is found, prompt to activate it. However, when called
+with a prefix argument, invoke plain `run-python' directly."
   (interactive "P")
   (unless (eq major-mode 'python-mode)
     (error "Not in a python-mode buffer"))
   (if arg
       (call-interactively #'run-python)
     (let* ((prj (ignore-errors (projectile-project-root)))
-           (env (basis/python-find-venv prj))
+           (env (basis/python-find-virtual-env prj))
            (default-directory (or prj default-directory)))
       (when env
         (pyvenv-activate env)
-        (message "Activated venv `%s'" env))
+        (message "Activated virtual environment `%s'"
+                 (abbreviate-file-name env)))
       (call-interactively #'run-python))))
 
 (defun basis/python-mark-docstring (mark-inside)
