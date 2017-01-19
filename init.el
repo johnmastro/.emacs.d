@@ -209,7 +209,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (setq mail-host-address "jbm.io")
 
 (defun basis/default-major-mode ()
-  (let ((case-fold-search (memq system-type '(windows-nt cygwin))))
+  (let ((case-fold-search (memq system-type '(windows-nt cygwin darwin))))
     ;; Ignore the more complicated case where the element of `auto-mode-alist'
     ;; is (REGEXP FUNCTION NON-NIL)
     (pcase (assoc-default (buffer-name) auto-mode-alist #'string-match)
