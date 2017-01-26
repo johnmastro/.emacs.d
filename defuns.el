@@ -1616,7 +1616,7 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
 Let-bind `ispell-current-personal-dictionary' to a
 Cygwin-friendly name so that the personal dictionary works."
   (let ((ispell-current-personal-dictionary
-         (basis/maybe-cygwinize-file-name ispell-current-personal-dictionary)))
+         (basis/cygwinize-file-name ispell-current-personal-dictionary)))
     (apply original args)))
 
 
@@ -1887,7 +1887,7 @@ user-error, automatically move point to the command line."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File utilities
 
-(defun basis/rename-current-buffer-file (buffer destination)
+(defun basis/rename-buffer-file (buffer destination)
   "Rename BUFFER and the file it's visiting to DESTINATION."
   (interactive
    (list (current-buffer)
@@ -1899,7 +1899,7 @@ user-error, automatically move point to the command line."
                                       destination)
                   destination)))
       (unless (and src (file-exists-p src))
-        (error "Buffer `%s' is not visiting a file" src))
+        (user-error "Buffer `%s' is not visiting a file" (buffer-name)))
       (rename-file src dst 1)
       (set-visited-file-name dst)
       (set-buffer-modified-p nil)
@@ -1911,20 +1911,19 @@ user-error, automatically move point to the command line."
                (list (abbreviate-file-name src)
                      (abbreviate-file-name dst)))))))
 
-(defun basis/delete-current-buffer-file ()
-  "Kill the current buffer and delete the file it's visiting."
-  (interactive)
-  (let* ((buffer (current-buffer))
-         (file (buffer-file-name))
-         (abbr (abbreviate-file-name file)))
-    (if (and file (file-exists-p file))
+(defun basis/delete-buffer-file (buffer)
+  "Kill BUFFER and delete the file it's visiting."
+  (interactive (list (current-buffer)))
+  (with-current-buffer buffer
+    (if-let ((file (buffer-file-name))
+             (abbr (abbreviate-file-name file)))
         (when (y-or-n-p (format "Delete file `%s'?" abbr))
           (delete-file file)
           (kill-buffer buffer)
           (message "File `%s' deleted" abbr))
-      (unless (and (buffer-modified-p)
-                   (not (y-or-n-p (format "Buffer `%s' modified; kill anyway?"
-                                          (buffer-name)))))
+      (when (or (zerop (buffer-size))
+                (y-or-n-p (format "Buffer `%s' is not visiting a file; kill it?"
+                                  (buffer-name))))
         (kill-buffer)))))
 
 (defun basis/find-file-recentf ()
@@ -1934,28 +1933,26 @@ user-error, automatically move point to the command line."
                               (mapcar #'abbreviate-file-name recentf-list)
                               nil t)))
 
-(defun basis/windows->unix (filename)
-  "Convert FILENAME from Windows-style to UNIX-style."
-  (thread-last filename
-    (replace-regexp-in-string "\\\\" "/")
-    (replace-regexp-in-string "\\`[a-zA-Z]:" "")))
-
-(defun basis/maybe-cygwinize-file-name (file)
-  "Convert e.g. \"c:/foo\" to \"/c/foo\"."
-  (if (and file (string-match "\\`\\([A-Za-z]\\):\\(/.*\\)" file))
-      (let ((drive (match-string 1 file))
-            (name (match-string 2 file)))
-        (if (member drive '("c" "C"))
-            name
-          (concat "/" drive name)))
-    file))
+(defun basis/cygwinize-file-name (name)
+  "Convert NAME for use with Cygwin."
+  ;; This is obviously not a general solution
+  (if (string-match "\\`\\([A-Za-z]\\):\\(/\\|\\\\\\)" name)
+      (let* ((drive (match-string 1 name))
+             (sep   (match-string 2 name))
+             (more  (substring name (match-end 2))))
+        (concat (if (member drive '("c" "C")) "" (concat "/" drive))
+                "/"
+                (if (equal sep "\\")
+                    (replace-regexp-in-string "\\\\" "/" more)
+                  more)))
+    name))
 
 (defun basis/cygwin-shell-quote-argument (args)
   "Advice for `shell-quote-argument' on machines with Cygwin.
 Quote file names appropriately for POSIX-like shells."
   ;; Used as :filter-args advice
   (let* ((arg (car args))
-         (new (basis/maybe-cygwinize-file-name arg)))
+         (new (basis/cygwinize-file-name arg)))
     (if (eq new arg)
         args
       (list new))))
@@ -2006,7 +2003,7 @@ When called interactively, FILES is the list of marked files."
     (error "No files selected"))
   (pcase-let ((`(,destination . ,files)
                (if (eq basis/system-type 'windows+cygwin)
-                   (mapcar #'basis/windows->unix (cons destination files))
+                   (mapcar #'basis/cygwinize-file-name (cons destination files))
                  (cons destination files))))
     (let ((cmd (mapconcat #'identity
                           (list "rsync -arvz --progress"
@@ -2030,9 +2027,7 @@ If VISIT is non-nil, visit the file after downloading it."
                   url-generic-parse-url
                   url-path-and-query
                   car
-                  (split-string "/")
-                  last
-                  car)))
+                  file-name-nondirectory)))
      (list url (read-file-name "Destination: " nil name) current-prefix-arg)))
   (url-copy-file url destination 0)
   (when visit (find-file destination)))
@@ -2071,7 +2066,7 @@ paths when calling the tags command."
        (let* ((default-directory root)
               (tags-file (expand-file-name projectile-tags-file-name))
               (command (format projectile-tags-command
-                               (basis/maybe-cygwinize-file-name tags-file)
+                               (basis/cygwinize-file-name tags-file)
                                (projectile-tags-exclude-patterns))))
          (with-temp-buffer
            (unless (zerop (call-process-shell-command command

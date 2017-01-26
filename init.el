@@ -159,9 +159,9 @@ Create the directory if it does not exist and CREATE is non-nil."
   (unless basis/pre-cygwin-process-environment
     (setq basis/pre-cygwin-process-environment
           (mapcar #'copy-sequence process-environment)))
-  (let* ((home (basis/windows->unix (or (getenv "HOME")
-                                        (error "HOME not defined"))))
-         (home/bin (concat (basis/windows->unix home)
+  (let* ((home (basis/cygwinize-file-name (or (getenv "HOME")
+                                              (error "HOME not defined"))))
+         (home/bin (concat (basis/cygwinize-file-name home)
                            (unless (string-suffix-p "/" home) "/")
                            "bin"))
          (path (cons home/bin basis/cygwin-path-directories)))
@@ -230,10 +230,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 (when (boundp 'w32-pipe-read-delay)
   (setq w32-pipe-read-delay 0))
 
-(fset 'display-startup-echo-area-message
-      (lambda () (message "Hacks and glory await!")))
-
-(fset 'yes-or-no-p #'y-or-n-p)
+(fset 'display-startup-echo-area-message (symbol-function 'ignore))
+(fset 'yes-or-no-p (symbol-function 'y-or-n-p))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -602,8 +600,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 (basis/define-map basis/file-map ("C-c f")
   ("c" #'helm-locate)
   ("d" #'basis/diff-buffer-with-file)
-  ("r" #'basis/rename-current-buffer-file)
-  ("D" #'basis/delete-current-buffer-file)
+  ("r" #'basis/rename-buffer-file)
+  ("D" #'basis/delete-buffer-file)
   ("f" #'find-name-dired)
   ("F" #'find-dired)
   ("m" #'make-directory)
