@@ -2020,6 +2020,26 @@ If VISIT is non-nil, visit the file after downloading it."
   (url-copy-file url destination 0)
   (when visit (find-file destination)))
 
+(defun basis/xdg-user-dirs nil
+  "Association list of xdg user directory keys and values.")
+
+(defun basis/xdg-user-dir (name)
+  "Look up the file name for XDG user directory NAME."
+  (or (cdr (assq name basis/xdg-user-dirs))
+      (when (executable-find "xdg-user-dir")
+        (let* ((str (upcase (symbol-name name)))
+               (dir (with-temp-buffer
+                      (call-process "xdg-user-dir" nil t nil str)
+                      (goto-char (point-min))
+                      (skip-chars-forward "[:blank:]")
+                      (buffer-substring (point) (line-end-position)))))
+          ;; xdg-user-dir returns the user's home directory for non-existing
+          ;; NAME values, so convert that to nil
+          (unless (or (equal dir "")
+                      (file-equal-p dir (expand-file-name "~")))
+            (push (cons name dir))
+            dir)))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
