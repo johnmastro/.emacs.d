@@ -2403,6 +2403,12 @@ TODO: <home> and <end> still don't work.")
                                  '("-exec ls -ldh {} +" . "-ldh")))
   :after dired)
 
+(use-package image-dired
+  :defer t
+  ;; Set `image-dired-dir' before loading the package because several other
+  ;; options' default values are defined relative to it.
+  :init (setq image-dired-dir (basis/emacs-dir "var/image-dired/")))
+
 (use-package dired+
   :ensure t
   :defer t
