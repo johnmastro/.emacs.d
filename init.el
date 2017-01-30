@@ -518,43 +518,38 @@ Create the directory if it does not exist and CREATE is non-nil."
             (which-key-mode))
   :diminish which-key-mode)
 
-;; Don't prompt when using `C-x k'
 (global-set-key (kbd "C-x k") #'basis/kill-buffer)
 
 (use-package winner
   :config (winner-mode))
 
-;; Make `next-line-add-newlines' safe for keyboard macros
-(global-set-key (kbd "C-n") #'basis/next-line)
-(global-set-key (kbd "<down>") #'basis/next-line)
+(global-set-key [remap next-line] #'basis/next-line)
+
+(global-set-key [remap delete-horizontal-space] #'basis/cycle-spacing-fast)
+
+(global-set-key [remap move-beginning-of-line] #'basis/beginning-of-line)
 
 (basis/define-keys global-map
-  ("S-RET"      #'basis/open-line-above)
   ("<S-return>" #'basis/open-line-above)
-  ("C-RET"      #'basis/open-line-below)
-  ("<C-return>" #'basis/open-line-below)
-  ("C-^"        #'basis/open-line-below))
-
-(global-set-key (kbd "M-\\") #'basis/cycle-spacing-fast)
-
-(global-set-key (kbd "C-a") #'basis/beginning-of-line)
+  ("<C-return>" #'basis/open-line-below))
 
 (basis/define-keys global-map
-  ("M-k"                   #'kill-sexp)
-  ("C-w"                   #'basis/kill-something)
-  ("M-DEL"                 #'basis/kill-something)
-  ([remap kill-whole-line] #'basis/kill-line-backward)
-  ("<C-delete>"            #'basis/smart-kill-whole-line)
-  ("<M-delete>"            #'basis/smart-kill-almost-whole-line)
-  ("ESC <deletechar>"      #'basis/smart-kill-almost-whole-line))
+  ([remap forward-sentence]  #'forward-sexp)
+  ([remap backward-sentence] #'backward-sexp)
+  ([remap kill-sentence]     #'kill-sexp))
 
 (basis/define-keys global-map
-  ("M-w"    #'basis/kill-ring-save-something)
-  ("<f2>"   #'basis/clipboard-save-something))
+  ([remap kill-region]        #'basis/kill-something)
+  ([remap backward-kill-word] #'basis/kill-something)
+  ("<M-delete>"               #'basis/smart-kill-whole-line))
 
 (basis/define-keys global-map
-  ("M-^" #'basis/delete-indentation)
-  ("M-q" #'basis/fill-or-unfill-paragraph))
+  ([remap kill-ring-save] #'basis/kill-ring-save-something)
+  ("<f2>"                 #'basis/clipboard-save-something))
+
+(basis/define-keys global-map
+  ([remap delete-indentation] #'basis/delete-indentation)
+  ([remap fill-paragraph]     #'basis/fill-or-unfill-paragraph))
 
 (basis/define-map basis/transposition-map ("M-t")
   ("l"   #'transpose-lines)
@@ -574,28 +569,22 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;; I use M-SPC for `avy-goto-word-1'
 (global-set-key (kbd "C-c SPC") #'just-one-space)
 
-(global-set-key (kbd "M-g M-g") #'basis/goto-line-with-numbers)
-
-(global-set-key (kbd "M-e") #'forward-sexp)
-(global-set-key (kbd "M-a") #'backward-sexp)
+(global-set-key [remap goto-line] #'basis/goto-line-with-numbers)
 
 (global-set-key (kbd "C-c <C-return>") #'shell)
 (global-set-key (kbd "C-c C-^") #'shell)
 
 (basis/define-keys global-map
-  ("M-u" #'basis/upcase-something)
-  ("M-l" #'basis/downcase-something)
-  ("M-c" #'basis/capitalize-something))
+  ([remap upcase-word]     #'basis/upcase-something)
+  ([remap downcase-word]   #'basis/downcase-something)
+  ([remap capitalize-word] #'basis/capitalize-something))
 
-;; DWIM C-x C-c
-(global-set-key (kbd "C-x C-c") #'basis/kill-frame-or-terminal)
+(global-set-key [remap save-buffers-kill-terminal]
+                #'basis/kill-frame-or-terminal)
 
 (global-set-key (kbd "<f9>") #'basis/google)
 
 (global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
-
-(global-set-key (kbd "<C-prior>") #'previous-buffer)
-(global-set-key (kbd "<C-next>") #'next-buffer)
 
 (basis/define-map basis/file-map ("C-c f")
   ("c" #'helm-locate)
@@ -2448,13 +2437,12 @@ TODO: <home> and <end> still don't work.")
                  get-buffer-process
                  process-command
                  car
-                 file-name-nondirectory)))
-    (setq shell-dirstack-query
-          (cond ((string-match-p "bash" shell)
-                 "command dirs")
-                ((string-match-p "zsh" shell)
-                 "dirs -l")
-                (t shell-dirstack-query))))
+                 file-name-nondirectory))
+        (query (cond ((string-match-p "bash" shell)
+                      "command dirs")
+                     ((string-match-p "zsh" shell)
+                      "dirs -l"))))
+    (when query (setq shell-dirstack-query query)))
   (shell-dirtrack-mode -1)
   (dirtrack-mode))
 

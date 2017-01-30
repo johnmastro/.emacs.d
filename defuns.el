@@ -348,23 +348,11 @@ If `subword-mode' is active, use `subword-backward-kill'."
         (t
          (backward-kill-word arg))))
 
-(defun basis/kill-line-backward ()
-  "Kill everything before point. Respect indentation."
-  (interactive)
-  (kill-line 0)
-  (indent-according-to-mode))
-
 (defun basis/smart-kill-whole-line (&optional arg)
   "A simple wrapper around `kill-whole-line' that respects indentation."
   (interactive "*P")
   (kill-whole-line arg)
   (back-to-indentation))
-
-(defun basis/smart-kill-almost-whole-line ()
-  "Like `smart-kill-whole-line' but doesn't kill the newline."
-  (interactive)
-  (basis/beginning-of-line)
-  (kill-line nil))
 
 (defun basis/kill-ring-save-something ()
   "Save the contents of the active region or the current line."
@@ -374,7 +362,7 @@ If `subword-mode' is active, use `subword-backward-kill'."
              (list (region-beginning) (region-end))
            (list (line-beginning-position)
                  (save-excursion (forward-line 1)
-                                 (line-beginning-position))))))
+                                 (point))))))
 
 (defun basis/duplicate-line (n)
   "Duplicate the line at point.
