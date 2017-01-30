@@ -176,7 +176,6 @@ Create the directory if it does not exist and CREATE is non-nil."
       (setq ediff-shell shell)
       (setq null-device "/dev/null")
       (setenv "SHELL" shell))
-    (setenv "LANG" "en_US.UTF-8")
     (advice-add 'shell-quote-argument :filter-args
                 #'basis/cygwin-shell-quote-argument)
     (setq basis/system-type 'windows+cygwin)))
