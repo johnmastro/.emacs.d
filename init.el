@@ -2488,7 +2488,15 @@ TODO: <home> and <end> still don't work.")
 
 (use-package eww
   :defer t
-  :config (define-key eww-mode-map (kbd "<backtab>") #'shr-previous-link))
+  :config
+  (progn (define-key eww-mode-map (kbd "<backtab>") #'shr-previous-link)
+         (when-let ((directory
+                     (or (basis/xdg-user-dir 'download)
+                         (seq-find #'file-directory-p
+                                   (append '("~/downloads/" "~/Downloads/")
+                                           (and (eq system-type 'windows-nt)
+                                                '("e:/Downloads")))))))
+           (setq eww-download-directory directory))))
 
 (use-package browse-url
   :defer t
@@ -2538,9 +2546,10 @@ TODO: <home> and <end> still don't work.")
   (progn
     (setq emms-directory (basis/emacs-dir "var/emms/"))
     (setq emms-source-file-default-directory
-          (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
-            (seq-mapcat (lambda (dir) (list dir (downcase dir))))
-            (seq-find #'file-directory-p)))))
+          (or (basis/xdg-user-dir 'music)
+              (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
+                (seq-mapcat (lambda (dir) (list dir (downcase dir))))
+                (seq-find #'file-directory-p))))))
 
 (use-package emms-setup
   :defer t

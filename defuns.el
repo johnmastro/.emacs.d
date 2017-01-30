@@ -2020,7 +2020,7 @@ If VISIT is non-nil, visit the file after downloading it."
   (url-copy-file url destination 0)
   (when visit (find-file destination)))
 
-(defun basis/xdg-user-dirs nil
+(defvar basis/xdg-user-dirs nil
   "Association list of xdg user directory keys and values.")
 
 (defun basis/xdg-user-dir (name)
@@ -2037,7 +2037,7 @@ If VISIT is non-nil, visit the file after downloading it."
           ;; NAME values, so convert that to nil
           (unless (or (equal dir "")
                       (file-equal-p dir (expand-file-name "~")))
-            (push (cons name dir))
+            (push (cons name dir) basis/xdg-user-dirs)
             dir)))))
 
 
