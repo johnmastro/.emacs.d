@@ -1871,6 +1871,9 @@ user-error, automatically move point to the command line."
              (inc (ignore-errors (basis/find-clang-includes-path language))))
     (cons (format "-std=%s" std) inc)))
 
+(defun basis/eshell-cygwin-path-env ()
+  (setq eshell-path-env (replace-regexp-in-string ":" ";" eshell-path-env)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File utilities

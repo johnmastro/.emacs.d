@@ -2467,7 +2467,10 @@ TODO: <home> and <end> still don't work.")
 
 (use-package esh-mode
   :defer t
-  :config (setq eshell-directory-name (basis/emacs-dir "var/eshell/")))
+  :config
+  (progn (setq eshell-directory-name (basis/emacs-dir "var/eshell/"))
+         (when (eq basis/system-type 'windows+cygwin)
+           (add-hook 'eshell-mode-hook #'basis/eshell-cygwin-path-env))))
 
 (use-package proced
   :defer t
