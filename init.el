@@ -470,6 +470,10 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (setq frame-title-format `(,(concat "%b | " invocation-name "@" (system-name))))
 
+(use-package nlinum
+  :ensure t
+  :defer t)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Documentation modes

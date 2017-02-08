@@ -2221,16 +2221,13 @@ search term."
            (url-hexify-string string))))
 
 (defun basis/goto-line-with-numbers ()
-  "Invoke `goto-line' with line numbers temporarily enabled.
-Use `nlinum-mode' if available, or `linum-mode' otherwise."
+  "Invoke `goto-line' with `nlinum-mode' temporarily enabled."
   (interactive)
-  (if (or (bound-and-true-p nlinum-mode)
-          (bound-and-true-p linum-mode))
+  (if (bound-and-true-p nlinum-mode)
       (call-interactively #'goto-line)
-    (let ((mode (if (require 'nlinum nil t) 'nlinum-mode 'linum-mode)))
-      (unwind-protect (progn (funcall mode 1)
-                             (call-interactively #'goto-line))
-        (funcall mode -1)))))
+    (unwind-protect (progn (nlinum-mode 1)
+                           (call-interactively #'goto-line))
+      (nlinum-mode -1))))
 
 (defun basis/libxml-available-p ()
   "Return non-nil if libxml is available."
