@@ -2046,6 +2046,14 @@ If VISIT is non-nil, visit the file after downloading it."
             (push (cons name dir) basis/xdg-user-dirs)
             dir)))))
 
+(defun basis/apply-patch (beg end dir)
+  "Apply the patch between BEG and END in DIR."
+  (interactive
+   (pcase-let ((`(,beg ,end) (basis/bounds-of-region-or-thing 'buffer)))
+     (list beg end (read-directory-name "Directory: "))))
+  (let ((cmd (format "patch -d %s -p1" (shell-quote-argument dir))))
+    (shell-command-on-region beg end cmd)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
