@@ -700,6 +700,8 @@ current search, with no context-dependent behavior."
   (let ((helm-move-to-line-cycle-in-source t))
     (call-interactively #'swiper-helm)))
 
+(eval-when-compile (require 'ivy))
+
 (defun basis/swiper-maybe-yank-something ()
   "Conditionally insert the symbol at point.
 If the search text is empty, insert the symbol at point where the
