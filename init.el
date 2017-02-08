@@ -2609,7 +2609,7 @@ TODO: <home> and <end> still don't work.")
 (use-package smtpmail
   :defer t
   :config (progn (setq smtpmail-smtp-server "mail.messagingengine.com")
-                 (setq smtpmail-smtp-user "jbm@fastmail.fm")
+                 (setq smtpmail-smtp-user "jbm@fastmail.com")
                  (setq smtpmail-smtp-service 465)
                  (setq smtpmail-stream-type 'ssl)))
 
