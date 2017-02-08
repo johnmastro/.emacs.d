@@ -2173,38 +2173,39 @@ Only group a buffer with a VC if its visiting a file."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Miscellaneous
 
-(defun basis/read-choice (prompt choices)
+(defun basis/read-choice (prompt choices &optional must-match)
   "Prompt to select one of CHOICES and return the result.
 CHOICES is a list of (KEY DESCRIPTION). Each KEY can be any value
 supported by `single-key-description'; each DESCRIPTION can be
 any printable value."
-  (let* ((cursor-in-echo-area t)
-         (prompt (if (or (not prompt)
-                         (get-text-property 0 'face prompt))
-                     prompt
-                   (propertize prompt 'face 'minibuffer-prompt)))
-         (maxlen 0)
-         (display (mapcar (pcase-lambda (`(,key ,description))
-                            (let* ((str (single-key-description key))
-                                   (len (length str)))
-                              (when (> len maxlen) (setq maxlen len))
-                              (list len str description)))
-                          choices)))
+  (let ((cursor-in-echo-area t)
+        (prompt (if (or (not prompt)
+                        (get-text-property 0 'face prompt))
+                    prompt
+                  (propertize prompt 'face 'minibuffer-prompt)))
+        key elt)
     (save-window-excursion
-      (pop-to-buffer " *Read choice*" t t)
-      (fundamental-mode)
-      (setq cursor-type nil)
-      (erase-buffer)
-      (pcase-dolist (`(,len ,str ,description) display)
-        (insert (propertize str 'face 'font-lock-variable-name-face))
-        (insert-char ?\s (- maxlen len))
-        (insert (format " %s\n" description)))
-      (goto-char (point-min))
-      (fit-window-to-buffer)
-      (let ((choice (read-key prompt)))
-        (or (assq choice choices)
-            (user-error "Invalid selection: %s"
-                        (single-key-description choice)))))))
+      (with-current-buffer (get-buffer-create " *Read choice*")
+        (erase-buffer)
+        (fundamental-mode)
+        (setq cursor-type nil)
+        (pcase-dolist (`(,key ,description) choices)
+          (let ((str (propertize (single-key-description key)
+                                 'face 'font-lock-variable-name-face)))
+            (insert str " " description "\n")))
+        (align-regexp (point-min) (point-max) "\\(\\s-*\\) ")
+        (goto-char (point-min))
+        (pop-to-buffer (current-buffer) t t)
+        (fit-window-to-buffer)
+        (while (and (null (progn (setq key (read-key prompt))
+                                 (setq elt (assq key choices))))
+                    must-match)
+          (if (memq key '(?\C-g ?\C-\[))
+              (keyboard-quit)
+            (let (cursor-in-echo-area)
+              (message "Invalid selection: %s" (single-key-description key))
+              (sit-for 0.5))))
+        elt))))
 
 (defun basis/google (string)
   "Run a Google search for STRING.
