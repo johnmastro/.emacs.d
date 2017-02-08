@@ -2403,16 +2403,10 @@ used rather than a list of symbols."
       (when (looking-at-p "^-- $")
         (kill-whole-line)))))
 
-(defun basis/mu4e-action-view-in-browser (msg)
-  "View MSG in a browser, via `browse-url'.
-For use as a `mu4e' message action."
-  (if-let ((html (mu4e-msg-field msg :body-html))
-           (file (make-temp-file "" nil ".html")))
-      (with-temp-buffer
-        (insert html)
-        (write-region nil nil file)
-        (browse-url (concat "file://" file)))
-    (error "This message doesn't have an HTML part")))
+(defun basis/mu4e-action-view-in-eww (msg)
+  "View mu4e MSG with `eww'."
+  (let ((browse-url-browser-function #'eww-browse-url))
+    (mu4e-action-view-in-browser msg)))
 
 (defun basis/compose-message ()
   "Create and display a new buffer in `message-mode'."

@@ -2645,9 +2645,10 @@ TODO: <home> and <end> still don't work.")
       (setq mu4e-attachment-dir (seq-find #'file-directory-p dirs)))
     (setq mu4e-reply-to-address "jbm@jbm.io")
     (setq mu4e-sent-messages-behavior 'delete)
-    (add-to-list 'mu4e-view-actions
-                 (cons "View in browser" #'basis/mu4e-action-view-in-browser)
-                 t)))
+    (require 'mu4e-actions)
+    (dolist (action '(("open in browser" . mu4e-action-view-in-browser)
+                      ("open in eww"     . mu4e-action-view-in-eww)))
+      (add-to-list 'mu4e-view-actions action t))))
 
 (use-package auth-source
   :defer t
