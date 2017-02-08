@@ -727,8 +727,6 @@ non-matching patterns. See bug #23590."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Completion
 
-(eval-when-compile (require 'helm))     ; For `with-helm-alive-p'
-
 (defun basis/ido-selected-file ()
   "Return the current selection during `ido' file completion.
 Return the current directory if no text is entered or there are
@@ -814,8 +812,9 @@ If called with a negative argument, temporarily invert
 (defun basis/helm-run-bookmarks ()
   "Run `helm-bookmarks'."
   (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action (lambda (&rest _) (helm-bookmarks)))))
+  (if (bound-and-true-p helm-alive-p)
+      (helm-exit-and-execute-action (lambda (&rest _) (helm-bookmarks)))
+    (error "Running helm command outside of context")))
 
 (defun basis/helm-open-file-w32 (file)
   ;; Used as :override advice to `helm-open-file-externally' on Windows
@@ -824,7 +823,9 @@ If called with a negative argument, temporarily invert
 (defun basis/helm-ff-run-magit-status ()
   "Run `magit-status' from `helm-source-find-files'."
   (interactive)
-  (with-helm-alive-p (helm-exit-and-execute-action #'magit-status)))
+  (if (bound-and-true-p helm-alive-p)
+      (helm-exit-and-execute-action #'magit-status)
+    (error "Running helm command outside of context")))
 
 (defun basis/insert-file-name (file)
   "Read FILE with `helm' and insert it in the current buffer.
