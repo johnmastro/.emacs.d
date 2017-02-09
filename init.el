@@ -2608,7 +2608,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package smtpmail
   :defer t
-  :config (progn (setq smtpmail-smtp-server "mail.messagingengine.com")
+  :config (progn (setq smtpmail-smtp-server "smtp.fastmail.com")
                  (setq smtpmail-smtp-user "jbm@fastmail.com")
                  (setq smtpmail-smtp-service 465)
                  (setq smtpmail-stream-type 'ssl)))
@@ -2625,7 +2625,7 @@ TODO: <home> and <end> still don't work.")
   :config
   (progn
     (setq mu4e-get-mail-command "offlineimap")
-    (setq mu4e-maildir (expand-file-name ".maildir/fastmail" (getenv "HOME")))
+    (setq mu4e-maildir (expand-file-name "~/.mail/fastmail"))
     (setq mu4e-sent-folder "/sent")
     (setq mu4e-drafts-folder "/drafts")
     (setq mu4e-trash-folder "/trash")
