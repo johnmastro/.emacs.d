@@ -2439,25 +2439,19 @@ Always add attachments at the end of the buffer."
 (defvar basis/lorem-ipsum-file (basis/emacs-file "lorem-ipsum.txt")
   "File containing \"lorem ipsum\" placeholder text.")
 
-(defvar basis/lorem-ipsum-buffer nil
-  "Buffer containing \"lorem ipsum\" placeholder text.
-Created when needed by `basis/insert-lorem-ipsum'.")
-
 (defun basis/insert-lorem-ipsum (&optional arg)
   "Insert ARG paragraphs of \"lorem ipsum\" text at point."
   (interactive "*p")
-  (let* ((buf (if (buffer-live-p basis/lorem-ipsum-buffer)
-                  basis/lorem-ipsum-buffer
-                (setq basis/lorem-ipsum-buffer
-                      (with-current-buffer (get-buffer-create " *Lorem Ipsum*")
-                        (erase-buffer)
-                        (insert-file-contents basis/lorem-ipsum-file)
-                        (current-buffer)))))
-         (end (with-current-buffer buf
-                (goto-char 1)
-                (forward-paragraph arg)
-                (point))))
-    (insert-buffer-substring buf 1 end)))
+  (let (buf beg end)
+    (with-current-buffer (get-buffer-create " *Lorem Ipsum*")
+      (setq buf (current-buffer))
+      (when (zerop (buffer-size))
+        (insert-file-contents basis/lorem-ipsum-file))
+      (goto-char (point-min))
+      (setq beg (point))
+      (forward-paragraph arg)
+      (setq end (point)))
+    (insert-buffer-substring buf beg end)))
 
 
 ;; Local Variables:
