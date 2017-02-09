@@ -2671,6 +2671,11 @@ TODO: <home> and <end> still don't work.")
                  (setq gnus-read-newsrc-file nil)
                  (setq gnus-save-newsrc-file nil)))
 
+(use-package mml
+  :defer t
+  :config (dolist (cmd '(mml-attach-buffer mml-attach-file mml-attach-external))
+            (advice-add cmd :around #'basis/mml-attach-at-eob)))
+
 (use-package mm-decode
   :defer t
   :config (add-to-list 'mm-discouraged-alternatives "text/html"))

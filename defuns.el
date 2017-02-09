@@ -2423,6 +2423,15 @@ used rather than a list of symbols."
     (message-mode)
     (pop-to-buffer-same-window (current-buffer))))
 
+(defun basis/mml-attach-at-eob (original &rest args)
+  "Advice for `mml-attach-file' et al.
+Always add attachments at the end of the buffer."
+  (save-excursion
+    (save-restriction
+      (widen)
+      (goto-char (point-max))
+      (apply original args))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Lorem ipsum
