@@ -2666,6 +2666,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package gnus
   :defer t
+  :init (setq gnus-init-file (basis/emacs-file ".gnus"))
   :config (progn (setq gnus-use-dribble-file nil)
                  (setq gnus-always-read-dribble-file nil)
                  (setq gnus-read-newsrc-file nil)
