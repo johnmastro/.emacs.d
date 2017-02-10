@@ -1416,6 +1416,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package redshank
   :ensure t
+  :defer t
   :config (redshank-setup '(lisp-mode-hook slime-repl-mode-hook) t)
   :diminish redshank-mode)
 
