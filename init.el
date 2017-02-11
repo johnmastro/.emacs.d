@@ -307,7 +307,8 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config (setq mouse-yank-at-point t))
 
 (use-package xt-mouse
-  :config (unless (display-graphic-p) (xterm-mouse-mode)))
+  :unless (display-graphic-p)
+  :config (xterm-mouse-mode))
 
 (use-package url
   :defer t
