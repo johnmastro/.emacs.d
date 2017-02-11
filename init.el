@@ -2684,8 +2684,4 @@ TODO: <home> and <end> still don't work.")
   :config (add-to-list 'mm-discouraged-alternatives "text/html"))
 
 
-;; Local Variables:
-;; bug-reference-url-format: "http://debbugs.gnu.org/%s"
-;; End:
-
 ;;; init.el ends here

@@ -2454,8 +2454,4 @@ Always add attachments at the end of the buffer."
     (insert-buffer-substring buf beg end)))
 
 
-;; Local Variables:
-;; bug-reference-url-format: "http://debbugs.gnu.org/%s"
-;; End:
-
 ;;; defuns.el ends here
