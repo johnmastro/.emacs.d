@@ -297,10 +297,10 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package cursor-sensor
   :config
-  (let ((mpps minibuffer-prompt-properties)
-        (prop '(cursor-intangible t)))
-    (unless (memq 'cursor-intangible mpps)
-      (setq minibuffer-prompt-properties (append mpps prop)))
+  (progn
+    (unless (memq 'cursor-intangible minibuffer-prompt-properties)
+      (setq minibuffer-prompt-properties
+            (append minibuffer-prompt-properties '(cursor-intangible t))))
     (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)))
 
 (use-package mouse
