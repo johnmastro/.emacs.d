@@ -2683,5 +2683,10 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config (add-to-list 'mm-discouraged-alternatives "text/html"))
 
+(use-package erc
+  :defer t
+  :config (when (null erc-accidental-paste-threshold-seconds)
+            (setq erc-accidental-paste-threshold-seconds 0.2)))
+
 
 ;;; init.el ends here
