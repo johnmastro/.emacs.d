@@ -1019,6 +1019,10 @@ TODO: <home> and <end> still don't work.")
          (ido-mode)
          (ido-everywhere)))
 
+(use-package ido-completing-read+
+  :ensure t
+  :config (setq ido-cr+-max-items nil))
+
 (use-package ido-ubiquitous
   :ensure t
   :config (ido-ubiquitous-mode))
