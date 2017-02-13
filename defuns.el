@@ -1969,22 +1969,20 @@ Quote file names appropriately for POSIX-like shells."
   (goto-char (point-max))
   (dired-next-line -1))
 
-(defun basis/insert-files (files &optional buffer)
-  "Insert the contents of FILES into BUFFER.
-If BUFFER is nil, use the current buffer."
+(defun basis/insert-files (files buffer)
+  "Insert the contents of FILES into BUFFER."
   (with-current-buffer (or buffer (current-buffer))
     (mapc #'insert-file-contents files)))
 
 (defun basis/dired-slurp-files (files buffer)
-  "Insert the contents of marked FILES into BUFFER.
-If it doesn't exist, BUFFER is created automatically."
+  "Insert the contents of marked FILES into BUFFER."
   (interactive (list (if (eq major-mode 'dired-mode)
                          (dired-get-marked-files)
                        (error "Buffer not in `dired-mode'"))
                      (read-buffer "Destination buffer: ")))
-  (with-current-buffer (get-buffer-create buffer)
-    (mapc #'insert-file-contents files)
-    (pop-to-buffer (current-buffer))))
+  (let ((buffer (get-buffer-create buffer)))
+    (basis/insert-files files buffer)
+    (pop-to-buffer buffer)))
 
 (defun basis/dired-rsync (files destination)
   "Rsync FILES to DESTINATION.
