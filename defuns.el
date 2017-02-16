@@ -771,8 +771,7 @@ Ignore all potential candidates under \"/srv/\"."
   ;; For use on a particular host, because reasons.
   (if (and (eq major-mode 'shell-mode)
            (let ((elt (caar args)))
-             (and (stringp elt)
-                  (> (length elt) 5)
+             (and (> (length elt) 5)
                   (eq (compare-strings "/srv/" nil nil elt nil 5) t))))
       '(nil)
     args))
