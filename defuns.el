@@ -844,12 +844,11 @@ or comment starters."
     (save-excursion
       (narrow-to-page)
       (beginning-of-line)
-      (while (and (not (eobp))
-                  (looking-at-p (format "^\\(\\s<\\|%c\\|\\s-\\)*$"
-                                        (elt comment-start 0))))
-        (forward-line))
-      (buffer-substring-no-properties (line-beginning-position)
-                                      (line-end-position)))))
+      (let ((regexp (format "^\\(\\s<\\|%c\\|\\s-\\)*$" (elt comment-start 0))))
+        (while (and (not (eobp))
+                    (looking-at-p regexp))
+          (forward-line)))
+      (buffer-substring-no-properties (point) (line-end-position)))))
 
 (defun basis/yas-expand-or-insert ()
   "Call `yas-expand' or `yas-insert-snippet' depending on context.
