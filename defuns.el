@@ -832,10 +832,9 @@ If called with a negative argument, temporarily invert
   "Read FILE with `helm' and insert it in the current buffer.
 Intended for use in `minibuffer-local-shell-command-map'."
   (interactive (list (helm-read-file-name "File: ")))
-  (let ((file (abbreviate-file-name file)))
-    (insert (if (file-directory-p file)
-                (file-name-as-directory file)
-              file))))
+  (insert (abbreviate-file-name (if (file-directory-p file)
+                                    (file-name-as-directory file)
+                                  file))))
 
 (defun basis/helm-pages-get-next-header ()
   "Alternative implementation of `helm-pages-get-next-header'.
