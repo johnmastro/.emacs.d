@@ -1300,6 +1300,21 @@ constituent."
     (or (re-search-backward "^[[:blank:]]*$" nil t)
         (goto-char (point-min)))))
 
+(defvar basis/org-todo-keyword-regexp nil ; Initialized in init.el
+  "Regexp matching org TODO keywords.")
+
+(defun basis/org-maybe-beginning-of-todo-keyword (original &rest args)
+  "Advice for `org-beginning-of-line'.
+When `org-special-ctrl-a/e' is non-nil, include the beginning of
+TODO keywords in the positions cycled between."
+  (let ((start (point)))
+    (unless (and org-special-ctrl-a/e
+                 (progn (skip-chars-backward " ")
+                        (skip-chars-backward "[A-Z]")
+                        (looking-at basis/org-todo-keyword-regexp)))
+      (goto-char start)
+      (apply original args))))
+
 (defun basis/sgml-delete-tag-reindent (&rest _ignore)
   "Advice for `sgml-delete-region' to reindent the buffer."
   (indent-region (point-min) (point-max)))

@@ -1945,6 +1945,13 @@ TODO: <home> and <end> still don't work.")
           '((sequence
              "TODO(t)" "STARTED(s@)" "WAITING(w@/!)" "DELEGATED(l@)" "|"
              "DONE(d!)" "DEFERRED(f@)" "CANCELLED(c@)")))
+    (let ((names (delq nil (mapcar (lambda (elt)
+                                     (and (string-match "\\`\\([A-Z]+\\)" elt)
+                                          (match-string 1 elt)))
+                                   (cdar org-todo-keywords)))))
+      (setq basis/org-todo-keyword-regexp (regexp-opt names 'symbols)))
+    (advice-add 'org-beginning-of-line :around
+                #'basis/org-maybe-beginning-of-todo-keyword)
     (define-key org-mode-map (kbd "RET") #'org-return-indent)
     (setq org-structure-template-alist
           (mapcar (pcase-lambda (`(,key ,val)) (list key (downcase val)))
