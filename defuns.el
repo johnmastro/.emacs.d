@@ -1389,15 +1389,25 @@ multiple-document stream."
 ;;; Brackets
 
 (defun basis/paredit-doublequote-space-p (endp delimiter)
-  "Don't insert an extraneous space when entering a CL pathname."
-  ;; If any of `paredit-space-for-delimiter-predicates' returns nil
-  ;; a space isn't inserted.
+  ;; For use as a member of `paredit-space-for-delimiter-predicates'
   (not (and (not endp)
-            (eql delimiter ?\")
-            (memq major-mode '(lisp-mode common-lisp-mode slime-repl-mode))
-            (save-excursion
-              (backward-char 2)
-              (looking-at-p "#p")))))
+            (eq delimiter ?\")
+            (derived-mode-p 'lisp-mode 'common-lisp-mode 'inferior-lisp-mode
+                            'slime-repl-mode)
+            (let ((point (point)))
+              (and (eq (char-before point) ?p)
+                   (eq (char-before (1- point)) ?#))))))
+
+(defun basis/paredit-splicing-unquote-p (endp delimiter)
+  ;; For use as a member of `paredit-space-for-delimiter-predicates'
+  (not (and (not endp)
+            (eq delimiter ?\()
+            (derived-mode-p 'emacs-lisp-mode 'inferior-emacs-lisp-mode
+                            'lisp-mode 'common-lisp-mode 'inferior-lisp-mode
+                            'slime-repl-mode)
+            (let ((point (point)))
+              (and (eq (char-before point) ?@)
+                   (eq (char-before (1- point)) ?,))))))
 
 (defun basis/paredit-open-something ()
   (interactive)

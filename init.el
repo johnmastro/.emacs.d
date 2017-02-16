@@ -803,6 +803,8 @@ TODO: <home> and <end> still don't work.")
       ("M-DEL"           #'basis/paredit-kill-something))
     (add-to-list 'paredit-space-for-delimiter-predicates
                  #'basis/paredit-doublequote-space-p)
+    (add-to-list 'paredit-space-for-delimiter-predicates
+                 #'basis/paredit-splicing-unquote-p)
     ;; Show `eldoc' messages after Paredit motion commands
     (with-eval-after-load 'eldoc
       (eldoc-add-command 'paredit-forward
@@ -1047,10 +1049,6 @@ TODO: <home> and <end> still don't work.")
                  (global-set-key (kbd "M-x") #'smex)
                  (global-set-key (kbd "M-X") #'smex-major-mode-commands)))
 
-(use-package helm-config
-  :defer t
-  :config (global-unset-key (kbd helm-command-prefix-key)))
-
 (use-package helm
   :ensure t
   :defer t
@@ -1093,6 +1091,10 @@ TODO: <home> and <end> still don't work.")
                            (inhibit-same-window . t)
                            (window-height . 0.4)))
             (set-face-attribute 'helm-source-header nil :height 1.0)))
+
+(use-package helm-config
+  :defer t
+  :config (global-unset-key (kbd helm-command-prefix-key)))
 
 (use-package helm-mode
   :defer t
