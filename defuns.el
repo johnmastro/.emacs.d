@@ -98,6 +98,29 @@ there, to the beginning of the line."
     (when (= (point) start)
       (move-beginning-of-line nil))))
 
+(defvar basis/blank-line-regexp "^[[:blank:]]*$"
+  "Regexp matching a blank line.")
+
+(defun basis/next-blank-line (n)
+  "Move point to the Nth next blank line."
+  (interactive "p")
+  (let* ((back  (< n 0))
+         (count (abs n)))
+    (while (and (> count 0) (not (if back (bobp) (eobp))))
+      (and (save-excursion (beginning-of-line)
+                           (looking-at basis/blank-line-regexp))
+           (forward-line (if back -1 1)))
+      (or (and (funcall (if back #'re-search-backward #'re-search-forward)
+                        basis/blank-line-regexp nil t)
+               (goto-char (match-end 0)))
+          (goto-char (if back (point-min) (point-max))))
+      (setq count (1- count)))))
+
+(defun basis/previous-blank-line (n)
+  "Move point to the Nth previous blank line."
+  (interactive "p")
+  (basis/next-blank-line (- n)))
+
 (defun basis/comment-or-uncomment (beg end)
   "Comment or uncomment the active region or current line."
   (interactive (basis/bounds-of-region-or-thing 'line))
@@ -1283,22 +1306,6 @@ constituent."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Text, markup, and configuration modes
-
-(defun basis/move-to-next-blank-line ()
-  "Move point to the next blank line."
-  (interactive)
-  (let ((inhibit-changing-match-data t))
-    (skip-chars-forward "[:blank:]")
-    (or (re-search-forward "^[[:blank:]]*$" nil t)
-        (goto-char (point-max)))))
-
-(defun basis/move-to-previous-blank-line ()
-  "Move point to the previous blank line."
-  (interactive)
-  (let ((inhibit-changing-match-data t))
-    (skip-chars-backward "[:blank:]")
-    (or (re-search-backward "^[[:blank:]]*$" nil t)
-        (goto-char (point-min)))))
 
 (defvar basis/org-todo-keyword-regexp nil ; Initialized in init.el
   "Regexp matching org TODO keywords.")

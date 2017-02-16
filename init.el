@@ -1981,8 +1981,8 @@ TODO: <home> and <end> still don't work.")
   :config
   (progn
     (basis/define-keys html-mode-map
-      ([remap forward-paragraph]  #'basis/move-to-next-blank-line)
-      ([remap backward-paragraph] #'basis/move-to-previous-blank-line)
+      ([remap forward-paragraph]  #'basis/next-blank-line)
+      ([remap backward-paragraph] #'basis/previous-blank-line)
       ("RET"                      #'basis/html-newline-and-indent)
       ("M-RET"                    #'basis/html-multiline-expand)
       ("C-c C-w"                  #'basis/html-wrap-in-tag)
