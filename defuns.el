@@ -377,28 +377,38 @@ If `subword-mode' is active, use `subword-backward-kill'."
   (kill-whole-line arg)
   (back-to-indentation))
 
-(defun basis/kill-ring-save-something ()
-  "Save the contents of the active region or the current line."
-  (interactive)
-  (apply #'kill-ring-save
-         (if (use-region-p)
-             (list (region-beginning) (region-end))
-           (list (line-beginning-position)
-                 (save-excursion (forward-line 1)
-                                 (point))))))
-
 (defun basis/duplicate-line (n)
   "Duplicate the line at point.
 With an argument N, duplicate that many lines."
   (interactive "*p")
   (let ((col (current-column))
         (beg (line-beginning-position))
-        (end (progn (forward-line n)
-                    (beginning-of-line)
-                    (point))))
-    (insert (buffer-substring beg end))
+        (end (progn (forward-line n) (point))))
+    (insert-buffer-substring (current-buffer) beg end)
     (forward-line (- n))
     (move-to-column col)))
+
+(defun basis/kill-ring-save-something (beg end &optional indent-by)
+  "Save the contents of the active region or the current line."
+  (interactive
+   (pcase-let ((`(,beg . ,end)
+                (if (use-region-p)
+                    (cons (region-beginning) (region-end))
+                  (cons (line-beginning-position)
+                        (save-excursion (forward-line 1) (point)))))
+               (arg current-prefix-arg))
+     (list beg end (and arg (prefix-numeric-value arg)))))
+  (if indent-by
+      ;; It arguably makes more sense to add indentation on yank, but adding it
+      ;; on save has two upsides: the indented code or text can then be pasted
+      ;; into another program, and `yank' already takes an argument.
+      (let ((buffer (current-buffer)))
+        (with-temp-buffer
+          (insert-buffer-substring buffer beg end)
+          (indent-rigidly (point-min) (point-max) indent-by)
+          (kill-ring-save (point-min) (point-max)))
+        (setq deactivate-mark t))
+    (kill-ring-save beg end)))
 
 (defun basis/kill-ring-save-buffer-file-name (&optional arg)
   "Save BUFFER's associated file name to the kill ring.
@@ -427,19 +437,6 @@ used here.")
   (setq deactivate-mark t)
   (when thing
     (message "Copied %s to clipboard" thing)))
-
-(defun basis/kill-ring-save-indented (arg beg end)
-  "Save region to the kill ring with ARG spaces of indentation added.
-Interactively, default to four spaces of indentation."
-  (interactive
-   (cons (or current-prefix-arg 4)
-         (basis/bounds-of-region-or-thing 'buffer)))
-  (let ((buffer (current-buffer)))
-    (with-temp-buffer
-      (insert-buffer-substring-no-properties buffer beg end)
-      (indent-rigidly (point-min) (point-max) arg)
-      (kill-ring-save (point-min) (point-max))))
-  (setq deactivate-mark t))
 
 (defmacro basis/def-case-op (op)
   (let ((region-op  (intern (format "%s-region" op)))
