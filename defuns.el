@@ -1751,9 +1751,9 @@ When called interactively, HASH defaults to the hash at point (if
 any) and PROJECT-DIRECTORY defaults to the current `projectile'
 project."
   (interactive
-   (list (if (save-excursion (skip-chars-backward "A-z0-9")
-                             (looking-at "\\b[A-z0-9]\\{4,40\\}\\b"))
-             (match-string-no-properties 0)
+   (list (if (save-excursion (skip-chars-backward "[:xdigit:]")
+                             (looking-at "\\<\\([[:xdigit:]]\\{4,40\\}\\)\\>"))
+             (match-string-no-properties 1)
            (user-error "No commit hash at point"))
          (if (or current-prefix-arg (not (projectile-project-p)))
              (completing-read "Project: " (projectile-relevant-known-projects))
@@ -1761,24 +1761,26 @@ project."
   (let ((default-directory project-directory))
     (magit-show-commit hash (car (magit-diff-arguments)))))
 
-(defun basis/magit-shorten-hash (&optional n)
+(defun basis/magit-shorten-hash (n)
   "Shorten the hash at point to N characters.
 N must be between 4 and 40 and defaults to the result of calling
 `magit-abbrev-length'."
-  (interactive
-   (list (and current-prefix-arg (prefix-numeric-value current-prefix-arg))))
-  (let ((n (or n (magit-abbrev-length))))
-    (unless (<= 4 n 40)
-      (user-error "Hash must be between 4 and 40 characters"))
-    (save-excursion
-      (skip-chars-backward "A-z0-9")
-      (if (looking-at "\\b[A-z0-9]\\{5,40\\}\\b")
-          (let* ((hash (match-string 0))
-                 (len (length hash)))
-            (when (< len n)
-              (user-error "Desired hash length is greater than current"))
-            (replace-match (substring hash 0 n) 'fixedcase))
-        (user-error "No hash at point")))))
+  (interactive (list (cond (current-prefix-arg
+                            (prefix-numeric-value current-prefix-arg))
+                           ((fboundp 'magit-abbrev-length)
+                            (magit-abbrev-length))
+                           (t 7))))
+  (unless (<= 4 n 40)
+    (user-error "Hash must be between 4 and 40 characters"))
+  (save-excursion
+    (skip-chars-backward "[:xdigit:]")
+    (if (looking-at "\\<\\([[:xdigit:]]\\{4,40\\}\\)\\>")
+        (let* ((val (match-string 1))
+               (len (length val)))
+          (if (> len n)
+              (replace-match (substring val 0 n) 'fixedcase)
+            (user-error "Desired hash length is not less than current")))
+      (user-error "No hash at point"))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
