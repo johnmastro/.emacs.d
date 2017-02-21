@@ -1002,6 +1002,7 @@ TODO: <home> and <end> still don't work.")
 
 (defun basis/init-ido-keys ()
   (basis/define-keys ido-file-completion-map
+    ("C-w"     nil)
     ("M-w"     #'ido-copy-current-file-name)
     ("C-x g"   #'ido-enter-magit-status)
     ("C-c C-x" #'basis/ido-open-file-externally)))
