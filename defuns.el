@@ -1790,10 +1790,14 @@ N must be between 4 and 40 and defaults to the result of calling
     "xdg-open"))
 
 (defun basis/open-file-externally-1 (program file)
+  "Use PROGRAM to open FILE externally."
   (let ((file (expand-file-name file)))
-    (if (eq system-type 'windows-nt)
-        (w32-shell-execute program file)
-      (start-process "*open externally*" nil program file))))
+    (cond ((eq system-type 'windows-nt)
+           (w32-shell-execute program file))
+          ((member program '("xdg-open" "gvfs-open" "gnome-open"))
+           (call-process program nil 0 nil file))
+          (t
+           (start-process "*open externally*" nil program file)))))
 
 (defun basis/open-file-externally-file ()
   (pcase (list major-mode (if (eq major-mode 'dired-mode)
