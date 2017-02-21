@@ -1028,7 +1028,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package ido-ubiquitous
   :ensure t
-  :config (ido-ubiquitous-mode))
+  :config (progn (setq ido-ubiquitous-auto-update-overrides t)
+                 (ido-ubiquitous-mode)))
 
 (use-package flx-ido
   :ensure t
