@@ -2446,12 +2446,15 @@ used rather than a list of symbols."
   (let ((browse-url-browser-function #'eww-browse-url))
     (mu4e-action-view-in-browser msg)))
 
-(defun basis/compose-message ()
-  "Create and display a new buffer in `message-mode'."
-  (interactive)
-  (with-current-buffer (generate-new-buffer "*unsent message*")
-    (message-mode)
-    (pop-to-buffer-same-window (current-buffer))))
+(defun basis/compose-message (arg)
+  "Jump to a `message-mode' buffer."
+  (interactive "P")
+  (let ((name "*unsent message*"))
+    (pop-to-buffer-same-window
+     (or (and (not arg) (get-buffer name))
+         (with-current-buffer (generate-new-buffer name)
+           (message-mode)
+           (current-buffer))))))
 
 (defun basis/mml-attach-at-eob (original &rest args)
   "Advice for `mml-attach-file' et al.
