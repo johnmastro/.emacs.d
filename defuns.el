@@ -1571,6 +1571,15 @@ Handle the special string constants in Python and SQL."
   (unless (memq indent-line-function basis/sp-inhibit-cleanup-list)
     (apply original args)))
 
+(defun basis/sp-maybe-inhibit-closer (last)
+  "Advice for `sp--inhibit-insertion-of-closing-delim'.
+Don't inhibit inserting a closing curly bracket if curly brackets
+aren't configured to autoskip."
+  ;; TODO: Can we check if inserting the character really will leave things
+  ;; unbalanced?
+  (not (and (equal last "}")
+            (not (memq 'autoskip (plist-get (sp-get-pair "{") :actions))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Error checking
