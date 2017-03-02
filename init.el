@@ -554,6 +554,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (basis/define-keys global-map
   ([remap kill-ring-save] #'basis/kill-ring-save-something)
+  ("ESC M-w"              #'basis/kill-ring-save-as-fenced-code-block)
   ("<f2>"                 #'basis/clipboard-save-something))
 
 (basis/define-keys global-map

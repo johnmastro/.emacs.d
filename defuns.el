@@ -410,6 +410,39 @@ With an argument N, duplicate that many lines."
         (setq deactivate-mark t))
     (kill-ring-save beg end)))
 
+(defun basis/kill-ring-save-as-fenced-code-block (beg end &optional indent)
+  "Save the region from BEG to END as a fenced code block."
+  (interactive
+   (pcase-let* ((`(,beg . ,end)
+                 (if (use-region-p)
+                     (cons (region-beginning) (region-end))
+                   (cons (point-min) (point-max))))
+                (indent
+                 (cond ((integerp current-prefix-arg)
+                        current-prefix-arg)
+                       ((consp current-prefix-arg)
+                        (- (indent-rigidly--current-indentation beg end))))))
+     (list beg end indent)))
+  (let* ((buffer (current-buffer))
+         (mode-name (symbol-name major-mode))
+         (language (replace-regexp-in-string "-mode\\'" "" mode-name)))
+    (with-temp-buffer
+      (insert-buffer-substring buffer beg end)
+      (goto-char (point-min))
+      (when indent
+        (indent-rigidly (point-min) (point-max) indent))
+      (when (looking-at "^\\(\\([[:blank:]]*\n\\)+\\)")
+        (delete-region (match-beginning 1) (match-end 1)))
+      (insert "```" language "\n")
+      (if (re-search-forward "^\\([[:blank:]\n]+\\)\\'" nil t)
+          (delete-region (match-beginning 1) (match-end 1))
+        (goto-char (point-max)))
+      (unless (eq (char-before) ?\n)
+        (insert "\n"))
+      (insert "```")
+      (kill-ring-save (point-min) (point-max)))
+    (setq deactivate-mark t)))
+
 (defun basis/kill-ring-save-buffer-file-name (&optional arg)
   "Save BUFFER's associated file name to the kill ring.
 Abbreviate the file name, unless called with prefix ARG."
