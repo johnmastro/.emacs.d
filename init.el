@@ -937,14 +937,14 @@ TODO: <home> and <end> still don't work.")
   ("ESC M-s" search-map))
 
 (basis/define-keys isearch-mode-map
-  ("DEL"         #'basis/isearch-backspace)
-  ("<backspace>" #'basis/isearch-backspace)
-  ("C-t"         #'basis/isearch-yank-something)
-  ("C-g"         #'basis/isearch-cancel)
-  ("<up>"        #'isearch-ring-retreat)
-  ("<down>"      #'isearch-ring-advance)
-  ("<left>"      #'isearch-repeat-backward)
-  ("<right>"     #'isearch-repeat-forward))
+  ("M-DEL"         #'basis/isearch-meta-del-char)
+  ("<M-backspace>" #'basis/isearch-meta-del-char)
+  ("C-t"           #'basis/isearch-yank-something)
+  ("C-g"           #'basis/isearch-cancel)
+  ("<up>"          #'isearch-ring-retreat)
+  ("<down>"        #'isearch-ring-advance)
+  ("<left>"        #'isearch-repeat-backward)
+  ("<right>"       #'isearch-repeat-forward))
 
 (use-package swiper
   :ensure t

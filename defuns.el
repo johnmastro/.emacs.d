@@ -661,21 +661,12 @@ With prefix ARG, call `imenu-list-minor-mode' instead."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
-(defun basis/isearch-backspace (&optional _arg)
+(defun basis/isearch-meta-del-char ()
   "Delete non-matching text or the last character."
-  (interactive "p")
-  (if (zerop (length isearch-string))
-      (ding)
-    (setq isearch-string
-          (substring isearch-string
-                     0
-                     (or (isearch-fail-pos) (1- (length isearch-string)))))
-    (setq isearch-message
-          (mapconcat #'isearch-text-char-description isearch-string "")))
-  (if isearch-other-end (goto-char isearch-other-end))
-  (isearch-search)
-  (isearch-push-state)
-  (isearch-update))
+  (interactive)
+  (let ((pos (isearch-fail-pos)))
+    (isearch-del-char (or (and pos (- (length isearch-string) pos))
+                          1))))
 
 (defun basis/isearch-cancel ()
   "Cancel the current interactive search.
@@ -691,9 +682,8 @@ current search, with no context-dependent behavior."
   (interactive)
   (isearch-yank-string
    (if (use-region-p)
-       (let ((str (buffer-substring (region-beginning) (region-end))))
-         (deactivate-mark)
-         str)
+       (prog1 (buffer-substring (region-beginning) (region-end))
+         (deactivate-mark))
      (or (thing-at-point 'symbol)
          ""))))
 
