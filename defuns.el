@@ -701,17 +701,18 @@ current search, with no context-dependent behavior."
          (prefix-numeric-value current-prefix-arg)))
   (occur regexp nlines))
 
-(defvar basis/occur-show-note-strings
-  '("TODO" "DONE" "NOTE" "KLUDGE" "FIXME" "FAIL" "XXX" "???")
-  "Strings searched for by `basis/occur-show-notes'.")
+(defvar basis/occur-show-notes-regexp
+  (regexp-opt '("TODO" "DONE" "NOTE" "KLUDGE" "FIXME" "FAIL" "XXX" "???") t)
+  "Regexp for `basis/occur-show-notes'.")
 
 (defun basis/occur-show-notes ()
   "Search for common \"TODO\"-style notes."
   (interactive)
-  (occur (regexp-opt basis/occur-show-note-strings t)))
+  (occur basis/occur-show-notes-regexp))
 
-(defun basis/push-mark-noactivate (&rest _args)
-  "Advice to push the mark (without activating it)."
+(defun basis/push-mark-noactivate (&rest _)
+  "Push the mark without activating it.
+Used as :after advice for `avy-push-mark'."
   (push-mark nil t nil))
 
 (defun basis/swiper-helm ()
@@ -741,7 +742,8 @@ in the global map."
   "Advice for `lgrep'.
 Invoke grep via bash, since zsh signals an error if there are any
 non-matching patterns. See bug #23590."
-  (let ((shell-file-name (executable-find "bash")))
+  (let ((shell-file-name (or (executable-find "bash")
+                             shell-file-name)))
     (apply original args)))
 
 
