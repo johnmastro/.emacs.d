@@ -443,6 +443,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package mb-depth
   :config (minibuffer-depth-indicate-mode))
 
+(use-package abbrev
+  :defer t
+  :config
+  (advice-add 'abbrev-insert :before #'basis/abbrev-insert-undo-boundary))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface

@@ -626,6 +626,15 @@ case it means anything matching the regular expression
       (goto-char start)
       (message "No non-text characters found"))))
 
+(defun basis/abbrev-insert-undo-boundary (&rest _)
+  "Advice for `abbrev-insert'.
+When triggered by `self-insert-command', insert an undo boundary
+after inserting the character."
+  (when (eq this-command 'self-insert-command)
+    (let ((abbrev-mode nil))
+      (call-interactively #'self-insert-command)
+      (undo-boundary))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement
