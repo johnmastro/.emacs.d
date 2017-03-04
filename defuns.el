@@ -57,20 +57,6 @@ See `basis/eval-keys'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing utilities
 
-(defun basis/bounds-of-region-or-thing (thing)
-  "Return the bounds of the region if active or THING."
-  ;; Note that whereas `bounds-of-thing-at-point' returns (BEG . END) we return
-  ;; (BEG END), because the latter is more convenient to use with `apply' or an
-  ;; `interactive' spec.
-  (if (use-region-p)
-      (list (region-beginning) (region-end))
-    (pcase thing
-      (`line
-       (list (line-beginning-position) (line-end-position)))
-      (_
-       (when-let ((bounds (bounds-of-thing-at-point thing)))
-         (list (car bounds) (cdr bounds)))))))
-
 (defun basis/next-line ()
   "Move point to the next line.
 Wrapper around `next-line' to let-bind `next-line-add-newlines'
@@ -115,7 +101,10 @@ there, to the beginning of the line."
 
 (defun basis/comment-or-uncomment (beg end)
   "Comment or uncomment the active region or current line."
-  (interactive (basis/bounds-of-region-or-thing 'line))
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (line-beginning-position) (line-end-position))))
   (comment-or-uncomment-region beg end))
 
 (defun basis/comment-region-lines (beg end &optional arg)
@@ -259,7 +248,10 @@ that many sexps before uncommenting."
 
 (defun basis/wrap-in-curlies (beg end)
   "Wrap the current line with curly braces."
-  (interactive (basis/bounds-of-region-or-thing 'line))
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (line-beginning-position) (line-end-position))))
   (save-excursion
     (goto-char beg)
     (forward-line -1)
@@ -450,20 +442,15 @@ Abbreviate the file name, unless called with prefix ARG."
 Do not save the string to the the kill ring."
   (funcall interprogram-cut-function str))
 
-(defvar-local basis/clipboard-default-save-thing 'buffer
-  "Default \"thing\" to save with `basis/clipboard-save-something'.
-Any symbol that `bounds-of-thing-at-point' knows about can be
-used here.")
-
-(defun basis/clipboard-save-something (thing beg end)
+(defun basis/clipboard-save-something (beg end &optional thing)
   "Save the region or buffer to the system clipboard."
   (interactive
-   (let ((thing basis/clipboard-default-save-thing))
-     (cons thing (basis/bounds-of-region-or-thing thing))))
+   (if (use-region-p)
+       (list (region-beginning) (region-end) 'region)
+     (list (point-min) (point-max) 'buffer)))
   (basis/clipboard-save-string (buffer-substring-no-properties beg end))
   (setq deactivate-mark t)
-  (when thing
-    (message "Copied %s to clipboard" thing)))
+  (when thing (message "Copied %s to clipboard" thing)))
 
 (defmacro basis/def-case-op (op)
   (let ((region-op  (intern (format "%s-region" op)))
@@ -547,7 +534,10 @@ the region isn't active."
 (defun basis/count-sloc-region (beg end)
   "Count the \"SLOC\" in the region from BEG to END.
 If no region is active, examine the full buffer."
-  (interactive (basis/bounds-of-region-or-thing 'buffer))
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (point-min) (point-max))))
   (save-excursion
     (goto-char beg)
     (let ((count 0))
@@ -2119,7 +2109,9 @@ If VISIT is non-nil, visit the file after downloading it."
 (defun basis/apply-patch (beg end dir)
   "Apply the patch between BEG and END in DIR."
   (interactive
-   (pcase-let ((`(,beg ,end) (basis/bounds-of-region-or-thing 'buffer)))
+   (pcase-let ((`(,beg ,end) (if (use-region-p)
+                                 (list (region-beginning) (region-end))
+                               (list (point-min) (point-max)))))
      (list beg end (read-directory-name "Directory: "))))
   (let ((cmd (format "patch -d %s -p1" (shell-quote-argument dir))))
     (shell-command-on-region beg end cmd)))
