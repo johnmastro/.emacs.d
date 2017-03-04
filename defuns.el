@@ -39,7 +39,7 @@ form (MAP KEY) or (KEY), in which case the binding is created in
        ',name)))
 
 (defmacro basis/define-eval-keys (keymap &rest keydefs)
-  "Define evaluation key bindings for various units of code.
+  "Define key bindings for evaluating various units of code.
 See `basis/eval-keys'."
   (declare (indent 1))
   `(progn
@@ -70,14 +70,6 @@ See `basis/eval-keys'."
       (_
        (when-let ((bounds (bounds-of-thing-at-point thing)))
          (list (car bounds) (cdr bounds)))))))
-
-(defun basis/region-substring-or-thing (thing &optional no-properties)
-  "Return the contents of the region if active or THING."
-  (when-let ((bounds (basis/bounds-of-region-or-thing thing))
-             (string (apply #'buffer-substring bounds)))
-    (if no-properties
-        (substring-no-properties string)
-      string)))
 
 (defun basis/next-line ()
   "Move point to the next line.
@@ -372,7 +364,9 @@ If `subword-mode' is active, use `subword-backward-kill'."
          (backward-kill-word arg))))
 
 (defun basis/smart-kill-whole-line (&optional arg)
-  "A simple wrapper around `kill-whole-line' that respects indentation."
+  "Variant of `kill-whole-line'.
+Kill the current line and move point to the first non-whitespace
+character of the next line."
   (interactive "*P")
   (kill-whole-line arg)
   (back-to-indentation))
@@ -721,17 +715,20 @@ current search, with no context-dependent behavior."
          ""))))
 
 (defun basis/occur-dwim (regexp nlines)
-  "Like `occur', but REGEXP defaults to the symbol at point."
+  "Like `occur', but use the symbol at point as the default REGEXP."
   (interactive
-   (list (pcase-let* ((str (basis/region-substring-or-thing 'symbol t))
-                      (`(,default ,history)
-                       (if str
-                           (list str nil)
-                         (list (car regexp-history) 'regexp-history-last))))
-           (read-regexp (format "Occur (default %s): " default)
+   (let* ((history nil)
+          (default (cond ((use-region-p)
+                          (buffer-substring (region-beginning) (region-end)))
+                         ((thing-at-point 'symbol))
+                         (t (setq history 'regexp-history-last)
+                            (car regexp-history)))))
+     (list (read-regexp (if default
+                            (format "Occur (default %s): " default)
+                          "Occur: ")
                         default
-                        history))
-         (prefix-numeric-value current-prefix-arg)))
+                        history)
+           (prefix-numeric-value current-prefix-arg))))
   (occur regexp nlines))
 
 (defvar basis/occur-show-notes-regexp
@@ -2295,11 +2292,14 @@ any printable value."
 Use the active region or symbol at point, if any, as the default
 search term."
   (interactive
-   (list (if-let ((string (basis/region-substring-or-thing 'symbol t)))
-             (read-string (format "Google (default %s) " string)
-                          nil nil
-                          string)
-           (read-string "Google: "))))
+   (let ((default (if (use-region-p)
+                      (buffer-substring (region-beginning) (region-end))
+                    (thing-at-point 'symbol))))
+     (list (read-string (if default
+                            (format "Google (default %s): " default)
+                          "Google: ")
+                        nil nil
+                        default))))
   (browse-url
    (concat "https://www.google.com/search?ie=utf-8&oe=utf-8&q="
            (url-hexify-string string))))
@@ -2414,31 +2414,15 @@ EMACS defaults to the current Emacs executable. HOME defaults to
            "-Q" "--eval" "(setq debug-on-error t)"
            args)))
 
-(defun basis/emacs-Q+ (libs &optional load)
-  (interactive)
-  (basis/emacs-Q nil nil (append (seq-mapcat (lambda (dir) (list "-L" dir))
-                                             (thread-last libs
-                                               (mapcar #'locate-library)
-                                               (mapcar #'file-name-directory)
-                                               (delete-dups)))
-                                 (seq-mapcat (lambda (lib) (list "-l" lib))
-                                             load))))
-
-(defun basis/magit-emacs-Q ()
-  (interactive)
-  (basis/emacs-Q+ '("magit" "magit-popup" "with-editor" "git-commit" "dash")
-                  '("magit")))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
 
 (defun basis/elfeed-parse-group (group)
   "Parse the feed and tag specification GROUP.
-GROUP should be a list whose car contains a list of tags and
-whose cdr is a list of feeds to associate with those tags. If
-only one tag will be associated with the group, a symbol can be
-used rather than a list of symbols."
+GROUP should be a list whose car contains a tag (a symbol) or a
+list of tags and whose cdr is a list of feeds to associate with
+those tags."
   (pcase-let* ((`(,tag . ,feeds) group)
                (tags (if (listp tag) tag (list tag))))
     (mapcar (lambda (feed) (cons feed tags))
@@ -2450,11 +2434,14 @@ used rather than a list of symbols."
 
 (defun basis/define-word (word)
   (interactive
-   (list (if-let ((default (basis/region-substring-or-thing 'word t)))
-             (read-string (format "Define word (default %s): " default)
-                          nil nil
-                          default)
-           (read-string "Define word: "))))
+   (let ((default (if (use-region-p)
+                      (buffer-substring (region-beginning) (region-end))
+                    (thing-at-point 'word))))
+     (list (if default
+               (read-string (format "Define word (default %s): " default)
+                            nil nil
+                            default)
+             (read-string "Define word: ")))))
   (define-word word))
 
 (defun basis/delete-cookies ()
