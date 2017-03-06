@@ -2467,15 +2467,15 @@ TODO: <home> and <end> still don't work.")
 (defun basis/init-shell-mode ()
   (setq comint-process-echoes t)
   (setq-local scroll-conservatively 101)
-  (let ((shell (thread-first (current-buffer)
-                 get-buffer-process
-                 process-command
-                 car
-                 file-name-nondirectory))
-        (query (cond ((string-match-p "bash" shell)
-                      "command dirs")
-                     ((string-match-p "zsh" shell)
-                      "dirs -l"))))
+  (let* ((shell (thread-first (current-buffer)
+                  get-buffer-process
+                  process-command
+                  car
+                  file-name-nondirectory))
+         (query (cond ((string-match-p "bash" shell)
+                       "command dirs")
+                      ((string-match-p "zsh" shell)
+                       "dirs -l"))))
     (when query (setq shell-dirstack-query query)))
   (shell-dirtrack-mode -1)
   (dirtrack-mode))
