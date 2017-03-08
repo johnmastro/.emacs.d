@@ -1857,6 +1857,10 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config (add-hook 'go-mode-hook #'basis/init-go-mode))
 
+(use-package lua-mode
+  :ensure t
+  :defer t)
+
 (use-package swift-mode
   :ensure t
   :defer t)
