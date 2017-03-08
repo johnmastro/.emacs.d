@@ -4,7 +4,23 @@
 
 ** Linux
 
-*** GTK3
+*** Lucid on Fedora
+
+#+begin_src sh
+sudo dnf group install "C Development Tools and Libraries"
+sudo dnf group install "X Software Development"
+sudo dnf install m4 texinfo ncurses ncurses-devel \
+    libxml2 libxml2-devel gnutls gnutls-devel zlib zlib-devel
+    ImageMagick ImageMagick-devel
+./autogen.sh       # Only necessary if building from the repo
+./autogen.sh git   # Optional
+./configure --with-xml2 --with-zlib --with-gnutls --with-imagemagick \
+    --with-x-toolkit=lucid
+make
+sudo make install  # Optional
+#+end_src
+
+*** GTK3 on Debian/Ubuntu
 
 #+begin_src sh
 sudo aptitude install build-essential pkg-config m4 \
@@ -14,13 +30,14 @@ sudo aptitude install build-essential pkg-config m4 \
   libxml2 libxml2-dev \
   libgnutls28 libgnutls28-dev \
   zlib1g zlib1g-dev
-./autogen.sh  # Only necessary if building from the repo
+./autogen.sh       # Only necessary if building from the repo
+./autogen.sh git   # Optional
 ./configure --with-xml2 --with-zlib --with-gnutls --with-x-toolkit=gtk3
 make
 sudo make install  # Optional
 #+end_src
 
-*** No X
+*** No-X on Debian/Ubuntu
 
 #+begin_src sh
 sudo aptitude install build-essential pkg-config m4 \
@@ -29,7 +46,8 @@ sudo aptitude install build-essential pkg-config m4 \
   libxml2 libxml2-dev \
   libgnutls28 libgnutls28-dev \
   zlib1g zlib1g-dev
-./autogen.sh  # Only necessary if building from the repo
+./autogen.sh       # Only necessary if building from the repo
+./autogen.sh git   # Optional
 ./configure --with-xml2 --with-zlib --with-gnutls \
   --with-x-toolkit=no \
   --without-xpm --without-jpeg --without-tiff --without-gif --without-png
