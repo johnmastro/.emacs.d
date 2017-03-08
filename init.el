@@ -412,11 +412,12 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :config
   (progn
-    (setq tramp-default-method
-          (if (eq basis/system-type 'windows-nt)
-              "plinkx"
-            "sshx"))
     (setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
+    (setq tramp-default-method
+          (pcase basis/system-type
+            (`windows+cygwin "scpx")
+            (`windows-nt     "plinkx")
+            (_               "ssh")))
     (when (eq basis/system-type 'windows+cygwin)
       (setq tramp-encoding-shell (executable-find "sh"))
       (setq tramp-encoding-command-switch "-c")
