@@ -373,9 +373,7 @@ Create the directory if it does not exist and CREATE is non-nil."
             (setq auto-revert-use-notify t)
             (setq auto-revert-verbose nil)
             (add-hook 'find-file-hook #'basis/enable-auto-revert)
-            (add-hook 'after-save-hook #'basis/enable-auto-revert)
-            (with-eval-after-load 'dired
-              (add-hook 'dired-mode-hook #'basis/enable-auto-revert))))
+            (add-hook 'after-save-hook #'basis/enable-auto-revert)))
 
 (use-package frame
   :config (blink-cursor-mode -1))
@@ -2395,6 +2393,7 @@ TODO: <home> and <end> still don't work.")
 
 (defun basis/init-dired-mode ()
   (dired-omit-mode)
+  (basis/enable-auto-revert)
   (when (and (eq system-type 'darwin)
              (not (file-remote-p default-directory))
              (executable-find "gls"))
