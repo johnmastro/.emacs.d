@@ -493,6 +493,10 @@ Create the directory if it does not exist and CREATE is non-nil."
             ("n" #'next-line)
             ("p" #'previous-line)))
 
+(use-package help-at-pt
+  :config (progn (setq help-at-pt-display-when-idle t)
+                 (help-at-pt-set-timer)))
+
 (use-package info
   :defer t
   :config
