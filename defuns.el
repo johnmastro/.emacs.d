@@ -1019,32 +1019,46 @@ with a prefix argument, invoke plain `run-python' directly."
                  (abbreviate-file-name env)))
       (call-interactively #'run-python))))
 
-(defun basis/python-mark-docstring (mark-inside)
-  "Mark the docstring around point."
-  (unless (python-info-docstring-p)
-    (user-error "Not in a docstring"))
-  (require 'expand-region)
-  (require 'python-el-fgallina-expansions)
-  (er/mark-python-string mark-inside))
+(defun basis/python-string-bounds (&optional inside)
+  "Return the bounds of the Python string around point.
+If INSIDE is non-nil, return the bounds of the area inside the
+string delimiters, otherwise return bounds including the
+delimiters."
+  (save-excursion
+    (let (beg end)
+      (goto-char (nth 8 (syntax-ppss)))
+      (setq beg (save-excursion
+                  (when inside (skip-chars-forward "'\""))
+                  (point)))
+      (goto-char (scan-sexps (point) 1))
+      (when inside (skip-chars-backward "'\""))
+      (setq end (point))
+      (list beg end))))
 
 (defun basis/python-fill-module-docstring (beg end)
-  "Fill from BEG to END as a Python module docstring."
+  "Fill from BEG to END as a Python module docstring.
+This assumes a possibly-idiosyncratic module docstring style."
   (interactive
-   (progn
-     (unless (use-region-p)
-       (basis/python-mark-docstring t))
-     (list (region-beginning) (region-end))))
-  (let ((text (delete-and-extract-region beg end)))
-    (with-temp-buffer
-      (insert text)
-      (indent-rigidly (point-min) (point-max) most-negative-fixnum)
-      (goto-char (point-min))
-      (forward-line 3)               ; Move over the header
-      (let ((fill-column 68))
-        (fill-region (point) (point-max)))
-      (indent-rigidly (point-min) (point-max) 4)
-      (setq text (delete-and-extract-region (point-min) (point-max))))
-    (insert text)))
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (basis/python-string-bounds t)))
+  (let* ((buf (current-buffer))
+         (new (with-temp-buffer
+                (setq fill-column 64)
+                (insert-buffer-substring buf beg end)
+                (indent-rigidly (point-min) (point-max) most-negative-fixnum)
+                (goto-char (point-min))
+                ;; If there's a header, move over it
+                (when (save-excursion
+                        (and (> (count-lines (point-min) (point-max)) 3)
+                             (progn (forward-line 2)
+                                    (looking-at-p "^[ *~_=-]*$"))))
+                  (forward-line 3))
+                (fill-region (point) (point-max))
+                (indent-rigidly (point-min) (point-max) 4)
+                (buffer-string))))
+    (delete-region beg end)
+    (insert new)))
 
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
