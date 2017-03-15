@@ -1615,7 +1615,8 @@ configured for autoskip."
                                   (string-match-p regexp close)
                                   open))
                            (sp--get-allowed-pair-list))))
-    (memq 'autoskip (plist-get (sp-get-pair opener) :actions))))
+    (or (memq 'autoskip (plist-get (sp-get-pair opener) :actions))
+        (< (car (syntax-ppss)) 0))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
