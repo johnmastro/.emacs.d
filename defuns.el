@@ -1598,10 +1598,10 @@ Handle the special string literals in Python and SQL."
       (list (car args) t)
     args))
 
-(defun basis/sp-cleanup-maybe-not (original &rest args)
+(defun basis/sp-cleanup-maybe-not (&rest _)
   "Advice for `sp--cleanup-after-kill' to inhibit problematic cleanup."
-  (unless (memq indent-line-function basis/sp-inhibit-cleanup-list)
-    (apply original args)))
+  ;; Used as `:before-until' advice, so returning non-nil prevents cleanup
+  (memq indent-line-function basis/sp-inhibit-cleanup-list))
 
 (defun basis/sp-maybe-inhibit-closer (last)
   "Advice for `sp--inhibit-insertion-of-closing-delim'.

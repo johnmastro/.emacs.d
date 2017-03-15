@@ -879,7 +879,8 @@ TODO: <home> and <end> still don't work.")
       ("M-e"             #'sp-forward-sexp)
       ("M-a"             #'sp-backward-sexp)
       ("C-M-u"           #'basis/sp-backward-up))
-    (advice-add 'sp--cleanup-after-kill :around #'basis/sp-cleanup-maybe-not)
+    (advice-add 'sp--cleanup-after-kill :before-until
+                #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
     (advice-add 'sp-backward-delete-char :filter-args
                 #'basis/sp-backward-delete-no-prefix)
