@@ -600,13 +600,36 @@ If no region is active, examine the full buffer."
       (set-marker end nil))))
 
 (defun basis/delete-indentation (&optional arg)
-  "Like `delete-indentation' but delete extra comments and whitespace."
+  "Augmented version of `delete-indentation'.
+Like `delete-indentation', but also delete comment characters at
+the beginning of the line, and re-indent if joining to an empty
+line."
   (interactive "*P")
+  (let ((comment-beg-re
+         (format "\\s-*\\(\\s<\\|%s\\)+\\s-*"
+                 (regexp-opt (delete " " (mapcar #'string comment-start)))))
+        (comment-end-re
+         (format "\\s-*\\(\\s>\\|%s\\)+\\s-*"
+                 (regexp-opt (delete " " (mapcar #'string comment-end))))))
+    (save-excursion
+      ;; The forms in the following `progn' will leave us at the beginning of
+      ;; the line that will be joined up (which, when called with ARG, is the
+      ;; line after point's initial position).
+      (if (progn (or arg (forward-line -1))
+                 (end-of-line)
+                 (prog1 (nth 4 (syntax-ppss))
+                   (forward-line 1)))
+          (and (looking-at comment-beg-re)
+               (replace-match ""))
+        (and (looking-at comment-beg-re)
+             (save-match-data
+               (forward-line -1)
+               (end-of-line)
+               (and (looking-back comment-end-re (line-beginning-position) t)
+                    (progn (replace-match "") t)))
+             (replace-match "")))))
   (delete-indentation arg)
-  (when (and (nth 4 (syntax-ppss))
-             (let ((char (elt comment-start 0)))
-               (looking-at (format "\\(\\s<\\|%c\\|\\s-\\)+" char))))
-    (replace-match " ")))
+  (when (bolp) (indent-according-to-mode)))
 
 (defun basis/narrow-or-widen-dwim (arg)
   "Widen if buffer is narrowed, otherwise narrow.
