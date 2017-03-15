@@ -1573,20 +1573,17 @@ In `python-mode', fall back to `python-nav-backward-up-list' if
 
 (defun basis/sp-point-after-word-p (id action context)
   "Augmented version of `sp-point-after-word-p'.
-Handle the special string constants in Python and SQL."
-  (let ((result (sp-point-after-word-p id action context)))
-    (when result
-      (cond ((and (memq major-mode '(python-mode inferior-python-mode))
-                  (member id '("'" "\""))
-                  (save-excursion (forward-char -2)
-                                  (looking-at-p "\\_<[BbRrUu]")))
-             (setq result nil))
-            ((and (memq major-mode '(sql-mode sql-interactive-mode))
-                  (equal id "'")
-                  (save-excursion (forward-char -2)
-                                  (looking-a-p "\\_<[BbNnXx]")))
-             (setq result nil))))
-    result))
+Handle the special string literals in Python and SQL."
+  (and (sp-point-after-word-p id action context)
+       (let ((regexp (pcase major-mode
+                       ((or `python-mode `inferior-python-mode)
+                        "\\_<[BbRrUu]")
+                       ((or `sql-mode `sql-interactive-mode)
+                        "\\_<[BbNnXx]"))))
+         (or (null regexp) ; No change for this mode
+             (not (and (member id '("'" "\""))
+                       (save-excursion (forward-char -2)
+                                       (looking-at-p regexp))))))))
 
 (defvar basis/sp-inhibit-cleanup-list
   '(indent-relative
