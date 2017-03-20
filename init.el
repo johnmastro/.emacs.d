@@ -1038,7 +1038,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package ido-completing-read+
   :ensure t
-  :config (setq ido-cr+-max-items nil))
+  :init (setq ido-cr+-max-items nil))
 
 (use-package ido-ubiquitous
   :ensure t
