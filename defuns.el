@@ -813,7 +813,7 @@ no matches."
   (setq ido-exit 'fallback)
   (exit-minibuffer))
 
-(defun basis/company-maybe-block-completion (&rest _args)
+(defun basis/company-maybe-block-completion (&rest _)
   "Prevent `company-auto-begin' from running in some circumstances."
   ;; Used as `:before-until' advice, so returning non-nil prevents completion.
   (pcase major-mode
@@ -1377,7 +1377,7 @@ TODO keywords in the positions cycled between."
       (goto-char start)
       (apply original args))))
 
-(defun basis/sgml-delete-tag-reindent (&rest _ignore)
+(defun basis/sgml-delete-tag-reindent (&rest _)
   "Advice for `sgml-delete-region' to reindent the buffer."
   (indent-region (point-min) (point-max)))
 
@@ -1727,18 +1727,17 @@ on Windows."
   (cons (expand-file-name (car args))
         (cdr args)))
 
-(defun basis/ediff-save-window-config (&rest _ignore)
+(defun basis/ediff-save-window-config (&rest _)
   "Advice for `ediff-setup'.
 Save the current window configuration to register
 `:ediff-restore-windows', so that it can be restored on exit."
   (window-configuration-to-register :ediff-restore-windows))
 
-(defun basis/ediff-quit-restore (&rest _args)
+(defun basis/ediff-quit-restore (&rest _)
   "Advice for `ediff-quit'.
 After quitting, restore the previous window configuration."
-  (condition-case nil
-      (jump-to-register :ediff-restore-windows)
-    (error (message "Previous window configuration could not be restored"))))
+  (with-demoted-errors "Couldn't restore window configuration: %S"
+    (jump-to-register :ediff-restore-windows)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1869,24 +1868,11 @@ N must be between 4 and 40 and defaults to the result of calling
           (t
            (start-process "*open externally*" nil program file)))))
 
-(defun basis/open-file-externally-file ()
-  (pcase (list major-mode (if (eq major-mode 'dired-mode)
-                              (ignore-errors (dired-get-file-for-visit))
-                            (buffer-file-name)))
-    (`(,_ nil)
-     (read-file-name "Open externally: " nil nil t))
-    (`(dired-mode ,file)
-     file)
-    (`(,_ ,file)
-     (let ((name (abbreviate-file-name file)))
-       (read-file-name (format "Open externally (default %s): " name)
-                       (file-name-directory file)
-                       (file-name-nondirectory file)
-                       t)))))
-
 (defun basis/open-file-externally (file)
   "Open FILE in an external application."
-  (interactive (list (basis/open-file-externally-file)))
+  (interactive (list (or (and (eq major-mode 'dired-mode)
+                              (ignore-errors (dired-get-file-for-visit)))
+                         (read-file-name "Open externally: " nil nil t))))
   (if-let ((exe (basis/default-program-for-file file)))
       (basis/open-file-externally-1 exe file)
     (error "No external program defined for `%s'" (abbreviate-file-name file))))
@@ -1914,7 +1900,7 @@ is available."
               (unless (eq arg '-) (visit-tags-table "TAGS")))
            (_ (pop-to-buffer buffer))))))))
 
-(defun basis/comint-input-goto-bottom-if-necessary (&rest _args)
+(defun basis/comint-input-goto-bottom-if-necessary (&rest _)
   "Advice for `comint' {previous,next}-input commands.
 If an adviced command would signal a \"Not at command line\"
 user-error, automatically move point to the command line."
