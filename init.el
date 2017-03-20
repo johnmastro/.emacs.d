@@ -2427,6 +2427,9 @@ TODO: <home> and <end> still don't work.")
   (progn (setq dired-omit-verbose nil)
          (setq dired-omit-extensions (remove ".bak" dired-omit-extensions))))
 
+(use-package dired-aux
+  :after dired)
+
 (use-package find-dired
   :after dired
   :config (setq find-ls-option (if (eq system-type 'windows-nt)
