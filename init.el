@@ -1144,7 +1144,6 @@ TODO: <home> and <end> still don't work.")
 
 (use-package helm-flx
   :ensure t
-  :defer t
   :after helm
   :config (progn (require 'helm)
                  (require 'helm-files)
@@ -1162,7 +1161,6 @@ TODO: <home> and <end> still don't work.")
     (define-key helm-buffer-map (kbd "C-c C-b") #'basis/helm-run-bookmarks)))
 
 (use-package helm-command
-  :defer t
   :after helm
   :config (setq helm-M-x-fuzzy-match t))
 
@@ -1578,7 +1576,6 @@ TODO: <home> and <end> still don't work.")
 
 (use-package quack
   :ensure t
-  :defer t
   :after scheme
   :config (progn (setq quack-default-program
                        (if (eq system-type 'windows-nt)
@@ -1746,7 +1743,6 @@ TODO: <home> and <end> still don't work.")
 
 (use-package skewer-mode
   :ensure t
-  :defer t
   :after (js2-mode sgml-mode css-mode)
   :config (progn
             (skewer-setup)
@@ -2013,7 +2009,6 @@ TODO: <home> and <end> still don't work.")
 
 (use-package tagedit
   :ensure t
-  :defer t
   :after sgml-mode
   :config (progn (tagedit-add-paredit-like-keybindings)
                  (tagedit-add-experimental-features)
@@ -2022,7 +2017,6 @@ TODO: <home> and <end> still don't work.")
 
 (use-package simplezen
   :ensure t
-  :defer t
   :after sgml-mode)
 
 (defun basis/init-markdown-mode ()
@@ -2312,7 +2306,6 @@ TODO: <home> and <end> still don't work.")
 
 (use-package ibuffer-vc
   :ensure t
-  :defer t
   :after ibuffer
   :config
   (progn
@@ -2429,18 +2422,16 @@ TODO: <home> and <end> still don't work.")
     (add-hook 'dired-mode-hook #'basis/init-dired-mode)))
 
 (use-package dired-x
-  :defer t
   :after dired
   :config
   (progn (setq dired-omit-verbose nil)
          (setq dired-omit-extensions (remove ".bak" dired-omit-extensions))))
 
 (use-package find-dired
-  :defer t
+  :after dired
   :config (setq find-ls-option (if (eq system-type 'windows-nt)
                                    '("-exec ls -ldhG {} +" . "-ldhG")
-                                 '("-exec ls -ldh {} +" . "-ldh")))
-  :after dired)
+                                 '("-exec ls -ldh {} +" . "-ldh"))))
 
 (use-package image-dired
   :defer t
@@ -2450,7 +2441,6 @@ TODO: <home> and <end> still don't work.")
 
 (use-package dired+
   :ensure t
-  :defer t
   :after dired)
 
 (defun basis/init-comint-mode ()
@@ -2606,7 +2596,6 @@ TODO: <home> and <end> still don't work.")
                       (seq-find #'file-directory-p)))))
 
 (use-package emms-setup
-  :defer t
   :after emms
   :config (progn (emms-standard)
                  (emms-default-players)))
