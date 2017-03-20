@@ -1739,6 +1739,25 @@ After quitting, restore the previous window configuration."
   (with-demoted-errors "Couldn't restore window configuration: %S"
     (jump-to-register :ediff-restore-windows)))
 
+(defun basis/ediff-files (file1 file2)
+  "Use `ediff' to compare FILE1 and FILE2."
+  (interactive
+   (if (eq major-mode 'dired-mode)
+       (let ((marked (dired-get-marked-files)))
+         (pcase (length marked)
+           (1 (cons (read-file-name "File: " (dired-dwim-target-directory))
+                    marked))
+           (2 marked)
+           (_ (error "Either one or two files should be marked"))))
+     (let* ((file1 (read-file-name "File 1: " nil nil t))
+            (file2 (read-file-name "File 2: "
+                                   (file-name-directory file1)
+                                   nil t)))
+       (list file1 file2))))
+  (if (file-newer-than-file-p file1 file2)
+      (ediff-files file2 file1)
+    (ediff-files file1 file2)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Magit & other git things
