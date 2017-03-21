@@ -1984,6 +1984,31 @@ user-error, automatically move point to the command line."
 (defun basis/eshell-cygwin-path-env ()
   (setq eshell-path-env (replace-regexp-in-string ":" ";" eshell-path-env)))
 
+(defvar basis/ido-man-topics nil)
+
+(defun basis/ido-man-init (&optional arg)
+  (require 'woman)
+  (when (or arg (null basis/ido-man-topics))
+    (setq woman-expanded-directory-path
+          (woman-expand-directory-path woman-manpath woman-path))
+    (setq woman-topic-all-completions
+          (woman-topic-all-completions woman-expanded-directory-path))
+    (setq basis/ido-man-topics (mapcar #'car woman-topic-all-completions))))
+
+(defun basis/read-manual-page-file-name ()
+  (let* ((topic (completing-read "Manual entry: " basis/ido-man-topics nil t))
+         (files (mapcar #'car (woman-file-name-all-completions topic))))
+    (if (cdr files)
+        (completing-read "Manual file: " files nil t)
+      (car files))))
+
+(defun basis/ido-man (arg)
+  "Select a manual page via `ido' and show it in a buffer.
+If ARG is non-nil, reinitialize the cache of topics."
+  (interactive "P")
+  (basis/ido-man-init arg)
+  (manual-entry (concat "-l " (basis/read-manual-page-file-name))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File utilities

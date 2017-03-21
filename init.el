@@ -510,6 +510,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package man
   :defer t
+  :init (global-set-key (kbd "C-h C-k") #'basis/ido-man)
   :config (setq Man-notify-method 'aggressive))
 
 
@@ -1182,9 +1183,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package helm-man
   :defer t
-  :config (progn (global-set-key (kbd "C-h C-k") #'helm-man-woman)
-                 (or (executable-find "man")
-                     (setq helm-man-or-woman-function #'woman))))
+  :config (or (executable-find "man")
+              (setq helm-man-or-woman-function #'woman)))
 
 (use-package helm-descbinds
   :ensure t
