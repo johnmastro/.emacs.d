@@ -2049,7 +2049,9 @@ TODO: <home> and <end> still don't work.")
 (use-package yaml-mode
   :ensure t
   :defer t
-  :config (add-hook 'yaml-mode-hook #'basis/init-yaml-mode))
+  :config
+  (progn (define-key yaml-mode-map (kbd "DEL") #'basis/sp-yaml-backspace)
+         (add-hook 'yaml-mode-hook #'basis/init-yaml-mode)))
 
 (use-package deft
   :ensure t

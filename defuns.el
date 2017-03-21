@@ -1551,14 +1551,21 @@ symbol (like `kill-sexp')."
      ,@body))
 
 (defun basis/sp-python-backspace (arg)
-  "Delete a char backward or dedent the current line."
+  "Delete a character backward or dedent the current line."
   (interactive "*p")
   (basis/with-sp-backward-delete (python-indent-dedent-line-backspace arg)))
 
 (put 'basis/sp-python-backspace 'delete-selection 'supersede)
 
+(defun basis/sp-yaml-backspace (arg)
+  "Delete a character backward or dedent the current line."
+  (interactive "*p")
+  (basis/with-sp-backward-delete (yaml-electric-backspace arg)))
+
+(put 'basis/sp-yaml-backspace 'delete-selection 'supersede)
+
 (defun basis/sp-markdown-backspace (arg)
-  "Delete a char backward or dedent the current line."
+  "Delete a character backward or dedent the current line."
   (interactive "*p")
   (basis/with-sp-backward-delete (markdown-exdent-or-delete arg)))
 
