@@ -1541,35 +1541,29 @@ symbol (like `kill-sexp')."
       (kill-sexp 1)
     (sp-kill-sexp arg)))
 
-(defmacro basis/with-sp-backward-delete (&rest body)
-  "Execute BODY with `sp-backward-delete-char' overriding
-`backward-delete-char' and `backward-delete-char-untabify'."
-  `(cl-letf (((symbol-function 'backward-delete-char)
-              #'sp-backward-delete-char)
-             ((symbol-function 'backward-delete-char-untabify)
-              #'sp-backward-delete-char))
-     ,@body))
+(defmacro basis/def-sp-backspace-command (name command)
+  (declare (indent defun))
+  (let ((doc (ignore-errors (documentation (eval command) t))))
+    `(progn
+       (defun ,name ()
+         ,@(and doc (list doc))
+         (interactive)
+         (cl-letf (((symbol-function 'backward-delete-char)
+                    #'sp-backward-delete-char)
+                   ((symbol-function 'backward-delete-char-untabify)
+                    #'sp-backward-delete-char))
+           (call-interactively ,command)))
+       (put ',name 'delete-selection 'supersede)
+       ',name)))
 
-(defun basis/sp-python-backspace (arg)
-  "Delete a character backward or dedent the current line."
-  (interactive "*p")
-  (basis/with-sp-backward-delete (python-indent-dedent-line-backspace arg)))
+(basis/def-sp-backspace-command basis/sp-python-backspace
+  #'python-indent-dedent-line-backspace)
 
-(put 'basis/sp-python-backspace 'delete-selection 'supersede)
+(basis/def-sp-backspace-command basis/sp-yaml-backspace
+  #'yaml-electric-backspace)
 
-(defun basis/sp-yaml-backspace (arg)
-  "Delete a character backward or dedent the current line."
-  (interactive "*p")
-  (basis/with-sp-backward-delete (yaml-electric-backspace arg)))
-
-(put 'basis/sp-yaml-backspace 'delete-selection 'supersede)
-
-(defun basis/sp-markdown-backspace (arg)
-  "Delete a character backward or dedent the current line."
-  (interactive "*p")
-  (basis/with-sp-backward-delete (markdown-exdent-or-delete arg)))
-
-(put 'basis/sp-markdown-backspace 'delete-selection 'supersede)
+(basis/def-sp-backspace-command basis/sp-markdown-backspace
+  #'markdown-exdent-or-delete)
 
 (defun basis/sp-comint-delchar-or-maybe-eof (arg)
   "Delete ARG characters or send an EOF to subprocess."
