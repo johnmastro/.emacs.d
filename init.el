@@ -1889,9 +1889,8 @@ TODO: <home> and <end> still don't work.")
 (use-package gforth
   :defer t
   :mode ("\\.f\\'" "\\.fs\\'" "\\.fth\\'")
-  :config (with-eval-after-load 'forth-mode
-            (define-key forth-mode-map (kbd "M-o")   nil)
-            (define-key forth-mode-map (kbd "M-SPC") nil)))
+  :config (progn (define-key forth-mode-map (kbd "M-o") nil)
+                 (define-key forth-mode-map (kbd "M-SPC") nil)))
 
 (use-package batch-mode
   :ensure t
