@@ -1896,7 +1896,7 @@ TODO: <home> and <end> still don't work.")
 (use-package batch-mode
   :ensure t
   :defer t
-  :mode "\\.bat\\'")
+  :mode ("\\.bat\\'" "\\.cmd\\'"))
 
 (use-package ahk-mode
   :ensure t
