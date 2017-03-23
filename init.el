@@ -1873,9 +1873,14 @@ TODO: <home> and <end> still don't work.")
 
 (defun basis/init-sh-mode ()
   (setq tab-width 4)
-  (when (and buffer-file-name
-             (string= (file-name-nondirectory buffer-file-name) ".zshrc"))
-    (sh-set-shell "zsh")))
+  (let* ((file buffer-file-name)
+         (name (and file (file-name-nondirectory file)))
+         (extn (and file (file-name-extension file))))
+    (when (and name (null extn))
+      (cond ((string-match-p "\\`\\.bash" name)
+             (sh-set-shell "bash"))
+            ((string-match-p "\\`\\.zsh" name)
+             (sh-set-shell "zsh"))))))
 
 (use-package sh-script
   :defer t
