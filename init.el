@@ -2424,7 +2424,7 @@ TODO: <home> and <end> still don't work.")
     (add-hook 'dired-mode-hook #'basis/init-dired-mode)))
 
 (use-package dired-x
-  :after dired
+  :commands (dired-omit-mode)
   :config
   (progn (setq dired-omit-verbose nil)
          (setq dired-omit-extensions (remove ".bak" dired-omit-extensions))))
