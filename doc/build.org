@@ -15,7 +15,7 @@ sudo dnf install m4 texinfo ncurses ncurses-devel \
 ./autogen.sh       # Only necessary if building from the repo
 ./autogen.sh git   # Optional
 ./configure --with-xml2 --with-zlib --with-gnutls --with-imagemagick \
-    --with-x-toolkit=lucid
+    --with-x-toolkit=lucid --without-pop
 make
 sudo make install  # Optional
 #+end_src
@@ -24,15 +24,16 @@ sudo make install  # Optional
 
 #+begin_src sh
 sudo aptitude install build-essential pkg-config m4 \
-  automake libtool texinfo install-info \
-  libncurses-dev \
-  libgtk-3-dev \
-  libxml2 libxml2-dev \
-  libgnutls28 libgnutls28-dev \
-  zlib1g zlib1g-dev
+    automake libtool texinfo install-info \
+    libncurses-dev \
+    libgtk-3-dev \
+    libxml2 libxml2-dev \
+    libgnutls28 libgnutls28-dev \
+    zlib1g zlib1g-dev
 ./autogen.sh       # Only necessary if building from the repo
 ./autogen.sh git   # Optional
-./configure --with-xml2 --with-zlib --with-gnutls --with-x-toolkit=gtk3
+./configure --with-xml2 --with-zlib --with-gnutls --with-x-toolkit=gtk3 \
+    --without-pop
 make
 sudo make install  # Optional
 #+end_src
@@ -41,16 +42,17 @@ sudo make install  # Optional
 
 #+begin_src sh
 sudo aptitude install build-essential pkg-config m4 \
-  automake libtool texinfo install-info \
-  libncurses-dev \
-  libxml2 libxml2-dev \
-  libgnutls28 libgnutls28-dev \
-  zlib1g zlib1g-dev
+    automake libtool texinfo install-info \
+    libncurses-dev \
+    libxml2 libxml2-dev \
+    libgnutls28 libgnutls28-dev \
+    zlib1g zlib1g-dev
 ./autogen.sh       # Only necessary if building from the repo
 ./autogen.sh git   # Optional
 ./configure --with-xml2 --with-zlib --with-gnutls \
-  --with-x-toolkit=no \
-  --without-xpm --without-jpeg --without-tiff --without-gif --without-png
+    --with-x-toolkit=no \
+    --without-xpm --without-jpeg --without-tiff --without-gif --without-png
+    --without-pop
 make
 sudo make install  # Optional
 #+end_src
@@ -75,16 +77,17 @@ git reset --hard
 - Install dependencies
   #+begin_src sh
   pacman -S \
-  base-devel \
-  mingw-w64-x86_64-toolchain \
-  mingw-w64-x86_64-xpm-nox \
-  mingw-w64-x86_64-libtiff \
-  mingw-w64-x86_64-giflib \
-  mingw-w64-x86_64-libpng \
-  mingw-w64-x86_64-libjpeg-turbo \
-  mingw-w64-x86_64-librsvg \
-  mingw-w64-x86_64-libxml2 \
-  mingw-w64-x86_64-gnutls
+      base-devel \
+      mingw-w64-x86_64-toolchain \
+      mingw-w64-x86_64-xpm-nox \
+      mingw-w64-x86_64-libtiff \
+      mingw-w64-x86_64-giflib \
+      mingw-w64-x86_64-jbigkit \
+      mingw-w64-x86_64-libpng \
+      mingw-w64-x86_64-libjpeg-turbo \
+      mingw-w64-x86_64-librsvg \
+      mingw-w64-x86_64-libxml2 \
+      mingw-w64-x86_64-gnutls
   #+end_src
 - Close the MSYS2 shell and open a mingw64 shell
 - =cd= into the source directory
@@ -92,7 +95,7 @@ git reset --hard
   #+begin_src sh
   ./autogen.sh
   PKG_CONFIG_PATH=/mingw64/lib/pkgconfig \
-  ./configure --prefix=/c/emacs/emacs-25 --without-imagemagick
+  ./configure --prefix=/c/emacs/emacs-25 --without-imagemagick --without-pop
   make
   make install
   #+end_src
@@ -131,7 +134,7 @@ git reset --hard
 - Build it
   #+begin_src sh
   ./autogen.sh  # Only necessary if building from the repo
-  ./configure --with-w32 --with-xml2 --with-zlib --with-gnutls
+  ./configure --with-w32 --with-xml2 --with-zlib --with-gnutls --without-pop
   make
   sudo make install  # Optional
   #+end_src
