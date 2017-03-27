@@ -481,7 +481,9 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config (progn (load-theme 'solarized t)
                  (load-theme 'solarized-moar t)))
 
-(setq frame-title-format `(,(concat "%b | " invocation-name "@" (system-name))))
+(setq frame-title-format
+      `(,(concat "%b | " invocation-name "@" (system-name))
+        (:eval (and buffer-file-name '(" | " buffer-file-name)))))
 
 (use-package nlinum
   :ensure t
