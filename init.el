@@ -369,17 +369,21 @@ Create the directory if it does not exist and CREATE is non-nil."
   :diminish superword-mode)
 
 (defun basis/enable-auto-revert ()
-  (unless (or auto-revert-mode global-auto-revert-ignore-buffer)
+  (unless (or auto-revert-mode global-auto-revert-mode)
     (auto-revert-mode)))
 
 (use-package autorevert
-  :config (progn
-            ;; I would like to use `global-auto-revert-mode', but then it
-            ;; refuses to use "notify"
-            (setq auto-revert-use-notify t)
-            (setq auto-revert-verbose nil)
-            (add-hook 'find-file-hook #'basis/enable-auto-revert)
-            (add-hook 'after-save-hook #'basis/enable-auto-revert)))
+  :config
+  (progn
+    (setq auto-revert-verbose nil)
+    (if (/= emacs-major-version 25)
+        (global-auto-revert-mode)
+      ;; Emacs 25 refuses to use "notify" with
+      ;; `global-auto-revert-mode'
+      (add-hook 'find-file-hook #'basis/enable-auto-revert)
+      (add-hook 'after-save-hook #'basis/enable-auto-revert)
+      (with-eval-after-load 'dired
+        (add-hook 'dired-mode-hook #'basis/enable-auto-revert)))))
 
 (use-package frame
   :config (blink-cursor-mode -1))
@@ -506,10 +510,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package info
   :defer t
   :config
-  (let ((dir  (basis/emacs-dir "doc/info/"))
+  (let ((info (basis/emacs-dir "doc/info/"))
         (font (face-attribute 'default :font)))
-    (when (file-directory-p dir)
-      (add-to-list 'Info-additional-directory-list dir))
+    (add-to-list 'Info-additional-directory-list info)
     (set-face-attribute 'Info-quoted nil :font font :slant 'italic)))
 
 (use-package apropos
@@ -2401,7 +2404,6 @@ TODO: <home> and <end> still don't work.")
 
 (defun basis/init-dired-mode ()
   (dired-omit-mode)
-  (basis/enable-auto-revert)
   (when (and (eq system-type 'darwin)
              (not (file-remote-p default-directory))
              (executable-find "gls"))
