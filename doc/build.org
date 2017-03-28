@@ -95,7 +95,8 @@ git reset --hard
   #+begin_src sh
   ./autogen.sh
   PKG_CONFIG_PATH=/mingw64/lib/pkgconfig \
-  ./configure --prefix=/c/emacs/emacs-25 --without-imagemagick --without-pop
+  ./configure --prefix=/c/emacs/emacs-25 --with-zlib --with-gnutls --with-xml2 \
+    --without-imagemagick --without-pop
   make
   make install
   #+end_src
