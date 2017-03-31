@@ -232,9 +232,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 (setq-default fill-column 80)
 (setq-default truncate-lines t)
 
-(setq kill-buffer-query-functions
-      (remq 'process-kill-buffer-query-function
-            kill-buffer-query-functions))
+(add-hook 'kill-buffer-query-functions #'basis/kill-scratch-query-function)
+(remove-hook 'kill-buffer-query-functions #'process-kill-buffer-query-function)
 
 (when (boundp 'w32-pipe-read-delay)
   (setq w32-pipe-read-delay 0))

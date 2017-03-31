@@ -2477,6 +2477,12 @@ EMACS defaults to the current Emacs executable. HOME defaults to
            "-Q" "--eval" "(setq debug-on-error t)"
            args)))
 
+(defun basis/kill-scratch-query-function ()
+  ;; For use as a member of `kill-buffer-query-functions'
+  (if (equal (buffer-name) "*scratch*")
+      (y-or-n-p "Really kill the *scratch* buffer?")
+    t))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
