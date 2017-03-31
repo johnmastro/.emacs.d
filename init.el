@@ -318,6 +318,13 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package mouse
   :config (setq mouse-yank-at-point t))
 
+(use-package mwheel
+  :config
+  (progn (setq mouse-wheel-progressive-speed nil)
+         (pcase mouse-wheel-scroll-amount
+           ((and `(,n . ,more) (guard (integerp n)))
+            (setq mouse-wheel-scroll-amount (cons (min n 3) more))))))
+
 (use-package url
   :defer t
   :config
