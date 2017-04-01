@@ -477,7 +477,7 @@ Create the directory if it does not exist and CREATE is non-nil."
                       (`darwin     '("Source Code Pro-11" "Andale Mono-12"))
                       (`windows-nt '("Consolas-10"))
                       (_           '("Inconsolata-11"))))))
-    (set-face-attribute 'default nil :font font)))
+    (add-to-list 'default-frame-alist (cons 'font font))))
 
 (use-package solarized-theme
   :ensure color-theme-solarized
@@ -492,8 +492,8 @@ Create the directory if it does not exist and CREATE is non-nil."
                  (load-theme 'solarized-moar t)))
 
 (setq frame-title-format
-      `(,(concat "%b | " invocation-name "@" (system-name))
-        (:eval (and buffer-file-name '(" | " buffer-file-name)))))
+      (list (concat "%b | " invocation-name "@" (system-name))
+            '(:eval (and buffer-file-name '(" | " buffer-file-name)))))
 
 (use-package nlinum
   :ensure t
