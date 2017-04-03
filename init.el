@@ -316,7 +316,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package windmove
   :defer t
-  :config (windmove-default-keybindings))
+  :config (progn (setq windmove-wrap-around t)
+                 (windmove-default-keybindings)))
 
 (use-package cursor-sensor
   :config
