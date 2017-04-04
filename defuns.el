@@ -793,6 +793,48 @@ non-matching patterns. See bug #23590."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Completion
 
+(defun basis/describe-function (function)
+  "Display the full documentation of FUNCTION."
+  (interactive
+   (let ((default (function-called-at-point))
+         (enable-recursive-minibuffers t))
+     (list (intern (completing-read "Describe function: "
+                                    obarray
+                                    (lambda (sym)
+                                      (or (get sym 'function-documentation)
+                                          (fboundp sym)))
+                                    t nil nil
+                                    (and (symbolp default)
+                                         (symbol-name default)))))))
+  (describe-function function))
+
+(defun basis/describe-variable (variable &optional buffer frame)
+  "Display the full documentation of VARIABLE."
+  (interactive
+   (let ((default (variable-at-point))
+	 (enable-recursive-minibuffers t))
+     (list (intern (completing-read "Describe variable: "
+                                    obarray
+                                    (lambda (sym)
+                                      (or (get sym 'variable-documentation)
+                                          (and (boundp sym)
+                                               (not (keywordp sym)))))
+                                    t nil nil
+                                    (and (symbolp default)
+                                         (symbol-name default)))))))
+  (describe-variable variable buffer frame))
+
+(defun basis/describe-face (face &optional frame)
+  "Display the properties of face FACE on FRAME."
+  (interactive
+   (let ((default (symbol-at-point))
+         (enable-recursive-minibuffers t))
+     (list (intern (completing-read "Describe face: "
+                                    obarray #'facep t nil nil
+                                    (and (symbolp default)
+                                         (symbol-name default)))))))
+  (describe-face face frame))
+
 (defun basis/ido-selected-file ()
   "Return the current selection during `ido' file completion.
 Return the current directory if no text is entered or there are

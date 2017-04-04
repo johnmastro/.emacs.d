@@ -646,6 +646,12 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (put 'narrow-to-region 'disabled nil)
 
+;; In Emacs 26, describe-\(function\|variable\) are incompatible with ido and
+;; can load libraries as part of completion, so override them with simpler
+;; definitions
+(global-set-key [remap describe-function] #'basis/describe-function)
+(global-set-key [remap describe-variable] #'basis/describe-variable)
+
 (basis/define-map basis/find-lisp-map ("C-h e")
   ("c" #'finder-commentary)
   ("e" #'view-echo-area-messages)
