@@ -865,7 +865,7 @@ no matches."
      (and (eq system-type 'windows-nt)
           (save-excursion
             (skip-chars-backward "^[:blank:]")
-            (looking-at-p "\\(\\w+@\\)?\\w\\{2,\\}:"))))
+            (looking-at-p tramp-file-name-regexp))))
     (`sh-mode
      (save-excursion
        (forward-char -2)
@@ -2548,11 +2548,11 @@ those tags."
    (let ((default (if (use-region-p)
                       (buffer-substring (region-beginning) (region-end))
                     (thing-at-point 'word))))
-     (list (if default
-               (read-string (format "Define word (default %s): " default)
-                            nil nil
-                            default)
-             (read-string "Define word: ")))))
+     (list (read-string (if default
+                            (format "Define word (default %s): " default)
+                          "Define word: ")
+                        nil nil
+                        default))))
   (define-word word))
 
 (defun basis/delete-cookies ()
