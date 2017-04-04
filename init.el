@@ -2112,6 +2112,7 @@ TODO: <home> and <end> still don't work.")
 (use-package ssh-config-mode
   :ensure t
   :defer t
+  :init (autoload 'ssh-authorized-keys-mode "ssh-config-mode" nil t)
   :config
   (progn (add-hook 'ssh-config-mode-hook #'basis/init-ssh-config-mode)
          (define-key ssh-config-mode-map (kbd "TAB") #'tab-to-tab-stop)))
