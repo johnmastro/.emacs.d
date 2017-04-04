@@ -2226,8 +2226,8 @@ TODO: <home> and <end> still don't work.")
     (setq magit-repository-directories
           (thread-last projectile-known-projects
             (seq-remove #'file-remote-p)
-            (seq-filter (lambda (dir)
-                          (file-directory-p (expand-file-name ".git" dir))))
+            (seq-filter (lambda (file)
+                          (file-exists-p (expand-file-name ".git" file))))
             (cons "~/code/")
             (mapcar #'directory-file-name)))
     (add-hook 'magit-post-display-buffer-hook
