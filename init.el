@@ -443,8 +443,8 @@ Create the directory if it does not exist and CREATE is non-nil."
     (setq tramp-default-method
           (pcase basis/system-type
             (`windows+cygwin "scpx")
-            (`windows-nt     "plinkx")
-            (_               "ssh")))
+            (`windows-nt     "pscp")
+            (_               "scp")))
     (when (eq basis/system-type 'windows+cygwin)
       (setq tramp-encoding-shell (executable-find "sh"))
       (setq tramp-encoding-command-switch "-c")
