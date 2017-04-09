@@ -2040,7 +2040,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package tagedit
   :ensure t
-  :after sgml-mode
+  :commands (tagedit-mode)
   :config (progn (tagedit-add-paredit-like-keybindings)
                  (tagedit-add-experimental-features)
                  (advice-add 'tagedit-toggle-multiline-tag :around
