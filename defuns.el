@@ -2060,25 +2060,34 @@ If ARG is non-nil, reinitialize the cache of topics."
   "Rename BUFFER and the file it's visiting to DESTINATION."
   (interactive
    (list (current-buffer)
-         (read-file-name "Destination: ")))
+         (substring-no-properties (read-file-name "Destination: "))))
   (with-current-buffer buffer
-    (let* ((src (buffer-file-name))
-           (dst (if (file-directory-p destination)
-                    (expand-file-name (file-name-nondirectory src)
-                                      destination)
-                  destination)))
+    (when (and (buffer-modified-p)
+               (y-or-n-p (format "Buffer `%s' has unsaved changes. Save?"
+                                 (current-buffer))))
+      (save-buffer))
+    (let ((src (buffer-file-name)))
       (unless (and src (file-exists-p src))
         (user-error "Buffer `%s' is not visiting a file" (buffer-name)))
-      (rename-file src dst 1)
-      (set-visited-file-name dst)
-      (set-buffer-modified-p nil)
-      (apply #'message
-             "File `%s' renamed to `%s'"
-             (if (file-in-directory-p dst (file-name-directory src))
-                 (list (file-name-nondirectory src)
-                       (file-relative-name dst (file-name-directory src)))
-               (list (abbreviate-file-name src)
-                     (abbreviate-file-name dst)))))))
+      (pcase-let ((`(,dst . ,dir)
+                   (if (or (file-directory-p destination)
+                           (directory-name-p destination))
+                       (cons (expand-file-name (file-name-nondirectory src)
+                                               destination)
+                             destination)
+                     (cons destination (file-name-directory destination)))))
+        (unless (file-directory-p dir)
+          (if (y-or-n-p (format "Directory `%s' does not exist; create?" dir))
+              (make-directory dir t)
+            (user-error "Directory `%s' does not exist" dir)))
+        (rename-file src dst 1)
+        (set-visited-file-name dst)
+        (set-buffer-modified-p nil)
+        (message "File `%s' renamed to `%s'"
+                 (file-name-nondirectory src)
+                 (if (file-in-directory-p dst (file-name-directory src))
+                     (file-relative-name dst (file-name-directory src))
+                   (abbreviate-file-name dst)))))))
 
 (defun basis/delete-buffer-file (buffer)
   "Kill BUFFER and delete the file it's visiting."
