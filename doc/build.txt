@@ -48,6 +48,29 @@
     make
     sudo make install  # Optional
 
+## MacOS
+
+It's possible that one or more of the `PKG_CONFIG_PATH`, `LDCFLAGS`, and
+`CFLAGS` options aren't necessary. It's also possible that additional flags
+should ideally be added to `CFLAGS`.
+
+Note that `make install` doesn't actually Emacs, but it's necessary to finish
+building the Emacs.app bundle.
+
+    xcode-select --install  # Must be re-executed after Xcode upgrades
+    brew install autoconf automake libxml2 gnutls imagemagick texinfo
+    ./autogen.sh all
+    PKG_CONFIG_PATH="/usr/local/opt/libxml2/lib/pkgconfig" ./configure \
+        --with-xml3 --with-zlib --with-gnutls --with-imagemagick --with-ns \
+        --without-pop --without-compress-install --without-x \
+        LDFLAGS="-L /usr/local/opt/libxml2/lib" \
+        CFLAGS="-pipe -march=nocona -O2 -g3 -I /usr/local/opt/libxml2/include"
+    make
+    make install
+
+To invoke a GUI Emacs without installing, use `open nextstep/Emacs.app`. To
+install, drop `Emacs.app` in `Applications`.
+
 ## Windows
 
 If building from the repo, make sure the files have Unix-style line endings.
