@@ -602,6 +602,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key (kbd "C-c M-e") #'basis/eval-and-replace)
 
+(global-set-key (kbd "M-i") #'basis/imenu-dwim)
+
 ;; I use M-SPC for `avy-goto-word-1'
 (global-set-key (kbd "C-c SPC") #'just-one-space)
 
@@ -1084,8 +1086,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package idomenu
   :ensure t
-  :defer t
-  :init (global-set-key (kbd "M-i") #'idomenu))
+  :defer t)
 
 (use-package smex
   :ensure t

@@ -691,11 +691,13 @@ is read-only and empty."
         (_  (other-window 1)))
     (funcall original arg)))
 
-(defun basis/helm-imenu (arg)
-  "Call `helm-imenu'.
-With prefix ARG, call `imenu-list-minor-mode' instead."
+(defun basis/imenu-dwim (arg)
+  "Invoke `imenu'."
   (interactive "P")
-  (call-interactively (if arg #'imenu-list-minor-mode #'helm-imenu)))
+  (call-interactively
+   (or (and arg #'imenu-list-minor-mode)
+       (and (bound-and-true-p helm-mode) #'helm-imenu)
+       #'idomenu)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
