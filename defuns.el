@@ -124,7 +124,7 @@ With optional prefix ARG, uncomment instead."
                                  (line-end-position)))))
       (comment-region beg end arg))))
 
-(defvar basis/whitespace-chars "\r\n[:blank:]"
+(defvar basis/whitespace-chars "\f\r\n[:blank:]"
   "Whitespace characters, for e.g. `skip-chars-forward'.")
 
 (defun basis/uncomment-sexp (&optional n)
@@ -133,7 +133,7 @@ With optional prefix ARG, uncomment instead."
   (let* ((start (point-marker))
          (pos nil)
          (end (save-excursion
-                (when (elt (syntax-ppss) 4)
+                (when (nth 4 (syntax-ppss))
                   (re-search-backward comment-start-skip
                                       (line-beginning-position)
                                       t))
@@ -199,7 +199,7 @@ When commenting, a prefix argument N means comment that many
 sexps. When uncommenting, a prefix argument N means move forward
 that many sexps before uncommenting."
   (interactive "*p")
-  (if (or (elt (syntax-ppss) 4)
+  (if (or (nth 4 (syntax-ppss))
           (< (save-excursion
                (skip-chars-forward basis/whitespace-chars)
                (point))
@@ -613,12 +613,11 @@ line."
                  (regexp-opt (delete " " (mapcar #'string comment-end))))))
     (save-excursion
       ;; The forms in the following `progn' will leave us at the beginning of
-      ;; the line that will be joined up (which, when called with ARG, is the
-      ;; line after point's initial position).
+      ;; the line that will be joined up (which is the current line when ARG is
+      ;; nil, or the following line otherwise).
       (if (progn (or arg (forward-line -1))
                  (end-of-line)
-                 (prog1 (nth 4 (syntax-ppss))
-                   (forward-line 1)))
+                 (prog1 (nth 4 (syntax-ppss)) (forward-line 1)))
           (and (looking-at comment-beg-re)
                (replace-match ""))
         (and (looking-at comment-beg-re)
@@ -656,15 +655,13 @@ buffer is already narrowed."
 
 (defun basis/find-non-text-character ()
   "Find a non-text character, if any, in the current buffer.
-\"Non-text\" is not necessarily a well-defined term, but in this
-case it means anything matching the regular expression
-\"[^[:print:][:space:]\\n]\"."
+\"Non-text\" is not a well-defined term, but in this case it
+means anything that's not a printing character, a whitespace
+character, or newline."
   (interactive)
-  (let ((start (point)))
-    (if (re-search-forward "[^[:print:][:space:]\n]" nil t)
-        (forward-char -1)
-      (goto-char start)
-      (message "No non-text characters found"))))
+  (if (re-search-forward "[^[:print:][:space:]\n]" nil t)
+      (forward-char -1)
+    (message "No non-text characters found")))
 
 (defun basis/abbrev-insert-undo-boundary (&rest _)
   "Advice for `abbrev-insert'.
@@ -724,10 +721,9 @@ current search, with no context-dependent behavior."
   (interactive)
   (isearch-yank-string
    (if (use-region-p)
-       (prog1 (buffer-substring (region-beginning) (region-end))
-         (deactivate-mark))
-     (or (thing-at-point 'symbol)
-         ""))))
+       (progn (setq deactivate-mark t)
+              (buffer-substring (region-beginning) (region-end)))
+     (or (current-word t) ""))))
 
 (defun basis/occur-dwim (regexp nlines)
   "Like `occur', but use the symbol at point as the default REGEXP."
@@ -735,7 +731,7 @@ current search, with no context-dependent behavior."
    (let* ((history nil)
           (default (cond ((use-region-p)
                           (buffer-substring (region-beginning) (region-end)))
-                         ((thing-at-point 'symbol))
+                         ((current-word t))
                          (t (setq history 'regexp-history-last)
                             (car regexp-history)))))
      (list (read-regexp (if default
@@ -777,7 +773,7 @@ in the global map."
       (when-let ((str (save-window-excursion
                         (with-ivy-window
                           (goto-char swiper--opoint)
-                          (thing-at-point 'symbol)))))
+                          (current-word t)))))
         (insert str))
     (when-let ((cmd (and (called-interactively-p 'any)
                          (lookup-key global-map (this-command-keys)))))
@@ -2410,7 +2406,7 @@ search term."
   (interactive
    (let ((default (if (use-region-p)
                       (buffer-substring (region-beginning) (region-end))
-                    (thing-at-point 'symbol))))
+                    (current-word t))))
      (list (read-string (if default
                             (format "Google (default %s): " default)
                           "Google: ")
@@ -2558,7 +2554,7 @@ those tags."
   (interactive
    (let ((default (if (use-region-p)
                       (buffer-substring (region-beginning) (region-end))
-                    (thing-at-point 'word))))
+                    (current-word nil t))))
      (list (read-string (if default
                             (format "Define word (default %s): " default)
                           "Define word: ")
