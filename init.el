@@ -2621,21 +2621,6 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config (setq debbugs-gnu-persistency-file (basis/emacs-file "var/debbugs")))
 
-(use-package emms
-  :ensure t
-  :defer t
-  :init (setq emms-directory (basis/emacs-dir "var/emms/"))
-  :config (setq emms-source-file-default-directory
-                (or (basis/xdg-user-dir 'music)
-                    (thread-last '("~/Music" "~/Media/Music" "~/Dropbox/Music")
-                      (seq-mapcat (lambda (dir) (list dir (downcase dir))))
-                      (seq-find #'file-directory-p)))))
-
-(use-package emms-setup
-  :after emms
-  :config (progn (emms-standard)
-                 (emms-default-players)))
-
 (use-package define-word
   :ensure t
   :defer t
