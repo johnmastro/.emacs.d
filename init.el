@@ -484,9 +484,14 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package solarized-theme
   :ensure color-theme-solarized
-  :init (progn
-          (set-frame-parameter nil 'background-mode 'dark)
-          (set-terminal-parameter nil 'background-mode 'dark)
+  :init (let ((val (if (and (not (eq system-type 'windows-nt))
+                            (display-graphic-p)
+                            (getenv "DISPLAY")
+                            (getenv "SSH_CLIENT"))
+                       'light
+                     'dark)))
+          (set-frame-parameter nil 'background-mode val)
+          (set-terminal-parameter nil 'background-mode val)
           (setq solarized-termcolors 256)
           (setq solarized-italic nil)
           (add-to-list 'custom-theme-load-path
