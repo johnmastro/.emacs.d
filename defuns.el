@@ -672,6 +672,26 @@ after inserting the character."
       (call-interactively #'self-insert-command)
       (undo-boundary))))
 
+(defvar basis/file-preamble-lines
+  '((emacs-lisp-mode ";; -*- coding: utf-8; lexical-binding: t; -*-")
+    (python-mode     "#!/usr/bin/env python" "# -*- coding: utf-8 -*-"))
+  "Association list mapping major mode symbols to file preambles.")
+
+(defun basis/insert-file-preamble ()
+  "Insert a mode-specific file \"preamble\"."
+  (interactive)
+  (let ((start (point))
+        (lines (seq-some (lambda (elt)
+                           (and (derived-mode-p (car elt))
+                                (cdr elt)))
+                         basis/file-preamble-lines)))
+    (if lines
+        (progn (goto-char (point-min))
+               (dolist (line lines) (insert line "\n"))
+               (insert "\n")
+               (unless (eq start (point-min)) (goto-char start)))
+      (message "No file preamble defined for `%s'" major-mode))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement
@@ -2151,10 +2171,19 @@ Quote file names appropriately for POSIX-like shells."
   (goto-char (point-max))
   (dired-next-line -1))
 
-(defun basis/insert-files (files buffer)
+(defun basis/insert-files (files buffer &optional interactive)
   "Insert the contents of FILES into BUFFER."
+  (interactive
+   (let ((default-directory (read-directory-name "Directory: ")))
+     (list (file-expand-wildcards (read-string "Wildcard: ") t)
+           (current-buffer)
+           t)))
   (with-current-buffer (or buffer (current-buffer))
-    (mapc #'insert-file-contents files)))
+    (mapc #'insert-file-contents files))
+  (when interactive
+    (message "Inserted %d files:\n%s"
+             (length files)
+             (mapconcat #'abbreviate-file-name files "\n"))))
 
 (defun basis/dired-slurp-files (files buffer)
   "Insert the contents of marked FILES into BUFFER."

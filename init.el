@@ -279,9 +279,6 @@ Create the directory if it does not exist and CREATE is non-nil."
     (setq next-line-add-newlines t)
     (advice-add 'next-line :around #'basis/next-line-no-deactivate-mark)
     (size-indication-mode)
-    (define-key minibuffer-local-shell-command-map
-      (kbd "C-.")
-      #'basis/insert-file-name)
     (advice-add 'pop-to-mark-command :around
                 #'basis/pop-to-mark-ensure-new-pos)
     (add-hook 'minibuffer-setup-hook #'basis/init-minibuffer)
@@ -593,6 +590,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 (basis/define-keys global-map
   ([remap delete-indentation] #'basis/delete-indentation)
   ([remap fill-paragraph]     #'basis/fill-or-unfill-paragraph))
+
+(basis/define-map basis/insertion-map ("C-c i")
+  ("f" #'basis/insert-file-name)
+  ("F" #'basis/insert-files)
+  ("p" #'basis/insert-file-preamble))
 
 (basis/define-map basis/transposition-map ("M-t")
   ("l"   #'transpose-lines)
