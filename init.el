@@ -553,6 +553,8 @@ Create the directory if it does not exist and CREATE is non-nil."
             (which-key-mode))
   :diminish which-key-mode)
 
+(global-set-key (kbd "M-o") #'other-window)
+
 (global-set-key (kbd "C-x k") #'basis/kill-buffer)
 
 (use-package winner
@@ -942,7 +944,7 @@ TODO: <home> and <end> still don't work.")
 (use-package ace-window
   :ensure t
   :defer t
-  :init (global-set-key (kbd "M-o") #'ace-window)
+  :init (global-set-key (kbd "C-x o") #'ace-window)
   :config (progn (setq aw-keys '(?h ?j ?k ?l ?n ?m))
                  (setq aw-scope 'frame)
                  (advice-add 'ace-window :around #'basis/ace-window-kludge)))
