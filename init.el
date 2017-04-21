@@ -637,7 +637,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("n" #'basis/kill-ring-save-buffer-file-name)
   ("v" #'revert-buffer))
 
-(global-set-key (kbd "C-c C-x") #'basis/open-file-externally)
+(global-set-key (kbd "C-c x") #'basis/open-file-externally)
 
 ;; Wrap text in various styles of quotes
 (global-set-key (kbd "C-c q") #'basis/quote-thing)
@@ -1047,10 +1047,10 @@ TODO: <home> and <end> still don't work.")
 
 (defun basis/init-ido-keys ()
   (basis/define-keys ido-file-completion-map
-    ("C-w"     nil)
-    ("M-w"     #'ido-copy-current-file-name)
-    ("C-x g"   #'ido-enter-magit-status)
-    ("C-c C-x" #'basis/ido-open-file-externally)))
+    ("C-w"   nil)
+    ("M-w"   #'ido-copy-current-file-name)
+    ("C-x g" #'ido-enter-magit-status)
+    ("C-c x" #'basis/ido-open-file-externally)))
 
 (use-package ido
   :config
@@ -2229,9 +2229,9 @@ TODO: <home> and <end> still don't work.")
     (setq magit-revision-show-gravatars nil)
     (setq magit-repository-directories
           (thread-last projectile-known-projects
-            (seq-remove #'file-remote-p)
             (seq-filter (lambda (file)
-                          (file-exists-p (expand-file-name ".git" file))))
+                          (and (not (file-remote-p file))
+                               (file-exists-p (expand-file-name ".git" file)))))
             (cons "~/code/")
             (mapcar #'directory-file-name)))
     (add-hook 'magit-post-display-buffer-hook
