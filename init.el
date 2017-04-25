@@ -45,17 +45,18 @@ Create the directory if it does not exist and CREATE is non-nil."
       (setq source-directory dir))))
 
 ;; TODO: Select font size based on pixel density (?)
-(let ((fonts (cond ((eq system-type 'darwin)
-                    '("Source Code Pro-11" "Andale Mono-12"))
-                   ((eq system-type 'windows-nt)
-                    '("Consolas-10"))
-                   (t
-                    '("Inconsolata-11"))))
-      found)
-  (while (and fonts (not found))
-    (let ((font (pop fonts)))
-      (when (setq found (find-font (font-spec :name font)))
-        (add-to-list 'default-frame-alist (cons 'font font))))))
+(when (display-graphic-p)
+  (let ((fonts (cond ((eq system-type 'darwin)
+                      '("Source Code Pro-11" "Andale Mono-12"))
+                     ((eq system-type 'windows-nt)
+                      '("Consolas-10"))
+                     (t
+                      '("Inconsolata-11"))))
+        found)
+    (while (and fonts (not found))
+      (let ((font (pop fonts)))
+        (when (setq found (find-font (font-spec :name font)))
+          (add-to-list 'default-frame-alist (cons 'font font)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
