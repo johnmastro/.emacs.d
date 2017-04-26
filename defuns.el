@@ -2565,6 +2565,13 @@ EMACS defaults to the current Emacs executable. HOME defaults to
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
 
+(defun basis/browse-url-url-at-point-https (original &rest args)
+  "Advice for `browse-url-url-at-point'. Return HTTPS URLs."
+  (let ((result (apply original args)))
+    (if (stringp result)
+        (replace-regexp-in-string "\\`http://" "https://" result t t)
+      result)))
+
 (defun basis/elfeed-parse-group (group)
   "Parse the feed and tag specification GROUP.
 GROUP should be a list whose car contains a tag (a symbol) or a

@@ -2595,8 +2595,12 @@ TODO: <home> and <end> still don't work.")
 
 (use-package browse-url
   :defer t
-  :init (unless (display-graphic-p)
-          (setq browse-url-browser-function #'eww-browse-url)))
+  :init
+  (unless (display-graphic-p)
+    (setq browse-url-browser-function #'eww-browse-url))
+  :config
+  (advice-add 'browse-url-url-at-point :around
+              #'basis/browse-url-url-at-point-https))
 
 (defun basis/init-sx-question-mode ()
   (toggle-truncate-lines -1))
