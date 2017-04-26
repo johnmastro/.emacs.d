@@ -2595,16 +2595,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package browse-url
   :defer t
-  :init (when (and (not (display-graphic-p))
-                   (executable-find "w3m"))
-          (setq browse-url-browser-function #'w3m-browse-url)))
-
-(use-package w3m
-  :ensure t
-  :defer t
-  :config (progn
-            (define-key w3m-mode-map "n" #'w3m-next-anchor)
-            (define-key w3m-mode-map "p" #'w3m-previous-anchor)))
+  :init (unless (display-graphic-p)
+          (setq browse-url-browser-function #'eww-browse-url)))
 
 (defun basis/init-sx-question-mode ()
   (toggle-truncate-lines -1))
