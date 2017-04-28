@@ -839,6 +839,7 @@ non-matching patterns. See bug #23590."
                                                (not (keywordp sym)))))
                                     t nil nil
                                     (and (symbolp default)
+                                         (not (keywordp default))
                                          (symbol-name default)))))))
   (describe-variable variable buffer frame))
 
