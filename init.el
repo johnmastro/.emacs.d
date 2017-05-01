@@ -318,7 +318,12 @@ Create the directory if it does not exist and CREATE is non-nil."
     (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)))
 
 (use-package mouse
-  :config (setq mouse-yank-at-point t))
+  ;; Move `mouse-yank-*' so I'm less likely to hit them accidentally
+  :config (progn (setq mouse-yank-at-point t)
+                 (global-set-key (kbd "<mouse-2>") nil)
+                 (global-set-key (kbd "<M-mouse-2>") nil)
+                 (global-set-key (kbd "<mouse-4>") #'mouse-yank-primary)
+                 (global-set-key (kbd "<M-mouse-4>") #'mouse-yank-secondary)))
 
 (use-package mwheel
   :config
