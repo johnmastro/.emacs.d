@@ -823,6 +823,7 @@ non-matching patterns. See bug #23590."
                                           (fboundp sym)))
                                     t nil nil
                                     (and (symbolp default)
+                                         (not (null default))
                                          (symbol-name default)))))))
   (describe-function function))
 
