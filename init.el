@@ -64,7 +64,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (setq load-prefer-newer t)
 
-(setq package-user-dir (basis/emacs-dir "elpa/"))
+(let ((dir (format "elpa/%d/" emacs-major-version)))
+  (setq package-user-dir (basis/emacs-dir dir)))
 
 (require 'package)
 
