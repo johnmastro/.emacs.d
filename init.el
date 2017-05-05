@@ -1278,7 +1278,7 @@ TODO: <home> and <end> still don't work.")
                 #'basis/helm-pages-get-next-header))
 
 (use-package ivy
-  :ensure swiper
+  :ensure t
   :defer t
   :config
   (progn (setq ivy-format-function #'ivy-format-function-arrow)
