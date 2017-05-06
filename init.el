@@ -69,7 +69,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (require 'package)
 
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
 (package-initialize)
 
@@ -1006,11 +1006,11 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t)
 
-;; replace.el doesn't (provide 'replace)
-(defalias 'qrr #'query-replace-regexp)
-(global-set-key (kbd "ESC M-%") #'query-replace-regexp)
-(define-key occur-mode-map (kbd "n") #'occur-next)
-(define-key occur-mode-map (kbd "p") #'occur-prev)
+(progn ;; replace.el
+  (defalias 'qrr #'query-replace-regexp)
+  (global-set-key (kbd "ESC M-%") #'query-replace-regexp)
+  (define-key occur-mode-map (kbd "n") #'occur-next)
+  (define-key occur-mode-map (kbd "p") #'occur-prev))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
