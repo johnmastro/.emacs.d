@@ -1006,11 +1006,19 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t)
 
+(defun basis/init-occur-mode ()
+  (setq basis/beginning-of-buffer-function #'basis/occur-beginning-of-buffer)
+  (setq basis/end-of-buffer-function #'basis/occur-end-of-buffer))
+
 (progn ;; replace.el
   (defalias 'qrr #'query-replace-regexp)
   (global-set-key (kbd "ESC M-%") #'query-replace-regexp)
-  (define-key occur-mode-map (kbd "n") #'occur-next)
-  (define-key occur-mode-map (kbd "p") #'occur-prev))
+  (basis/define-keys occur-mode-map
+    ("n"                         #'occur-next)
+    ("p"                         #'occur-prev)
+    ([remap beginning-of-buffer] #'basis/beginning-of-buffer)
+    ([remap end-of-buffer]       #'basis/end-of-buffer))
+  (add-hook 'occur-mode-hook #'basis/init-occur-mode))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2316,6 +2324,10 @@ TODO: <home> and <end> still don't work.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
 
+(defun basis/init-ibuffer-mode ()
+  (setq basis/beginning-of-buffer-function #'basis/ibuffer-beginning-of-buffer)
+  (setq basis/end-of-buffer-function #'basis/ibuffer-end-of-buffer))
+
 (use-package ibuffer
   :defer t
   :init (progn (defalias 'ls #'ibuffer)
@@ -2339,8 +2351,10 @@ TODO: <home> and <end> still don't work.")
                   filename)))
     (setq ibuffer-show-empty-filter-groups nil)
     (basis/define-keys ibuffer-mode-map
-      ("M-o"   nil) ;; don't shadow ace-window
-      ("C-M-o" #'ibuffer-visit-buffer-1-window))
+      ("M-o"                       nil)
+      ("C-M-o"                     #'ibuffer-visit-buffer-1-window)
+      ([remap beginning-of-buffer] #'basis/beginning-of-buffer)
+      ([remap end-of-buffer]       #'basis/end-of-buffer))
     (define-ibuffer-column size-h
       (:name "Size" :inline t)
       (cond ((> (buffer-size) 1000000)
@@ -2348,7 +2362,8 @@ TODO: <home> and <end> still don't work.")
             ((> (buffer-size) 1000)
              (format "%7.1fk" (/ (buffer-size) 1000.0)))
             (t
-             (format "%8d" (buffer-size)))))))
+             (format "%8d" (buffer-size)))))
+    (add-hook 'ibuffer-mode-hook #'basis/init-ibuffer-mode)))
 
 (use-package ibuffer-vc
   :ensure t
@@ -2436,7 +2451,9 @@ TODO: <home> and <end> still don't work.")
   (when (and (eq system-type 'darwin)
              (not (file-remote-p default-directory))
              (executable-find "gls"))
-    (setq-local insert-directory-program "gls")))
+    (setq-local insert-directory-program "gls"))
+  (setq basis/beginning-of-buffer-function #'basis/dired-beginning-of-buffer)
+  (setq basis/end-of-buffer-function #'basis/dired-end-of-buffer))
 
 (use-package dired
   :defer t
@@ -2457,8 +2474,8 @@ TODO: <home> and <end> still don't work.")
       ("M-a"                       #'dired-prev-dirline)
       ("M-b"                       nil)
       ("M-o"                       nil)
-      ([remap beginning-of-buffer] #'basis/dired-jump-to-top)
-      ([remap end-of-buffer]       #'basis/dired-jump-to-bottom))
+      ([remap beginning-of-buffer] #'basis/beginning-of-buffer)
+      ([remap end-of-buffer]       #'basis/end-of-buffer))
     (setq dired-recursive-deletes 'top)
     (setq dired-listing-switches (if (eq system-type 'windows-nt)
                                      "-alhGt"

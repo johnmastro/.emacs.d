@@ -57,6 +57,30 @@ See `basis/eval-keys'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing utilities
 
+(defvar-local basis/beginning-of-buffer-function #'ignore
+  "Function to move to the logical beginning of a buffer.")
+
+(defvar-local basis/end-of-buffer-function #'ignore
+  "Function to move to the logical end of a buffer.")
+
+(defun basis/beginning-of-buffer (&optional arg)
+  (interactive "^P")
+  (if (null arg)
+      (let ((pos (point)))
+        (or (region-active-p) (push-mark))
+        (funcall basis/beginning-of-buffer-function)
+        (and (eq (point) pos) (goto-char (point-min))))
+    (beginning-of-buffer arg)))
+
+(defun basis/end-of-buffer (&optional arg)
+  (interactive "^P")
+  (if (null arg)
+      (let ((pos (point)))
+        (or (region-active-p) (push-mark))
+        (funcall basis/end-of-buffer-function)
+        (and (eq (point) pos) (goto-char (point-max))))
+    (end-of-buffer arg)))
+
 (defun basis/next-line ()
   "Move point to the next line.
 Wrapper around `next-line' to let-bind `next-line-add-newlines'
@@ -744,6 +768,16 @@ current search, with no context-dependent behavior."
        (progn (setq deactivate-mark t)
               (buffer-substring (region-beginning) (region-end)))
      (or (current-word t) ""))))
+
+(defun basis/occur-beginning-of-buffer ()
+  (interactive)
+  (goto-char (point-min))
+  (occur-next 1))
+
+(defun basis/occur-end-of-buffer ()
+  (interactive)
+  (goto-char (point-max))
+  (occur-prev 1))
 
 (defun basis/occur-dwim (regexp nlines)
   "Like `occur', but use the symbol at point as the default REGEXP."
@@ -2161,14 +2195,13 @@ Quote file names appropriately for POSIX-like shells."
     (insert-file-contents file)
     (read (current-buffer))))
 
-(defun basis/dired-jump-to-top ()
-  "Move point to the first line representing a file."
+(defun basis/dired-beginning-of-buffer ()
   (interactive)
   (goto-char (point-min))
-  (dired-next-line (if dired-hide-details-mode 1 2)))
+  (while (not (ignore-errors (dired-get-filename)))
+    (dired-next-line 1)))
 
-(defun basis/dired-jump-to-bottom ()
-  "Move point to the last line representing a file."
+(defun basis/dired-end-of-buffer ()
   (interactive)
   (goto-char (point-max))
   (dired-next-line -1))
@@ -2313,6 +2346,16 @@ paths when calling the tags command."
          (visit-tags-table tags-file)))
       (_
        (apply original args)))))
+
+(defun basis/ibuffer-beginning-of-buffer ()
+  (interactive)
+  (goto-char (point-min))
+  (ibuffer-forward-line 1))
+
+(defun basis/ibuffer-end-of-buffer ()
+  (interactive)
+  (goto-char (point-max))
+  (ibuffer-backward-line 1))
 
 (defun basis/ibuffer-vc-root-files-only (original buf)
   "Advice for `ibuffer-vc-root'.
