@@ -2072,6 +2072,8 @@ TODO: <home> and <end> still don't work.")
 
 (defun basis/init-markdown-mode ()
   (setq tab-width 4)
+  (setq-local whitespace-style '(face trailing tabs))
+  (whitespace-mode)
   (when (eq major-mode 'gfm-mode)
     (auto-fill-mode -1)))
 
