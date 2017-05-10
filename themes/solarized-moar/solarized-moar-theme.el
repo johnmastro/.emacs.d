@@ -249,6 +249,7 @@
                 (ivy-remote (,@fg-violet))
                 ;; whitespace
                 (whitespace-line (:foreground nil :underline (:color "#586e75")))
+                (whitespace-tab (:foreground nil :underline (:color "#586e75")))
                 ;; el-search
                 (el-search-match (:inherit isearch))
                 (el-search-other-match (:inherit match))
