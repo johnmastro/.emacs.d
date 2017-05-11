@@ -44,20 +44,6 @@ Create the directory if it does not exist and CREATE is non-nil."
     (when (file-directory-p dir)
       (setq source-directory dir))))
 
-;; TODO: Select font size based on pixel density (?)
-(when (display-graphic-p)
-  (let ((fonts (cond ((eq system-type 'darwin)
-                      '("Source Code Pro-11" "Andale Mono-12"))
-                     ((eq system-type 'windows-nt)
-                      '("Consolas-10"))
-                     (t
-                      '("Inconsolata-11"))))
-        found)
-    (while (and fonts (not found))
-      (let ((font (pop fonts)))
-        (when (setq found (find-font (font-spec :name font)))
-          (add-to-list 'default-frame-alist (cons 'font font)))))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Set up package.el
@@ -139,6 +125,22 @@ Create the directory if it does not exist and CREATE is non-nil."
 (load (basis/emacs-file "defuns") nil nil nil 'must-suffix)
 (load (basis/emacs-file "local") 'noerror nil nil 'must-suffix)
 (load (basis/emacs-file (system-name)) 'noerror nil nil 'must-suffix)
+
+;; Specify the default font, but only if one of the local init file(s) didn't
+(when (and (display-graphic-p)
+           (null (assq 'font default-frame-alist)))
+  (when-let ((font (elt (font-info (face-font 'default)) 1))
+             (size (and (string-match "-\\([0-9]+\\(:?\\.[0-9]+\\)?\\)\\'" font)
+                        (match-string 1 font)))
+             (name (seq-some (lambda (name)
+                               (let ((name (concat name "-" size)))
+                                 (and (find-font (font-spec :name name))
+                                      name)))
+                             (pcase system-type
+                               (`darwin     '("Source Code Pro" "Andale Mono"))
+                               (`windows-nt '("Consolas"))
+                               (_           '("Inconsolata"))))))
+    (add-to-list 'default-frame-alist (cons 'font name))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
