@@ -933,7 +933,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package imenu
   :defer t
-  :config (setq imenu-auto-rescan t))
+  :config (progn (setq imenu-auto-rescan t)
+                 (setq imenu-auto-rescan-maxout 120000)))
 
 (use-package imenu-list
   :ensure t
