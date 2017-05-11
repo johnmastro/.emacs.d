@@ -2600,7 +2600,8 @@ TODO: <home> and <end> still don't work.")
 
 (use-package shr
   :defer t
-  :config (advice-add 'shr-colorize-region :override #'ignore))
+  :config (progn (setq shr-use-colors nil)
+                 (setq shr-use-fonts nil)))
 
 (use-package eww
   :defer t
