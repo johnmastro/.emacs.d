@@ -85,7 +85,7 @@ check it back out.
 
 ### MSYS2/MinGW-W64
 
-- Run `msys2_shell.bat` to open a shell
+- Run `msys2.exe` to open a shell
 - Install dependencies:
   ```
   pacman -S \
@@ -101,33 +101,39 @@ check it back out.
     mingw-w64-x86_64-libxml2 \
     mingw-w64-x86_64-gnutls
   ```
-- Close the MSYS2 shell and open a mingw64 shell
+- Close the `msys2` shell and open `mingw64.exe`
 - `cd` into the source directory
 - Configure and build:
   ```
   ./autogen.sh all
   PKG_CONFIG_PATH=/mingw64/lib/pkgconfig \
-  ./configure --prefix=/c/emacs/emacs-25 --with-zlib --with-gnutls --with-xml2 \
-  --without-imagemagick --without-pop --without-compress-install
+    ./configure --prefix=/c/emacs/emacs-master \
+      --with-zlib --with-gnutls --with-xml2 \
+      --without-imagemagick --without-pop --without-compress-install
   make
   make install
   ```
 - Optionally, copy the DLLs Emacs depends on into its `bin` directory:
   ```
-  cp /mingw64/bin/{libwinpthread-*.dll,libXpm-noX*.dll,libdbus-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libgomp-*.dll,libgcc_s_seh-*.dll,libglib-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libintl-*.dll,libiconv-*.dll,libgobject-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libffi-*.dll,libgdk_pixbuf-*.dll,libgio-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libgmodule-*.dll,zlib*.dll,librsvg-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libcairo-*.dll,libcroco-*.dll,libpango-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libpangocairo-*.dll,libxml2-*.dll,libfontconfig-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libfreetype-*.dll,libpixman-*.dll,libpng*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libpangoft*.dll,libpangowin32-*.dll,liblzma-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libexpat-*.dll,libharfbuzz-*.dll,libgnutls-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libgnutlsxx-*.dll,libtiff-*.dll,libtiffxx-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libjpeg-*.dll,libgif-*.dll,libbz2-*.dll,libjbig-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libgmp-*.dll,libhogweed-*.dll,libnettle-*.dll} /c/emacs/emacs-25/bin
-  cp /mingw64/bin/{libp11-kit-*.dll,libtasn1-*.dll} /c/emacs/emacs-25/bin
+  cp /mingw64/bin/{libwinpthread-*.dll,libXpm-noX*.dll,libdbus-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libgomp-*.dll,libgcc_s_seh-*.dll,libglib-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libintl-*.dll,libiconv-*.dll,libgobject-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libffi-*.dll,libgdk_pixbuf-*.dll,libgio-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libgmodule-*.dll,zlib*.dll,librsvg-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libcairo-*.dll,libcroco-*.dll,libpango-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libpangocairo-*.dll,libxml2-*.dll,libfontconfig-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libfreetype-*.dll,libpixman-*.dll,libpng*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libpangoft*.dll,libpangowin32-*.dll,liblzma-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libexpat-*.dll,libharfbuzz-*.dll,libgnutls-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libgnutlsxx-*.dll,libtiff-*.dll,libtiffxx-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libjpeg-*.dll,libgif-*.dll,libbz2-*.dll,libjbig-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libgmp-*.dll,libhogweed-*.dll,libnettle-*.dll} /c/emacs/emacs-master/bin
+  cp /mingw64/bin/{libp11-kit-*.dll,libtasn1-*.dll} /c/emacs/emacs-master/bin
+  ```
+- Or copy everything over, which is easier. It wastes some space but not enough
+  to worry about:
+  ```
+  cp /mingw64/bin/libxml2-*.dll /c/emacs/emacs-master/bin
   ```
 
 ### Cygwin --with-w32
