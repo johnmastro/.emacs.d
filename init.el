@@ -658,6 +658,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("s" #'sort-lines))
 
 (put 'narrow-to-region 'disabled nil)
+(put 'scroll-left 'disabled nil)
 
 ;; In Emacs 26, describe-\(function\|variable\) are incompatible with ido and
 ;; can load libraries as part of completion, so override them with simpler
