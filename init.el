@@ -264,8 +264,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (defun basis/init-eval-expression-minibuffer ()
   (setq-local indent-line-function #'lisp-indent-line)
   (setq-local tab-always-indent 'complete)
-  ;; (local-set-key (kbd "TAB") #'indent-for-tab-command)
-  )
+  (local-set-key (kbd "TAB") #'indent-for-tab-command))
 
 (use-package simple
   :config
