@@ -421,7 +421,7 @@ Create the directory if it does not exist and CREATE is non-nil."
                  (setq uniquify-ignore-buffers-re "\\`\\*")))
 
 (use-package whitespace
-  :config (progn (setq whitespace-style '(face trailing lines-tail tabs))
+  :config (progn (setq whitespace-style '(face trailing lines-tail tab-mark))
                  (setq whitespace-line-column 80)
                  (put 'whitespace-line-column 'safe-local-variable #'integerp))
   :diminish whitespace-mode)
