@@ -2111,9 +2111,19 @@ TODO: <home> and <end> still don't work.")
 (use-package deft
   :ensure t
   :defer t
-  :config (progn (setq deft-extension "md")
-                 (setq deft-directory "~/Dropbox/deft")
-                 (setq deft-text-mode 'gfm-mode)))
+  :config
+  (progn
+    (setq deft-extensions '("mkd" "md" "markdown" "rst" "org" "txt"))
+    (setq deft-directory (if (file-directory-p "~/Dropbox/")
+                             "~/Dropbox/Notes/"
+                           "~/.deft/"))
+    (setq deft-archive-directory (expand-file-name "archive/" deft-directory))
+    (setq deft-text-mode 'markdown-mode)
+    (setq deft-file-naming-rules '((noslash . "-")
+                                   (nospace . "-")
+                                   (case-fn . downcase)))
+    (define-key deft-mode-map (kbd "C-w") #'deft-filter-decrement-word)
+    (define-key deft-mode-map (kbd "C-k") #'deft-filter-clear)))
 
 (use-package csv-mode
   :ensure t
