@@ -2099,9 +2099,7 @@ TODO: <home> and <end> still don't work.")
   :defer t)
 
 (defun basis/init-yaml-mode ()
-  (basis/maybe-enable-flyspell-prog-mode)
-  (when (basis/yaml-multiple-docs-p)
-    (basis/yaml-multi-doc-mode)))
+  (basis/maybe-enable-flyspell-prog-mode))
 
 (use-package yaml-mode
   :ensure t
