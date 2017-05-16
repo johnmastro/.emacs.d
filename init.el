@@ -1285,8 +1285,8 @@ TODO: <home> and <end> still don't work.")
 (use-package helm-pages
   :ensure t
   :defer t
-  :config (fset 'helm-pages-get-next-header
-                #'basis/helm-pages-get-next-header))
+  :config (advice-add 'helm-pages-get-next-header :override
+                      #'basis/helm-pages-get-next-header))
 
 (use-package ivy
   :ensure t
@@ -2280,8 +2280,8 @@ TODO: <home> and <end> still don't work.")
                   #'basis/magit-expand-toplevel)
       (advice-add 'magit-list-repos :filter-return
                   #'basis/magit-list-repos-uniquely)
-      (fset 'magit-save-repository-buffers
-            #'basis/magit-cygwin-save-repository-buffers)
+      (advice-add 'magit-save-repository-buffers :override
+                  #'basis/magit-cygwin-save-repository-buffers)
       ;; I haven't figured out yet why the Magit commands for saving and popping
       ;; stashes fail on my Cygwin setup at work, but this gives me quick access
       ;; to the simplest usage in the meantime.
