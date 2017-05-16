@@ -1848,11 +1848,6 @@ make sure its in the same form that Emacs uses (i.e.
   ;; Only necessary on my Cygwin setup
   (delete-dups (mapcar #'abbreviate-file-name result)))
 
-(defun basis/magit-maybe-delete-other-windows ()
-  "Give `magit-status-mode' buffers the whole frame."
-  (when (eq major-mode 'magit-status-mode)
-    (delete-other-windows)))
-
 (defun basis/magit-cygwin-save-repository-buffers (&optional arg)
   "Alternative `magit-save-repository-buffers'.
 Use `expand-file-name' to canonicalize file names to Emacs's

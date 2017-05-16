@@ -2258,6 +2258,8 @@ TODO: <home> and <end> still don't work.")
     (setq magit-branch-popup-show-variables nil)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
+    (setq magit-display-buffer-function
+          #'magit-display-buffer-fullframe-status-v1)
     (setq magit-repository-directories
           (thread-last projectile-known-projects
             (seq-filter (lambda (file)
@@ -2265,8 +2267,6 @@ TODO: <home> and <end> still don't work.")
                                (file-exists-p (expand-file-name ".git" file)))))
             (cons "~/code/")
             (mapcar #'directory-file-name)))
-    (add-hook 'magit-post-display-buffer-hook
-              #'basis/magit-maybe-delete-other-windows)
     (define-key basis/file-map "g" #'magit-find-file)
     (define-key ctl-x-4-map "g" #'magit-find-file-other-window)
     (define-key magit-status-mode-map
