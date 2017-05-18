@@ -70,7 +70,7 @@ See `basis/eval-keys'."
         (or (region-active-p) (push-mark))
         (funcall basis/beginning-of-buffer-function)
         (and (eq (point) pos) (goto-char (point-min))))
-    (beginning-of-buffer arg)))
+    (call-interactively #'beginning-of-buffer)))
 
 (defun basis/end-of-buffer (&optional arg)
   (interactive "^P")
@@ -79,7 +79,7 @@ See `basis/eval-keys'."
         (or (region-active-p) (push-mark))
         (funcall basis/end-of-buffer-function)
         (and (eq (point) pos) (goto-char (point-max))))
-    (end-of-buffer arg)))
+    (call-interactively #'end-of-buffer)))
 
 (defun basis/next-line ()
   "Move point to the next line.
