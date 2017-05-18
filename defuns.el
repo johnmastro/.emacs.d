@@ -815,7 +815,11 @@ Used as :after advice for `avy-push-mark'."
   (let ((helm-move-to-line-cycle-in-source t))
     (call-interactively #'swiper-helm)))
 
-(eval-when-compile (require 'ivy))
+(defmacro basis/with-ivy-window (&rest body)
+  ;; Copy of `with-ivy-window' so this file can be compiled without `ivy' loaded
+  (declare (indent 0) (debug t))
+  `(with-selected-window (ivy--get-window ivy-last)
+     ,@body))
 
 (defun basis/swiper-maybe-yank-something ()
   "Conditionally insert the symbol at point.
@@ -825,7 +829,7 @@ in the global map."
   (interactive)
   (if (string= ivy-text "")
       (when-let ((str (save-window-excursion
-                        (with-ivy-window
+                        (basis/with-ivy-window
                           (goto-char swiper--opoint)
                           (current-word t)))))
         (insert str))
