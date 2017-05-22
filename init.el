@@ -2258,6 +2258,7 @@ TODO: <home> and <end> still don't work.")
     (setq magit-branch-popup-show-variables nil)
     (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
+    (setq magit-use-sticky-arguments 'current)
     (setq magit-display-buffer-function
           #'magit-display-buffer-fullframe-status-v1)
     (setq magit-repository-directories
