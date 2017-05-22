@@ -2080,8 +2080,8 @@ If ARG is non-nil, reinitialize the cache of topics."
          (substring-no-properties (read-file-name "Destination: "))))
   (with-current-buffer buffer
     (when (and (buffer-modified-p)
-               (y-or-n-p (format "Buffer `%s' has unsaved changes. Save?"
-                                 (current-buffer))))
+               (y-or-n-p (format-message "Buffer `%s' modified; save?"
+                                         (current-buffer))))
       (save-buffer))
     (let ((src (buffer-file-name)))
       (unless (and src (file-exists-p src))
@@ -2094,7 +2094,9 @@ If ARG is non-nil, reinitialize the cache of topics."
                              destination)
                      (cons destination (file-name-directory destination)))))
         (unless (file-directory-p dir)
-          (if (y-or-n-p (format "Directory `%s' does not exist; create?" dir))
+          (if (y-or-n-p (format-message
+                         "Directory `%s' does not exist; create it?"
+                         dir))
               (make-directory dir t)
             (user-error "Directory `%s' does not exist" dir)))
         (rename-file src dst 1)
@@ -2112,13 +2114,14 @@ If ARG is non-nil, reinitialize the cache of topics."
   (with-current-buffer buffer
     (if-let ((file (buffer-file-name))
              (abbr (abbreviate-file-name file)))
-        (when (y-or-n-p (format "Delete file `%s'?" abbr))
+        (when (y-or-n-p (format-message "Delete file `%s'?" abbr))
           (delete-file file)
           (kill-buffer buffer)
           (message "File `%s' deleted" abbr))
       (when (or (zerop (buffer-size))
-                (y-or-n-p (format "Buffer `%s' is not visiting a file; kill it?"
-                                  (buffer-name))))
+                (y-or-n-p (format-message
+                           "Buffer `%s' is not visiting a file; kill it?"
+                           (buffer-name))))
         (kill-buffer)))))
 
 (defun basis/find-file-recentf ()
