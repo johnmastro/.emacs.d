@@ -565,7 +565,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key [remap next-line] #'basis/next-line)
 
-(global-set-key [remap delete-horizontal-space] #'basis/cycle-spacing-fast)
+(global-set-key [remap delete-horizontal-space] #'basis/delete-some-whitespace)
 
 (global-set-key [remap move-beginning-of-line] #'basis/beginning-of-line)
 
