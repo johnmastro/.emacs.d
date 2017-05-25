@@ -1859,16 +1859,18 @@ representation before comparing them."
   (interactive "P")
   (when-let ((topdir (magit-rev-parse-safe "--show-toplevel"))
              (topdir (expand-file-name topdir)))
-    (save-some-buffers
-     arg
-     (lambda ()
-       (and buffer-file-name
-            ;; Avoid needlessly connecting to unrelated remotes.
-            (string-prefix-p topdir buffer-file-name)
-            (equal (when-let ((dir (magit-rev-parse-safe "--show-toplevel"))
-                              (dir (expand-file-name dir)))
-                     dir)
-                   topdir))))))
+    (let ((remote (file-remote-p topdir)))
+      (save-some-buffers
+       arg
+       (lambda ()
+         (and buffer-file-name
+              ;; Avoid needlessly connecting to unrelated remotes.
+              (equal (file-remote-p buffer-file-name) remote)
+              (string-prefix-p topdir (file-truename buffer-file-name))
+              (equal (when-let ((dir (magit-rev-parse-safe "--show-toplevel"))
+                                (dir (expand-file-name dir)))
+                       dir)
+                     topdir)))))))
 
 (defun basis/magit-stash-save (message &optional include-untracked)
   "Run \"git stash save\"."
