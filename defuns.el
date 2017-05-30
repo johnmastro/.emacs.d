@@ -2702,16 +2702,19 @@ Always add attachments at the end of the buffer."
 (defun basis/insert-lorem-ipsum (&optional arg)
   "Insert ARG paragraphs of \"lorem ipsum\" text at point."
   (interactive "*p")
-  (let (buf beg end)
-    (with-current-buffer (get-buffer-create " *Lorem Ipsum*")
-      (setq buf (current-buffer))
+  (let ((buffer (get-buffer-create " *Lorem Ipsum*"))
+        beg end)
+    (with-current-buffer buffer
       (when (zerop (buffer-size))
         (insert-file-contents basis/lorem-ipsum-file))
       (goto-char (point-min))
       (setq beg (point))
       (forward-paragraph arg)
       (setq end (point)))
-    (insert-buffer-substring buf beg end)))
+    (let ((pos (point)))
+      (insert-buffer-substring buffer beg end)
+      (when auto-fill-function
+        (fill-region pos (point))))))
 
 
 ;;; defuns.el ends here
