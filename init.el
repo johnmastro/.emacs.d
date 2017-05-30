@@ -351,6 +351,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package ffap
   :defer t
+  :init (global-set-key (kbd "C-M-j") #'find-file-at-point)
   :config (setq ffap-machine-p-known 'reject))
 
 (use-package advice
