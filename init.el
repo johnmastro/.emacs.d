@@ -2492,7 +2492,6 @@ TODO: <home> and <end> still don't work.")
       ("M-p"                       #'diredp-prev-subdir)
       ("M-e"                       #'dired-next-dirline)
       ("M-a"                       #'dired-prev-dirline)
-      ("M-b"                       nil)
       ("M-o"                       nil)
       ([remap beginning-of-buffer] #'basis/beginning-of-buffer)
       ([remap end-of-buffer]       #'basis/end-of-buffer))
@@ -2526,7 +2525,9 @@ TODO: <home> and <end> still don't work.")
 
 (use-package dired+
   :ensure t
-  :after dired)
+  :after dired
+  :config (progn (define-key dired-mode-map (kbd "M-b") nil)
+                 (define-key dired-mode-map (kbd "M-B") #'diredp-do-bookmark)))
 
 (defun basis/init-comint-mode ()
   (setq comint-scroll-to-bottom-on-input 'this))
