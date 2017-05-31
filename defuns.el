@@ -1159,18 +1159,22 @@ with it as `default-directory'. If a virtualenv associated with
 the project is found, prompt to activate it. However, when called
 with a prefix argument, invoke plain `run-python' directly."
   (interactive "P")
-  (unless (eq major-mode 'python-mode)
-    (error "Not in a python-mode buffer"))
-  (if arg
-      (call-interactively #'run-python)
-    (let* ((prj (ignore-errors (projectile-project-root)))
-           (env (basis/python-find-virtual-env prj))
-           (default-directory (or prj default-directory)))
-      (when env
-        (pyvenv-activate env)
-        (message "Activated virtual environment `%s'"
-                 (abbreviate-file-name env)))
-      (call-interactively #'run-python))))
+  (let (proc)
+    (cond ((not (derived-mode-p 'python-mode))
+           (user-error "Not in a python-mode buffer"))
+          (arg
+           (call-interactively #'run-python))
+          ((setq proc (python-shell-get-process))
+           (pop-to-buffer (process-buffer proc) nil t))
+          (t
+           (let* ((prj (ignore-errors (projectile-project-root)))
+                  (env (basis/python-find-virtual-env prj))
+                  (default-directory (or prj default-directory)))
+             (when env
+               (pyvenv-activate env)
+               (message "Activated virtual environment `%s'"
+                        (abbreviate-file-name env)))
+             (call-interactively #'run-python))))))
 
 (defun basis/python-string-bounds (&optional inside)
   "Return the bounds of the Python string around point.
