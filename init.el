@@ -679,6 +679,10 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("V" #'apropos-value)
   ("a" #'helm-apropos))
 
+(use-package other-frame-window
+  :ensure t
+  :config (other-frame-window-mode))
+
 (global-set-key (kbd "C-h C-m") #'basis/toggle-echo-area-messages)
 
 ;; Make it harder to accidentally `suspend-frame'
