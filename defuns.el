@@ -661,6 +661,7 @@ Like `delete-indentation', but also delete comment characters at
 the beginning of the line, and re-indent if joining to an empty
 line."
   (interactive "*P")
+  (comment-normalize-vars)
   (let ((comment-beg-re
          (format "\\s-*\\(\\s<\\|%s\\)+\\s-*"
                  (regexp-opt (delete " " (mapcar #'string comment-start)))))
