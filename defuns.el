@@ -657,35 +657,52 @@ If no region is active, examine the full buffer."
 
 (defun basis/delete-indentation (&optional arg)
   "Augmented version of `delete-indentation'.
-Like `delete-indentation', but also delete comment characters at
-the beginning of the line, and re-indent if joining to an empty
-line."
+Like `delete-indentation', but also delete redundant comment
+characters and, if joining to an empty line, re-indent."
   (interactive "*P")
   (comment-normalize-vars)
-  (let ((comment-beg-re
-         (format "\\s-*\\(\\s<\\|%s\\)+\\s-*"
-                 (regexp-opt (delete " " (mapcar #'string comment-start)))))
-        (comment-end-re
-         (format "\\s-*\\(\\s>\\|%s\\)+\\s-*"
-                 (regexp-opt (delete " " (mapcar #'string comment-end))))))
-    (save-excursion
-      ;; The forms in the following `progn' will leave us at the beginning of
-      ;; the line that will be joined up (which is the current line when ARG is
-      ;; nil, or the following line otherwise).
-      (if (progn (or arg (forward-line -1))
-                 (end-of-line)
-                 (prog1 (nth 4 (syntax-ppss)) (forward-line 1)))
-          (and (looking-at comment-beg-re)
-               (replace-match ""))
-        (and (looking-at comment-beg-re)
-             (save-match-data
-               (forward-line -1)
-               (end-of-line)
-               (and (looking-back comment-end-re (line-beginning-position) t)
-                    (progn (replace-match "") t)))
-             (replace-match "")))))
-  (delete-indentation arg)
-  (when (bolp) (indent-according-to-mode)))
+  (if arg (forward-line) (beginning-of-line))
+  (let* ((is-cc-mode (bound-and-true-p c-buffer-is-cc-mode))
+         (beg-regexp (concat "\\(\\s<+\\|"
+                             comment-start-skip
+                             (and is-cc-mode
+                                  (concat "\\|" c-block-comment-start-regexp))
+                             "\\)"))
+         (con-string (or (and (> (length comment-continue) 0)
+                              comment-continue)
+                         (and is-cc-mode
+                              c-block-comment-prefix)))
+         (con-regexp (and con-string (regexp-quote con-string)))
+         (end-regexp (concat "\\(\\s>+\\|"
+                             comment-end-skip
+                             (and is-cc-mode
+                                  (concat "\\|" c-block-comment-ender-regexp))
+                             "\\)"))
+         (pos-marker (point-marker)))
+    (cond ((and (progn (skip-chars-forward " \t")
+                       (looking-at beg-regexp))
+                (save-excursion
+                  (save-match-data
+                    (let ((bol (progn (forward-line -1) (point)))
+                          (eol (progn (end-of-line) (point))))
+                      (or (and (progn (skip-chars-backward " \t")
+                                      (looking-back end-regexp bol))
+                               (progn (delete-region (match-beginning 0) eol)
+                                      t))
+                          (progn (goto-char bol)
+                                 (looking-at beg-regexp)))))))
+           (delete-region pos-marker (match-end 0)))
+          ((when-let ((beg (and con-regexp (nth 8 (syntax-ppss)))))
+             (and (> (point) beg)
+                  (progn (skip-chars-forward " \t")
+                         (and (eq (aref con-string 0) ?\s)
+                              (not (bolp))
+                              (forward-char -1))
+                         (looking-at con-regexp))))
+           (delete-region pos-marker (match-end 0))))
+    (delete-indentation)
+    (when (bolp) (indent-according-to-mode))
+    (prog1 nil (set-marker pos-marker nil))))
 
 (defun basis/narrow-or-widen-dwim (arg)
   "Widen if buffer is narrowed, otherwise narrow.
