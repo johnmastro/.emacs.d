@@ -1965,6 +1965,7 @@ TODO: <home> and <end> still don't work.")
 (defun basis/init-text-mode ()
   (auto-fill-mode)
   (basis/maybe-enable-flyspell)
+  (whitespace-mode)
   (setq indicate-empty-lines t)
   (when (and ispell-alternate-dictionary
              (not (derived-mode-p 'sgml-mode 'nxml-mode)))
