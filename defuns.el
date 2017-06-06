@@ -664,21 +664,29 @@ characters and, if joining to an empty line, re-indent."
   (let ((pos (point-marker)))
     (when comment-start
       (comment-normalize-vars)
-      (let* ((cc-mode (bound-and-true-p c-buffer-is-cc-mode))
+      (let* ((beg-blk (or (and (derived-mode-p 'sql-mode)
+                               "/\\*")
+                          (and (boundp 'c-block-comment-start-regexp)
+                               c-block-comment-start-regexp)))
+             (end-blk (or (and (derived-mode-p 'sql-mode)
+                               "\\*/")
+                          (and (boundp 'c-block-comment-ender-regexp)
+                               c-block-comment-ender-regexp)))
              (beg-rxp (concat "\\(\\s<+\\|"
                               comment-start-skip
-                              (and cc-mode
-                                   (concat "\\|" c-block-comment-start-regexp))
+                              (and beg-blk (concat "\\|" beg-blk))
                               "\\)"))
              (con-str (or (and (> (length comment-continue) 0)
                                comment-continue)
-                          (and cc-mode
+                          (and (derived-mode-p 'sql-mode)
+                               " * ")
+                          (and (boundp 'c-block-comment-prefix)
+                               (stringp c-block-comment-prefix)
                                c-block-comment-prefix)))
              (con-rxp (and con-str (regexp-quote con-str)))
              (end-rxp (concat "\\(\\s>+\\|"
                               comment-end-skip
-                              (and cc-mode
-                                   (concat "\\|" c-block-comment-ender-regexp))
+                              (and end-blk (concat "\\|" end-blk))
                               "\\)")))
         (cond ((and (progn (skip-chars-forward " \t")
                            (looking-at beg-rxp))
