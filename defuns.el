@@ -1751,21 +1751,6 @@ Handle the special string literals in Python and SQL."
   ;; Used as `:before-until' advice, so returning non-nil prevents cleanup
   (memq indent-line-function basis/sp-inhibit-cleanup-list))
 
-(defun basis/sp-maybe-inhibit-closer (last)
-  "Advice for `sp--inhibit-insertion-of-closing-delim'.
-Don't inhibit inserting a closing delimiter if the pair isn't
-configured for autoskip."
-  ;; Used as `:before-while' advice, so returning nil causes
-  ;; `sp--inhibit-insertion-of-closing-delim' not be called.
-  (let* ((regexp (regexp-quote last))
-         (opener (seq-some (pcase-lambda (`(,open . ,close))
-                             (and (= (length close) 1)
-                                  (string-match-p regexp close)
-                                  open))
-                           (sp--get-allowed-pair-list))))
-    (or (memq 'autoskip (plist-get (sp-get-pair opener) :actions))
-        (< (car (syntax-ppss)) 0))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Error checking

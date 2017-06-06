@@ -930,9 +930,7 @@ TODO: <home> and <end> still don't work.")
                 #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
     (advice-add 'sp-backward-delete-char :filter-args
-                #'basis/sp-backward-delete-no-prefix)
-    (advice-add 'sp--inhibit-insertion-of-closing-delim :before-while
-                #'basis/sp-maybe-inhibit-closer)))
+                #'basis/sp-backward-delete-no-prefix)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
