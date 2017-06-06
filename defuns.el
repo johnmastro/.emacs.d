@@ -660,49 +660,55 @@ If no region is active, examine the full buffer."
 Like `delete-indentation', but also delete redundant comment
 characters and, if joining to an empty line, re-indent."
   (interactive "*P")
-  (comment-normalize-vars)
   (if arg (forward-line) (beginning-of-line))
-  (let* ((is-cc-mode (bound-and-true-p c-buffer-is-cc-mode))
-         (beg-regexp (concat "\\(\\s<+\\|"
-                             comment-start-skip
-                             (and is-cc-mode
-                                  (concat "\\|" c-block-comment-start-regexp))
-                             "\\)"))
-         (con-string (or (and (> (length comment-continue) 0)
-                              comment-continue)
-                         (and is-cc-mode
-                              c-block-comment-prefix)))
-         (con-regexp (and con-string (regexp-quote con-string)))
-         (end-regexp (concat "\\(\\s>+\\|"
-                             comment-end-skip
-                             (and is-cc-mode
-                                  (concat "\\|" c-block-comment-ender-regexp))
-                             "\\)"))
-         (pos-marker (point-marker)))
-    (cond ((and (progn (skip-chars-forward " \t")
-                       (looking-at beg-regexp))
-                (save-excursion
-                  (save-match-data
-                    (let ((bol (progn (forward-line -1) (point)))
-                          (eol (progn (end-of-line) (point))))
-                      (or (and (progn (skip-chars-backward " \t")
-                                      (looking-back end-regexp bol))
-                               (progn (delete-region (match-beginning 0) eol)
-                                      t))
-                          (progn (goto-char bol)
-                                 (looking-at beg-regexp)))))))
-           (delete-region pos-marker (match-end 0)))
-          ((when-let ((beg (and con-regexp (nth 8 (syntax-ppss)))))
-             (and (> (point) beg)
-                  (progn (skip-chars-forward " \t")
-                         (and (eq (aref con-string 0) ?\s)
-                              (not (bolp))
-                              (forward-char -1))
-                         (looking-at con-regexp))))
-           (delete-region pos-marker (match-end 0))))
+  (let ((pos (point-marker)))
+    (when comment-start
+      (comment-normalize-vars)
+      (let* ((cc-mode (bound-and-true-p c-buffer-is-cc-mode))
+             (beg-rxp (concat "\\(\\s<+\\|"
+                              comment-start-skip
+                              (and cc-mode
+                                   (concat "\\|" c-block-comment-start-regexp))
+                              "\\)"))
+             (con-str (or (and (> (length comment-continue) 0)
+                               comment-continue)
+                          (and cc-mode
+                               c-block-comment-prefix)))
+             (con-rxp (and con-str (regexp-quote con-str)))
+             (end-rxp (concat "\\(\\s>+\\|"
+                              comment-end-skip
+                              (and cc-mode
+                                   (concat "\\|" c-block-comment-ender-regexp))
+                              "\\)")))
+        (cond ((and (progn (skip-chars-forward " \t")
+                           (looking-at beg-rxp))
+                    (save-excursion
+                      (save-match-data
+                        (let ((bol (progn (forward-line -1) (point)))
+                              (eol (progn (end-of-line) (point))))
+                          (or (and (progn (skip-chars-backward " \t")
+                                          (looking-back end-rxp bol))
+                                   (progn (delete-region (match-beginning 0)
+                                                         eol)
+                                          t))
+                              (progn (goto-char bol)
+                                     (looking-at beg-rxp)))))))
+               (delete-region pos (match-end 0)))
+              ((let ((beg (and con-rxp (nth 8 (syntax-ppss)))))
+                 (when (and beg (> (point) beg))
+                   (progn (skip-chars-forward " \t")
+                          (let ((n (length con-str))
+                                (i 0))
+                            (while (and (< i n)
+                                        (not (bolp))
+                                        (memq (aref con-str i) '(?\s ?\t)))
+                              (forward-char -1)
+                              (setq i (1+ i))))
+                          (looking-at con-rxp))))
+               (delete-region pos (match-end 0))))))
     (delete-indentation)
     (when (bolp) (indent-according-to-mode))
-    (prog1 nil (set-marker pos-marker nil))))
+    (prog1 nil (set-marker pos nil))))
 
 (defun basis/narrow-or-widen-dwim (arg)
   "Widen if buffer is narrowed, otherwise narrow.
