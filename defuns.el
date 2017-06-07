@@ -2321,6 +2321,24 @@ If VISIT is non-nil, visit the file after downloading it."
   (let ((cmd (format "patch -d %s -p1" (shell-quote-argument dir))))
     (shell-command-on-region beg end cmd)))
 
+(defun basis/ffap-more-file-at-point (original &rest args)
+  (or (apply original args)
+      (ffap-file-exists-string
+       (save-excursion
+         (skip-chars-backward "[:alnum:][:punct:]")
+         (buffer-substring-no-properties
+          (point)
+          (progn (skip-chars-forward "[:alnum:][:punct:]")
+                 (point)))))
+      (and (nth 3 (syntax-ppss))
+           (ignore-errors
+             (ffap-file-exists-string
+              (save-excursion
+                (goto-char (nth 8 (syntax-ppss)))
+                (buffer-substring-no-properties
+                 (1+ (point))
+                 (1- (progn (forward-sexp 1) (point))))))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
