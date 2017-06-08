@@ -217,6 +217,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (setq scroll-preserve-screen-position t)
 (setq delete-by-moving-to-trash t)
 (setq gc-cons-threshold (* 20 1024 1024))
+(setq history-delete-duplicates t)
 (setq temporary-file-directory (basis/emacs-dir "tmp/"))
 (setq switch-to-buffer-preserve-window-point t)
 (setq enable-recursive-minibuffers t)
