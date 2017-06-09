@@ -4,6 +4,29 @@
 
 (deftheme solarized-moar "More faces for solarized.")
 
+(defun solarized-moar-color-index ()
+  ;; TODO: This logic for the default index is probably not completely accurate
+  (or (and (display-graphic-p)
+           (or (and solarized-degrade 3)
+               (and solarized-broken-srgb 2)
+               1))
+      (let ((colors-defined (length (defined-colors))))
+        (or (and (= solarized-termcolors 16) 4)
+            (and (>= colors-defined 256) 3)
+            (and (>= colors-defined 16) 4)
+            5))))
+
+(defun solarized-moar-get-color (name &optional index)
+  (or (nth (or index (solarized-moar-color-index))
+           (assoc name solarized-colors))
+      (error "No color `%s' found" name)))
+
+(defun solarized-moar-get-colors (&optional index)
+  (let ((index (or index (solarized-moar-color-index))))
+    (mapcar (lambda (elt)
+              (cons (car elt) (nth index elt)))
+            solarized-colors)))
+
 (defun solarized-moar-color-definitions ()
   (let ((bold        (if solarized-bold 'bold 'normal))
         (bright-bold (if solarized-bold 'normal 'bold))
@@ -268,7 +291,18 @@
 (defun solarized-moar-set-faces ()
   (apply #'custom-theme-set-faces
          'solarized-moar
-         (solarized-moar-color-definitions)))
+         (solarized-moar-color-definitions))
+  (with-eval-after-load 'ansi-color
+    (let* ((base02  (solarized-moar-get-color 'base02))
+           (red     (solarized-moar-get-color 'red))
+           (green   (solarized-moar-get-color 'green))
+           (yellow  (solarized-moar-get-color 'yellow))
+           (blue    (solarized-moar-get-color 'blue))
+           (magenta (solarized-moar-get-color 'magenta))
+           (cyan    (solarized-moar-get-color 'cyan))
+           (base00  (solarized-moar-get-color 'base00))
+           (colors  (vector base02 red green yellow blue magenta cyan base00)))
+      (ansi-color-map-update 'ansi-color-names-vector colors))))
 
 (solarized-moar-set-faces)
 
