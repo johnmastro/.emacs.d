@@ -130,7 +130,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 (when (and (display-graphic-p)
            (null (assq 'font default-frame-alist)))
   (when-let ((font (elt (font-info (face-font 'default)) 1))
-             (size (and (string-match "-\\([0-9]+\\(:?\\.[0-9]+\\)?\\)\\'" font)
+             (size (and (or (string-match "-\\([0-9]+\\(:?\\.[0-9]+\\)?\\)\\'"
+                                          font)
+                            (string-match "pixelsize=\\([0-9]+\\)" font))
                         (match-string 1 font)))
              (name (seq-some (lambda (name)
                                (let ((name (concat name "-" size)))
