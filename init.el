@@ -129,15 +129,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;; Specify the default font, but only if one of the local init file(s) didn't
 (when (and (display-graphic-p)
            (null (assq 'font default-frame-alist)))
-  (when-let ((font (elt (font-info (face-font 'default)) 1))
-             (size (and (or (string-match "-\\([0-9]+\\(:?\\.[0-9]+\\)?\\)\\'"
-                                          font)
-                            (string-match "pixelsize=\\([0-9]+\\)" font))
-                        (match-string 1 font)))
-             (name (seq-some (lambda (name)
-                               (let ((name (concat name "-" size)))
-                                 (and (find-font (font-spec :name name))
-                                      name)))
+  (when-let ((name (seq-find (lambda (name) (find-font (font-spec :name name)))
                              (pcase system-type
                                (`darwin     '("Source Code Pro" "Andale Mono"))
                                (`windows-nt '("Consolas"))
