@@ -270,7 +270,6 @@ Create the directory if it does not exist and CREATE is non-nil."
     (setq line-number-mode t)
     (setq column-number-mode t)
     (setq next-line-add-newlines t)
-    (advice-add 'next-line :around #'basis/next-line-no-deactivate-mark)
     (size-indication-mode)
     (advice-add 'pop-to-mark-command :around
                 #'basis/pop-to-mark-ensure-new-pos)

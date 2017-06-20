@@ -84,10 +84,14 @@ See `basis/eval-keys'."
 (defun basis/next-line ()
   "Move point to the next line.
 Wrapper around `next-line' to let-bind `next-line-add-newlines'
-to nil if a keyboard macro is executing."
+to nil if a keyboard macro is executing. Also let-bind
+`deactivate-mark' so that the mark isn't deactivated when
+newlines are entered."
   (interactive)
   (let ((next-line-add-newlines
-         (and next-line-add-newlines (not executing-kbd-macro))))
+         (and next-line-add-newlines
+              (not executing-kbd-macro)))
+        (deactivate-mark))
     (call-interactively #'next-line)))
 
 (defun basis/beginning-of-line ()
@@ -325,13 +329,6 @@ that many sexps before uncommenting."
                            (format "_%c" next)))
                       next)))
         (call-interactively command)))))
-
-(defun basis/next-line-no-deactivate-mark (original &rest args)
-  "Advice for `next-line'.
-Bind `deactivate-mark' so that `next-line-add-newlines' doesn't
-cause the mark to be deactivated."
-  (let (deactivate-mark)
-    (apply original args)))
 
 (defun basis/next-long-line (&optional threshold message)
   "Move forward to the next overly-long line.
