@@ -132,7 +132,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   (when-let ((name (seq-find (lambda (name) (find-font (font-spec :name name)))
                              (pcase system-type
                                (`darwin     '("Source Code Pro" "Andale Mono"))
-                               (`windows-nt '("Consolas"))
+                               (`windows-nt '("Consolas-10"))
                                (_           '("Inconsolata"))))))
     (add-to-list 'default-frame-alist (cons 'font name))))
 
