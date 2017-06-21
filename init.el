@@ -127,14 +127,10 @@ Create the directory if it does not exist and CREATE is non-nil."
 (load (basis/emacs-file (system-name)) 'noerror nil nil 'must-suffix)
 
 ;; Specify the default font, but only if one of the local init file(s) didn't
-(when (and (display-graphic-p)
-           (null (assq 'font default-frame-alist)))
-  (when-let ((name (seq-find (lambda (name) (find-font (font-spec :name name)))
-                             (pcase system-type
-                               (`darwin     '("Source Code Pro" "Andale Mono"))
-                               (`windows-nt '("Consolas-10"))
-                               (_           '("Inconsolata"))))))
-    (add-to-list 'default-frame-alist (cons 'font name))))
+(when-let ((font (and (display-graphic-p)
+                      (null (assq 'font default-frame-alist))
+                      (basis/select-default-font))))
+  (add-to-list 'default-frame-alist (cons 'font font)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

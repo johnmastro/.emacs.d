@@ -2471,6 +2471,13 @@ Only group a buffer with a VC if its visiting a file."
   (interactive)
   (mapc #'disable-theme (or themes custom-enabled-themes)))
 
+(defun basis/select-default-font (&optional fonts)
+  (seq-find (lambda (name) (find-font (font-spec :name name)))
+            (or fonts (pcase system-type
+                        (`darwin     '("Source Code Pro" "Andale Mono"))
+                        (`windows-nt '("Consolas-10"))
+                        (_           '("Inconsolata" "DejaVu Sans Mono"))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Miscellaneous
