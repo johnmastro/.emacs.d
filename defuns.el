@@ -715,6 +715,27 @@ characters and, if joining to an empty line, re-indent."
     (when (bolp) (indent-according-to-mode))
     (prog1 nil (set-marker pos nil))))
 
+(defun basis/delete-empty-lines (beg end &optional arg)
+  "Delete empty lines between BEG and END.
+If prefix ARG is non-nil, lines are considered empty and deleted
+if they contain (only) tabs and spaces. Otherwise, lines are only
+deleted if they are completely empty."
+  (interactive
+   (pcase-let ((`(,beg ,end)
+                (if (use-region-p)
+                    (list (region-beginning) (region-end))
+                  (list (point-min) (point-max)))))
+     (list beg end current-prefix-arg)))
+  (let ((regexp (if arg "^[[:blank:]]*$" "^$")))
+    (save-restriction
+      (narrow-to-region beg end)
+      (goto-char (point-min))
+      (while (and (re-search-forward regexp nil t)
+                  (not (eobp)))
+        (let ((beg (match-beginning 0))
+              (end (min (1+ (match-end 0)) (point-max))))
+          (delete-region beg end))))))
+
 (defun basis/narrow-or-widen-dwim (arg)
   "Widen if buffer is narrowed, otherwise narrow.
 When narrowing, narrow to the region if active, otherwise to the

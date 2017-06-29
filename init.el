@@ -648,6 +648,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (basis/define-map basis/region-map ("C-c r")
   ("a" #'align)
+  ("b" #'basis/delete-empty-lines)
   ("c" #'basis/count-words)
   ("l" #'basis/count-sloc-region)
   ("s" #'sort-lines))
