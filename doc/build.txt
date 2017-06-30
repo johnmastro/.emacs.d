@@ -13,7 +13,8 @@
         ImageMagick ImageMagick-devel
     ./autogen.sh all   # Only necessary if building from the repo
     ./configure --with-xml2 --with-zlib --with-gnutls --with-imagemagick \
-        --with-x-toolkit=lucid --without-pop --without-compress-install
+        --with-x-toolkit=lucid --with-xft --with-libotf --with-m17n-flt \
+        --without-pop --without-compress-install
     make
     sudo make install  # Optional
 
@@ -113,7 +114,12 @@ check it back out.
   make
   make install
   ```
-- Optionally, copy the DLLs Emacs depends on into its `bin` directory:
+- Copy the mingw64 DLLs to Emacs's `bin` directory so they don't have to be on
+  $PATH when it runs:
+  ```
+  cp /mingw64/bin/*.dll /c/emacs/emacs-master/bin
+  ```
+- Or, try to copy only the DLLs Emacs needs, e.g.:
   ```
   cp /mingw64/bin/{libwinpthread-*.dll,libXpm-noX*.dll,libdbus-*.dll} /c/emacs/emacs-master/bin
   cp /mingw64/bin/{libgomp-*.dll,libgcc_s_seh-*.dll,libglib-*.dll} /c/emacs/emacs-master/bin
@@ -129,11 +135,6 @@ check it back out.
   cp /mingw64/bin/{libjpeg-*.dll,libgif-*.dll,libbz2-*.dll,libjbig-*.dll} /c/emacs/emacs-master/bin
   cp /mingw64/bin/{libgmp-*.dll,libhogweed-*.dll,libnettle-*.dll} /c/emacs/emacs-master/bin
   cp /mingw64/bin/{libp11-kit-*.dll,libtasn1-*.dll} /c/emacs/emacs-master/bin
-  ```
-- Or copy everything over, which is easier. It wastes some space but not enough
-  to worry about:
-  ```
-  cp /mingw64/bin/libxml2-*.dll /c/emacs/emacs-master/bin
   ```
 
 ### Cygwin --with-w32
