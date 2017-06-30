@@ -552,8 +552,8 @@ the region isn't active."
   (let ((current-prefix-arg (not (use-region-p))))
     (call-interactively #'count-words-region)))
 
-(defun basis/count-sloc-region (beg end)
-  "Count the \"SLOC\" in the region from BEG to END.
+(defun basis/count-sloc (beg end)
+  "Count the \"SLOC\" between BEG and END.
 If no region is active, examine the full buffer."
   (interactive
    (if (use-region-p)

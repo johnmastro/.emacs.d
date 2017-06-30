@@ -650,7 +650,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   ("a" #'align)
   ("b" #'basis/delete-empty-lines)
   ("c" #'basis/count-words)
-  ("l" #'basis/count-sloc-region)
+  ("l" #'basis/count-sloc)
   ("s" #'sort-lines))
 
 (put 'narrow-to-region 'disabled nil)
