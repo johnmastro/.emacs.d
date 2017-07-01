@@ -892,6 +892,8 @@ current search, with no context-dependent behavior."
 Used as :after advice for `avy-push-mark'."
   (push-mark nil t nil))
 
+(defvar helm-move-to-line-cycle-in-source)
+
 (defun basis/swiper-helm ()
   (interactive)
   (let ((helm-move-to-line-cycle-in-source t))
@@ -1043,6 +1045,8 @@ If already at the beginning of the field, call
           (backward-delete-char 1)
         (error (helm-keyboard-quit)))
     (backward-delete-char n)))
+
+(defvar helm-ff-skip-boring-files)
 
 (defun basis/helm-find-files (&optional arg)
   "Slightly augmented version of `helm-find-files'.
@@ -1304,6 +1308,8 @@ Use `slime-expand-1' to produce the expansion."
   (helm :sources '(((name . "Clojure Headlines")
                     (volatile)
                     (headline "^[;(]")))))
+
+(defvar httpd-port)
 
 (defun basis/run-skewer ()
   (interactive)
@@ -1833,6 +1839,8 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
     (if (derived-mode-p 'prog-mode)
         (bug-reference-prog-mode)
       (bug-reference-mode))))
+
+(defvar ispell-current-personal-dictionary)
 
 (defun basis/ispell-init-process (original &rest args)
   "Advice for `ispell-init-process' on Cygwin.
