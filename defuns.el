@@ -1120,15 +1120,6 @@ otherwise call `yas-insert-snippet'."
         (setq deactivate-mark t))
     (call-interactively #'eval-defun)))
 
-(defmacro basis/with-unique-names (names &rest body)
-  "Create unique names for use in a macro definition.
-This idea also goes by the name `with-gensyms` in Common Lisp."
-  (declare (indent 1))
-  `(let ,(mapcar (lambda (sym)
-                   `(,sym (make-symbol (symbol-name ',sym))))
-                 names)
-     ,@body))
-
 (defun basis/eval-and-replace ()
   "Replace the preceding sexp with its value."
   (interactive)
