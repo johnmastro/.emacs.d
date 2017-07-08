@@ -2554,13 +2554,13 @@ search term."
            (url-hexify-string string))))
 
 (defun basis/goto-line-with-numbers ()
-  "Invoke `goto-line' with `nlinum-mode' temporarily enabled."
+  "Invoke `goto-line' with `display-line-numbers' enabled."
   (interactive)
-  (if (bound-and-true-p nlinum-mode)
-      (call-interactively #'goto-line)
-    (unwind-protect (progn (nlinum-mode 1)
-                           (call-interactively #'goto-line))
-      (nlinum-mode -1))))
+  (let* ((symbol 'display-line-numbers)
+         (toggle (and (boundp symbol) (not (symbol-value symbol)))))
+    (and toggle (toggle-display-line-numbers))
+    (unwind-protect (call-interactively #'goto-line)
+      (and toggle (toggle-display-line-numbers)))))
 
 (defun basis/libxml-available-p ()
   "Return non-nil if libxml is available."
