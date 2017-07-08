@@ -1087,12 +1087,9 @@ TODO: <home> and <end> still don't work.")
 
 (use-package ido-completing-read+
   :ensure t
-  :init (setq ido-cr+-max-items nil))
-
-(use-package ido-ubiquitous
-  :ensure t
-  :config (progn (setq ido-ubiquitous-auto-update-overrides t)
-                 (ido-ubiquitous-mode)))
+  :init (progn (setq ido-cr+-auto-update-blacklist t)
+               (setq ido-cr+-max-items nil)
+               (ido-ubiquitous-mode)))
 
 (use-package flx-ido
   :ensure t
