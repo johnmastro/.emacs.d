@@ -2696,14 +2696,13 @@ those tags."
 
 (defun basis/define-word (word)
   (interactive
-   (let ((default (if (use-region-p)
-                      (buffer-substring (region-beginning) (region-end))
-                    (current-word nil t))))
-     (list (read-string (if default
-                            (format "Define word (default %s): " default)
+   (let* ((sel (and (use-region-p)
+                    (buffer-substring (region-beginning) (region-end))))
+          (def (delq nil (delete-dups (list sel (current-word nil t))))))
+     (list (read-string (if def
+                            (format "Define word (default %s): " (car def))
                           "Define word: ")
-                        nil nil
-                        default))))
+                        nil nil def))))
   (define-word word))
 
 (defun basis/delete-cookies ()
