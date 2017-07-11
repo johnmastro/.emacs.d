@@ -71,7 +71,10 @@ building the Emacs.app bundle.
     make install-info
 
 To invoke a GUI Emacs without installing, use `open nextstep/Emacs.app`. To
-install, drop `Emacs.app` in `Applications`.
+install, copy `Emacs.app` to `Applications`:
+
+    rm -rf /Applications/Emacs.app
+    cp -r nextstep/Emacs.app /Applications
 
 ## Windows
 
