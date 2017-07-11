@@ -278,6 +278,7 @@
                 (el-search-other-match (:inherit match))
                 ;; org
                 (org-todo (,@fg-red ,@bg-back :inverse-video nil))
+                (org-ellipsis (,@fg-green))
                 ;; smerge
                 ;; smerge-mine = red
                 ;; smerge-other = green
