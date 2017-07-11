@@ -100,6 +100,12 @@ Create the directory if it does not exist and CREATE is non-nil."
   :ensure t
   :defer t)
 
+(use-package async-bytecomp
+  :config
+  (when (eq system-type 'windows-nt)
+    (with-eval-after-load 'async-bytecomp
+      (setq async-bytecomp-allowed-packages nil))))
+
 (use-package map)
 
 (use-package dash
