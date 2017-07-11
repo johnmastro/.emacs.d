@@ -2577,8 +2577,8 @@ TODO: <home> and <end> still don't work.")
   :defer t
   ;; This doesn't work with Cygwin's bash, because bash detects that it's not
   ;; connected to a tty and behaves differently (e.g. doesn't echo its prompt)
-  :config (unless (eq system-type 'windows-nt)
-            (bash-completion-setup)))
+  :unless (eq system-type 'windows-nt)
+  :config (bash-completion-setup))
 
 (use-package esh-mode
   :defer t
