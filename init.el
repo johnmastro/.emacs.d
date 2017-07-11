@@ -130,7 +130,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 (when-let ((font (and (display-graphic-p)
                       (null (assq 'font default-frame-alist))
                       (basis/select-default-font))))
-  (add-to-list 'default-frame-alist (cons 'font font)))
+  (add-to-list 'default-frame-alist (cons 'font font))
+  (set-face-font 'fixed-pitch font))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
