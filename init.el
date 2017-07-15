@@ -130,7 +130,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (load (basis/emacs-file "defuns") nil nil nil 'must-suffix)
 (load (basis/emacs-file "local") 'noerror nil nil 'must-suffix)
-(load (basis/emacs-file (system-name)) 'noerror nil nil 'must-suffix)
+(load (basis/emacs-file (concat "init-" (system-name)))
+      'noerror nil nil 'must-suffix)
 
 ;; Specify the default font, but only if one of the local init file(s) didn't
 (when-let ((font (and (display-graphic-p)
