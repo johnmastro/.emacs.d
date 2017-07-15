@@ -153,7 +153,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   :ensure t
   :config
   (when (and (not (display-graphic-p))
-             (or (and (eq system-type 'gnu/linux)
+             (or (and (memq system-type '(gnu/linux berkeley-unix))
                       (getenv "DISPLAY")
                       (executable-find "xclip"))
                  (and (eq system-type 'darwin)
