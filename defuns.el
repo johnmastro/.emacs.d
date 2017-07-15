@@ -2642,13 +2642,13 @@ kill the current session even if there are multiple frames."
             (pop-to-buffer-same-window (current-buffer) t)
           (display-buffer (current-buffer)))))))
 
-(defun basis/emacs-Q (emacs home args)
+(defun basis/emacs-Q (&optional emacs home args)
   "Run \"EMACS -Q ARGS\" with its home in HOME.
 EMACS defaults to the current Emacs executable. HOME defaults to
 \"/tmp\"."
   ;; This is only really useful on Windows, where I use a Cygwin shell but a
   ;; native Windows Emacs, so `emacs -Q' in my shell doesn't cut it.
-  (interactive (list nil nil nil))
+  (interactive)
   (let* ((emacs (or emacs (expand-file-name (if (eq system-type 'windows-nt)
                                                 "runemacs.exe"
                                               invocation-name)
