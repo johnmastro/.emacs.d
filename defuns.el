@@ -2669,6 +2669,15 @@ EMACS defaults to the current Emacs executable. HOME defaults to
       (y-or-n-p "Really kill the *scratch* buffer?")
     t))
 
+(defun basis/clean-up-save-place-alist ()
+  (let ((elts (and (boundp 'save-place-alist) save-place-alist))
+        (elpa (expand-file-name package-user-dir)))
+    (setq save-place-alist
+          (seq-remove (pcase-lambda (`(,file . _))
+                        (and (string-prefix-p elpa file)
+                             (string-suffix-p "-autoloads.el" file)))
+                      elts))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications

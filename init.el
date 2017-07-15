@@ -412,6 +412,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package saveplace
   :config
   (progn (setq save-place-file (basis/emacs-file "var/places"))
+         (add-hook 'kill-emacs-hook #'basis/clean-up-save-place-alist)
          (save-place-mode)))
 
 (use-package savehist
