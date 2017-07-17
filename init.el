@@ -624,9 +624,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 (global-set-key (kbd "C-c C-^") #'shell)
 
 (basis/define-keys global-map
-  ([remap upcase-word]     #'basis/upcase-something)
-  ([remap downcase-word]   #'basis/downcase-something)
-  ([remap capitalize-word] #'basis/capitalize-something))
+  ([remap upcase-word]     #'upcase-dwim)
+  ([remap downcase-word]   #'downcase-dwim)
+  ([remap capitalize-word] #'capitalize-dwim))
 
 (global-set-key [remap save-buffers-kill-terminal]
                 #'basis/kill-frame-or-terminal)

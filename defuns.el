@@ -473,24 +473,6 @@ Do not save the string to the the kill ring."
   (setq deactivate-mark t)
   (when thing (message "Copied %s to clipboard" thing)))
 
-(defmacro basis/def-case-op (op)
-  (let ((region-op  (intern (format "%s-region" op)))
-        (word-op    (intern (format "%s-word" op)))
-        (subword-op (intern (format "subword-%s" op))))
-    `(defun ,(intern (format "basis/%s-something" op)) (&optional count)
-       ,(format "%s the region or COUNT words." (capitalize (symbol-name op)))
-       (interactive "*p")
-       (cond ((use-region-p)
-              (,region-op (region-beginning) (region-end)))
-             ((bound-and-true-p subword-mode)
-              (,subword-op count))
-             (t
-              (,word-op count))))))
-
-(basis/def-case-op upcase)
-(basis/def-case-op downcase)
-(basis/def-case-op capitalize)
-
 (defun basis/downcase-almost-everything (arg)
   "Downcase everything not in a string or comment."
   (interactive "P")
