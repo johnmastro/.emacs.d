@@ -2570,9 +2570,10 @@ If there is more than one live frame, close the current one.
 Otherwise kill the current session. If optional ARG is non-nil,
 kill the current session even if there are multiple frames."
   (interactive "P")
-  (if (or arg (null (cdr (frame-list))))
-      (save-buffers-kill-terminal)
-    (delete-frame)))
+  (let ((debug-on-error (or debug-on-error (not arg))))
+    (if (or arg (null (cdr (frame-list))))
+        (save-buffers-kill-terminal)
+      (delete-frame))))
 
 (defun basis/shr-html2text ()
   "Convert HTML to plain text in the current buffer using `shr'."
