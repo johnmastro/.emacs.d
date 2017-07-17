@@ -290,6 +290,8 @@ Create the directory if it does not exist and CREATE is non-nil."
                (string-match-p "ssh\\|scp\\|plink" method)))
     (set-buffer-file-coding-system 'utf-8-unix)))
 
+(defvar basis/external-temporary-file-directory nil)
+
 (use-package files
   :config
   (progn
@@ -304,6 +306,13 @@ Create the directory if it does not exist and CREATE is non-nil."
           `((".*" ,(basis/emacs-dir "var/autosaves/") t)))
     (setq auto-save-list-file-prefix
           (concat (basis/emacs-dir "var/auto-save-list/") ".saves-"))
+    (setq basis/external-temporary-file-directory
+          (if (file-in-directory-p temporary-file-directory basis/emacs-dir)
+              (seq-find #'file-directory-p
+                        (if (eq system-type 'windows-nt)
+                            '("e:/tmp/" "d:/tmp/" "c:/tmp/")
+                          '("/tmp/")))
+            temporary-file-directory))
     (when (eq system-type 'windows-nt)
       (add-hook 'before-save-hook #'basis/maybe-set-coding))))
 
