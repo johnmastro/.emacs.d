@@ -894,7 +894,7 @@ non-matching patterns. See bug #23590."
   "Display the full documentation of VARIABLE."
   (interactive
    (let ((default (variable-at-point))
-	 (enable-recursive-minibuffers t))
+         (enable-recursive-minibuffers t))
      (list (intern (completing-read "Describe variable: "
                                     obarray
                                     (lambda (sym)
@@ -1660,7 +1660,7 @@ symbol (like `kill-sexp')."
   (interactive "p")
   (let ((proc (get-buffer-process (current-buffer))))
     (if (and (eobp) proc (= (point) (marker-position (process-mark proc))))
-	(comint-send-eof)
+        (comint-send-eof)
       (sp-delete-char arg))))
 
 (put 'basis/sp-comint-delchar-or-maybe-eof 'delete-selection 'supersede)
