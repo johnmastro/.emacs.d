@@ -521,9 +521,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package help-mode
   :defer t
-  :config (basis/define-keys help-mode-map
-            ("n" #'next-line)
-            ("p" #'previous-line)))
+  :config (progn (define-key help-mode-map "n" #'next-line)
+                 (define-key help-mode-map "p" #'previous-line)))
 
 (use-package help-at-pt
   :config (progn (setq help-at-pt-display-when-idle t)
@@ -579,42 +578,37 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key [remap move-beginning-of-line] #'basis/beginning-of-line)
 
-(basis/define-keys global-map
-  ("<S-return>" #'basis/open-line-above)
-  ("<C-return>" #'basis/open-line-below))
+(global-set-key (kbd "<S-return>") #'basis/open-line-above)
+(global-set-key (kbd "<C-return>") #'basis/open-line-below)
 
-(basis/define-keys global-map
-  ([remap forward-sentence]  #'forward-sexp)
-  ([remap backward-sentence] #'backward-sexp)
-  ([remap kill-sentence]     #'kill-sexp))
+(global-set-key [remap forward-sentence]  #'forward-sexp)
+(global-set-key [remap backward-sentence] #'backward-sexp)
+(global-set-key [remap kill-sentence]     #'kill-sexp)
 
-(basis/define-keys global-map
-  ([remap kill-region]        #'basis/kill-something)
-  ([remap backward-kill-word] #'basis/kill-something)
-  ("<M-delete>"               #'basis/smart-kill-whole-line))
+(global-set-key [remap kill-region]        #'basis/kill-something)
+(global-set-key [remap backward-kill-word] #'basis/kill-something)
+(global-set-key (kbd "<M-delete>")         #'basis/smart-kill-whole-line)
 
-(basis/define-keys global-map
-  ([remap kill-ring-save] #'basis/kill-ring-save-something)
-  ("ESC M-w"              #'basis/kill-ring-save-as-fenced-code-block)
-  ("<f2>"                 #'basis/clipboard-save-something))
+(global-set-key [remap kill-ring-save] #'basis/kill-ring-save-something)
+(global-set-key (kbd "ESC M-w") #'basis/kill-ring-save-as-fenced-code-block)
+(global-set-key (kbd "<f2>")    #'basis/clipboard-save-something)
 
-(basis/define-keys global-map
-  ([remap delete-indentation] #'basis/delete-indentation)
-  ([remap fill-paragraph]     #'basis/fill-or-unfill-paragraph))
+(global-set-key [remap delete-indentation] #'basis/delete-indentation)
+(global-set-key [remap fill-paragraph]     #'basis/fill-or-unfill-paragraph)
 
-(basis/define-map basis/insertion-map ("C-c i")
-  ("f" #'basis/insert-file-name)
-  ("F" #'basis/insert-files)
-  ("p" #'basis/insert-file-preamble))
+(basis/define-prefix-command 'basis/insertion-map (kbd "C-c i"))
+(define-key basis/insertion-map "f" #'basis/insert-file-name)
+(define-key basis/insertion-map "F" #'basis/insert-files)
+(define-key basis/insertion-map "p" #'basis/insert-file-preamble)
 
-(basis/define-map basis/transposition-map ("M-t")
-  ("l"   #'transpose-lines)
-  ("w"   #'transpose-words)
-  ("s"   #'transpose-sexps)
-  ("c"   #'transpose-chars)
-  ("M-w" #'basis/transpose-windows)
-  ("M-s" #'basis/toggle-window-split)
-  ("n"   #'basis/narrow-or-widen-dwim))
+(basis/define-prefix-command 'basis/transposition-map (kbd "M-t"))
+(define-key basis/transposition-map (kbd "l")   #'transpose-lines)
+(define-key basis/transposition-map (kbd "w")   #'transpose-words)
+(define-key basis/transposition-map (kbd "s")   #'transpose-sexps)
+(define-key basis/transposition-map (kbd "c")   #'transpose-chars)
+(define-key basis/transposition-map (kbd "M-w") #'basis/transpose-windows)
+(define-key basis/transposition-map (kbd "M-s") #'basis/toggle-window-split)
+(define-key basis/transposition-map (kbd "n")   #'basis/narrow-or-widen-dwim)
 
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
 (global-set-key (kbd "C-x ;") #'basis/comment-region-lines)
@@ -632,10 +626,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 (global-set-key (kbd "C-c <C-return>") #'shell)
 (global-set-key (kbd "C-c C-^") #'shell)
 
-(basis/define-keys global-map
-  ([remap upcase-word]     #'upcase-dwim)
-  ([remap downcase-word]   #'downcase-dwim)
-  ([remap capitalize-word] #'capitalize-dwim))
+(global-set-key [remap upcase-word]     #'upcase-dwim)
+(global-set-key [remap downcase-word]   #'downcase-dwim)
+(global-set-key [remap capitalize-word] #'capitalize-dwim)
 
 (global-set-key [remap save-buffers-kill-terminal]
                 #'basis/kill-frame-or-terminal)
@@ -644,28 +637,28 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
 
-(basis/define-map basis/file-map ("C-c f")
-  ("c" #'helm-locate)
-  ("d" #'basis/diff-buffer-with-file)
-  ("r" #'basis/rename-buffer-file)
-  ("D" #'basis/delete-buffer-file)
-  ("f" #'find-name-dired)
-  ("F" #'find-dired)
-  ("m" #'make-directory)
-  ("n" #'basis/kill-ring-save-buffer-file-name)
-  ("v" #'revert-buffer))
+(basis/define-prefix-command 'basis/file-map (kbd "C-c f"))
+(define-key basis/file-map "c" #'helm-locate)
+(define-key basis/file-map "d" #'basis/diff-buffer-with-file)
+(define-key basis/file-map "r" #'basis/rename-buffer-file)
+(define-key basis/file-map "D" #'basis/delete-buffer-file)
+(define-key basis/file-map "f" #'find-name-dired)
+(define-key basis/file-map "F" #'find-dired)
+(define-key basis/file-map "m" #'make-directory)
+(define-key basis/file-map "n" #'basis/kill-ring-save-buffer-file-name)
+(define-key basis/file-map "v" #'revert-buffer)
 
 (global-set-key (kbd "C-c x") #'basis/open-file-externally)
 
 ;; Wrap text in various styles of quotes
 (global-set-key (kbd "C-c q") #'basis/quote-thing)
 
-(basis/define-map basis/region-map ("C-c r")
-  ("a" #'align)
-  ("b" #'basis/delete-empty-lines)
-  ("c" #'basis/count-words)
-  ("l" #'basis/count-sloc)
-  ("s" #'sort-lines))
+(basis/define-prefix-command 'basis/region-map (kbd "C-c r"))
+(define-key basis/region-map "a" #'align)
+(define-key basis/region-map "b" #'basis/delete-empty-lines)
+(define-key basis/region-map "c" #'basis/count-words)
+(define-key basis/region-map "l" #'basis/count-sloc)
+(define-key basis/region-map "s" #'sort-lines)
 
 (put 'narrow-to-region 'disabled nil)
 (put 'scroll-left 'disabled nil)
@@ -676,18 +669,18 @@ Create the directory if it does not exist and CREATE is non-nil."
 (global-set-key [remap describe-function] #'basis/describe-function)
 (global-set-key [remap describe-variable] #'basis/describe-variable)
 
-(basis/define-map basis/find-lisp-map ("C-h e")
-  ("c" #'finder-commentary)
-  ("e" #'view-echo-area-messages)
-  ("f" #'find-function)
-  ("F" #'find-face-definition)
-  ("i" #'info-apropos)
-  ("k" #'find-function-on-key)
-  ("l" #'find-library)
-  ("m" #'info-display-manual)
-  ("v" #'find-variable)
-  ("V" #'apropos-value)
-  ("a" #'helm-apropos))
+(basis/define-prefix-command 'basis/find-lisp-map (kbd "C-h e"))
+(define-key basis/find-lisp-map "c" #'finder-commentary)
+(define-key basis/find-lisp-map "e" #'view-echo-area-messages)
+(define-key basis/find-lisp-map "f" #'find-function)
+(define-key basis/find-lisp-map "F" #'find-face-definition)
+(define-key basis/find-lisp-map "i" #'info-apropos)
+(define-key basis/find-lisp-map "k" #'find-function-on-key)
+(define-key basis/find-lisp-map "l" #'find-library)
+(define-key basis/find-lisp-map "m" #'info-display-manual)
+(define-key basis/find-lisp-map "v" #'find-variable)
+(define-key basis/find-lisp-map "V" #'apropos-value)
+(define-key basis/find-lisp-map "a" #'helm-apropos)
 
 (use-package other-frame-window
   :ensure t
@@ -696,21 +689,10 @@ Create the directory if it does not exist and CREATE is non-nil."
 (global-set-key (kbd "C-h C-m") #'basis/toggle-echo-area-messages)
 
 ;; Make it harder to accidentally `suspend-frame'
-(basis/define-map basis/ctl-z-map ("C-z")
-  ("C-z" #'suspend-frame))
+(basis/define-prefix-command 'basis/ctl-z-map (kbd "C-z"))
+(define-key basis/ctl-z-map (kbd "C-z") #'suspend-frame)
 
 (global-set-key (kbd "C-x C-z") #'repeat)
-
-(defvar basis/eval-keys
-  '((last-sexp  . "C-x C-e")
-    (definition . "C-M-x")
-    (region     . "C-c C-r")
-    (buffer     . "C-c C-b")
-    (something  . "C-c C-c")
-    (file       . "C-c C-f")
-    (expand     . "C-c C-e"))
-  "Key bindings used to evaluate various units of code.
-See `basis/define-eval-keys'.")
 
 (defvar basis/tmux-key-translations
   (when (getenv "TMUX")
@@ -800,23 +782,24 @@ TODO: <home> and <end> still don't work.")
 (use-package multiple-cursors
   :ensure t
   :defer t
-  :init (progn (basis/define-keys global-map
-                 ("M-]"              #'mc/mark-next-like-this)
-                 ("C->"              #'mc/mark-next-like-this)
-                 ("C-<"              #'mc/mark-previous-like-this)
-                 ("<M-down-mouse-1>" nil)
-                 ("<M-mouse-1>"      #'mc/add-cursor-on-click))
-               (basis/define-map basis/mc-map ("C-c m")
-                 ("e"   #'mc/edit-lines)
-                 ("C-a" #'mc/edit-beginnings-of-lines)
-                 ("C-e" #'mc/edit-ends-of-lines)
-                 ("d"   #'mc/mark-all-like-this-dwim)
-                 ("D"   #'mc/mark-all-dwim)
-                 ("m"   #'mc/mark-more-like-this-extended)
-                 ("s"   #'mc/mark-all-symbols-like-this-in-defun)
-                 ("w"   #'mc/mark-all-words-like-this-in-defun)
-                 ("n"   #'mc/insert-numbers)
-                 ("l"   #'mc/insert-letters))))
+  :init
+  (progn (global-set-key (kbd "M-]") #'mc/mark-next-like-this)
+         (global-set-key (kbd "C->") #'mc/mark-next-like-this)
+         (global-set-key (kbd "C-<") #'mc/mark-previous-like-this)
+         (global-set-key (kbd "<M-down-mouse-1>") nil)
+         (global-set-key (kbd "<M-mouse-1>") #'mc/add-cursor-on-click)
+         (basis/define-prefix-command 'basis/mc-map (kbd "C-c m"))
+         (let ((map basis/mc-map))
+           (define-key map (kbd "e")   #'mc/edit-lines)
+           (define-key map (kbd "C-a") #'mc/edit-beginnings-of-lines)
+           (define-key map (kbd "C-e") #'mc/edit-ends-of-lines)
+           (define-key map (kbd "d")   #'mc/mark-all-like-this-dwim)
+           (define-key map (kbd "D")   #'mc/mark-all-dwim)
+           (define-key map (kbd "m")   #'mc/mark-more-like-this-extended)
+           (define-key map (kbd "s")   #'mc/mark-all-symbols-like-this-in-defun)
+           (define-key map (kbd "w")   #'mc/mark-all-words-like-this-in-defun)
+           (define-key map (kbd "n")   #'mc/insert-numbers)
+           (define-key map (kbd "l")   #'mc/insert-letters))))
 
 (use-package multiple-cursors-core
   :defer t
@@ -859,14 +842,14 @@ TODO: <home> and <end> still don't work.")
   :init (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
   :config
   (progn
-    (basis/define-keys paredit-mode-map
-      ("M-?"             nil) ; Make room for `xref-find-references'
-      ("M-)"             #'basis/paredit-wrap-round-from-behind)
-      ("M-e"             #'paredit-forward)
-      ("M-a"             #'paredit-backward)
-      ("M-k"             #'kill-sexp)
-      ("C-w"             #'basis/paredit-kill-something)
-      ("M-DEL"           #'basis/paredit-kill-something))
+    (let ((map paredit-mode-map))
+      (define-key map (kbd "M-?")   nil) ; Make room for `xref-find-references'
+      (define-key map (kbd "M-)")   #'basis/paredit-wrap-round-from-behind)
+      (define-key map (kbd "M-e")   #'paredit-forward)
+      (define-key map (kbd "M-a")   #'paredit-backward)
+      (define-key map (kbd "M-k")   #'kill-sexp)
+      (define-key map (kbd "C-w")   #'basis/paredit-kill-something)
+      (define-key map (kbd "M-DEL") #'basis/paredit-kill-something))
     (add-to-list 'paredit-space-for-delimiter-predicates
                  #'basis/paredit-doublequote-space-p)
     (add-to-list 'paredit-space-for-delimiter-predicates
@@ -925,15 +908,14 @@ TODO: <home> and <end> still don't work.")
                      (c++-mode  "{" "}" (:rem insert autoskip))
                      (java-mode "{" "}" (:rem insert autoskip))))
       (sp-local-pair mode open close :actions actions))
-    (basis/define-keys sp-keymap
-      ("M-DEL"           #'basis/sp-kill-something)
-      ("C-DEL"           #'basis/sp-kill-something)
-      ("<C-backspace>"   #'basis/sp-kill-something)
-      ("C-w"             #'basis/sp-kill-something)
-      ("M-k"             #'basis/sp-kill-sexp)
-      ("M-e"             #'sp-forward-sexp)
-      ("M-a"             #'sp-backward-sexp)
-      ("C-M-u"           #'basis/sp-backward-up))
+    (define-key sp-keymap (kbd "M-DEL")         #'basis/sp-kill-something)
+    (define-key sp-keymap (kbd "C-DEL")         #'basis/sp-kill-something)
+    (define-key sp-keymap (kbd "<C-backspace>") #'basis/sp-kill-something)
+    (define-key sp-keymap (kbd "C-w")           #'basis/sp-kill-something)
+    (define-key sp-keymap (kbd "M-k")           #'basis/sp-kill-sexp)
+    (define-key sp-keymap (kbd "M-e")           #'sp-forward-sexp)
+    (define-key sp-keymap (kbd "M-a")           #'sp-backward-sexp)
+    (define-key sp-keymap (kbd "C-M-u")         #'basis/sp-backward-up)
     (advice-add 'sp--cleanup-after-kill :before-until
                 #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
@@ -990,33 +972,33 @@ TODO: <home> and <end> still don't work.")
 (setq isearch-regexp-lax-whitespace t)
 (setq isearch-allow-scroll t)
 
-(basis/define-keys global-map
-  ("C-s"     #'isearch-forward-regexp)
-  ("C-r"     #'isearch-backward-regexp)
-  ("C-M-s"   #'isearch-forward)
-  ("C-M-r"   #'isearch-backward)
-  ("ESC M-s" search-map))
+(global-set-key (kbd "C-s")     #'isearch-forward-regexp)
+(global-set-key (kbd "C-r")     #'isearch-backward-regexp)
+(global-set-key (kbd "C-M-s")   #'isearch-forward)
+(global-set-key (kbd "C-M-r")   #'isearch-backward)
+(global-set-key (kbd "ESC M-s") search-map)
 
-(basis/define-keys isearch-mode-map
-  ("M-DEL"         #'basis/isearch-meta-del-char)
-  ("<M-backspace>" #'basis/isearch-meta-del-char)
-  ("C-t"           #'basis/isearch-yank-something)
-  ("C-g"           #'basis/isearch-cancel)
-  ("<up>"          #'isearch-ring-retreat)
-  ("<down>"        #'isearch-ring-advance)
-  ("<left>"        #'isearch-repeat-backward)
-  ("<right>"       #'isearch-repeat-forward))
+(let ((map isearch-mode-map))
+  (define-key map (kbd "M-DEL")         #'basis/isearch-meta-del-char)
+  (define-key map (kbd "<M-backspace>") #'basis/isearch-meta-del-char)
+  (define-key map (kbd "C-t")           #'basis/isearch-yank-something)
+  (define-key map (kbd "C-g")           #'basis/isearch-cancel)
+  (define-key map (kbd "<up>")          #'isearch-ring-retreat)
+  (define-key map (kbd "<down>")        #'isearch-ring-advance)
+  (define-key map (kbd "<left>")        #'isearch-repeat-backward)
+  (define-key map (kbd "<right>")       #'isearch-repeat-forward))
 
 (use-package swiper
   :ensure t
   :defer t
   :commands (swiper-from-isearch)
   :init (define-key isearch-mode-map (kbd "M-i") #'swiper-from-isearch)
-  :config (progn (setq swiper-min-highlight 1)
-                 (basis/define-keys swiper-map
-                   ("M-%"   #'swiper-query-replace)
-                   ("M-SPC" #'swiper-avy)
-                   ("C-t"   #'basis/swiper-maybe-yank-something))))
+  :config
+  (progn
+    (setq swiper-min-highlight 1)
+    (define-key swiper-map (kbd "M-%")   #'swiper-query-replace)
+    (define-key swiper-map (kbd "M-SPC") #'swiper-avy)
+    (define-key swiper-map (kbd "C-t")   #'basis/swiper-maybe-yank-something)))
 
 (use-package swiper-helm
   :ensure t
@@ -1029,30 +1011,30 @@ TODO: <home> and <end> still don't work.")
 (progn ;; replace.el
   (defalias 'qrr #'query-replace-regexp)
   (global-set-key (kbd "ESC M-%") #'query-replace-regexp)
-  (basis/define-keys occur-mode-map
-    ("n"                         #'occur-next)
-    ("p"                         #'occur-prev)
-    ([remap beginning-of-buffer] #'basis/beginning-of-buffer)
-    ([remap end-of-buffer]       #'basis/end-of-buffer))
+  (define-key occur-mode-map "n" #'occur-next)
+  (define-key occur-mode-map "p" #'occur-prev)
+  (define-key occur-mode-map [remap beginning-of-buffer]
+    #'basis/beginning-of-buffer)
+  (define-key occur-mode-map [remap end-of-buffer] #'basis/end-of-buffer)
   (add-hook 'occur-mode-hook #'basis/init-occur-mode))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; External search
 
-(basis/define-map basis/grep-map ("C-c g")
-  ("a"  #'ag-regexp)
-  ("g"  #'grep)
-  ("s"  #'lgrep)
-  ("r"  #'rgrep)
-  ("z"  #'zrgrep)
-  ("v"  #'projectile-grep)
-  ("V"  #'vc-git-grep)
-  ("f"  #'find-grep)
-  ("d"  #'find-grep-dired)
-  ("o"  #'basis/occur-dwim)
-  ("mo" #'multi-occur)
-  ("mm" #'multi-occur-in-matching-buffers))
+(basis/define-prefix-command 'basis/grep-map (kbd "C-c g"))
+(define-key basis/grep-map "a"  #'ag-regexp)
+(define-key basis/grep-map "g"  #'grep)
+(define-key basis/grep-map "s"  #'lgrep)
+(define-key basis/grep-map "r"  #'rgrep)
+(define-key basis/grep-map "z"  #'zrgrep)
+(define-key basis/grep-map "v"  #'projectile-grep)
+(define-key basis/grep-map "V"  #'vc-git-grep)
+(define-key basis/grep-map "f"  #'find-grep)
+(define-key basis/grep-map "d"  #'find-grep-dired)
+(define-key basis/grep-map "o"  #'basis/occur-dwim)
+(define-key basis/grep-map "mo" #'multi-occur)
+(define-key basis/grep-map "mm" #'multi-occur-in-matching-buffers)
 
 (use-package grep
   :defer t
@@ -1077,11 +1059,11 @@ TODO: <home> and <end> still don't work.")
 ;;; Completion
 
 (defun basis/init-ido-keys ()
-  (basis/define-keys ido-file-completion-map
-    ("C-w"   nil)
-    ("M-w"   #'ido-copy-current-file-name)
-    ("C-x g" #'ido-enter-magit-status)
-    ("C-c x" #'basis/ido-open-file-externally)))
+  (let ((map ido-file-completion-map))
+    (define-key map (kbd "C-w")   nil)
+    (define-key map (kbd "M-w")   #'ido-copy-current-file-name)
+    (define-key map (kbd "C-x g") #'ido-enter-magit-status)
+    (define-key map (kbd "C-c x") #'basis/ido-open-file-externally)))
 
 (use-package ido
   :config
@@ -1127,39 +1109,39 @@ TODO: <home> and <end> still don't work.")
 (use-package helm
   :ensure t
   :defer t
-  :init (basis/define-map basis/helm-map ("C-c h")
-          ("a" #'helm-apropos)
-          ("b" #'helm-mini)
-          ("c" #'helm-colors)
-          ("e" #'helm-register)
-          ("f" #'helm-find-files)
-          ("g" #'helm-do-grep)
-          ("i" #'helm-info-at-point)
-          ("k" #'helm-man-woman)
-          ("l" #'helm-bookmarks)
-          ("m" #'helm-all-mark-rings)
-          ("o" #'helm-occur)
-          ("p" #'helm-list-emacs-process)
-          ("r" #'helm-regexp)
-          ("R" #'helm-resume)
-          ("s" #'helm-swoop)
-          ("t" #'helm-top)
-          ("x" #'helm-M-x)
-          ("y" #'helm-show-kill-ring)
-          ("/" #'helm-find)
-          (":" #'helm-eval-expression-with-eldoc))
+  :init (progn
+          (basis/define-prefix-command 'basis/helm-map (kbd "C-c h"))
+          (define-key basis/helm-map "a" #'helm-apropos)
+          (define-key basis/helm-map "b" #'helm-mini)
+          (define-key basis/helm-map "c" #'helm-colors)
+          (define-key basis/helm-map "e" #'helm-register)
+          (define-key basis/helm-map "f" #'helm-find-files)
+          (define-key basis/helm-map "g" #'helm-do-grep)
+          (define-key basis/helm-map "i" #'helm-info-at-point)
+          (define-key basis/helm-map "k" #'helm-man-woman)
+          (define-key basis/helm-map "l" #'helm-bookmarks)
+          (define-key basis/helm-map "m" #'helm-all-mark-rings)
+          (define-key basis/helm-map "o" #'helm-occur)
+          (define-key basis/helm-map "p" #'helm-list-emacs-process)
+          (define-key basis/helm-map "r" #'helm-regexp)
+          (define-key basis/helm-map "R" #'helm-resume)
+          (define-key basis/helm-map "s" #'helm-swoop)
+          (define-key basis/helm-map "t" #'helm-top)
+          (define-key basis/helm-map "x" #'helm-M-x)
+          (define-key basis/helm-map "y" #'helm-show-kill-ring)
+          (define-key basis/helm-map "/" #'helm-find)
+          (define-key basis/helm-map ":" #'helm-eval-expression-with-eldoc))
   :config (progn
             (setq helm-split-window-default-side 'other)
             (setq helm-split-window-in-side-p t)
             (setq helm-quick-update t)
             (setq helm-truncate-lines t)
             (setq helm-display-header-line nil)
-            (basis/define-keys helm-map
-              ("TAB" #'helm-execute-persistent-action)
-              ("M-s" #'helm-select-action)
-              ("DEL" #'basis/helm-backspace)
-              ("M-y" #'helm-yank-text-at-point)
-              ("C-w" nil))
+            (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
+            (define-key helm-map (kbd "M-s") #'helm-select-action)
+            (define-key helm-map (kbd "DEL") #'basis/helm-backspace)
+            (define-key helm-map (kbd "M-y") #'helm-yank-text-at-point)
+            (define-key helm-map (kbd "C-w") nil)
             (add-to-list 'display-buffer-alist
                          '("\\`\\*helm.*\\*\\'"
                            (display-buffer-in-side-window)
@@ -1192,12 +1174,12 @@ TODO: <home> and <end> still don't work.")
     (setq helm-boring-file-regexp-list
           (mapcar (lambda (e) (concat (regexp-quote e) "$"))
                   dired-omit-extensions))
-    (basis/define-keys helm-find-files-map
-      ("TAB"     #'helm-execute-persistent-action)
-      ("M-s"     #'helm-select-action)
-      ("DEL"     #'basis/helm-backspace)
-      ("C-c C-b" #'basis/helm-run-bookmarks)
-      ("C-x g"   #'basis/helm-ff-run-magit-status))
+    (let ((map helm-find-files-map))
+      (define-key map (kbd "TAB")     #'helm-execute-persistent-action)
+      (define-key map (kbd "M-s")     #'helm-select-action)
+      (define-key map (kbd "DEL")     #'basis/helm-backspace)
+      (define-key map (kbd "C-c C-b") #'basis/helm-run-bookmarks)
+      (define-key map (kbd "C-x g")   #'basis/helm-ff-run-magit-status))
     ;; Disable `ffap' behavior
     (advice-add 'helm-find-files-input :override #'ignore)))
 
@@ -1303,12 +1285,12 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config
   (progn (setq ivy-format-function #'ivy-format-function-arrow)
-         (basis/define-keys ivy-minibuffer-map
-           ("C-r"     #'ivy-previous-line-or-history)
-           ("<up>"    #'ivy-previous-line-or-history)
-           ("<left>"  #'ivy-previous-line-or-history)
-           ("<down>"  #'ivy-next-line-or-history)
-           ("<right>" #'ivy-next-line-or-history))))
+         (let ((map ivy-minibuffer-map))
+           (define-key map (kbd "C-r")     #'ivy-previous-line-or-history)
+           (define-key map (kbd "<up>")    #'ivy-previous-line-or-history)
+           (define-key map (kbd "<left>")  #'ivy-previous-line-or-history)
+           (define-key map (kbd "<down>")  #'ivy-next-line-or-history)
+           (define-key map (kbd "<right>") #'ivy-next-line-or-history))))
 
 (use-package counsel
   :ensure t
@@ -1319,14 +1301,13 @@ TODO: <home> and <end> still don't work.")
   :config
   (progn
     (add-hook 'after-init-hook #'global-company-mode)
-    (basis/define-keys company-active-map
-      ("TAB"    #'company-complete)
-      ([tab]    #'company-complete)
-      ("<C-f1>" #'company-show-location)
-      ("<M-f1>" #'company-show-location)
-      ("C-w"    nil)
-      ("RET"    nil)
-      ([return] nil))
+    (define-key company-active-map (kbd "TAB") #'company-complete)
+    (define-key company-active-map [tab] #'company-complete)
+    (define-key company-active-map (kbd "<C-f1>") #'company-show-location)
+    (define-key company-active-map (kbd "<M-f1>") #'company-show-location)
+    (define-key company-active-map (kbd "C-w") nil)
+    (define-key company-active-map (kbd "RET") nil)
+    (define-key company-active-map [return] nil)
     (set-default
      (make-variable-buffer-local 'company-backends)
      '(company-capf
@@ -1377,10 +1358,9 @@ TODO: <home> and <end> still don't work.")
   (progn
     ;; Steal C-t for expanding snippets. `transpose-chars' is still
     ;; available on M-t c
-    (basis/define-keys yas-minor-mode-map
-      ("C-t"   #'basis/yas-expand-or-insert)
-      ("TAB"   nil)
-      ([(tab)] nil))
+    (define-key yas-minor-mode-map (kbd "C-t") #'basis/yas-expand-or-insert)
+    (define-key yas-minor-mode-map (kbd "TAB") nil)
+    (define-key yas-minor-mode-map [(tab)] nil)
     (define-key yas-keymap (kbd "RET") #'yas-exit-all-snippets)
     (setq yas-snippet-dirs (list (basis/emacs-dir "snippets/")))
     (setq yas-prompt-functions '(yas-ido-prompt yas-completing-prompt))
@@ -1442,22 +1422,22 @@ TODO: <home> and <end> still don't work.")
   :mode ("\\.eld\\'" . emacs-lisp-mode)
   :config
   (progn
-    (basis/define-eval-keys emacs-lisp-mode-map
-      (last-sexp  #'eval-last-sexp)
-      (definition #'eval-defun)
-      (region     #'eval-region)
-      (buffer     #'eval-buffer)
-      (something  #'basis/eval-something)
-      (file       #'load-file)
-      (expand     #'macrostep-expand))
-    (basis/define-eval-keys lisp-interaction-mode-map
-      (last-sexp  #'basis/eval-last-sexp)
-      (definition #'eval-defun)
-      (region     #'eval-region)
-      (buffer     #'eval-buffer)
-      (something  #'basis/eval-something)
-      (file       #'load-file)
-      (expand     #'macrostep-expand))
+    (let ((map emacs-lisp-mode-map))
+      (define-key map (kbd "C-x C-e") #'eval-last-sexp)
+      (define-key map (kbd "C-M-x")   #'eval-defun)
+      (define-key map (kbd "C-c C-r") #'eval-region)
+      (define-key map (kbd "C-c C-b") #'eval-buffer)
+      (define-key map (kbd "C-c C-c") #'basis/eval-something)
+      (define-key map (kbd "C-c C-f") #'load-file)
+      (define-key map (kbd "C-c C-e") #'macrostep-expand))
+    (let ((map lisp-interaction-mode-map))
+      (define-key map (kbd "C-x C-e") #'basis/eval-last-sexp)
+      (define-key map (kbd "C-M-x")   #'eval-defun)
+      (define-key map (kbd "C-c C-r") #'eval-region)
+      (define-key map (kbd "C-c C-b") #'eval-buffer)
+      (define-key map (kbd "C-c C-c") #'basis/eval-something)
+      (define-key map (kbd "C-c C-f") #'load-file)
+      (define-key map (kbd "C-c C-e") #'macrostep-expand))
     (add-hook 'emacs-lisp-mode-hook #'basis/init-lisp-generic)
     (add-hook 'emacs-lisp-mode-hook #'basis/init-emacs-lisp-modes)
     (add-hook 'emacs-lisp-mode-hook #'basis/init-emacs-lisp-mode)
@@ -1510,14 +1490,14 @@ TODO: <home> and <end> still don't work.")
     (setq slime-default-lisp 'sbcl)
     (setq slime-contribs '(slime-fancy))
     (setq slime-autodoc-use-multiline-p t)
-    (basis/define-eval-keys slime-mode-map
-      (last-sexp  #'slime-eval-last-expression)
-      (definition #'slime-eval-defun)
-      (region     #'slime-eval-region)
-      (buffer     #'slime-eval-buffer)
-      (something  #'basis/slime-eval-something)
-      (file       #'slime-compile-and-load-file)
-      (expand     #'slime-expand-1))))
+    (let ((map slime-mode-map))
+      (define-key map (kbd "C-x C-e") #'slime-eval-last-expression)
+      (define-key map (kbd "C-M-x")   #'slime-eval-defun)
+      (define-key map (kbd "C-c C-r") #'slime-eval-region)
+      (define-key map (kbd "C-c C-b") #'slime-eval-buffer)
+      (define-key map (kbd "C-c C-c") #'basis/slime-eval-something)
+      (define-key map (kbd "C-c C-f") #'slime-compile-and-load-file)
+      (define-key map (kbd "C-c C-e") #'slime-expand-1))))
 
 (use-package slime-repl
   :defer t
@@ -1587,14 +1567,14 @@ TODO: <home> and <end> still don't work.")
               (`windows+cygwin
                (basis/set-lein-command-for-cygwin)))
             (add-hook 'cider-mode-hook #'basis/init-cider-mode)
-            (basis/define-eval-keys cider-mode-map
-              (last-sexp  #'cider-eval-last-sexp)
-              (definition #'cider-eval-defun-at-point)
-              (region     #'cider-eval-region)
-              (buffer     #'cider-eval-buffer)
-              (something  #'basis/cider-eval-something)
-              (file       #'cider-load-current-buffer)
-              (expand     #'cider-macroexpand-1))))
+            (let ((map cider-mode-map))
+              (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
+              (define-key map (kbd "C-M-x")   #'cider-eval-defun-at-point)
+              (define-key map (kbd "C-c C-r") #'cider-eval-region)
+              (define-key map (kbd "C-c C-b") #'cider-eval-buffer)
+              (define-key map (kbd "C-c C-c") #'basis/cider-eval-something)
+              (define-key map (kbd "C-c C-f") #'cider-load-current-buffer)
+              (define-key map (kbd "C-c C-e") #'cider-macroexpand-1))))
 
 (use-package nrepl-client
   :defer t
@@ -1623,13 +1603,13 @@ TODO: <home> and <end> still don't work.")
 (use-package scheme
   :defer t
   :config (progn
-            (basis/define-eval-keys scheme-mode-map
-              (last-sexp  #'scheme-send-last-sexp)
-              (definition #'scheme-send-definition)
-              (region     #'scheme-send-region)
-              (something  #'basis/scheme-send-something)
-              (file       #'scheme-load-file)
-              (expand     #'scheme-expand-current-form))
+            (let ((map scheme-mode-map))
+              (define-key map (kbd "C-x C-e") #'scheme-send-last-sexp)
+              (define-key map (kbd "C-M-x")   #'scheme-send-definition)
+              (define-key map (kbd "C-c C-r") #'scheme-send-region)
+              (define-key map (kbd "C-c C-c") #'basis/scheme-send-something)
+              (define-key map (kbd "C-c C-f") #'scheme-load-file)
+              (define-key map (kbd "C-c C-e") #'scheme-expand-current-form))
             (add-hook 'scheme-mode-hook #'basis/init-lisp-generic)))
 
 (use-package quack
@@ -1648,14 +1628,14 @@ TODO: <home> and <end> still don't work.")
 (use-package geiser-mode
   :ensure geiser
   :defer t
-  :config (basis/define-eval-keys geiser-mode-map
-            (last-sexp  #'geiser-eval-last-sexp)
-            (definition #'geiser-eval-definition)
-            (region     #'geiser-eval-region)
-            (buffer     #'geiser-eval-buffer)
-            (file       #'geiser-load-file)
-            (something  #'basis/geiser-eval-something)
-            (expand     #'basis/geiser-expand-something)))
+  :config (let ((map geiser-mode-map))
+            (define-key map (kbd "C-x C-e") #'geiser-eval-last-sexp)
+            (define-key map (kbd "C-M-x")   #'geiser-eval-definition)
+            (define-key map (kbd "C-c C-r") #'geiser-eval-region)
+            (define-key map (kbd "C-c C-b") #'geiser-eval-buffer)
+            (define-key map (kbd "C-c C-f") #'geiser-load-file)
+            (define-key map (kbd "C-c C-c") #'basis/geiser-eval-something)
+            (define-key map (kbd "C-c C-e") #'basis/geiser-expand-something)))
 
 (use-package geiser-repl
   :defer t
@@ -1684,20 +1664,19 @@ TODO: <home> and <end> still don't work.")
     (setq python-indent-guess-indent-offset-verbose nil)
     (setq python-shell-unbuffered (not (eq system-type 'windows-nt)))
     (setq python-fill-docstring-style 'pep-257-nn)
-    (basis/define-eval-keys python-mode-map
-      (definition #'python-shell-send-defun)
-      (buffer     #'python-shell-send-buffer)
-      (region     #'python-shell-send-region)
-      (something  #'basis/python-send-something)
-      (file       #'python-shell-send-file))
-    (basis/define-keys python-mode-map
-      ("DEL"     #'basis/sp-python-backspace)
-      ("C-c C-D" #'python-eldoc-at-point)
-      ("C-c C-p" #'basis/run-python)
-      ("C-c '"   #'basis/python-insert-triple-quotes)
-      ("C-c \""  #'basis/python-insert-triple-quotes)
-      ("C-M-SPC" #'sp-mark-sexp)
-      ("C-M-@"   #'sp-mark-sexp))
+    (let ((map python-mode-map))
+      (define-key map (kbd "DEL")     #'basis/sp-python-backspace)
+      (define-key map (kbd "C-c C-D") #'python-eldoc-at-point)
+      (define-key map (kbd "C-c C-p") #'basis/run-python)
+      (define-key map (kbd "C-c '")   #'basis/python-insert-triple-quotes)
+      (define-key map (kbd "C-c \"")  #'basis/python-insert-triple-quotes)
+      (define-key map (kbd "C-M-SPC") #'sp-mark-sexp)
+      (define-key map (kbd "C-M-@")   #'sp-mark-sexp)
+      (define-key map (kbd "C-M-x")   #'python-shell-send-defun)
+      (define-key map (kbd "C-c C-b") #'python-shell-send-buffer)
+      (define-key map (kbd "C-c C-r") #'python-shell-send-region)
+      (define-key map (kbd "C-c C-c") #'basis/python-send-something)
+      (define-key map (kbd "C-c C-f") #'python-shell-send-file))
     (add-hook 'python-mode-hook #'basis/init-python-mode)
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
     (when (basis/jedi-installed-p)
@@ -1741,15 +1720,15 @@ TODO: <home> and <end> still don't work.")
 
 (use-package interactive-haskell-mode
   :defer t
-  :config (basis/define-keys interactive-haskell-mode-map
-            ("C-c C-z" #'haskell-interactive-bring)
-            ("C-c C-l" #'haskell-process-load-or-reload)
-            ("C-c C-k" #'haskell-interactive-mode-clear)
-            ("C-c C-c" #'haskell-process-cabal-build)
-            ("C-c c"   #'haskell-process-cabal)
-            ("M-."     #'haskell-mode-goto-loc)
-            ("M-?"     #'haskell-mode-find-uses)
-            ("C-c C-t" #'haskell-mode-show-type-at)))
+  :config (let ((map interactive-haskell-mode-map))
+            (define-key map (kbd "C-c C-z") #'haskell-interactive-bring)
+            (define-key map (kbd "C-c C-l") #'haskell-process-load-or-reload)
+            (define-key map (kbd "C-c C-k") #'haskell-interactive-mode-clear)
+            (define-key map (kbd "C-c C-c") #'haskell-process-cabal-build)
+            (define-key map (kbd "C-c c")   #'haskell-process-cabal)
+            (define-key map (kbd "M-.")     #'haskell-mode-goto-loc)
+            (define-key map (kbd "M-?")     #'haskell-mode-find-uses)
+            (define-key map (kbd "C-c C-t") #'haskell-mode-show-type-at)))
 
 (use-package ghci-script-mode
   :defer t
@@ -1806,10 +1785,10 @@ TODO: <home> and <end> still don't work.")
   :after (js2-mode sgml-mode css-mode)
   :config (progn
             (skewer-setup)
-            (basis/define-eval-keys skewer-mode-map
-              (last-sexp  #'skewer-eval-last-sexp)
-              (definition #'skewer-eval-defun)
-              (buffer     #'skewer-load-buffer))))
+            (let ((map skewer-mode-map))
+              (define-key map (kbd "C-x C-e") #'skewer-eval-last-sexp)
+              (define-key map (kbd "C-M-x")   #'skewer-eval-defun)
+              (define-key map (kbd "C-c C-b") #'skewer-load-buffer))))
 
 (use-package skewer-repl
   :defer t
@@ -1817,10 +1796,11 @@ TODO: <home> and <end> still don't work.")
 
 (use-package skewer-css
   :defer t
-  :config (basis/define-eval-keys skewer-css-mode-map
-            (last-sexp  #'skewer-css-eval-current-declaration)
-            (definition #'skewer-css-eval-current-rule)
-            (buffer     #'skewer-css-eval-buffer)))
+  :config
+  (let ((map skewer-css-mode-map))
+    (define-key map (kbd "C-x C-e") #'skewer-css-eval-current-declaration)
+    (define-key map (kbd "C-M-x")   #'skewer-css-eval-current-rule)
+    (define-key map (kbd "C-c C-b") #'skewer-css-eval-buffer)))
 
 (defun basis/init-sql-mode ()
   (setq tab-width 4)
@@ -1842,13 +1822,13 @@ TODO: <home> and <end> still don't work.")
                'sql-mode-postgres-font-lock-keywords
                (apply #'sql-font-lock-keywords-builder
                       'font-lock-keyword-face nil more-keywords)))
-            (basis/define-keys sql-mode-map
-              ("TAB"   #'basis/sql-indent)
-              ("DEL"   #'basis/sql-backspace-dedent)
-              ("M-n"   #'basis/sql-forward-clause)
-              ("M-p"   #'basis/sql-backward-clause)
-              ("C-M-a" #'basis/sql-beginning-of-defun)
-              ("C-M-e" #'basis/sql-end-of-defun))
+            (let ((map sql-mode-map))
+              (define-key map (kbd "TAB")   #'basis/sql-indent)
+              (define-key map (kbd "DEL")   #'basis/sql-backspace-dedent)
+              (define-key map (kbd "M-n")   #'basis/sql-forward-clause)
+              (define-key map (kbd "M-p")   #'basis/sql-backward-clause)
+              (define-key map (kbd "C-M-a") #'basis/sql-beginning-of-defun)
+              (define-key map (kbd "C-M-e") #'basis/sql-end-of-defun))
             (add-hook 'sql-mode-hook #'basis/init-sql-mode)
             (add-hook 'sql-interactive-mode-hook
                       #'basis/init-sql-interactive-mode)
@@ -1987,10 +1967,9 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t
   :init
-  (basis/define-keys global-map
-    ("C-c a" #'org-agenda)
-    ("C-c c" #'org-capture)
-    ("C-c l" #'org-store-link))
+  (progn (global-set-key (kbd "C-c a") #'org-agenda)
+         (global-set-key (kbd "C-c c") #'org-capture)
+         (global-set-key (kbd "C-c l") #'org-store-link))
   :config
   (progn
     (setq org-directory "~/Dropbox/org/")
@@ -2064,13 +2043,13 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config
   (progn
-    (basis/define-keys html-mode-map
-      ([remap forward-paragraph]  #'basis/next-blank-line)
-      ([remap backward-paragraph] #'basis/previous-blank-line)
-      ("RET"                      #'basis/html-newline-and-indent)
-      ("M-RET"                    #'basis/html-multiline-expand)
-      ("C-c C-w"                  #'basis/html-wrap-in-tag)
-      ("C-c w"                    #'basis/html-wrap-in-tag))
+    (let ((map html-mode-map))
+      (define-key [remap forward-paragraph]  #'basis/next-blank-line)
+      (define-key [remap backward-paragraph] #'basis/previous-blank-line)
+      (define-key (kbd "RET")                #'basis/html-newline-and-indent)
+      (define-key (kbd "M-RET")              #'basis/html-multiline-expand)
+      (define-key (kbd "C-c C-w")            #'basis/html-wrap-in-tag)
+      (define-key (kbd "C-c w")              #'basis/html-wrap-in-tag))
     (add-hook 'sgml-mode-hook #'basis/init-simplezen)
     (add-hook 'html-mode-hook #'basis/init-html-mode)
     (advice-add 'sgml-delete-tag :after #'basis/sgml-delete-tag-reindent)))
@@ -2099,14 +2078,15 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t
   :mode ("\\.markdown\\'" "\\.mkd\\'" "\\.md\\'")
-  :config (progn
-            (basis/define-keys markdown-mode-map
-              ("DEL"     #'basis/sp-markdown-backspace)
-              ("M-n"     #'forward-paragraph)
-              ("M-p"     #'backward-paragraph)
-              ("C-c r"   #'markdown-insert-reference-link-dwim)
-              ("C-c C-r" #'markdown-insert-reference-link-dwim))
-            (add-hook 'markdown-mode-hook #'basis/init-markdown-mode)))
+  :config
+  (progn
+    (let ((map markdown-mode-map))
+      (define-key map (kbd "DEL")     #'basis/sp-markdown-backspace)
+      (define-key map (kbd "M-n")     #'forward-paragraph)
+      (define-key map (kbd "M-p")     #'backward-paragraph)
+      (define-key map (kbd "C-c r")   #'markdown-insert-reference-link-dwim)
+      (define-key map (kbd "C-c C-r") #'markdown-insert-reference-link-dwim))
+    (add-hook 'markdown-mode-hook #'basis/init-markdown-mode)))
 
 (use-package writegood-mode
   :ensure t
@@ -2191,26 +2171,28 @@ TODO: <home> and <end> still don't work.")
 
 (use-package flyspell
   :defer t
-  :config (basis/define-keys flyspell-mode-map
-            ("C-,"  nil)   ; `flyspell-goto-next-error'
-            ("C-."  nil)   ; `flyspell-auto-correct-word' (also on C-M-i)
-            ("C-;"  nil)   ; `flyspell-auto-correct-previous-word'
-            ("C-:"  #'flyspell-goto-next-error)
-            ("C-\"" #'flyspell-auto-correct-previous-word)))
+  :config
+  (let ((map flyspell-mode-map))
+    (define-key map (kbd "C-,")  nil)
+    (define-key map (kbd "C-.")  nil)
+    (define-key map (kbd "C-;")  nil)
+    (define-key map (kbd "C-:")  #'flyspell-goto-next-error)
+    (define-key map (kbd "C-\"") #'flyspell-auto-correct-previous-word)))
 
 (use-package flycheck
   :ensure t
   :defer t
   :init (progn
-          (basis/define-map basis/flycheck-map ("<f8>")
-            ("c"    #'flycheck-buffer)
-            ("n"    #'flycheck-next-error)
-            ("p"    #'flycheck-previous-error)
-            ("l"    #'flycheck-list-errors)
-            ("s"    #'flycheck-select-checker)
-            ("C"    #'flycheck-clear)
-            ("<f8>" #'basis/flycheck-check-and-list-errors)
-            ("h"    #'helm-flycheck)))
+          (basis/define-prefix-command 'basis/flycheck-map (kbd "<f8>"))
+          (let ((map basis/flycheck-map))
+            (define-key map (kbd "c")    #'flycheck-buffer)
+            (define-key map (kbd "n")    #'flycheck-next-error)
+            (define-key map (kbd "p")    #'flycheck-previous-error)
+            (define-key map (kbd "l")    #'flycheck-list-errors)
+            (define-key map (kbd "s")    #'flycheck-select-checker)
+            (define-key map (kbd "C")    #'flycheck-clear)
+            (define-key map (kbd "<f8>") #'basis/flycheck-check-and-list-errors)
+            (define-key map (kbd "h")    #'helm-flycheck)))
   :config (progn
             (setq flycheck-check-syntax-automatically nil)
             (unless (basis/libxml-available-p)
@@ -2219,9 +2201,9 @@ TODO: <home> and <end> still don't work.")
             (make-variable-buffer-local 'flycheck-idle-change-delay)
             (add-hook 'flycheck-after-syntax-check-hook
                       #'basis/adjust-flycheck-idle-change-delay)
-            (basis/define-keys flycheck-error-list-mode-map
-              ("n" #'flycheck-error-list-next-error)
-              ("p" #'flycheck-error-list-previous-error))))
+            (let ((map flycheck-error-list-mode-map))
+              (define-key map "n" #'flycheck-error-list-next-error)
+              (define-key map "p" #'flycheck-error-list-previous-error))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2261,10 +2243,10 @@ TODO: <home> and <end> still don't work.")
 (use-package magit
   :ensure t
   :defer t
-  :init (basis/define-keys global-map
-          ("C-x g"   #'magit-status)
-          ("C-x M-g" #'magit-dispatch-popup)
-          ("C-c M-g" #'magit-file-popup))
+  :init (progn
+          (global-set-key (kbd "C-x g")   #'magit-status)
+          (global-set-key (kbd "C-x M-g") #'magit-dispatch-popup)
+          (global-set-key (kbd "C-c M-g") #'magit-file-popup))
   :config
   (progn
     (setq magit-save-repository-buffers 'dontask)
@@ -2379,11 +2361,11 @@ TODO: <home> and <end> still don't work.")
                   " "
                   filename)))
     (setq ibuffer-show-empty-filter-groups nil)
-    (basis/define-keys ibuffer-mode-map
-      ("M-o"                       nil)
-      ("C-M-o"                     #'ibuffer-visit-buffer-1-window)
-      ([remap beginning-of-buffer] #'basis/beginning-of-buffer)
-      ([remap end-of-buffer]       #'basis/end-of-buffer))
+    (let ((map ibuffer-mode-map))
+      (define-key map (kbd "M-o")   nil)
+      (define-key map (kbd "C-M-o") #'ibuffer-visit-buffer-1-window)
+      (define-key map [remap beginning-of-buffer] #'basis/beginning-of-buffer)
+      (define-key map [remap end-of-buffer]       #'basis/end-of-buffer))
     (define-ibuffer-column size-h
       (:name "Size" :inline t)
       (cond ((> (buffer-size) 1000000)
@@ -2416,21 +2398,23 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t)
 
-(basis/define-map basis/projectile-map ()
-  ("b"   #'projectile-switch-to-buffer)
-  ("d"   #'projectile-find-dir)
-  ("C-f" #'projectile-find-file)
-  ("ff"  #'projectile-find-file-dwim)
-  ("fd"  #'projectile-find-file-in-directory)
-  ("g"   #'projectile-grep)
-  ("i"   #'projectile-ibuffer)
-  ("K"   #'projectile-kill-buffers)
-  ("o"   #'projectile-multi-occur)
-  ("p"   #'projectile-switch-project)
-  ("r"   #'projectile-recentf)
-  ("x"   #'projectile-remove-known-project)
-  ("X"   #'projectile-cleanup-known-projects)
-  ("z"   #'projectile-cache-current-file))
+(basis/define-prefix-command 'basis/projectile-map)
+
+(let ((map basis/projectile-map))
+  (define-key map (kbd "b")   #'projectile-switch-to-buffer)
+  (define-key map (kbd "d")   #'projectile-find-dir)
+  (define-key map (kbd "C-f") #'projectile-find-file)
+  (define-key map (kbd "ff")  #'projectile-find-file-dwim)
+  (define-key map (kbd "fd")  #'projectile-find-file-in-directory)
+  (define-key map (kbd "g")   #'projectile-grep)
+  (define-key map (kbd "i")   #'projectile-ibuffer)
+  (define-key map (kbd "K")   #'projectile-kill-buffers)
+  (define-key map (kbd "o")   #'projectile-multi-occur)
+  (define-key map (kbd "p")   #'projectile-switch-project)
+  (define-key map (kbd "r")   #'projectile-recentf)
+  (define-key map (kbd "x")   #'projectile-remove-known-project)
+  (define-key map (kbd "X")   #'projectile-cleanup-known-projects)
+  (define-key map (kbd "z")   #'projectile-cache-current-file))
 
 (use-package projectile
   :ensure t
@@ -2488,22 +2472,22 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config
   (progn
-    (basis/define-keys dired-mode-map
-      ("RET"                       #'dired-find-alternate-file)
-      ("M-RET"                     #'dired-find-file)
-      ("e"                         #'basis/open-file-externally)
-      ("-"                         #'diredp-up-directory-reuse-dir-buffer)
-      ("^"                         #'diredp-up-directory-reuse-dir-buffer)
-      ("Y"                         #'basis/dired-rsync)
-      ("M-^"                       #'diredp-up-directory)
-      ("M-m"                       #'dired-omit-mode)
-      ("M-n"                       #'diredp-next-subdir)
-      ("M-p"                       #'diredp-prev-subdir)
-      ("M-e"                       #'dired-next-dirline)
-      ("M-a"                       #'dired-prev-dirline)
-      ("M-o"                       nil)
-      ([remap beginning-of-buffer] #'basis/beginning-of-buffer)
-      ([remap end-of-buffer]       #'basis/end-of-buffer))
+    (let ((map dired-mode-map))
+      (define-key map (kbd "RET")   #'dired-find-alternate-file)
+      (define-key map (kbd "M-RET") #'dired-find-file)
+      (define-key map (kbd "e")     #'basis/open-file-externally)
+      (define-key map (kbd "-")     #'diredp-up-directory-reuse-dir-buffer)
+      (define-key map (kbd "^")     #'diredp-up-directory-reuse-dir-buffer)
+      (define-key map (kbd "Y")     #'basis/dired-rsync)
+      (define-key map (kbd "M-^")   #'diredp-up-directory)
+      (define-key map (kbd "M-m")   #'dired-omit-mode)
+      (define-key map (kbd "M-n")   #'diredp-next-subdir)
+      (define-key map (kbd "M-p")   #'diredp-prev-subdir)
+      (define-key map (kbd "M-e")   #'dired-next-dirline)
+      (define-key map (kbd "M-a")   #'dired-prev-dirline)
+      (define-key map (kbd "M-o")   nil)
+      (define-key map [remap beginning-of-buffer] #'basis/beginning-of-buffer)
+      (define-key map [remap end-of-buffer]       #'basis/end-of-buffer))
     (setq dired-recursive-deletes 'top)
     (setq dired-listing-switches (if (eq system-type 'windows-nt)
                                      "-alhGt"
@@ -2546,13 +2530,12 @@ TODO: <home> and <end> still don't work.")
   :init (setenv "PAGER" "cat")
   :config
   (progn
-    (basis/define-keys comint-mode-map
-      ("C-d"     #'basis/sp-comint-delchar-or-maybe-eof)
-      ("M-p"     #'comint-previous-matching-input-from-input)
-      ("M-n"     #'comint-next-matching-input-from-input)
-      ("C-c C-l" #'helm-comint-input-ring)
-      ;; Because Paredit and Smartparens both use M-r
-      ("C-M-r"   #'comint-history-isearch-backward-regexp))
+    (let ((map comint-mode-map))
+      (define-key map (kbd "C-d") #'basis/sp-comint-delchar-or-maybe-eof)
+      (define-key map (kbd "M-p") #'comint-previous-matching-input-from-input)
+      (define-key map (kbd "M-n") #'comint-next-matching-input-from-input)
+      (define-key map (kbd "C-c C-l") #'helm-comint-input-ring)
+      (define-key map (kbd "C-M-r") #'comint-history-isearch-backward-regexp))
     (dolist (cmd '(comint-previous-input
                    comint-next-input
                    comint-previous-matching-input-from-input

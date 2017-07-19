@@ -4,54 +4,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Key binding utilities
 
-(defmacro basis/define-keys (keymap &rest keydefs)
-  "Define multiple key bindings for KEYMAP."
-  (declare (indent 1))
-  `(progn
-     ,@(mapcar (lambda (keydef)
-                 (let* ((key (car keydef))
-                        (def (cadr keydef))
-                        (kbd (if (vectorp key) key `(kbd ,key))))
-                   `(define-key ,keymap ,kbd ,def)))
-               keydefs)))
-
-(defmacro basis/define-map (name args &rest keydefs)
-  "Define a prefix map named NAME.
-ARGS specifies a key binding for the prefix map and can be of the
-form (MAP KEY) or (KEY), in which case the binding is created in
-`global-map'."
-  (declare (indent 2))
-  (pcase-let* ((`(,map ,key)
-                (pcase args
-                  (`(,map ,key) (list map key))
-                  (`(,key)      (list 'global-map key))
-                  (`()          (list nil nil))
-                  (_            (error "Too many arguments"))))
-               (kbd
-                (cond ((vectorp key) key)
-                      ((stringp key) `(kbd ,key))
-                      ((null key) nil)
-                      (t (error "Invalid key: %s" key)))))
-    `(progn
-       (define-prefix-command ',name)
-       (basis/define-keys ,name ,@keydefs)
-       ,(and key `(define-key ,map ,kbd ',name))
-       ',name)))
-
-(defmacro basis/define-eval-keys (keymap &rest keydefs)
-  "Define key bindings for evaluating various units of code.
-See `basis/eval-keys'."
-  (declare (indent 1))
-  `(progn
-     ,@(mapcar (lambda (keydef)
-                 (let* ((sym (car keydef))
-                        (def (cadr keydef))
-                        (key (cdr (assq sym basis/eval-keys)))
-                        (kbd (if (vectorp key) key `(kbd ,key))))
-                   (if key
-                       `(define-key ,keymap ,kbd ,def)
-                     (error "No eval key for `%s'" sym))))
-               keydefs)))
+(defmacro basis/define-prefix-command (command &optional key)
+  "Define COMMAND as a prefix command, optionally bound to KEY."
+  (let ((sym (make-symbol "sym")))
+    `(let ((,sym ,command))
+       (define-prefix-command ,sym)
+       ,(and key `(global-set-key ,key ,sym))
+       ,sym)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
