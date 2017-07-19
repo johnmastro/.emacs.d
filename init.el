@@ -101,6 +101,8 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t)
 
 (use-package async-bytecomp
+  :ensure async
+  :defer t
   :config
   (when (eq system-type 'windows-nt)
     (with-eval-after-load 'async-bytecomp
