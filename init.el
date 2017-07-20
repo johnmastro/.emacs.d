@@ -400,22 +400,10 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :diminish superword-mode)
 
-(defun basis/enable-auto-revert ()
-  (unless (or auto-revert-mode global-auto-revert-mode)
-    (auto-revert-mode)))
-
 (use-package autorevert
   :config
-  (progn
-    (setq auto-revert-verbose nil)
-    (if (/= emacs-major-version 25)
-        (global-auto-revert-mode)
-      ;; Emacs 25 refuses to use "notify" with
-      ;; `global-auto-revert-mode'
-      (add-hook 'find-file-hook #'basis/enable-auto-revert)
-      (add-hook 'after-save-hook #'basis/enable-auto-revert)
-      (with-eval-after-load 'dired
-        (add-hook 'dired-mode-hook #'basis/enable-auto-revert)))))
+  (progn (setq auto-revert-verbose nil)
+         (global-auto-revert-mode)))
 
 (use-package frame
   :config (blink-cursor-mode -1))
