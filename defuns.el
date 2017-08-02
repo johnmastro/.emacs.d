@@ -2497,11 +2497,8 @@ search term."
 (defun basis/goto-line-with-numbers ()
   "Invoke `goto-line' with `display-line-numbers' enabled."
   (interactive)
-  (let* ((symbol 'display-line-numbers)
-         (toggle (and (boundp symbol) (not (symbol-value symbol)))))
-    (and toggle (toggle-display-line-numbers))
-    (unwind-protect (call-interactively #'goto-line)
-      (and toggle (toggle-display-line-numbers)))))
+  (let ((display-line-numbers t))
+    (call-interactively #'goto-line)))
 
 (defun basis/libxml-available-p ()
   "Return non-nil if libxml is available."
