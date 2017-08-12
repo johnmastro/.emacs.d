@@ -1629,9 +1629,9 @@ symbol (like `kill-sexp')."
       (kill-sexp 1)
     (sp-kill-sexp arg)))
 
-(defmacro basis/def-sp-backspace-command (name command)
-  (declare (indent defun))
-  (let ((doc (ignore-errors (documentation (eval command) t))))
+(defmacro basis/def-sp-backspace-command (name command &optional doc)
+  (declare (indent defun) (doc-string 3))
+  (let ((doc (or doc (ignore-errors (documentation (eval command) t)))))
     `(progn
        (defun ,name ()
          ,@(and doc (list doc))
