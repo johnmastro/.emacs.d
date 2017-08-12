@@ -273,9 +273,9 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config
   (progn
     (setq shift-select-mode nil)
-    (setq line-number-mode t)
-    (setq column-number-mode t)
     (setq next-line-add-newlines t)
+    (line-number-mode)
+    (column-number-mode)
     (size-indication-mode)
     (advice-add 'pop-to-mark-command :around
                 #'basis/pop-to-mark-ensure-new-pos)
