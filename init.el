@@ -40,7 +40,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 ;; So `find-function' works for C functions in Emacsen I didn't build myself
 (unless (file-directory-p source-directory)
-  (let ((dir (format "~/src/emacs/emacs-%s/" emacs-version)))
+  (let ((dir (format "~/src/emacs-%s/" emacs-version)))
     (when (file-directory-p dir)
       (setq source-directory dir))))
 
