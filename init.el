@@ -1045,6 +1045,12 @@ TODO: <home> and <end> still don't work.")
       (unless (assoc alias grep-files-aliases)
         (add-to-list 'grep-files-aliases (cons alias files))))))
 
+(use-package locate
+  :defer t
+  :config
+  (when (eq system-type 'darwin)
+    (setq locate-make-command-line (lambda (s) (list "mdfind" "-name" s)))))
+
 (use-package ag
   :ensure t
   :defer t)
