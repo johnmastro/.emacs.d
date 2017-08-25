@@ -889,9 +889,9 @@ TODO: <home> and <end> still don't work.")
     (setq sp-autoescape-string-quote nil)
     (setq sp-use-subword t)
     (setq-default sp-autoskip-closing-pair 'always)
-    (sp-pair "'" nil
-             :unless '(basis/sp-point-after-word-p)
-             :actions '(insert wrap autoskip))
+    (sp-pair "'" "'"
+             :unless '(sp-in-string-quotes-p basis/sp-point-after-word-p)
+             :actions (sp-get-pair-definition "\"" t :actions))
     (pcase-dolist (`(,mode ,open ,close ,actions)
                    '((org-mode  "=" "=" (wrap))
                      (rust-mode "'" nil (:rem insert autoskip))
