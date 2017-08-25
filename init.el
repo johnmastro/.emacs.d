@@ -2237,6 +2237,10 @@ TODO: <home> and <end> still don't work.")
             (advice-add 'ediff-quit :after #'basis/ediff-quit-restore)
             (add-hook 'ediff-mode-hook #'basis/init-ediff)))
 
+(use-package vc
+  :defer t
+  :config (setq vc-follow-symlinks t))
+
 (use-package magit
   :ensure t
   :defer t
