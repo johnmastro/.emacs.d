@@ -2202,7 +2202,7 @@ TODO: <home> and <end> still don't work.")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Diffing
+;;; Version control
 
 (defun basis/init-diff-mode ()
   (basis/maybe-enable-bug-reference-mode))
@@ -2230,10 +2230,6 @@ TODO: <home> and <end> still don't work.")
             (advice-add 'ediff-setup :before #'basis/ediff-save-window-config)
             (advice-add 'ediff-quit :after #'basis/ediff-quit-restore)
             (add-hook 'ediff-mode-hook #'basis/init-ediff)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Magit & other git things
 
 (use-package magit
   :ensure t

@@ -1784,7 +1784,7 @@ Cygwin-friendly name so that the personal dictionary works."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Diffing
+;;; Version control
 
 (defun basis/diff-buffer-with-file (buffer file)
   "View the differences between BUFFER and FILE.
@@ -1833,10 +1833,6 @@ After quitting, restore the previous window configuration."
   (if (file-newer-than-file-p file1 file2)
       (ediff-files file2 file1)
     (ediff-files file1 file2)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Magit & other git things
 
 (defun basis/magit-browse-pull-request-url ()
   "Visit the current branch's PR on GitHub."
