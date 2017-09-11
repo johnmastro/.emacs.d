@@ -480,6 +480,14 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config
   (advice-add 'abbrev-insert :before #'basis/abbrev-insert-undo-boundary))
 
+(use-package enriched
+  :defer t
+  :config
+  ;; Avoid a remote code execution vulnerability
+  (when (version< emacs-version "25.3")
+    (defun enriched-decode-display-prop (start end &optional param)
+      (list start end))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
