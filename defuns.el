@@ -2088,13 +2088,13 @@ If ARG is non-nil, reinitialize the cache of topics."
    (list (current-buffer)
          (substring-no-properties (read-file-name "Destination: "))))
   (with-current-buffer buffer
-    (when (and (buffer-modified-p)
-               (y-or-n-p (format-message "Buffer `%s' modified; save?"
-                                         (current-buffer))))
-      (save-buffer))
     (let ((src (buffer-file-name)))
-      (unless (and src (file-exists-p src))
-        (user-error "Buffer `%s' is not visiting a file" (buffer-name)))
+      (cond ((null src)
+             (user-error "Buffer `%s' is not visiting a file" (buffer-name)))
+            ((and (buffer-modified-p)
+                  (y-or-n-p (format-message "Buffer `%s' modified; save?"
+                                            (current-buffer))))
+             (save-buffer)))
       (pcase-let ((`(,dst . ,dir)
                    (if (or (file-directory-p destination)
                            (directory-name-p destination))
