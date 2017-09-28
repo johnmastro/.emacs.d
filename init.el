@@ -77,7 +77,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package auto-compile
   :ensure t
-  :config (progn (auto-compile-on-load-mode)
+  :config (progn (setq auto-compile-mode-line-counter t)
+                 (setq auto-compile-source-recreate-deletes-dest t)
+                 (setq auto-compile-toggle-deletes-nonlib-dest t)
+                 (setq auto-compile-update-autoloads t)
+                 (auto-compile-on-load-mode)
                  (auto-compile-on-save-mode)))
 
 (use-package bind-key
