@@ -1651,7 +1651,7 @@ symbol (like `kill-sexp')."
   #'yaml-electric-backspace)
 
 (basis/def-sp-backspace-command basis/sp-markdown-backspace
-  #'markdown-exdent-or-delete)
+  #'markdown-outdent-or-delete)
 
 (defun basis/sp-comint-delchar-or-maybe-eof (arg)
   "Delete ARG characters or send an EOF to subprocess."
