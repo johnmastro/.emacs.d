@@ -549,7 +549,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package man
   :defer t
   :init (global-set-key (kbd "C-h C-k") #'basis/ido-man)
-  :config (setq Man-notify-method 'aggressive))
+  :config (progn (setq Man-width 80)
+                 (setq Man-notify-method 'aggressive)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
