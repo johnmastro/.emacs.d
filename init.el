@@ -2256,6 +2256,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package vc
   :defer t
+  :init (global-set-key (kbd "C-x v h") #'vc-region-history)
   :config (setq vc-follow-symlinks t))
 
 (use-package magit
