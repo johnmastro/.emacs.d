@@ -413,7 +413,7 @@ With an argument N, duplicate that many lines."
   "Save BUFFER's associated file name to the kill ring.
 Abbreviate the file name, unless called with prefix ARG."
   (interactive "P")
-  (if-let ((file (buffer-file-name)))
+  (if-let* ((file (buffer-file-name)))
       (kill-new (message "%s" (if arg file (abbreviate-file-name file))))
     (user-error "Current buffer is not visiting a file")))
 
@@ -853,13 +853,13 @@ search started. Otherwise, call the command the key is bound to
 in the global map."
   (interactive)
   (if (string= ivy-text "")
-      (when-let ((str (save-window-excursion
-                        (basis/with-ivy-window
-                          (goto-char swiper--opoint)
-                          (current-word t)))))
+      (when-let* ((str (save-window-excursion
+                         (basis/with-ivy-window
+                           (goto-char swiper--opoint)
+                           (current-word t)))))
         (insert str))
-    (when-let ((cmd (and (called-interactively-p 'any)
-                         (lookup-key global-map (this-command-keys)))))
+    (when-let* ((cmd (and (called-interactively-p 'any)
+                          (lookup-key global-map (this-command-keys)))))
       (call-interactively cmd))))
 
 (defun basis/grep-use-bash (original &rest args)
@@ -1122,8 +1122,8 @@ otherwise call `yas-insert-snippet'."
     (forward-char -3)))
 
 (defun basis/python-find-virtual-env (&optional dir)
-  (when-let ((dir (or dir (ignore-errors (projectile-project-root))))
-             (env (expand-file-name "env" dir)))
+  (when-let* ((dir (or dir (ignore-errors (projectile-project-root))))
+              (env (expand-file-name "env" dir)))
     (and (or (file-exists-p (expand-file-name "bin/activate" env))
              (file-exists-p (expand-file-name "Scripts/activate" env)))
          env)))
@@ -1133,7 +1133,7 @@ otherwise call `yas-insert-snippet'."
   (interactive
    (list (read-directory-name
           "Activate virtual environment: "
-          (when-let ((root (ignore-errors (projectile-project-root))))
+          (when-let* ((root (ignore-errors (projectile-project-root))))
             (or (basis/python-find-virtual-env root)
                 root)))))
   (if (eq major-mode 'python-mode)
@@ -1837,10 +1837,10 @@ After quitting, restore the previous window configuration."
 (defun basis/magit-browse-pull-request-url ()
   "Visit the current branch's PR on GitHub."
   (interactive)
-  (if-let ((regexp "\\`.+github\\.com:\\(.+\\)\\.git\\'")
-           (remote (magit-get "remote" (magit-get-remote) "url"))
-           (repo (and (string-match regexp remote)
-                      (match-string 1 remote))))
+  (if-let* ((regexp "\\`.+github\\.com:\\(.+\\)\\.git\\'")
+            (remote (magit-get "remote" (magit-get-remote) "url"))
+            (repo (and (string-match regexp remote)
+                       (match-string 1 remote))))
       ;; Or this? "https://github.com/%s/pull/new/%s"
       (browse-url (format "https://github.com/%s/compare/%s"
                           repo
@@ -1864,8 +1864,8 @@ make sure its in the same form that Emacs uses (i.e.
 Use `expand-file-name' to canonicalize file names to Emacs's
 representation before comparing them."
   (interactive "P")
-  (when-let ((topdir (magit-rev-parse-safe "--show-toplevel"))
-             (topdir (expand-file-name topdir)))
+  (when-let* ((topdir (magit-rev-parse-safe "--show-toplevel"))
+              (topdir (expand-file-name topdir)))
     (let ((remote (file-remote-p topdir)))
       (save-some-buffers
        arg
@@ -1874,8 +1874,8 @@ representation before comparing them."
               ;; Avoid needlessly connecting to unrelated remotes.
               (equal (file-remote-p buffer-file-name) remote)
               (string-prefix-p topdir (file-truename buffer-file-name))
-              (equal (when-let ((dir (magit-rev-parse-safe "--show-toplevel"))
-                                (dir (expand-file-name dir)))
+              (equal (when-let* ((dir (magit-rev-parse-safe "--show-toplevel"))
+                                 (dir (expand-file-name dir)))
                        dir)
                      topdir)))))))
 
@@ -1961,7 +1961,7 @@ N must be between 4 and 40 and defaults to the result of calling
   (interactive (list (or (and (eq major-mode 'dired-mode)
                               (ignore-errors (dired-get-file-for-visit)))
                          (read-file-name "Open externally: " nil nil t))))
-  (if-let ((exe (basis/default-program-for-file file)))
+  (if-let* ((exe (basis/default-program-for-file file)))
       (basis/open-file-externally-1 exe file)
     (error "No external program defined for `%s'" (abbreviate-file-name file))))
 
@@ -2046,8 +2046,8 @@ user-error, automatically move point to the command line."
 (defun basis/build-clang-args (language)
   (unless (memq language '(c c++))
     (error "Unknown language `%s'" language))
-  (when-let ((std (if (eq language 'c++) "c++11" "c11"))
-             (inc (ignore-errors (basis/find-clang-includes-path language))))
+  (when-let* ((std (if (eq language 'c++) "c++11" "c11"))
+              (inc (ignore-errors (basis/find-clang-includes-path language))))
     (cons (format "-std=%s" std) inc)))
 
 (defun basis/eshell-cygwin-path-env ()
@@ -2121,8 +2121,8 @@ If ARG is non-nil, reinitialize the cache of topics."
   "Kill BUFFER and delete the file it's visiting."
   (interactive (list (current-buffer)))
   (with-current-buffer buffer
-    (if-let ((file (buffer-file-name))
-             (abbr (abbreviate-file-name file)))
+    (if-let* ((file (buffer-file-name))
+              (abbr (abbreviate-file-name file)))
         (when (y-or-n-p (format-message "Delete file `%s'?" abbr))
           (delete-file file)
           (kill-buffer buffer)
@@ -2537,8 +2537,8 @@ kill the current session even if there are multiple frames."
 (defun basis/visit-tags-file-auto ()
   "Automatically find and visit a TAGS file."
   (interactive)
-  (when-let ((file (buffer-file-name))
-             (tags (locate-dominating-file file "TAGS")))
+  (when-let* ((file (buffer-file-name))
+              (tags (locate-dominating-file file "TAGS")))
     (visit-tags-table (expand-file-name "TAGS" tags) t)))
 
 (defun basis/flash-region (start end &optional timeout)

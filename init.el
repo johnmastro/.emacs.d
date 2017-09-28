@@ -92,7 +92,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package pcase)
 
-(use-package subr-x)
+(use-package subr-x
+  :config
+  (progn
+    (unless (fboundp 'if-let*) (defalias 'if-let* 'if-let))
+    (unless (fboundp 'when-let*) (defalias 'when-let* 'when-let))))
 
 (use-package seq)
 
@@ -140,9 +144,9 @@ Create the directory if it does not exist and CREATE is non-nil."
       'noerror nil nil 'must-suffix)
 
 ;; Specify the default font, but only if one of the local init file(s) didn't
-(when-let ((font (and (display-graphic-p)
-                      (null (assq 'font default-frame-alist))
-                      (basis/select-default-font))))
+(when-let* ((font (and (display-graphic-p)
+                       (null (assq 'font default-frame-alist))
+                       (basis/select-default-font))))
   (add-to-list 'default-frame-alist (cons 'font font))
   (set-face-font 'fixed-pitch font))
 
@@ -292,7 +296,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (defun basis/maybe-set-coding ()
   (when (and (eq system-type 'windows-nt)
-             (when-let ((method (file-remote-p buffer-file-name 'method)))
+             (when-let* ((method (file-remote-p buffer-file-name 'method)))
                (string-match-p "ssh\\|scp\\|plink" method)))
     (set-buffer-file-coding-system 'utf-8-unix)))
 
@@ -1338,8 +1342,8 @@ TODO: <home> and <end> still don't work.")
                   #'basis/company-no-srv-candidates))
     (unless (eq system-type 'windows-nt)
       (with-eval-after-load 'cc-mode
-        (when-let ((prog (basis/find-clang-program))
-                   (args (basis/build-clang-args 'c)))
+        (when-let* ((prog (basis/find-clang-program))
+                    (args (basis/build-clang-args 'c)))
           (require 'company-clang)
           (setq company-clang-executable prog)
           (setq company-clang-arguments args)))))
@@ -1531,7 +1535,7 @@ TODO: <home> and <end> still don't work.")
   nil)
 
 (defun basis/set-lein-command-for-mac ()
-  (when-let ((lein (executable-find "lein")))
+  (when-let* ((lein (executable-find "lein")))
     (setq cider-lein-command lein)))
 
 (defun basis/set-lein-command-for-cygwin ()
@@ -1695,10 +1699,10 @@ TODO: <home> and <end> still don't work.")
     (when (basis/jedi-installed-p)
       (add-hook 'python-mode-hook #'jedi:setup))
     (when (eq system-type 'windows-nt)
-      (when-let ((python (cond ((executable-find "py")
-                                "py")
-                               ((file-executable-p "c:/Python27/python.exe")
-                                "c:/Python27/python.exe"))))
+      (when-let* ((python (cond ((executable-find "py")
+                                 "py")
+                                ((file-executable-p "c:/Python27/python.exe")
+                                 "c:/Python27/python.exe"))))
         (setq python-shell-interpreter python))
       ;; Hopefully-temporary workaround
       (when (boundp 'python-shell-completion-native-enable)
@@ -2612,7 +2616,7 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t
   :config (progn (setq elfeed-db-directory (basis/emacs-dir "var/elfeed/"))
-                 (when-let ((curl (executable-find "curl")))
+                 (when-let* ((curl (executable-find "curl")))
                    (setq elfeed-curl-program-name curl)
                    (setq elfeed-use-curl t))
                  (let ((feeds (basis/emacs-file "feeds.eld")))
@@ -2628,12 +2632,12 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config
   (progn (define-key eww-mode-map (kbd "<backtab>") #'shr-previous-link)
-         (when-let ((directory
-                     (or (basis/xdg-user-dir 'download)
-                         (seq-find #'file-directory-p
-                                   (append '("~/downloads/" "~/Downloads/")
-                                           (and (eq system-type 'windows-nt)
-                                                '("e:/Downloads")))))))
+         (when-let* ((directory
+                      (or (basis/xdg-user-dir 'download)
+                          (seq-find #'file-directory-p
+                                    (append '("~/downloads/" "~/Downloads/")
+                                            (and (eq system-type 'windows-nt)
+                                                 '("e:/Downloads")))))))
            (setq eww-download-directory directory))))
 
 (use-package browse-url
