@@ -976,7 +976,7 @@ TODO: <home> and <end> still don't work.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
 
-(setq search-default-regexp-mode #'character-fold-to-regexp)
+(setq search-default-mode #'char-fold-to-regexp)
 (setq isearch-regexp-lax-whitespace t)
 (setq isearch-allow-scroll t)
 
