@@ -113,7 +113,8 @@ check it back out.
   PKG_CONFIG_PATH=/mingw64/lib/pkgconfig \
     ./configure --prefix=/c/emacs/emacs-master \
       --with-zlib --with-gnutls --with-xml2 \
-      --without-imagemagick --without-pop --without-compress-install
+      --without-dbus --without-imagemagick --without-pop \
+      --without-compress-install
   make
   make install
   ```
