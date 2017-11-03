@@ -2498,10 +2498,12 @@ search term."
 
 (defun basis/libxml-available-p ()
   "Return non-nil if libxml is available."
-  (and (fboundp 'libxml-parse-html-region)
-       (with-temp-buffer
-         (insert "<html></html>")
-         (not (null (libxml-parse-html-region (point-min) (point-max)))))))
+  (cond ((fboundp 'libxml-available-p)
+         (libxml-available-p))
+        ((fboundp 'libxml-parse-html-region)
+         (with-temp-buffer
+           (insert "<html></html>")
+           (not (null (libxml-parse-html-region (point-min) (point-max))))))))
 
 (defun basis/looking-back-p (regexp &optional limit)
   "Same as `looking-back' but don't change the match data."
