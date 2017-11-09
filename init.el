@@ -615,7 +615,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (define-key basis/meta-t-map (kbd "c")   #'transpose-chars)
 (define-key basis/meta-t-map (kbd "M-w") #'basis/transpose-windows)
 (define-key basis/meta-t-map (kbd "M-s") #'basis/toggle-window-split)
-(define-key basis/meta-t-map (kbd "n")   #'toggle-display-line-numbers)
+(define-key basis/meta-t-map (kbd "n")   #'display-line-numbers-mode)
 
 (global-set-key (kbd "C-c ;") #'basis/comment-or-uncomment)
 (global-set-key (kbd "C-x ;") #'basis/comment-region-lines)
