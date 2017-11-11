@@ -4,13 +4,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Key binding utilities
 
-(defmacro basis/define-prefix-command (command &optional key)
+(defun basis/define-prefix-command (command &optional key doc)
   "Define COMMAND as a prefix command, optionally bound to KEY."
-  (let ((sym (make-symbol "sym")))
-    `(let ((,sym ,command))
-       (define-prefix-command ,sym)
-       ,(and key `(global-set-key ,key ,sym))
-       ,sym)))
+  (declare (indent 2) (doc-string 3))
+  (define-prefix-command command)
+  (when key (global-set-key key command))
+  (when doc (put command 'variable-documentation doc))
+  command)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1629,28 +1629,26 @@ symbol (like `kill-sexp')."
       (kill-sexp 1)
     (sp-kill-sexp arg)))
 
-(defmacro basis/def-sp-backspace-command (name command &optional doc)
-  (declare (indent defun) (doc-string 3))
-  (let ((doc (or doc (ignore-errors (documentation (eval command) t)))))
-    `(progn
-       (defun ,name ()
-         ,@(and doc (list doc))
-         (interactive)
-         (cl-letf (((symbol-function 'backward-delete-char)
-                    #'sp-backward-delete-char)
-                   ((symbol-function 'backward-delete-char-untabify)
-                    #'sp-backward-delete-char))
-           (call-interactively ,command)))
-       (put ',name 'delete-selection 'supersede)
-       ',name)))
+(defun basis/def-sp-backspace-command (name command)
+  (declare (indent defun))
+  (defalias name
+    (lambda ()
+      (interactive)
+      (cl-letf (((symbol-function 'backward-delete-char)
+                 #'sp-backward-delete-char)
+                ((symbol-function 'backward-delete-char-untabify)
+                 #'sp-backward-delete-char))
+        (call-interactively command))))
+  (put name 'delete-selection 'supersede)
+  name)
 
-(basis/def-sp-backspace-command basis/sp-python-backspace
+(basis/def-sp-backspace-command 'basis/sp-python-backspace
   #'python-indent-dedent-line-backspace)
 
-(basis/def-sp-backspace-command basis/sp-yaml-backspace
+(basis/def-sp-backspace-command 'basis/sp-yaml-backspace
   #'yaml-electric-backspace)
 
-(basis/def-sp-backspace-command basis/sp-markdown-backspace
+(basis/def-sp-backspace-command 'basis/sp-markdown-backspace
   #'markdown-outdent-or-delete)
 
 (defun basis/sp-comint-delchar-or-maybe-eof (arg)
