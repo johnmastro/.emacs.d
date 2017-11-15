@@ -833,35 +833,6 @@ current search, with no context-dependent behavior."
 Used as :after advice for `avy-push-mark'."
   (push-mark nil t nil))
 
-(defvar helm-move-to-line-cycle-in-source)
-
-(defun basis/swiper-helm ()
-  (interactive)
-  (let ((helm-move-to-line-cycle-in-source t))
-    (call-interactively #'swiper-helm)))
-
-(defmacro basis/with-ivy-window (&rest body)
-  ;; Copy of `with-ivy-window' so this file can be compiled without `ivy' loaded
-  (declare (indent 0) (debug t))
-  `(with-selected-window (ivy--get-window ivy-last)
-     ,@body))
-
-(defun basis/swiper-maybe-yank-something ()
-  "Conditionally insert the symbol at point.
-If the search text is empty, insert the symbol at point where the
-search started. Otherwise, call the command the key is bound to
-in the global map."
-  (interactive)
-  (if (string= ivy-text "")
-      (when-let* ((str (save-window-excursion
-                         (basis/with-ivy-window
-                           (goto-char swiper--opoint)
-                           (current-word t)))))
-        (insert str))
-    (when-let* ((cmd (and (called-interactively-p 'any)
-                          (lookup-key global-map (this-command-keys)))))
-      (call-interactively cmd))))
-
 (defun basis/grep-use-bash (original &rest args)
   "Advice for `lgrep'.
 Invoke grep via bash, since zsh signals an error if there are any
@@ -1179,31 +1150,6 @@ delimiters."
       (when inside (skip-chars-backward "'\""))
       (setq end (point))
       (list beg end))))
-
-(defun basis/python-fill-module-docstring (beg end)
-  "Fill from BEG to END as a Python module docstring.
-This assumes a possibly-idiosyncratic module docstring style."
-  (interactive
-   (if (use-region-p)
-       (list (region-beginning) (region-end))
-     (basis/python-string-bounds t)))
-  (let* ((buf (current-buffer))
-         (new (with-temp-buffer
-                (setq fill-column 64)
-                (insert-buffer-substring buf beg end)
-                (indent-rigidly (point-min) (point-max) most-negative-fixnum)
-                (goto-char (point-min))
-                ;; If there's a header, move over it
-                (when (save-excursion
-                        (and (> (count-lines (point-min) (point-max)) 3)
-                             (progn (forward-line 2)
-                                    (looking-at-p "^[ *~_=-]*$"))))
-                  (forward-line 3))
-                (fill-region (point) (point-max))
-                (indent-rigidly (point-min) (point-max) 4)
-                (buffer-string))))
-    (delete-region beg end)
-    (insert new)))
 
 (defun basis/slime-eval-something ()
   "Eval the active region, if any; otherwise eval the toplevel form."
@@ -1813,25 +1759,6 @@ After quitting, restore the previous window configuration."
   (with-demoted-errors "Couldn't restore window configuration: %S"
     (jump-to-register :ediff-restore-windows)))
 
-(defun basis/ediff-files (file1 file2)
-  "Use `ediff' to compare FILE1 and FILE2."
-  (interactive
-   (if (eq major-mode 'dired-mode)
-       (let ((marked (dired-get-marked-files)))
-         (pcase (length marked)
-           (1 (cons (read-file-name "File: " (dired-dwim-target-directory))
-                    marked))
-           (2 marked)
-           (_ (error "Either one or two files should be marked"))))
-     (let* ((file1 (read-file-name "File 1: " nil nil t))
-            (file2 (read-file-name "File 2: "
-                                   (file-name-directory file1)
-                                   nil t)))
-       (list file1 file2))))
-  (if (file-newer-than-file-p file1 file2)
-      (ediff-files file2 file1)
-    (ediff-files file1 file2)))
-
 (defun basis/magit-browse-pull-request-url ()
   "Visit the current branch's PR on GitHub."
   (interactive)
@@ -1940,9 +1867,10 @@ N must be between 4 and 40 and defaults to the result of calling
 
 (defun basis/default-program-for-file (_)
   ;; TODO: Use `mailcap'?
-  (if (memq system-type '(darwin windows-nt))
-      "open"
-    "xdg-open"))
+  (cond ((memq system-type '(darwin windows-nt))
+         "open")
+        ((executable-find "xdg-open")
+         "xdg-open")))
 
 (defun basis/open-file-externally-1 (program file)
   "Use PROGRAM to open FILE externally."

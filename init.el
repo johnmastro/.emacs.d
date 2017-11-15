@@ -1005,8 +1005,7 @@ TODO: <home> and <end> still don't work.")
   (progn
     (setq swiper-min-highlight 1)
     (define-key swiper-map (kbd "M-%")   #'swiper-query-replace)
-    (define-key swiper-map (kbd "M-SPC") #'swiper-avy)
-    (define-key swiper-map (kbd "C-t")   #'basis/swiper-maybe-yank-something)))
+    (define-key swiper-map (kbd "M-SPC") #'swiper-avy)))
 
 (use-package swiper-helm
   :ensure t
