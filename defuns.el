@@ -2219,6 +2219,13 @@ If VISIT is non-nil, visit the file after downloading it."
                  (1+ (point))
                  (1- (progn (forward-sexp 1) (point))))))))))
 
+(defun basis/find-source-directory ()
+  "Open `source-directory' in a `dired' buffer."
+  (interactive)
+  (unless (and source-directory (file-directory-p source-directory))
+    (error "`source-directory' is not defined or does not exist"))
+  (dired source-directory))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management

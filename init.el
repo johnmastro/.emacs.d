@@ -689,6 +689,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (define-key basis/find-lisp-map "v" #'find-variable)
 (define-key basis/find-lisp-map "V" #'apropos-value)
 (define-key basis/find-lisp-map "a" #'helm-apropos)
+(define-key basis/find-lisp-map "s" #'basis/find-source-directory)
 
 (use-package other-frame-window
   :ensure t
