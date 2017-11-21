@@ -2290,6 +2290,16 @@ TODO: <home> and <end> still don't work.")
     (define-key ctl-x-4-map "g" #'magit-find-file-other-window)
     (define-key magit-status-mode-map
       (kbd "C-c C-v") #'basis/magit-browse-pull-request-url)
+    ;; Don't (sometimes) show recent commits in magit-status
+    (magit-add-section-hook 'magit-status-sections-hook
+                            'magit-insert-unpulled-from-upstream
+                            'magit-insert-unpulled-from-upstream-or-recent
+                            'replace)
+    (magit-add-section-hook 'magit-status-sections-hook
+                            'magit-insert-unpushed-to-upstream
+                            'magit-insert-unpushed-to-upstream-or-recent
+                            'replace)
+    ;; Cygwin compatibility stuff
     (when (eq basis/system-type 'windows+cygwin)
       (setq magit-need-cygwin-noglob t)
       (when (file-executable-p "/bin/git.exe")
