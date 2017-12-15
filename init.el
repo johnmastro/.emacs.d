@@ -2030,7 +2030,7 @@ TODO: <home> and <end> still don't work.")
     (setq org-todo-keywords
           '((sequence
              "TODO(t)" "STARTED(s@)" "WAITING(w@/!)" "DELEGATED(l@)" "|"
-             "DONE(d!)" "DEFERRED(f@)" "CANCELLED(c@)")))
+             "DONE(d!)" "DEFERRED(f@)" "CANCELED(c@)")))
     (let ((names (delq nil (mapcar (lambda (elt)
                                      (and (string-match "\\`\\([A-Z]+\\)" elt)
                                           (match-string 1 elt)))
