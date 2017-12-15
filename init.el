@@ -327,7 +327,8 @@ Create the directory if it does not exist and CREATE is non-nil."
                           '("/tmp/")))
             temporary-file-directory))
     (when (eq system-type 'windows-nt)
-      (add-hook 'before-save-hook #'basis/maybe-set-coding))))
+      (add-hook 'before-save-hook #'basis/maybe-set-coding))
+    (put 'not-modified 'disabled t)))
 
 (use-package windmove
   :defer t
