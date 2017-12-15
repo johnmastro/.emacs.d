@@ -1235,7 +1235,8 @@ TODO: <home> and <end> still don't work.")
 (use-package helm-ring
   :defer t
   :init (progn (global-set-key (kbd "M-y") #'helm-show-kill-ring)
-               (global-set-key (kbd "M-`") #'helm-all-mark-rings)))
+               (global-set-key (kbd "M-`") #'helm-mark-ring)
+               (global-set-key (kbd "M-~") #'helm-all-mark-rings)))
 
 (use-package helm-elisp
   :defer t
