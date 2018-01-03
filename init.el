@@ -194,7 +194,7 @@ Create the directory if it does not exist and CREATE is non-nil."
     (when (and (file-directory-p home) (not after-init-time))
       (cd home))
     (setenv "PATH" (mapconcat #'identity path ":"))
-    (setq exec-path (mapcar (lambda (dir) (concat "c:" dir)) path))
+    (setq exec-path (mapcar (apply-partially #'concat "c:") path))
     (let ((shell (or (executable-find "zsh")
                      (executable-find "bash"))))
       (setq shell-file-name shell)
@@ -204,6 +204,7 @@ Create the directory if it does not exist and CREATE is non-nil."
       (setenv "SHELL" shell))
     (advice-add 'shell-quote-argument :filter-args
                 #'basis/cygwin-shell-quote-argument)
+    (setq Man-coding-system 'utf-8)
     (setq basis/system-type 'windows+cygwin)))
 
 (when (and (eq basis/system-type 'windows-nt)
