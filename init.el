@@ -2510,6 +2510,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package dired
   :defer t
+  :init (global-set-key (kbd "C-x C-d") #'dired)
   :config
   (progn
     (let ((map dired-mode-map))
