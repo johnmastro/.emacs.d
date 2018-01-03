@@ -667,7 +667,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (basis/define-prefix-command 'basis/region-map (kbd "C-c r"))
 (define-key basis/region-map "a" #'align)
-(define-key basis/region-map "b" #'basis/delete-empty-lines)
+(define-key basis/region-map "d" #'basis/delete-empty-lines)
 (define-key basis/region-map "c" #'basis/count-words)
 (define-key basis/region-map "l" #'basis/count-sloc)
 (define-key basis/region-map "s" #'sort-lines)
