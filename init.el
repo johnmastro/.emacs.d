@@ -2366,6 +2366,11 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t)
 
+(use-package browse-at-remote
+  :ensure t
+  :defer t
+  :init (global-set-key (kbd "M-g r") #'browse-at-remote))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project management
