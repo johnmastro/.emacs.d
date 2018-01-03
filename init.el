@@ -238,6 +238,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (setq mail-host-address "jbm.io")
 (setq print-gensym t)
 (setq print-circle t)
+(setq select-active-regions nil)
 
 (defun basis/default-major-mode ()
   (let ((case-fold-search (memq system-type '(windows-nt cygwin darwin))))
