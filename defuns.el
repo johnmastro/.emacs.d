@@ -1991,7 +1991,12 @@ user-error, automatically move point to the command line."
     (setq basis/ido-man-topics (mapcar #'car woman-topic-all-completions))))
 
 (defun basis/read-manual-page-file-name ()
-  (let* ((topic (completing-read "Manual entry: " basis/ido-man-topics nil t))
+  (let* ((topic (completing-read
+                 "Manual entry: " basis/ido-man-topics nil t nil nil
+                 (let ((def (current-word)))
+                   (if (and def (member def basis/ido-man-topics))
+                       def
+                     (car basis/ido-man-topics)))))
          (files (mapcar #'car (woman-file-name-all-completions topic))))
     (if (cdr files)
         (completing-read "Manual file: " files nil t)
