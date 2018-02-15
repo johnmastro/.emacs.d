@@ -1644,6 +1644,7 @@ Handle the special string literals in Python and SQL."
 (defvar basis/sp-inhibit-cleanup-list
   '(indent-relative
     indent-relative-maybe
+    markdown-indent-line
     python-indent-line-function
     haskell-indentation-indent-line)
   "Indentation functions for which to inhibit smartparens's cleanup.")
