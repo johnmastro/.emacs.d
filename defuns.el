@@ -2024,7 +2024,7 @@ If ARG is non-nil, reinitialize the cache of topics."
       (cond ((null src)
              (user-error "Buffer `%s' is not visiting a file" (buffer-name)))
             ((and (buffer-modified-p)
-                  (y-or-n-p (format-message "Buffer `%s' modified; save?"
+                  (y-or-n-p (format-message "Buffer `%s' modified; save? "
                                             (current-buffer))))
              (save-buffer)))
       (pcase-let ((`(,dst . ,dir)
@@ -2036,7 +2036,7 @@ If ARG is non-nil, reinitialize the cache of topics."
                      (cons destination (file-name-directory destination)))))
         (unless (file-directory-p dir)
           (if (y-or-n-p (format-message
-                         "Directory `%s' does not exist; create it?"
+                         "Directory `%s' does not exist; create it? "
                          dir))
               (make-directory dir t)
             (user-error "Directory `%s' does not exist" dir)))
@@ -2055,13 +2055,13 @@ If ARG is non-nil, reinitialize the cache of topics."
   (with-current-buffer buffer
     (if-let* ((file (buffer-file-name))
               (abbr (abbreviate-file-name file)))
-        (when (y-or-n-p (format-message "Delete file `%s'?" abbr))
+        (when (y-or-n-p (format-message "Delete file `%s'? " abbr))
           (delete-file file)
           (kill-buffer buffer)
           (message "File `%s' deleted" abbr))
       (when (or (zerop (buffer-size))
                 (y-or-n-p (format-message
-                           "Buffer `%s' is not visiting a file; kill it?"
+                           "Buffer `%s' is not visiting a file; kill it? "
                            (buffer-name))))
         (kill-buffer)))))
 
@@ -2544,7 +2544,7 @@ EMACS defaults to the current Emacs executable. HOME defaults to
 (defun basis/kill-scratch-query-function ()
   ;; For use as a member of `kill-buffer-query-functions'
   (if (equal (buffer-name) "*scratch*")
-      (y-or-n-p "Really kill the *scratch* buffer?")
+      (y-or-n-p "Really kill the *scratch* buffer? ")
     t))
 
 (defun basis/clean-up-save-place-alist ()
