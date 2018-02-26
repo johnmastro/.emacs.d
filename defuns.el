@@ -342,15 +342,11 @@ if not."
     result))
 
 (defun basis/kill-something (arg)
-  "Kill the region, or one or more words backward.
-If `subword-mode' is active, use `subword-backward-kill'."
+  "Kill the region, or one or more words backward."
   (interactive "*p")
-  (cond ((use-region-p)
-         (kill-region (region-beginning) (region-end)))
-        ((bound-and-true-p subword-mode)
-         (subword-backward-kill arg))
-        (t
-         (backward-kill-word arg))))
+  (if (use-region-p)
+      (kill-region (region-beginning) (region-end))
+    (backward-kill-word arg)))
 
 (defun basis/smart-kill-whole-line (&optional arg)
   "Variant of `kill-whole-line'.
