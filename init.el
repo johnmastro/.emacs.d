@@ -591,6 +591,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key [remap move-beginning-of-line] #'basis/beginning-of-line)
 
+(global-set-key [remap open-line]  #'basis/open-line-maybe-reindent)
 (global-set-key (kbd "<S-return>") #'basis/open-line-above)
 (global-set-key (kbd "<C-return>") #'basis/open-line-below)
 

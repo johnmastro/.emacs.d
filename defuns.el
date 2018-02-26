@@ -197,6 +197,23 @@ that many sexps before uncommenting."
     (dotimes (_ (or n 1))
       (basis/comment-sexp-raw))))
 
+(defun basis/open-line-maybe-reindent (n)
+  "Insert a newline and leave point before it.
+Like `open-line' but, if in a `prog-mode' buffer with a
+non-relative `indent-line-function', reindent the text following
+the newline."
+  (interactive "*p")
+  (call-interactively #'open-line)
+  (when (and (derived-mode-p 'prog-mode)
+             (not (memq indent-line-function
+                        '(indent-relative
+                          indent-relative-maybe
+                          python-indent-line-function
+                          haskell-indentation-indent-line))))
+    (save-excursion
+      (forward-line n)
+      (indent-according-to-mode))))
+
 (defun basis/open-line-below (&optional arg)
   "Open a new line below the current one."
   (interactive "*p")
