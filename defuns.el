@@ -1820,7 +1820,7 @@ representation before comparing them."
 
 (defun basis/magit-stash-pop (stash)
   "Run \"git stash pop\"."
-  (interactive (list (magit-read-stash "Apply pop" t)))
+  (interactive (list (magit-read-stash "Apply pop")))
   (if (magit-git-success "stash" "pop" stash)
       (magit-refresh)
     (error "Unable to pop stash")))
