@@ -1959,7 +1959,6 @@ TODO: <home> and <end> still don't work.")
                  (define-key forth-mode-map (kbd "M-SPC") nil)))
 
 (use-package batch-mode
-  :ensure t
   :defer t
   :mode ("\\.bat\\'" "\\.cmd\\'"))
 
