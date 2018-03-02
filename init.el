@@ -2560,7 +2560,6 @@ TODO: <home> and <end> still don't work.")
   :init (setq image-dired-dir (basis/emacs-dir "var/image-dired/")))
 
 (use-package dired+
-  :ensure t
   :after dired
   :config (progn (define-key dired-mode-map (kbd "M-b") nil)
                  (define-key dired-mode-map (kbd "M-B") #'diredp-do-bookmark)))
