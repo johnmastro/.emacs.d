@@ -2460,7 +2460,7 @@ TODO: <home> and <end> still don't work.")
   :config
   (progn
     (setq projectile-keymap-prefix (kbd "C-c p"))
-    (setq projectile-completion-system 'helm)
+    (setq projectile-completion-system 'ido)
     (setq projectile-known-projects-file
           (basis/emacs-file "var/projectile-bookmarks.eld"))
     (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
