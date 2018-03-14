@@ -2279,13 +2279,15 @@ TODO: <home> and <end> still don't work.")
     (setq magit-use-sticky-arguments 'current)
     (setq magit-display-buffer-function
           #'magit-display-buffer-fullframe-status-v1)
-    (setq magit-repository-directories
-          (thread-last projectile-known-projects
-            (seq-filter (lambda (file)
-                          (and (not (file-remote-p file))
-                               (file-exists-p (expand-file-name ".git" file)))))
-            (cons "~/code/")
-            (mapcar #'directory-file-name)))
+    (when (require 'projectile nil t)
+      (setq magit-repository-directories
+            (thread-last projectile-known-projects
+              (seq-filter (lambda (file)
+                            (let ((.git (expand-file-name ".git" file)))
+                              (and (not (file-remote-p file))
+                                   (file-exists-p .git)))))
+              (cons "~/code/")
+              (mapcar #'directory-file-name))))
     (define-key basis/file-map "g" #'magit-find-file)
     (define-key ctl-x-4-map "g" #'magit-find-file-other-window)
     (define-key magit-status-mode-map
