@@ -540,6 +540,17 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config (progn (setq help-at-pt-display-when-idle t)
                  (help-at-pt-set-timer)))
 
+(use-package helpful
+  :ensure t
+  :defer t
+  :init
+  (progn (global-set-key (kbd "C-h f")   #'helpful-callable)
+         (global-set-key (kbd "C-h v")   #'helpful-variable)
+         (global-set-key (kbd "C-h k")   #'helpful-key)
+         (global-set-key (kbd "C-c C-d") #'helpful-at-point)
+         (global-set-key (kbd "C-h F")   #'helpful-function)
+         (global-set-key (kbd "C-h C")   #'helpful-command)))
+
 (use-package info
   :defer t
   :config
@@ -681,8 +692,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;; In Emacs 26, describe-\(function\|variable\) are incompatible with ido and
 ;; can load libraries as part of completion, so override them with simpler
 ;; definitions
-(global-set-key [remap describe-function] #'basis/describe-function)
-(global-set-key [remap describe-variable] #'basis/describe-variable)
+;; (global-set-key [remap describe-function] #'basis/describe-function)
+;; (global-set-key [remap describe-variable] #'basis/describe-variable)
 
 (basis/define-prefix-command 'basis/find-lisp-map (kbd "C-h e"))
 (define-key basis/find-lisp-map "c" #'finder-commentary)
