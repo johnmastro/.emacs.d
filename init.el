@@ -116,8 +116,6 @@ Create the directory if it does not exist and CREATE is non-nil."
     (with-eval-after-load 'async-bytecomp
       (setq async-bytecomp-allowed-packages nil))))
 
-(use-package map)
-
 (use-package dash
   :ensure t
   :defer t)
@@ -127,14 +125,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t)
 
 (use-package s
-  :ensure t
-  :defer t)
-
-(use-package persistent-soft
-  :ensure t
-  :defer t)
-
-(use-package request
   :ensure t
   :defer t)
 
