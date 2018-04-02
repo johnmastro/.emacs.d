@@ -2277,6 +2277,9 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t
   :init (progn
+          (when (file-executable-p "/bin/git.exe")
+            (setq magit-git-executable "/bin/git.exe")
+            (setq magit-git-environment nil))
           (global-set-key (kbd "C-x g")   #'magit-status)
           (global-set-key (kbd "C-x M-g") #'magit-dispatch-popup)
           (global-set-key (kbd "C-c M-g") #'magit-file-popup))
@@ -2315,9 +2318,6 @@ TODO: <home> and <end> still don't work.")
     ;; Cygwin compatibility stuff
     (when (eq basis/system-type 'windows+cygwin)
       (setq magit-need-cygwin-noglob t)
-      (when (file-executable-p "/bin/git.exe")
-        (setq magit-git-executable "/bin/git.exe")
-        (setq magit-git-environment nil))
       (advice-add 'magit-toplevel :filter-return
                   #'basis/magit-expand-toplevel)
       (advice-add 'magit-list-repos :filter-return
