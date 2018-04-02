@@ -2765,6 +2765,7 @@ TODO: <home> and <end> still don't work.")
         (autoload 'mu4e "mu4e" "Launch mu4e." t))))
   :config
   (progn
+    (setq mail-user-agent #'mu4e-user-agent)
     (setq mu4e-get-mail-command "offlineimap")
     (setq mu4e-maildir (expand-file-name "~/.mail/fastmail"))
     (setq mu4e-sent-folder "/sent")
