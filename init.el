@@ -1778,6 +1778,14 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config (add-hook 'rust-mode-hook #'basis/init-rust-mode))
 
+(defun basis/init-js-mode ()
+  (when (locate-dominating-file default-directory ".eslintrc.js")
+    (flycheck-mode)))
+
+(use-package js
+  :defer t
+  :config (add-hook 'js-mode-hook #'basis/init-js-mode))
+
 (defun basis/init-js2-mode ()
   (setq tab-width 4)
   (subword-mode)
