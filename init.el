@@ -2,20 +2,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Early configuration
-
-;; Disable superfluous UI immediately to prevent momentary display
-(let ((modes '(menu-bar-mode
-               tool-bar-mode
-               scroll-bar-mode
-               horizontal-scroll-bar-mode)))
-  (dolist (mode (if (eq window-system 'ns) (cdr modes) modes))
-    (when (fboundp mode)
-      (funcall mode -1))))
-
-(defconst basis/emacs-dir
-  (file-name-directory (file-chase-links (or load-file-name buffer-file-name)))
-  "This Emacs's configuration directory.")
+;;; Finish up early initialization (picking up from early-init.el)
 
 (defun basis/emacs-dir (name)
   "Return directory NAME expanded in `basis/emacs-dir'.
@@ -43,21 +30,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   (let ((dir (format "~/src/emacs-%s/" emacs-version)))
     (when (file-directory-p dir)
       (setq source-directory dir))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Set up package.el
-
-(setq load-prefer-newer t)
-
-(let ((dir (format "elpa/%d/" emacs-major-version)))
-  (setq package-user-dir (basis/emacs-dir dir)))
-
-(require 'package)
-
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-
-(package-initialize)
 
 ;; Opt out of automatically saving a list of installed packages
 (when (fboundp 'package--save-selected-packages)
