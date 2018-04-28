@@ -1814,6 +1814,10 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config (js2r-add-keybindings-with-prefix "C-c m"))
 
+(use-package indium
+  :ensure t
+  :defer t)
+
 (use-package skewer-mode
   :ensure t
   :after (js2-mode sgml-mode css-mode)
