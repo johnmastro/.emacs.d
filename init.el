@@ -1787,6 +1787,24 @@ TODO: <home> and <end> still don't work.")
   :init (with-eval-after-load 'js2-mode
           (add-hook 'js2-mode-hook #'basis/enable-xref-js2)))
 
+(defvar basis/tern-program nil)
+
+(defun basis/maybe-enable-company-tern ()
+  (when (or basis/tern-program
+            (setq basis/tern-program (executable-find "tern")))
+    (add-to-list 'company-backends 'company-tern)
+    (tern-mode)))
+
+(use-package tern
+  :ensure t
+  :defer t)
+
+(use-package company-tern
+  :ensure t
+  :defer t
+  :init (with-eval-after-load 'js2-mode
+          (add-hook 'js2-mode-hook #'basis/maybe-enable-company-tern)))
+
 (use-package js-comint
   :ensure t
   :defer t)
