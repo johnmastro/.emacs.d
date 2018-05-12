@@ -1779,6 +1779,10 @@ TODO: <home> and <end> still don't work.")
             (define-key js2-mode-map (kbd "C-;") #'basis/eol-maybe-semicolon)
             (add-hook 'js2-mode-hook #'basis/init-js2-mode)))
 
+(use-package rjsx-mode
+  :ensure t
+  :defer t)
+
 (defun basis/enable-xref-js2 ()
   (add-hook 'xref-backend-functions #'xref-js2-xref-backend))
 
