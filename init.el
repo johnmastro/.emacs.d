@@ -502,16 +502,17 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config (progn (setq help-at-pt-display-when-idle t)
                  (help-at-pt-set-timer)))
 
+(defun basis/init-helpful-mode ()
+  (global-set-key (kbd "C-h f")   #'helpful-callable)
+  (global-set-key (kbd "C-h v")   #'helpful-variable)
+  (global-set-key (kbd "C-h k")   #'helpful-key)
+  (global-set-key (kbd "C-c C-d") #'helpful-at-point)
+  (global-set-key (kbd "C-h F")   #'helpful-function)
+  (global-set-key (kbd "C-h C")   #'helpful-command))
+
 (use-package helpful
   :ensure t
-  :defer t
-  :init
-  (progn (global-set-key (kbd "C-h f")   #'helpful-callable)
-         (global-set-key (kbd "C-h v")   #'helpful-variable)
-         (global-set-key (kbd "C-h k")   #'helpful-key)
-         (global-set-key (kbd "C-c C-d") #'helpful-at-point)
-         (global-set-key (kbd "C-h F")   #'helpful-function)
-         (global-set-key (kbd "C-h C")   #'helpful-command)))
+  :defer t)
 
 (use-package info
   :defer t
