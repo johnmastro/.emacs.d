@@ -2301,13 +2301,15 @@ TODO: <home> and <end> still don't work.")
           #'magit-display-buffer-fullframe-status-v1)
     (when (require 'projectile nil t)
       (setq magit-repository-directories
-            (thread-last projectile-known-projects
-              (seq-filter (lambda (file)
-                            (let ((.git (expand-file-name ".git" file)))
-                              (and (not (file-remote-p file))
-                                   (file-exists-p .git)))))
-              (cons "~/code/")
-              (mapcar #'directory-file-name))))
+            (seq-reduce (lambda (result file)
+                          (let ((.git (expand-file-name ".git" file)))
+                            (if (and (not (file-remote-p file))
+                                     (file-exists-p .git))
+                                (cons (cons (directory-file-name file) 0)
+                                      result)
+                              result)))
+                        projectile-known-projects
+                        nil)))
     (define-key basis/file-map "g" #'magit-find-file)
     (define-key ctl-x-4-map "g" #'magit-find-file-other-window)
     (define-key magit-status-mode-map
