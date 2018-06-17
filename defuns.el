@@ -1936,6 +1936,16 @@ user-error, automatically move point to the command line."
              (not (comint-after-pmark-p)))
     (goto-char (point-max))))
 
+(defun basis/dirtrack-filter-pwd (string)
+  ;; Remove the text matching the regexp specified in `dirtrack-list' from my
+  ;; prompt. In my shell configuration, when $INSIDE_EMACS, that text is
+  ;; included purely for the benefit of `dirtrack-mode'. An abbreviated format
+  ;; follows it for my consumption. The string is constructed to hopefully be
+  ;; very unlikely to appear in any other context
+  (if (string-match (car dirtrack-list) string)
+      (replace-match "" t t string 0)
+    string))
+
 (defun basis/colorize-compilation ()
   "Colorize from `compilation-filter-start' to point."
   (unless (string-match-p "\\*grep\\*" (buffer-name))

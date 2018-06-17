@@ -2615,20 +2615,22 @@ TODO: <home> and <end> still don't work.")
                        "dirs -l"))))
     (when query (setq shell-dirstack-query query)))
   (shell-dirtrack-mode -1)
-  (dirtrack-mode))
+  (dirtrack-mode)
+  (add-hook 'comint-preoutput-filter-functions
+            #'basis/dirtrack-filter-pwd t t))
 
 (use-package shell
   :defer t
   :config (add-hook 'shell-mode-hook #'basis/init-shell-mode))
 
+
 (use-package dirtrack
   :defer t
-  ;; Not sure why comint/dirtrack see junk in front of my prompt with Cygwin's
-  ;; zsh, so just work around it
-  :config (setq-default dirtrack-list
-                        (if (eq basis/system-type 'windows+cygwin)
-                            '("^%[ \r]*\\(.+\\)>" 1)
-                          '("^[^:\n]+@[^:\n]+:\\(.+\\)>" 1))))
+  :config
+  (setq-default dirtrack-list
+                (if (eq basis/system-type 'windows+cygwin)
+                    '("^%[ \r]*\\(.+\\)>" 1)
+                  '("^\r*|_P_W_D_:|\\([^|]*\\)|" 1))))
 
 (use-package bash-completion
   :ensure t
