@@ -1612,14 +1612,14 @@ TODO: <home> and <end> still don't work.")
               (define-key map (kbd "C-c C-e") #'scheme-expand-current-form))
             (add-hook 'scheme-mode-hook #'basis/init-lisp-generic)))
 
-(use-package quack
-  :ensure t
-  :after scheme
-  :config (progn (setq quack-default-program
-                       (if (eq system-type 'windows-nt)
-                           "racket"
-                         "guile"))
-                 (setq quack-fontify-style 'emacs)))
+;; (use-package quack
+;;   :ensure t
+;;   :after scheme
+;;   :config (progn (setq quack-default-program
+;;                        (if (eq system-type 'windows-nt)
+;;                            "racket"
+;;                          "guile"))
+;;                  (setq quack-fontify-style 'emacs)))
 
 (use-package cmuscheme
   :defer t
