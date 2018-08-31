@@ -1,5 +1,13 @@
 ;;; init.el      -*- coding: utf-8; lexical-binding: t; no-byte-compile: t -*-
 
+;; If this Emacs is pre-27, load early-init.el and run `package-initialize'
+(when (version< emacs-version "27")
+  (let* ((this (file-chase-links (or load-file-name buffer-file-name)))
+         (here (file-name-directory this))
+         (file (expand-file-name "early-init.el" here)))
+    (when (file-exists-p file) (load file))
+    (package-initialize)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Finish up early initialization (picking up from early-init.el)
