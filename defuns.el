@@ -1266,14 +1266,14 @@ delete all whitespace backward. Use `sp-backward-delete-char' if
           (funcall delete arg))))))
 
 (defvar basis/sql-clause-start-regexp
-  (rx word-start
+  (rx symbol-start
       (or "create" "delete" "drop" "from"
           "having" "insert" "intersect" "into"
           "select" "set" "truncate" "union"
           "update" "where" "with"
           (seq "group" (1+ space) "by")
           (seq "order" (1+ space) "by"))
-      word-end)
+      symbol-end)
   "Regexp matching SQL keywords that begin clauses.")
 
 (defun basis/sql-forward-clause (&optional n)
