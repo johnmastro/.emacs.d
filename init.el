@@ -583,12 +583,14 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key [remap kill-region]        #'basis/kill-something)
 (global-set-key [remap backward-kill-word] #'basis/kill-something)
+(global-set-key (kbd "<s-backspace>")      #'basis/kill-something)
 (global-set-key (kbd "<M-delete>")         #'basis/smart-kill-whole-line)
 
 (global-set-key [remap kill-ring-save] #'basis/kill-ring-save-something)
 (global-set-key (kbd "ESC M-w") #'basis/kill-ring-save-as-fenced-code-block)
 (global-set-key (kbd "<f2>")    #'basis/clipboard-save-something)
 
+(global-set-key (kbd "s-^")                #'basis/delete-indentation)
 (global-set-key [remap delete-indentation] #'basis/delete-indentation)
 (global-set-key [remap fill-paragraph]     #'basis/fill-or-unfill-paragraph)
 
@@ -847,7 +849,9 @@ TODO: <home> and <end> still don't work.")
       (define-key map (kbd "M-a")   #'paredit-backward)
       (define-key map (kbd "M-k")   #'kill-sexp)
       (define-key map (kbd "C-w")   #'basis/paredit-kill-something)
-      (define-key map (kbd "M-DEL") #'basis/paredit-kill-something))
+      (define-key map (kbd "M-DEL") #'basis/paredit-kill-something)
+      (define-key map (kbd "<s-backspace")
+        #'basis/paredit-kill-something))
     (add-to-list 'paredit-space-for-delimiter-predicates
                  #'basis/paredit-doublequote-space-p)
     (add-to-list 'paredit-space-for-delimiter-predicates
@@ -910,6 +914,7 @@ TODO: <home> and <end> still don't work.")
     (define-key sp-keymap (kbd "C-DEL")         #'basis/sp-kill-something)
     (define-key sp-keymap (kbd "<C-backspace>") #'basis/sp-kill-something)
     (define-key sp-keymap (kbd "C-w")           #'basis/sp-kill-something)
+    (define-key sp-keymap (kbd "<s-backspace>") #'basis/sp-kill-something)
     (define-key sp-keymap (kbd "M-k")           #'basis/sp-kill-sexp)
     (define-key sp-keymap (kbd "M-e")           #'sp-forward-sexp)
     (define-key sp-keymap (kbd "M-a")           #'sp-backward-sexp)
@@ -1293,6 +1298,7 @@ TODO: <home> and <end> still don't work.")
   :defer t
   :config
   (progn (setq ivy-format-function #'ivy-format-function-arrow)
+         (setq ivy-use-selectable-prompt t)
          (let ((map ivy-minibuffer-map))
            (define-key map (kbd "C-r")     #'ivy-previous-line-or-history)
            (define-key map (kbd "<up>")    #'ivy-previous-line-or-history)
@@ -2201,6 +2207,9 @@ TODO: <home> and <end> still don't work.")
 
 (use-package ispell
   :defer t
+  ;; M-$ is Command-$ in my MacOS configuration, which is shadowed by a system
+  ;; screenshot command
+  :init (global-set-key (kbd "s-$") #'ispell-word)
   :config
   (progn (setq ispell-program-name (executable-find "aspell"))
          (setq ispell-personal-dictionary "~/.aspell.en.pws")
