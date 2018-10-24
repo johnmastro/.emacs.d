@@ -497,6 +497,15 @@ Create the directory if it does not exist and CREATE is non-nil."
       (list (concat "%b | " invocation-name "@" (system-name))
             '(:eval (and buffer-file-name '(" | " buffer-file-name)))))
 
+;; Because there's a bug with `visible-bell' on OS X 10.14 (Mojave)
+(use-package echo-bell
+  :if (eq window-system 'ns)
+  :commands (echo-bell-mode)
+  :init (echo-bell-mode)
+  :config (progn (setq echo-bell-string (substring echo-bell-string 0 3)
+                       echo-bell-background "#073642")
+                 (echo-bell-update)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Documentation modes
