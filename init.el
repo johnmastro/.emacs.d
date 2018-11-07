@@ -425,9 +425,10 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 ;; Because there's a bug with `visible-bell' on OS X 10.14 (Mojave)
 (use-package echo-bell
-  :if (eq window-system 'ns)
   :commands (echo-bell-mode)
-  :init (echo-bell-mode)
+  :init (when (and (eq window-system 'ns)
+                   (version<= "10.14" (basis/macos-version)))
+          (echo-bell-mode))
   :config (progn (setq echo-bell-string (substring echo-bell-string 0 3)
                        echo-bell-background "#073642")
                  (echo-bell-update)))

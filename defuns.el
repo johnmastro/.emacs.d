@@ -2387,6 +2387,19 @@ kill the current session even if there are multiple frames."
                              (string-suffix-p "-autoloads.el" file)))
                       elts))))
 
+(defvar basis/macos-version nil)
+
+(defun basis/macos-version ()
+  (when (eq system-type 'darwin)
+    (or basis/macos-version
+        (setq basis/macos-version
+              (let ((regexp "^ProductVersion:[ \t]+\\([0-9][0-9.]*\\)$"))
+                (with-temp-buffer
+                  (call-process "sw_vers" nil t nil)
+                  (goto-char (point-min))
+                  (when (re-search-forward regexp nil t)
+                    (match-string 1))))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Applications
