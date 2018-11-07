@@ -2147,6 +2147,10 @@ TODO: <home> and <end> still don't work.")
               (define-key map "n" #'flycheck-error-list-next-error)
               (define-key map "p" #'flycheck-error-list-previous-error))))
 
+(use-package flycheck-pyflakes
+  :ensure t
+  :after flycheck)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Version control
