@@ -928,26 +928,10 @@ no matches."
   (pcase major-mode
     (`python-mode
      (nth 3 (syntax-ppss)))
-    (`shell-mode
-     (and (eq system-type 'windows-nt)
-          (save-excursion
-            (skip-chars-backward "^[:blank:]")
-            (looking-at-p tramp-file-name-regexp))))
     (`sh-mode
      (save-excursion
        (forward-char -2)
        (looking-at-p "\\_<fi\\_>")))))
-
-(defun basis/company-no-srv-candidates (args)
-  "Advice for `company-update-candidates'.
-Ignore all potential candidates under \"/srv/\"."
-  ;; For use on a particular host, because reasons.
-  (if (and (eq major-mode 'shell-mode)
-           (let ((elt (caar args)))
-             (and (> (length elt) 5)
-                  (eq (compare-strings "/srv/" nil nil elt nil 5) t))))
-      '(nil)
-    args))
 
 (defun basis/maybe-enable-company-clang ()
   "Conditionally enable `company-clang' for the current buffer."
@@ -991,10 +975,6 @@ If called with a negative argument, temporarily invert
   (if (bound-and-true-p helm-alive-p)
       (helm-exit-and-execute-action (lambda (&rest _) (helm-bookmarks)))
     (error "Running helm command outside of context")))
-
-(defun basis/helm-open-file-w32 (file)
-  ;; Used as :override advice to `helm-open-file-externally' on Windows
-  (w32-shell-execute "open" (expand-file-name file)))
 
 (defun basis/helm-ff-run-magit-status ()
   "Run `magit-status' from `helm-source-find-files'."
@@ -1178,16 +1158,6 @@ Use `slime-expand-1' to produce the expansion."
     (end-of-defun)
     (beginning-of-defun)
     (slime-expand-1 repeatedly)))
-
-(defun basis/cider-jack-in ()
-  "Run `cider-jack-in' without checking for lein."
-  ;; Necessary because `executable-find' can't find lein on my Cygwin box for
-  ;; some reason, despite the fact that it's present and works.
-  (interactive)
-  (require 'cider)
-  (cl-letf (((symbol-function 'cider--lein-present-p)
-             (lambda () t)))
-    (call-interactively #'cider-jack-in)))
 
 (defun basis/cider-eval-something ()
   (interactive)
@@ -1731,16 +1701,6 @@ If the last check found errors, set it to 0.5 or 5.0 otherwise."
         (bug-reference-prog-mode)
       (bug-reference-mode))))
 
-(defvar ispell-current-personal-dictionary)
-
-(defun basis/ispell-init-process (original &rest args)
-  "Advice for `ispell-init-process' on Cygwin.
-Let-bind `ispell-current-personal-dictionary' to a
-Cygwin-friendly name so that the personal dictionary works."
-  (let ((ispell-current-personal-dictionary
-         (basis/cygwinize-file-name ispell-current-personal-dictionary)))
-    (apply original args)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Version control
@@ -1754,13 +1714,6 @@ use the current buffer and prompt for FILE."
                        (current-buffer))
                      (read-file-name "File: " nil nil t)))
   (diff file buffer nil 'noasync))
-
-(defun basis/ediff-expand-tmp-name (args)
-  "Advice for `ediff-make-empty-tmp-file'.
-Call `expand-file-name' on the proposed file name. Only necessary
-on Windows."
-  (cons (expand-file-name (car args))
-        (cdr args)))
 
 (defun basis/ediff-save-window-config (&rest _)
   "Advice for `ediff-setup'.
@@ -1786,58 +1739,6 @@ After quitting, restore the previous window configuration."
                           repo
                           (magit-get-upstream-branch)))
     (error "No repo or remote associated with current buffer")))
-
-(defun basis/magit-expand-toplevel (result)
-  "Advice for `magit-toplevel'.
-For use with Cygwin. Call `expand-file-name' on its result, to
-make sure its in the same form that Emacs uses (i.e.
-\"c:/path/to/somewhere\")."
-  (and result (expand-file-name result)))
-
-(defun basis/magit-list-repos-uniquely (result)
-  "Advice for `magit-list-repos'."
-  ;; Only necessary on my Cygwin setup
-  (delete-dups (mapcar #'abbreviate-file-name result)))
-
-(defun basis/magit-cygwin-save-repository-buffers (&optional arg)
-  "Alternative `magit-save-repository-buffers'.
-Use `expand-file-name' to canonicalize file names to Emacs's
-representation before comparing them."
-  (interactive "P")
-  (when-let* ((topdir (magit-rev-parse-safe "--show-toplevel"))
-              (topdir (expand-file-name topdir)))
-    (let ((remote (file-remote-p topdir)))
-      (save-some-buffers
-       arg
-       (lambda ()
-         (and buffer-file-name
-              ;; Avoid needlessly connecting to unrelated remotes.
-              (equal (file-remote-p buffer-file-name) remote)
-              (string-prefix-p topdir (file-truename buffer-file-name))
-              (equal (when-let* ((dir (magit-rev-parse-safe "--show-toplevel"))
-                                 (dir (expand-file-name dir)))
-                       dir)
-                     topdir)))))))
-
-(defun basis/magit-stash-save (message &optional include-untracked)
-  "Run \"git stash save\"."
-  (interactive (magit-stash-read-args))
-  (if (magit-git-success "stash" "save" (and include-untracked "-u") message)
-      (magit-refresh)
-    (error "Unable to stash")))
-
-(defun basis/magit-stash-snapshot (&optional include-untracked)
-  "Run \"git stash save\" with a generated message."
-  (interactive (magit-snapshot-read-args))
-  (basis/magit-stash-save (concat "WIP on " (magit-stash-summary))
-                          include-untracked))
-
-(defun basis/magit-stash-pop (stash)
-  "Run \"git stash pop\"."
-  (interactive (list (magit-read-stash "Apply pop")))
-  (if (magit-git-success "stash" "pop" stash)
-      (magit-refresh)
-    (error "Unable to pop stash")))
 
 (defun basis/magit-show-commit (hash project-directory)
   "Show the commit with HASH in PROJECT-DIRECTORY.
@@ -1882,17 +1783,12 @@ N must be between 4 and 40 and defaults to the result of calling
 
 (defun basis/default-program-for-file (_)
   ;; TODO: Use `mailcap'?
-  (cond ((memq system-type '(darwin windows-nt))
-         "open")
-        ((executable-find "xdg-open")
-         "xdg-open")))
+  (and (executable-find "xdg-open") "xdg-open"))
 
 (defun basis/open-file-externally-1 (program file)
   "Use PROGRAM to open FILE externally."
   (let ((file (expand-file-name file)))
-    (cond ((eq system-type 'windows-nt)
-           (w32-shell-execute program file))
-          ((member program '("xdg-open" "gvfs-open" "gnome-open"))
+    (cond ((member program '("xdg-open" "gvfs-open" "gnome-open"))
            (call-process program nil 0 nil file))
           (t
            (start-process "*open externally*" nil program file)))))
@@ -2001,9 +1897,6 @@ user-error, automatically move point to the command line."
               (inc (ignore-errors (basis/find-clang-includes-path language))))
     (cons (format "-std=%s" std) inc)))
 
-(defun basis/eshell-cygwin-path-env ()
-  (setq eshell-path-env (replace-regexp-in-string ":" ";" eshell-path-env)))
-
 (defvar basis/ido-man-topics nil)
 
 (defun basis/ido-man-init (&optional arg)
@@ -2096,30 +1989,6 @@ If ARG is non-nil, reinitialize the cache of topics."
                               (mapcar #'abbreviate-file-name recentf-list)
                               nil t)))
 
-(defun basis/cygwinize-file-name (name)
-  "Convert NAME for use with Cygwin."
-  ;; This is obviously not a general solution
-  (if (string-match "\\`\\([A-Za-z]\\):\\(/\\|\\\\\\)" name)
-      (let* ((drive (match-string 1 name))
-             (sep   (match-string 2 name))
-             (more  (substring name (match-end 2))))
-        (concat (if (member drive '("c" "C")) "" (concat "/" drive))
-                "/"
-                (if (equal sep "\\")
-                    (replace-regexp-in-string "\\\\" "/" more)
-                  more)))
-    name))
-
-(defun basis/cygwin-shell-quote-argument (args)
-  "Advice for `shell-quote-argument' on machines with Cygwin.
-Quote file names appropriately for POSIX-like shells."
-  ;; Used as :filter-args advice
-  (let* ((arg (car args))
-         (new (basis/cygwinize-file-name arg)))
-    (if (eq new arg)
-        args
-      (list new))))
-
 (defun basis/read-file (file)
   "Read a Lisp form from FILE."
   (with-temp-buffer
@@ -2171,9 +2040,7 @@ When called interactively, FILES is the list of marked files."
   (when (null files)
     (error "No files selected"))
   (pcase-let ((`(,destination . ,files)
-               (if (eq basis/system-type 'windows+cygwin)
-                   (mapcar #'basis/cygwinize-file-name (cons destination files))
-                 (cons destination files))))
+               (cons destination files)))
     (let ((cmd (mapconcat #'identity
                           (list "rsync -arvz --progress"
                                 (mapconcat #'shell-quote-argument files " ")
@@ -2231,24 +2098,6 @@ If VISIT is non-nil, visit the file after downloading it."
   (let ((cmd (format "patch -d %s -p1" (shell-quote-argument dir))))
     (shell-command-on-region beg end cmd)))
 
-(defun basis/ffap-more-file-at-point (original &rest args)
-  (or (apply original args)
-      (ffap-file-exists-string
-       (save-excursion
-         (skip-chars-backward "[:alnum:][:punct:]")
-         (buffer-substring-no-properties
-          (point)
-          (progn (skip-chars-forward "[:alnum:][:punct:]")
-                 (point)))))
-      (and (nth 3 (syntax-ppss))
-           (ignore-errors
-             (ffap-file-exists-string
-              (save-excursion
-                (goto-char (nth 8 (syntax-ppss)))
-                (buffer-substring-no-properties
-                 (1+ (point))
-                 (1- (progn (forward-sexp 1) (point))))))))))
-
 (defun basis/find-source-directory ()
   "Open `source-directory' in a `dired' buffer."
   (interactive)
@@ -2274,34 +2123,14 @@ If VISIT is non-nil, visit the file after downloading it."
   (interactive "p")
   (basis/xref-next-group (- (or n 1))))
 
-(defun basis/projectile-regenerate-tags (original &rest args)
+(defun basis/projectile-save-some-buffers (&rest _)
   "Advice for `projectile-regenerate-tags'.
 Call `save-some-buffers' for buffers visiting files inside the
-project before regenerating tags. On Cygwin, use Cygwin-style
-paths when calling the tags command."
-  (let* ((root (projectile-project-root))
-         (pred (lambda ()
-                 (string-prefix-p root (file-truename (buffer-file-name))))))
-    (save-some-buffers nil pred)
-    (pcase basis/system-type
-      (`windows+cygwin
-       ;; Duplicate the logic from `projectile-regenerate-tags' here because
-       ;; there's no good way to "cygwinize" the tags file name
-       (let* ((default-directory root)
-              (tags-file (expand-file-name projectile-tags-file-name))
-              (command (format projectile-tags-command
-                               (basis/cygwinize-file-name tags-file)
-                               (projectile-tags-exclude-patterns))))
-         (with-temp-buffer
-           (unless (zerop (call-process-shell-command command
-                                                      nil
-                                                      (current-buffer)))
-             (thread-last (buffer-substring (point-min) (point-max))
-               string-trim
-               (error "%s"))))
-         (visit-tags-table tags-file)))
-      (_
-       (apply original args)))))
+project before regenerating tags."
+  (let ((root (projectile-project-root)))
+    (save-some-buffers
+     nil
+     (lambda () (string-prefix-p root (file-truename (buffer-file-name)))))))
 
 (defun basis/ibuffer-beginning-of-buffer ()
   (interactive)
@@ -2395,7 +2224,6 @@ Only group a buffer with a VC if its visiting a file."
   (seq-find (lambda (name) (find-font (font-spec :name name)))
             (or fonts (pcase system-type
                         (`darwin     '("Source Code Pro" "Andale Mono"))
-                        (`windows-nt '("Consolas-10"))
                         (_           '("Inconsolata" "DejaVu Sans Mono"))))))
 
 
@@ -2543,27 +2371,6 @@ kill the current session even if there are multiple frames."
              (if arg
                  (pop-to-buffer-same-window (current-buffer) t)
                (display-buffer (current-buffer))))))))
-
-(defun basis/emacs-Q (&optional emacs home args)
-  "Run \"EMACS -Q ARGS\" with its home in HOME.
-EMACS defaults to the current Emacs executable. HOME defaults to
-\"/tmp\"."
-  ;; This is only really useful on Windows, where I use a Cygwin shell but a
-  ;; native Windows Emacs, so `emacs -Q' in my shell doesn't cut it.
-  (interactive)
-  (let* ((emacs (or emacs (expand-file-name (if (eq system-type 'windows-nt)
-                                                "runemacs.exe"
-                                              invocation-name)
-                                            invocation-directory)))
-         (home (or home (if (eq system-type 'windows-nt)
-                            "e:\\tmp"
-                          "/tmp")))
-         (penv (or basis/pre-cygwin-process-environment
-                   process-environment))
-         (process-environment (cons (concat "HOME=" home) penv)))
-    (apply #'start-process "emacs-Q" nil (expand-file-name emacs)
-           "-Q" "--eval" "(setq debug-on-error t)"
-           args)))
 
 (defun basis/kill-scratch-query-function ()
   ;; For use as a member of `kill-buffer-query-functions'

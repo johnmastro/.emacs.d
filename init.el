@@ -90,11 +90,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package async-bytecomp
   :ensure async
-  :defer t
-  :config
-  (when (eq system-type 'windows-nt)
-    (with-eval-after-load 'async-bytecomp
-      (setq async-bytecomp-allowed-packages nil))))
+  :defer t)
 
 (use-package dash
   :ensure t
@@ -140,47 +136,6 @@ Create the directory if it does not exist and CREATE is non-nil."
                       (executable-find "pbcopy"))))
     (xclip-mode)))
 
-(defvar basis/system-type system-type
-  "Like `system-type' but with the additional option `windows+cygwin'.")
-
-(defvar basis/cygwin-path-directories
-  '("/bin" "/usr/bin" "/usr/local/bin"
-    "/Windows" "/ProgramData/Oracle/Java/javapath")
-  "Directories to add to PATH on Cygwin.")
-
-(defvar basis/pre-cygwin-process-environment nil
-  "Value of `process-environment' before initializing Cygwin.")
-
-(defun basis/init-for-cygwin ()
-  (unless basis/pre-cygwin-process-environment
-    (setq basis/pre-cygwin-process-environment
-          (mapcar #'copy-sequence process-environment)))
-  (let* ((home (basis/cygwinize-file-name (or (getenv "HOME")
-                                              (error "HOME not defined"))))
-         (home/bin (concat (basis/cygwinize-file-name home)
-                           (unless (string-suffix-p "/" home) "/")
-                           "bin"))
-         (path (cons home/bin basis/cygwin-path-directories)))
-    (when (and (file-directory-p home) (not after-init-time))
-      (cd home))
-    (setenv "PATH" (mapconcat #'identity path ":"))
-    (setq exec-path (mapcar (apply-partially #'concat "c:") path))
-    (let ((shell (or (executable-find "zsh")
-                     (executable-find "bash"))))
-      (setq shell-file-name shell)
-      (setq explicit-shell-file-name shell)
-      (setq ediff-shell shell)
-      (setq null-device "/dev/null")
-      (setenv "SHELL" shell))
-    (advice-add 'shell-quote-argument :filter-args
-                #'basis/cygwin-shell-quote-argument)
-    (setq Man-coding-system 'utf-8)
-    (setq basis/system-type 'windows+cygwin)))
-
-(when (and (eq basis/system-type 'windows-nt)
-           (file-executable-p "c:/bin/bash.exe"))
-  (basis/init-for-cygwin))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Various settings
@@ -212,7 +167,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (setq select-active-regions nil)
 
 (defun basis/default-major-mode ()
-  (let ((case-fold-search (memq system-type '(windows-nt cygwin darwin))))
+  (let ((case-fold-search (eq system-type 'darwin)))
     ;; Ignore the more complicated case where the element of `auto-mode-alist'
     ;; is (REGEXP FUNCTION NON-NIL)
     (pcase (assoc-default (buffer-name) auto-mode-alist #'string-match)
@@ -269,14 +224,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package mule
   :config (prefer-coding-system 'utf-8))
 
-(defun basis/maybe-set-coding ()
-  (when (and (eq system-type 'windows-nt)
-             (when-let* ((method (file-remote-p buffer-file-name 'method)))
-               (string-match-p "ssh\\|scp\\|plink" method)))
-    (set-buffer-file-coding-system 'utf-8-unix)))
-
-(defvar basis/external-temporary-file-directory nil)
-
 (use-package files
   :config
   (progn
@@ -291,15 +238,6 @@ Create the directory if it does not exist and CREATE is non-nil."
           `((".*" ,(basis/emacs-dir "var/autosaves/") t)))
     (setq auto-save-list-file-prefix
           (concat (basis/emacs-dir "var/auto-save-list/") ".saves-"))
-    (setq basis/external-temporary-file-directory
-          (if (file-in-directory-p temporary-file-directory basis/emacs-dir)
-              (seq-find #'file-directory-p
-                        (if (eq system-type 'windows-nt)
-                            '("e:/tmp/" "d:/tmp/" "c:/tmp/")
-                          '("/tmp/")))
-            temporary-file-directory))
-    (when (eq system-type 'windows-nt)
-      (add-hook 'before-save-hook #'basis/maybe-set-coding))
     (put 'not-modified 'disabled t)))
 
 (use-package windmove
@@ -347,10 +285,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package ffap
   :defer t
   :init (global-set-key (kbd "C-M-j") #'find-file-at-point)
-  :config (progn (setq ffap-machine-p-known 'reject)
-                 (when (eq system-type 'windows-nt)
-                   (advice-add 'ffap-file-at-point :around
-                               #'basis/ffap-more-file-at-point))))
+  :config (setq ffap-machine-p-known 'reject))
 
 (use-package advice
   :defer t
@@ -426,15 +361,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config
   (progn
     (setq tramp-persistency-file-name (basis/emacs-file "var/tramp"))
-    (setq tramp-default-method
-          (pcase basis/system-type
-            (`windows+cygwin "scpx")
-            (`windows-nt     "pscp")
-            (_               "scp")))
-    (when (eq basis/system-type 'windows+cygwin)
-      (setq tramp-encoding-shell (executable-find "sh"))
-      (setq tramp-encoding-command-switch "-c")
-      (setq tramp-encoding-command-interactive "-i"))))
+    (setq tramp-default-method "scp")))
 
 (use-package time
   :defer t
@@ -478,8 +405,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package solarized-theme
   :ensure color-theme-solarized
-  :init (let ((val (if (and (not (eq system-type 'windows-nt))
-                            (display-graphic-p)
+  :init (let ((val (if (and (display-graphic-p)
                             (getenv "DISPLAY")
                             (getenv "SSH_CLIENT"))
                        'light
@@ -553,14 +479,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Key bindings
 
-(pcase system-type
-  (`darwin
-   (setq mac-command-modifier 'meta)
-   (setq mac-option-modifier 'super))
-  (`windows-nt
-   (setq w32-pass-apps-to-system nil)
-   (setq w32-lwindow-modifier 'super)
-   (setq w32-rwindow-modifier 'super)))
+(when (eq system-type 'darwin)
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'super))
 
 (use-package which-key
   :ensure t
@@ -1097,7 +1018,7 @@ TODO: <home> and <end> still don't work.")
          (setq ido-use-faces nil)
          (setq ido-ignore-extensions t)
          (setq ido-save-directory-list-file (basis/emacs-file "var/ido.last"))
-         (setq ido-enable-tramp-completion (not (eq system-type 'windows-nt)))
+         (setq ido-enable-tramp-completion t)
          (add-hook 'ido-setup-hook #'basis/init-ido-keys)
          (ido-mode)
          (ido-everywhere)))
@@ -1271,10 +1192,7 @@ TODO: <home> and <end> still don't work.")
             (define-key helm-swoop-map (kbd "C-r") #'helm-previous-line)))
 
 (use-package helm-external
-  :defer t
-  :config (when (eq system-type 'windows-nt)
-            (advice-add 'helm-open-file-externally :override
-                        #'basis/helm-open-file-w32)))
+  :defer t)
 
 (use-package helm-grep
   :defer t)
@@ -1342,17 +1260,7 @@ TODO: <home> and <end> still don't work.")
     (setq company-show-numbers t)
     (setq company-selection-wrap-around t)
     (advice-add 'company-auto-begin :before-until
-                #'basis/company-maybe-block-completion)
-    (when (string= (system-name) "sierra")
-      (advice-add 'company-update-candidates :filter-args
-                  #'basis/company-no-srv-candidates))
-    (unless (eq system-type 'windows-nt)
-      (with-eval-after-load 'cc-mode
-        (when-let* ((prog (basis/find-clang-program))
-                    (args (basis/build-clang-args 'c)))
-          (require 'company-clang)
-          (setq company-clang-executable prog)
-          (setq company-clang-arguments args)))))
+                #'basis/company-maybe-block-completion))
   :diminish company-mode)
 
 (use-package company-statistics
@@ -1540,15 +1448,6 @@ TODO: <home> and <end> still don't work.")
 (defun basis/init-cider-mode ()
   nil)
 
-(defun basis/set-lein-command-for-mac ()
-  (when-let* ((lein (executable-find "lein")))
-    (setq cider-lein-command lein)))
-
-(defun basis/set-lein-command-for-cygwin ()
-  (let ((lein "~/bin/lein"))
-    (when (file-exists-p lein)
-      (setq cider-lein-command (expand-file-name lein)))))
-
 (defvar basis/clojure-indent-specs
   '((-> 1)
     (->> 1)
@@ -1584,11 +1483,6 @@ TODO: <home> and <end> still don't work.")
   :config (progn
             (setq cider-prompt-for-symbol nil)
             (setq cider-font-lock-dynamically '(macros deprecated))
-            (pcase basis/system-type
-              (`darwin
-               (basis/set-lein-command-for-mac))
-              (`windows+cygwin
-               (basis/set-lein-command-for-cygwin)))
             (add-hook 'cider-mode-hook #'basis/init-cider-mode)
             (let ((map cider-mode-map))
               (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
@@ -1638,10 +1532,7 @@ TODO: <home> and <end> still don't work.")
 ;; (use-package quack
 ;;   :ensure t
 ;;   :after scheme
-;;   :config (progn (setq quack-default-program
-;;                        (if (eq system-type 'windows-nt)
-;;                            "racket"
-;;                          "guile"))
+;;   :config (progn (setq quack-default-program "guile")
 ;;                  (setq quack-fontify-style 'emacs)))
 
 (use-package cmuscheme
@@ -1685,7 +1576,6 @@ TODO: <home> and <end> still don't work.")
   :config
   (progn
     (setq python-indent-guess-indent-offset-verbose nil)
-    (setq python-shell-unbuffered (not (eq system-type 'windows-nt)))
     (setq python-fill-docstring-style 'pep-257-nn)
     (let ((map python-mode-map))
       (define-key map (kbd "DEL")     #'basis/sp-python-backspace)
@@ -1703,16 +1593,7 @@ TODO: <home> and <end> still don't work.")
     (add-hook 'python-mode-hook #'basis/init-python-mode)
     (add-hook 'inferior-python-mode-hook #'basis/init-inferior-python-mode)
     (when (basis/jedi-installed-p)
-      (add-hook 'python-mode-hook #'jedi:setup))
-    (when (eq system-type 'windows-nt)
-      (when-let* ((python (cond ((executable-find "py")
-                                 "py")
-                                ((file-executable-p "c:/Python27/python.exe")
-                                 "c:/Python27/python.exe"))))
-        (setq python-shell-interpreter python))
-      ;; Hopefully-temporary workaround
-      (when (boundp 'python-shell-completion-native-enable)
-        (setq python-shell-completion-native-enable nil)))))
+      (add-hook 'python-mode-hook #'jedi:setup))))
 
 (use-package pyvenv
   :ensure t
@@ -2227,11 +2108,7 @@ TODO: <home> and <end> still don't work.")
            (when (and (not ispell-alternate-dictionary)
                       (file-readable-p file)
                       (not (ignore-errors (lookup-words "whatever"))))
-             (setq ispell-alternate-dictionary file)))
-         ;; Kludge to make the personal dictionary work on my Cygwin setup.
-         (when (eq basis/system-type 'windows+cygwin)
-           (advice-add 'ispell-init-process :around
-                       #'basis/ispell-init-process))))
+             (setq ispell-alternate-dictionary file)))))
 
 (use-package flyspell
   :defer t
@@ -2293,9 +2170,6 @@ TODO: <home> and <end> still don't work.")
   :config (progn
             (setq ediff-window-setup-function #'ediff-setup-windows-plain)
             (setq ediff-split-window-function #'split-window-horizontally)
-            (when (eq system-type 'windows-nt)
-              (advice-add 'ediff-make-empty-tmp-file :filter-args
-                          #'basis/ediff-expand-tmp-name))
             (advice-add 'ediff-setup :before #'basis/ediff-save-window-config)
             (advice-add 'ediff-quit :after #'basis/ediff-quit-restore)
             (add-hook 'ediff-mode-hook #'basis/init-ediff)))
@@ -2348,28 +2222,7 @@ TODO: <home> and <end> still don't work.")
     (magit-add-section-hook 'magit-status-sections-hook
                             'magit-insert-unpushed-to-upstream
                             'magit-insert-unpushed-to-upstream-or-recent
-                            'replace)
-    ;; Cygwin compatibility stuff
-    (when (eq basis/system-type 'windows+cygwin)
-      (setq magit-need-cygwin-noglob t)
-      (advice-add 'magit-toplevel :filter-return
-                  #'basis/magit-expand-toplevel)
-      (advice-add 'magit-list-repos :filter-return
-                  #'basis/magit-list-repos-uniquely)
-      (advice-add 'magit-save-repository-buffers :override
-                  #'basis/magit-cygwin-save-repository-buffers)
-      ;; I haven't figured out yet why the Magit commands for saving and popping
-      ;; stashes fail on my Cygwin setup at work, but this gives me quick access
-      ;; to the simplest usage in the meantime.
-      (pcase-dolist (`(,key ,cmd ,before) '((?z save ?Z)
-                                            (?Z snapshot ?p)
-                                            (?p pop ?i)))
-        (magit-define-popup-action 'magit-stash-popup
-          key
-          (capitalize (symbol-name cmd))
-          (intern (format "basis/magit-stash-%s" cmd))
-          before
-          'prepend)))))
+                            'replace)))
 
 (use-package with-editor
   :ensure t
@@ -2515,14 +2368,11 @@ TODO: <home> and <end> still don't work.")
           (basis/emacs-file "var/projectile-bookmarks.eld"))
     (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
     (setq projectile-use-git-grep t)
-    (unless (eq basis/system-type 'windows-nt)
-      (setq projectile-indexing-method 'alien)
-      (setq projectile-enable-caching nil))
     (projectile-global-mode)
     (global-set-key projectile-keymap-prefix
                     'basis/projectile-map)
-    (advice-add 'projectile-regenerate-tags :around
-                #'basis/projectile-regenerate-tags))
+    (advice-add 'projectile-regenerate-tags :before
+                #'basis/projectile-save-some-buffers))
   :diminish projectile-mode)
 
 
@@ -2542,11 +2392,6 @@ TODO: <home> and <end> still don't work.")
             (setq compilation-context-lines 2)
             (require 'ansi-color)
             (add-hook 'compilation-filter-hook #'basis/colorize-compilation)))
-
-(use-package ls-lisp
-  :defer t
-  :config (when (eq basis/system-type 'windows+cygwin)
-            (setq ls-lisp-use-insert-directory-program t)))
 
 (defun basis/init-dired-mode ()
   (dired-omit-mode)
@@ -2579,9 +2424,7 @@ TODO: <home> and <end> still don't work.")
       (define-key map [remap beginning-of-buffer] #'basis/beginning-of-buffer)
       (define-key map [remap end-of-buffer]       #'basis/end-of-buffer))
     (setq dired-recursive-deletes 'top)
-    (setq dired-listing-switches (if (eq system-type 'windows-nt)
-                                     "-alhGt"
-                                   "-alht"))
+    (setq dired-listing-switches "-alht")
     (put 'dired-find-alternate-file 'disabled nil)
     (add-hook 'dired-mode-hook #'basis/init-dired-mode)))
 
@@ -2596,9 +2439,7 @@ TODO: <home> and <end> still don't work.")
 
 (use-package find-dired
   :after dired
-  :config (setq find-ls-option (if (eq system-type 'windows-nt)
-                                   '("-exec ls -ldhG {} +" . "-ldhG")
-                                 '("-exec ls -ldh {} +" . "-ldh"))))
+  :config (setq find-ls-option '("-exec ls -ldh {} +" . "-ldh")))
 
 (use-package image-dired
   :defer t
@@ -2658,25 +2499,16 @@ TODO: <home> and <end> still don't work.")
 (use-package dirtrack
   :defer t
   :config
-  (setq-default dirtrack-list
-                (if (eq basis/system-type 'windows+cygwin)
-                    '("^%[ \r]*\\(.+\\)>" 1)
-                  '("^\r*|_P_W_D_:|\\([^|]*\\)|" 1))))
+  (setq-default dirtrack-list '("^\r*|_P_W_D_:|\\([^|]*\\)|" 1)))
 
 (use-package bash-completion
   :ensure t
   :defer t
-  ;; This doesn't work with Cygwin's bash, because bash detects that it's not
-  ;; connected to a tty and behaves differently (e.g. doesn't echo its prompt)
-  :unless (eq system-type 'windows-nt)
   :config (bash-completion-setup))
 
 (use-package esh-mode
   :defer t
-  :config
-  (progn (setq eshell-directory-name (basis/emacs-dir "var/eshell/"))
-         (when (eq basis/system-type 'windows+cygwin)
-           (add-hook 'eshell-mode-hook #'basis/eshell-cygwin-path-env))))
+  :config (setq eshell-directory-name (basis/emacs-dir "var/eshell/")))
 
 (use-package proced
   :defer t
@@ -2709,9 +2541,7 @@ TODO: <home> and <end> still don't work.")
          (when-let* ((directory
                       (or (basis/xdg-user-dir 'download)
                           (seq-find #'file-directory-p
-                                    (append '("~/downloads/" "~/Downloads/")
-                                            (and (eq system-type 'windows-nt)
-                                                 '("e:/Downloads")))))))
+                                    '("~/downloads/" "~/Downloads/")))))
            (setq eww-download-directory directory))))
 
 (use-package browse-url
