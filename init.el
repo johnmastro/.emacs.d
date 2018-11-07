@@ -2506,11 +2506,6 @@ TODO: <home> and <end> still don't work.")
   :config
   (setq-default dirtrack-list '("^\r*|_P_W_D_:|\\([^|]*\\)|" 1)))
 
-(use-package bash-completion
-  :ensure t
-  :defer t
-  :config (bash-completion-setup))
-
 (use-package esh-mode
   :defer t
   :config (setq eshell-directory-name (basis/emacs-dir "var/eshell/")))
