@@ -543,6 +543,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 (global-set-key (kbd "C-x ;") #'basis/comment-region-lines)
 (global-set-key (kbd "C-M-;") #'basis/comment-or-uncomment-sexp)
 
+(global-set-key (kbd "s-%") #'query-replace)
+(global-set-key (kbd "M-s-%") #'query-replace-regexp)
+
 (global-set-key (kbd "C-c M-e") #'basis/eval-and-replace)
 
 (global-set-key (kbd "M-i") #'basis/imenu-dwim)
