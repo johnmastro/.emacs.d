@@ -47,6 +47,11 @@ Create the directory if it does not exist and CREATE is non-nil."
   (package-refresh-contents)
   (package-install 'use-package))
 
+(when (and (eq system-type 'darwin)
+           (null (getenv "PWD"))
+           (equal default-directory "/"))
+  (cd "~/"))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Load some code
