@@ -1958,9 +1958,6 @@ TODO: <home> and <end> still don't work.")
     (advice-add 'org-beginning-of-line :around
                 #'basis/org-maybe-beginning-of-todo-keyword)
     (define-key org-mode-map (kbd "RET") #'org-return-indent)
-    (setq org-structure-template-alist
-          (mapcar (pcase-lambda (`(,key ,val)) (list key (downcase val)))
-                  org-structure-template-alist))
     (org-babel-do-load-languages
      'org-babel-load-languages
      (mapcar (lambda (sym) (cons sym t))
