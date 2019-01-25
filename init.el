@@ -967,10 +967,16 @@ TODO: <home> and <end> still don't work.")
   :config
   (progn
     (grep-compute-defaults)
-    (grep-apply-setting 'grep-command
-                        (if (bound-and-true-p grep-use-null-filename-separator)
-                            "grep --null --color=always -inHE -e "
-                          "grep --color=always -inHE -e "))
+    (grep-apply-setting
+     'grep-command
+     (if (bound-and-true-p grep-use-null-filename-separator)
+         "grep --null --color=always -inHE -e "
+       "grep --color=always -inHE -e "))
+    (grep-apply-setting
+     'grep-find-command
+     (if (bound-and-true-p grep-use-null-filename-separator)
+         '("find . -type f -exec grep -inH --null -e  \\{\\} +" . 42)
+       '("find . -type f -exec grep -inH -e  \\{\\} +" . 35)))
     (when (string-match-p "zsh" shell-file-name)
       (advice-add 'lgrep :around #'basis/grep-use-bash))
     (pcase-dolist (`(,alias . ,files)
