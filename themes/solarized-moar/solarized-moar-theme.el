@@ -219,6 +219,9 @@
                 (magit-bisect-bad (,@fg-red))
                 ;; git-rebase
                 (git-rebase-hash (:inherit magit-hash))
+                ;; transient
+                (transient-nonstandard-key (:inherit highlight))
+                (transient-mismatched-key (:inherit highlight))
                 ;; macrostep
                 (macrostep-gensym-1 (,@fg-violet :box (,@fg-violet)))
                 (macrostep-gensym-2 (,@fg-green :box (,@fg-green)))

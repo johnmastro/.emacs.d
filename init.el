@@ -2230,6 +2230,12 @@ TODO: <home> and <end> still don't work.")
                             'magit-insert-unpushed-to-upstream-or-recent
                             'replace)))
 
+(use-package transient
+  :ensure t
+  :defer t
+  :config (progn (setq transient-history-limit 20)
+                 (setq transient-detect-key-conflicts t)))
+
 (use-package with-editor
   :ensure t
   :defer t)
