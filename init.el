@@ -1969,7 +1969,7 @@ TODO: <home> and <end> still don't work.")
              (cons (if (locate-file "ob-shell" load-path '(".el" ".el.gz"))
                        'shell
                      'sh)
-                   '(C clojure emacs-lisp haskell python scheme))))))
+                   '(C calc clojure emacs-lisp haskell python scheme))))))
 
 (use-package ob-clojure
   :defer t
