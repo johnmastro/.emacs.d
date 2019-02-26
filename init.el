@@ -779,7 +779,7 @@ TODO: <home> and <end> still don't work.")
       (define-key map (kbd "M-k")   #'kill-sexp)
       (define-key map (kbd "C-w")   #'basis/paredit-kill-something)
       (define-key map (kbd "M-DEL") #'basis/paredit-kill-something)
-      (define-key map (kbd "<s-backspace")
+      (define-key map (kbd "<s-backspace>")
         #'basis/paredit-kill-something))
     (add-to-list 'paredit-space-for-delimiter-predicates
                  #'basis/paredit-doublequote-space-p)
