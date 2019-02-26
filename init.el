@@ -97,18 +97,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :ensure async
   :defer t)
 
-(use-package dash
-  :ensure t
-  :defer t)
-
-(use-package dash-functional
-  :ensure t
-  :defer t)
-
-(use-package s
-  :ensure t
-  :defer t)
-
 (load (basis/emacs-file "defuns") nil nil nil 'must-suffix)
 (load (basis/emacs-file "local") 'noerror nil nil 'must-suffix)
 (load (basis/emacs-file (concat "init-" (system-name)))
@@ -129,17 +117,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :ensure t
   :if (eq window-system 'ns)
   :config (exec-path-from-shell-initialize))
-
-(use-package xclip
-  :ensure t
-  :config
-  (when (and (not (display-graphic-p))
-             (or (and (memq system-type '(gnu/linux berkeley-unix))
-                      (getenv "DISPLAY")
-                      (executable-find "xclip"))
-                 (and (eq system-type 'darwin)
-                      (executable-find "pbcopy"))))
-    (xclip-mode)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
