@@ -683,7 +683,9 @@ TODO: <home> and <end> still don't work.")
 (use-package expand-region
   :ensure t
   :defer t
-  :init (global-set-key (kbd "M-=") #'er/expand-region))
+  :init (progn (global-set-key (kbd "M-=")      #'er/expand-region)
+               (global-set-key (kbd "<s-up>")   #'er/expand-region)
+               (global-set-key (kbd "<s-down>") #'er/contract-region)))
 
 (use-package multiple-cursors
   :ensure t
