@@ -33,12 +33,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   (make-directory dir t)
   (add-to-list 'load-path dir))
 
-;; So `find-function' works for C functions in Emacsen I didn't build myself
-(unless (file-directory-p source-directory)
-  (let ((dir (format "~/src/emacs-%s/" emacs-version)))
-    (when (file-directory-p dir)
-      (setq source-directory dir))))
-
 ;; Opt out of automatically saving a list of installed packages
 (when (fboundp 'package--save-selected-packages)
   (advice-add 'package--save-selected-packages :override #'ignore))
@@ -93,14 +87,8 @@ Create the directory if it does not exist and CREATE is non-nil."
   :ensure t
   :defer t)
 
-(use-package async-bytecomp
-  :ensure async
-  :defer t)
-
 (load (basis/emacs-file "defuns") nil nil nil 'must-suffix)
 (load (basis/emacs-file "local") 'noerror nil nil 'must-suffix)
-(load (basis/emacs-file (concat "init-" (system-name)))
-      'noerror nil nil 'must-suffix)
 
 ;; Specify the default font, but only if one of the local init file(s) didn't
 (when-let* ((font (and (display-graphic-p)
@@ -165,9 +153,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (add-hook 'kill-buffer-query-functions #'basis/kill-scratch-query-function)
 (remove-hook 'kill-buffer-query-functions #'process-kill-buffer-query-function)
-
-(when (boundp 'w32-pipe-read-delay)
-  (setq w32-pipe-read-delay 0))
 
 (fset 'display-startup-echo-area-message (symbol-function 'ignore))
 (fset 'yes-or-no-p (symbol-function 'y-or-n-p))
@@ -335,7 +320,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config
   (progn (setq recentf-max-saved-items 50)
          (setq recentf-save-file (basis/emacs-file "var/recentf"))
-         (setq recentf-exclude (list #'file-remote-p))
+         (add-to-list 'recentf-exclude #'file-remote-p)
          (recentf-mode)))
 
 (use-package tramp
@@ -347,7 +332,11 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package time
   :defer t
-  :config (when (eq display-time-world-list zoneinfo-style-world-list)
+  :config (when (or (eq display-time-world-list zoneinfo-style-world-list)
+                    (and (eq display-time-world-list t)
+                         (fboundp 'time--display-world-list)
+                         (eq (time--display-world-list)
+                             zoneinfo-style-world-list)))
             (setq display-time-world-list
                   '(("America/Los_Angeles" "Los Angeles")
                     ("America/Denver"      "Denver")
@@ -356,6 +345,7 @@ Create the directory if it does not exist and CREATE is non-nil."
                     ("Europe/London"       "London")
                     ("Europe/Paris"        "Paris")
                     ("Europe/Moscow"       "Moscow")
+                    ("Asia/Jakarta"        "Jakarta")
                     ("Asia/Shanghai"       "Shanghai")
                     ("Asia/Tokyo"          "Tokyo")))))
 
@@ -402,8 +392,7 @@ Create the directory if it does not exist and CREATE is non-nil."
                  (load-theme 'solarized-moar t)))
 
 (setq frame-title-format
-      (list (concat "%b | " invocation-name "@" (system-name))
-            '(:eval (and buffer-file-name '(" | " buffer-file-name)))))
+      (list "%b " '(:eval (and buffer-file-name '(" | " buffer-file-name)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -599,76 +588,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (define-key basis/ctl-z-map (kbd "C-z") #'suspend-frame)
 
 (global-set-key (kbd "C-x C-z") #'repeat)
-
-(defvar basis/tmux-key-translations
-  (when (getenv "TMUX")
-    (append
-     '(("M-[ 1 ; 5 k" "C-=")
-       ("M-[ 1 ; 5 l" "C-,")
-       ("M-[ 1 ; 5 n" "C-.")
-       ("M-[ 1 ; 6 k" "C-+")
-       ("M-[ 1 ; 6 l" "C-<")
-       ("M-[ 1 ; 6 n" "C->")
-       ("M-[ 1 ; 6 y" "C-(")
-       ("M-[ 1 ; 7 k" "C-M-=")
-       ("M-[ 1 ; 7 n" "C-M-.")
-       ("M-[ 1 ; 7 l" "C-M-,"))
-     (seq-mapcat (pcase-lambda (`(,n ,k))
-                   `((,(format "M-[ 1 ; %d A" n)  ,(format "%s<up>" k))
-                     (,(format "M-[ 1 ; %d B" n)  ,(format "%s<down>" k))
-                     (,(format "M-[ 1 ; %d C" n)  ,(format "%s<right>" k))
-                     (,(format "M-[ 1 ; %d D" n)  ,(format "%s<left>" k))
-                     (,(format "M-[ 1 ; %d H" n)  ,(format "%s<home>" k))
-                     (,(format "M-[ 1 ; %d F" n)  ,(format "%s<end>" k))
-                     (,(format "M-[ 5 ; %d ~" n)  ,(format "%s<prior>" k))
-                     (,(format "M-[ 6 ; %d ~" n)  ,(format "%s<next>" k))
-                     (,(format "M-[ 2 ; %d ~" n)  ,(format "%s<delete>" k))
-                     (,(format "M-[ 3 ; %d ~" n)  ,(format "%s<delete>" k))
-                     (,(format "M-[ 1 ; %d P" n)  ,(format "%s<f1>" k))
-                     (,(format "M-[ 1 ; %d Q" n)  ,(format "%s<f2>" k))
-                     (,(format "M-[ 1 ; %d R" n)  ,(format "%s<f3>" k))
-                     (,(format "M-[ 1 ; %d S" n)  ,(format "%s<f4>" k))
-                     (,(format "M-[ 15 ; %d ~" n) ,(format "%s<f5>" k))
-                     (,(format "M-[ 17 ; %d ~" n) ,(format "%s<f6>" k))
-                     (,(format "M-[ 18 ; %d ~" n) ,(format "%s<f7>" k))
-                     (,(format "M-[ 19 ; %d ~" n) ,(format "%s<f8>" k))
-                     (,(format "M-[ 20 ; %d ~" n) ,(format "%s<f9>" k))
-                     (,(format "M-[ 21 ; %d ~" n) ,(format "%s<f10>" k))
-                     (,(format "M-[ 23 ; %d ~" n) ,(format "%s<f11>" k))
-                     (,(format "M-[ 24 ; %d ~" n) ,(format "%s<f12>" k))
-                     (,(format "M-[ 25 ; %d ~" n) ,(format "%s<f13>" k))
-                     (,(format "M-[ 26 ; %d ~" n) ,(format "%s<f14>" k))
-                     (,(format "M-[ 28 ; %d ~" n) ,(format "%s<f15>" k))
-                     (,(format "M-[ 29 ; %d ~" n) ,(format "%s<f16>" k))
-                     (,(format "M-[ 31 ; %d ~" n) ,(format "%s<f17>" k))
-                     (,(format "M-[ 32 ; %d ~" n) ,(format "%s<f18>" k))
-                     (,(format "M-[ 33 ; %d ~" n) ,(format "%s<f19>" k))
-                     (,(format "M-[ 34 ; %d ~" n) ,(format "%s<f20>" k))))
-                 '((2 "S-")
-                   (3 "M-")
-                   (4 "M-S-")
-                   (5 "C-")
-                   (6 "C-S-")
-                   (7 "C-M-")
-                   (8 "C-M-S-")))))
-  "Keys to add to `key-translation-map' when running in tmux.
-
-A number of non-alphanumeric keys don't work by default when
-Emacs is running in tmux. These keys are added to
-`key-translation-map' in an attempt to fix that. The list is
-based on code from ArchWiki's Emacs page.
-
-`setw -g xterm-keys on` must be set in ~/.tmux.conf for this to
-work.
-
-TODO: <home> and <end> still don't work.")
-
-(defun basis/init-for-tmux ()
-  (pcase-dolist (`(,k1 ,k2) basis/tmux-key-translations)
-    (define-key key-translation-map (kbd k1) (kbd k2))))
-
-(when (getenv "TMUX")
-  (basis/init-for-tmux))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -919,7 +838,6 @@ TODO: <home> and <end> still don't work.")
   (setq basis/end-of-buffer-function #'basis/occur-end-of-buffer))
 
 (progn ;; replace.el
-  (defalias 'qrr #'query-replace-regexp)
   (global-set-key (kbd "ESC M-%") #'query-replace-regexp)
   (define-key occur-mode-map "n" #'occur-next)
   (define-key occur-mode-map "p" #'occur-prev)
@@ -2168,12 +2086,9 @@ TODO: <home> and <end> still don't work.")
   :ensure t
   :defer t
   :init (progn
-          (when (file-executable-p "/bin/git.exe")
-            (setq magit-git-executable "/bin/git.exe")
-            (setq magit-git-environment nil))
           (global-set-key (kbd "C-x g")   #'magit-status)
-          (global-set-key (kbd "C-x M-g") #'magit-dispatch-popup)
-          (global-set-key (kbd "C-c M-g") #'magit-file-popup))
+          (global-set-key (kbd "C-x M-g") #'magit-dispatch)
+          (global-set-key (kbd "C-c M-g") #'magit-file-dispatch))
   :config
   (progn
     (setq magit-save-repository-buffers 'dontask)
