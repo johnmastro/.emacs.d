@@ -463,6 +463,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key [remap delete-horizontal-space] #'basis/delete-some-whitespace)
 
+(global-set-key (kbd "s-<") #'beginning-of-buffer)
+(global-set-key (kbd "s->") #'end-of-buffer)
+
 (global-set-key [remap move-beginning-of-line] #'basis/beginning-of-line)
 
 (global-set-key [remap open-line]  #'basis/open-line-maybe-reindent)
@@ -745,6 +748,8 @@ Create the directory if it does not exist and CREATE is non-nil."
     (define-key sp-keymap (kbd "M-e")           #'sp-forward-sexp)
     (define-key sp-keymap (kbd "M-a")           #'sp-backward-sexp)
     (define-key sp-keymap (kbd "C-M-u")         #'basis/sp-backward-up)
+    (define-key sp-keymap (kbd "M-J")           #'sp-join-sexp)
+    (define-key sp-keymap (kbd "M-j")           nil)
     (advice-add 'sp--cleanup-after-kill :before-until
                 #'basis/sp-cleanup-maybe-not)
     (advice-add 'sp--unwrap-sexp :filter-args #'basis/sp-unwrap-no-cleanup)
@@ -1056,7 +1061,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package helm-ring
   :defer t
   :init (progn (global-set-key (kbd "M-y") #'helm-show-kill-ring)
-               (global-set-key (kbd "M-`") #'helm-mark-ring)
+               ;; (global-set-key (kbd "M-`") #'helm-mark-ring)
                (global-set-key (kbd "M-~") #'helm-all-mark-rings)))
 
 (use-package helm-elisp
@@ -1136,6 +1141,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package counsel
   :ensure t
+  :commands (counsel-mark-ring)
+  :init (global-set-key (kbd "M-`") #'counsel-mark-ring)
   :defer t)
 
 (use-package company
