@@ -1240,8 +1240,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (defun basis/init-emacs-lisp-modes ()
   "Enable features useful when working with Emacs Lisp."
-  (when (member (buffer-name) '("*scratch*" "*ielm*"))
-    (setq lexical-binding t))
   (let ((functions (make-local-variable 'hippie-expand-try-functions-list)))
     (add-to-list functions #'try-complete-lisp-symbol t)
     (add-to-list functions #'try-complete-lisp-symbol-partially t)))
