@@ -489,7 +489,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (basis/define-prefix-command 'basis/insertion-map (kbd "C-c i"))
 (define-key basis/insertion-map "f" #'basis/insert-file-name)
 (define-key basis/insertion-map "F" #'basis/insert-files)
-(define-key basis/insertion-map "p" #'basis/insert-file-preamble)
 
 (basis/define-prefix-command 'basis/meta-t-map (kbd "M-t"))
 (define-key basis/meta-t-map (kbd "l")   #'transpose-lines)

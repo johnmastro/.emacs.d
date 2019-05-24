@@ -732,26 +732,6 @@ after inserting the character."
       (call-interactively #'self-insert-command)
       (undo-boundary))))
 
-(defvar basis/file-preamble-lines
-  '((emacs-lisp-mode ";; -*- coding: utf-8; lexical-binding: t; -*-")
-    (python-mode     "#!/usr/bin/env python" "# -*- coding: utf-8 -*-"))
-  "Association list mapping major mode symbols to file preambles.")
-
-(defun basis/insert-file-preamble ()
-  "Insert a mode-specific file \"preamble\"."
-  (interactive)
-  (let ((start (point))
-        (lines (seq-some (lambda (elt)
-                           (and (derived-mode-p (car elt))
-                                (cdr elt)))
-                         basis/file-preamble-lines)))
-    (if lines
-        (progn (goto-char (point-min))
-               (dolist (line lines) (insert line "\n"))
-               (insert "\n")
-               (unless (eq start (point-min)) (goto-char start)))
-      (message "No file preamble defined for `%s'" major-mode))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement
