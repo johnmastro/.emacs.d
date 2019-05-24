@@ -62,10 +62,10 @@ building the Emacs.app bundle.
     brew install autoconf automake libxml2 gnutls imagemagick texinfo
     ./autogen.sh all
     PKG_CONFIG_PATH="/usr/local/opt/libxml2/lib/pkgconfig" ./configure \
-        --with-ns --with-xml2 --with-zlib --with-gnutls --with-imagemagick \
+        --with-ns --with-xml2 --with-zlib --with-gnutls --without-imagemagick \
         --without-dbus --without-pop --without-compress-install \
         LDFLAGS="-L /usr/local/opt/libxml2/lib" \
-        CFLAGS="-pipe -march=nocona -O2 -g3 -I /usr/local/opt/libxml2/include"
+        CFLAGS="-pipe -march=native -O2 -g3 -I /usr/local/opt/libxml2/include"
     make
     make install
     make install-info
