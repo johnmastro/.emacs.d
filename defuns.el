@@ -985,14 +985,6 @@ or comment starters."
           (forward-line)))
       (buffer-substring-no-properties (point) (line-end-position)))))
 
-(defun basis/yas-expand-or-insert ()
-  "Call `yas-expand' or `yas-insert-snippet' depending on context.
-If point is after what might be a snippet key, call `yas-expand',
-otherwise call `yas-insert-snippet'."
-  (interactive)
-  (call-interactively
-   (if (looking-at-p "\\>") #'yas-expand #'yas-insert-snippet)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Programming modes

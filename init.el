@@ -559,12 +559,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (put 'narrow-to-region 'disabled nil)
 (put 'scroll-left 'disabled nil)
 
-;; In Emacs 26, describe-\(function\|variable\) are incompatible with ido and
-;; can load libraries as part of completion, so override them with simpler
-;; definitions
-;; (global-set-key [remap describe-function] #'basis/describe-function)
-;; (global-set-key [remap describe-variable] #'basis/describe-variable)
-
 (basis/define-prefix-command 'basis/find-lisp-map (kbd "C-h e"))
 (define-key basis/find-lisp-map "c" #'finder-commentary)
 (define-key basis/find-lisp-map "e" #'view-echo-area-messages)
@@ -651,8 +645,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package visual-regexp
   :ensure t
-  :defer t
-  :init (defalias 'vqr #'vr/query-replace))
+  :defer t)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1188,22 +1181,6 @@ Create the directory if it does not exist and CREATE is non-nil."
                                 '(try-expand-line
                                   try-expand-list
                                   try-expand-all-abbrevs))))
-
-(use-package yasnippet
-  :ensure t
-  :defer t
-  :mode ("\\.yasnippet\\'" . snippet-mode)
-  :config
-  (progn
-    ;; Steal C-t for expanding snippets. `transpose-chars' is still
-    ;; available on M-t c
-    (define-key yas-minor-mode-map (kbd "C-t") #'basis/yas-expand-or-insert)
-    (define-key yas-minor-mode-map (kbd "TAB") nil)
-    (define-key yas-minor-mode-map [(tab)] nil)
-    (define-key yas-keymap (kbd "RET") #'yas-exit-all-snippets)
-    (setq yas-snippet-dirs (list (basis/emacs-dir "snippets/")))
-    (setq yas-prompt-functions '(yas-ido-prompt yas-completing-prompt))
-    (setq yas-wrap-around-region t)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1785,10 +1762,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config (progn (define-key forth-mode-map (kbd "M-o") nil)
                  (define-key forth-mode-map (kbd "M-SPC") nil)))
 
-(use-package ahk-mode
-  :ensure t
-  :defer t)
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Text, markup, and configuration modes
@@ -1876,10 +1849,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :config (setq org-babel-clojure-backend 'cider))
 
-(defun basis/init-simplezen ()
-  (setq-local yas-fallback-behavior
-              '(apply simplezen-expand-or-indent-for-tab)))
-
 (defun basis/init-html-mode ()
   (setq tab-width 4)
   (tagedit-mode))
@@ -1895,7 +1864,6 @@ Create the directory if it does not exist and CREATE is non-nil."
       (define-key map (kbd "M-RET")   #'basis/html-multiline-expand)
       (define-key map (kbd "C-c C-w") #'basis/html-wrap-in-tag)
       (define-key map (kbd "C-c w")   #'basis/html-wrap-in-tag))
-    (add-hook 'sgml-mode-hook #'basis/init-simplezen)
     (add-hook 'html-mode-hook #'basis/init-html-mode)
     (advice-add 'sgml-delete-tag :after #'basis/sgml-delete-tag-reindent)))
 
@@ -1906,10 +1874,6 @@ Create the directory if it does not exist and CREATE is non-nil."
                  (tagedit-add-experimental-features)
                  (advice-add 'tagedit-toggle-multiline-tag :around
                              #'basis/tagedit-toggle-multiline-maybe-forward)))
-
-(use-package simplezen
-  :ensure t
-  :after sgml-mode)
 
 (defun basis/init-markdown-mode ()
   (setq tab-width 4)
@@ -2039,15 +2003,10 @@ Create the directory if it does not exist and CREATE is non-nil."
             (define-key map (kbd "h")    #'helm-flycheck)))
   :config (progn
             (setq flycheck-check-syntax-automatically nil)
-            (unless (basis/libxml-available-p)
-              (setq flycheck-xml-parser #'flycheck-parse-xml-region))
             ;; Check buffers with errors more frequently than ones without
             (make-variable-buffer-local 'flycheck-idle-change-delay)
             (add-hook 'flycheck-after-syntax-check-hook
-                      #'basis/adjust-flycheck-idle-change-delay)
-            (let ((map flycheck-error-list-mode-map))
-              (define-key map "n" #'flycheck-error-list-next-error)
-              (define-key map "p" #'flycheck-error-list-previous-error))))
+                      #'basis/adjust-flycheck-idle-change-delay)))
 
 (use-package flycheck-pyflakes
   :ensure t
@@ -2404,7 +2363,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package shell
   :defer t
   :config (add-hook 'shell-mode-hook #'basis/init-shell-mode))
-
 
 (use-package dirtrack
   :defer t
