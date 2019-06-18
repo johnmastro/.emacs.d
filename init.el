@@ -543,7 +543,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (define-key basis/file-map "n" #'basis/kill-ring-save-buffer-file-name)
 (define-key basis/file-map "v" #'revert-buffer)
 
-(global-set-key (kbd "C-c x") #'basis/open-file-externally)
+(global-set-key (kbd "C-c e") #'basis/open-file-externally)
 
 ;; Wrap text in various styles of quotes
 (global-set-key (kbd "C-c q") #'basis/quote-thing)
@@ -904,7 +904,7 @@ Create the directory if it does not exist and CREATE is non-nil."
     (define-key map (kbd "C-w")   nil)
     (define-key map (kbd "M-w")   #'ido-copy-current-file-name)
     (define-key map (kbd "C-x g") #'ido-enter-magit-status)
-    (define-key map (kbd "C-c x") #'basis/ido-open-file-externally)))
+    (define-key map (kbd "C-c e") #'basis/ido-open-file-externally)))
 
 (use-package ido
   :config

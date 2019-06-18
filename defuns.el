@@ -893,13 +893,13 @@ no matches."
 
 (defun basis/ido-open-file-externally-1 (file)
   (interactive (list (basis/ido-selected-file)))
-  (basis/open-file-externally file))
+  (basis/open-file-externally-1 (basis/default-program-for-file file) file))
 
 (defun basis/ido-open-file-externally ()
   "Open a file externally during `ido' completion."
   (interactive)
-  (setq fallback 'basis/ido-open-file-externally-1)
   (setq ido-exit 'fallback)
+  (setq ido-fallback 'basis/ido-open-file-externally-1)
   (exit-minibuffer))
 
 (defun basis/company-maybe-block-completion (&rest _)
@@ -1755,7 +1755,10 @@ N must be between 4 and 40 and defaults to the result of calling
 
 (defun basis/default-program-for-file (_)
   ;; TODO: Use `mailcap'?
-  (and (executable-find "xdg-open") "xdg-open"))
+  (cond ((eq system-type 'darwin)
+         "open")
+        ((executable-find "xdg-open")
+         "xdg-open")))
 
 (defun basis/open-file-externally-1 (program file)
   "Use PROGRAM to open FILE externally."
