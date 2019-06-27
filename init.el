@@ -533,7 +533,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 (global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
 
 (basis/define-prefix-command 'basis/file-map (kbd "C-c f"))
-(define-key basis/file-map "c" #'helm-locate)
 (define-key basis/file-map "d" #'basis/diff-buffer-with-file)
 (define-key basis/file-map "r" #'basis/rename-buffer-file)
 (define-key basis/file-map "D" #'basis/delete-buffer-file)
@@ -570,7 +569,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (define-key basis/find-lisp-map "m" #'info-display-manual)
 (define-key basis/find-lisp-map "v" #'find-variable)
 (define-key basis/find-lisp-map "V" #'apropos-value)
-(define-key basis/find-lisp-map "a" #'helm-apropos)
+(define-key basis/find-lisp-map "a" #'counsel-apropos)
 (define-key basis/find-lisp-map "s" #'basis/find-source-directory)
 
 (use-package other-frame-window
@@ -637,7 +636,8 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package browse-kill-ring
   :ensure t
-  :defer t)
+  :defer t
+  :init (global-set-key (kbd "M-Y") #'browse-kill-ring))
 
 (use-package easy-kill
   :ensure t
@@ -826,10 +826,6 @@ Create the directory if it does not exist and CREATE is non-nil."
     (define-key swiper-map (kbd "M-%")   #'swiper-query-replace)
     (define-key swiper-map (kbd "M-SPC") #'swiper-avy)))
 
-(use-package swiper-helm
-  :ensure t
-  :defer t)
-
 (defun basis/init-occur-mode ()
   (setq basis/beginning-of-buffer-function #'basis/occur-beginning-of-buffer)
   (setq basis/end-of-buffer-function #'basis/occur-end-of-buffer))
@@ -946,178 +942,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config (progn (setq smex-save-file (basis/emacs-file "var/smex-items"))
                  (global-set-key (kbd "M-x") #'smex)
                  (global-set-key (kbd "M-X") #'smex-major-mode-commands)))
-
-(use-package helm
-  :ensure t
-  :defer t
-  :init (progn
-          (basis/define-prefix-command 'basis/helm-map (kbd "C-c h"))
-          (define-key basis/helm-map "a" #'helm-apropos)
-          (define-key basis/helm-map "b" #'helm-mini)
-          (define-key basis/helm-map "c" #'helm-colors)
-          (define-key basis/helm-map "e" #'helm-register)
-          (define-key basis/helm-map "f" #'helm-find-files)
-          (define-key basis/helm-map "g" #'helm-do-grep)
-          (define-key basis/helm-map "i" #'helm-info-at-point)
-          (define-key basis/helm-map "k" #'helm-man-woman)
-          (define-key basis/helm-map "l" #'helm-bookmarks)
-          (define-key basis/helm-map "m" #'helm-all-mark-rings)
-          (define-key basis/helm-map "o" #'helm-occur)
-          (define-key basis/helm-map "p" #'helm-list-emacs-process)
-          (define-key basis/helm-map "r" #'helm-regexp)
-          (define-key basis/helm-map "R" #'helm-resume)
-          (define-key basis/helm-map "s" #'helm-swoop)
-          (define-key basis/helm-map "t" #'helm-top)
-          (define-key basis/helm-map "x" #'helm-M-x)
-          (define-key basis/helm-map "y" #'helm-show-kill-ring)
-          (define-key basis/helm-map "/" #'helm-find)
-          (define-key basis/helm-map ":" #'helm-eval-expression-with-eldoc))
-  :config (progn
-            (setq helm-split-window-default-side 'other)
-            (setq helm-split-window-in-side-p t)
-            (setq helm-quick-update t)
-            (setq helm-truncate-lines t)
-            (setq helm-display-header-line nil)
-            (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
-            (define-key helm-map (kbd "M-s") #'helm-select-action)
-            (define-key helm-map (kbd "DEL") #'basis/helm-backspace)
-            (define-key helm-map (kbd "M-y") #'helm-yank-text-at-point)
-            (define-key helm-map (kbd "C-w") nil)
-            (add-to-list 'display-buffer-alist
-                         '("\\`\\*helm.*\\*\\'"
-                           (display-buffer-in-side-window)
-                           (inhibit-same-window . t)
-                           (window-height . 0.4)))
-            (set-face-attribute 'helm-source-header nil :height 1.0)))
-
-(use-package helm-config
-  :defer t
-  :config (global-unset-key (kbd helm-command-prefix-key)))
-
-(use-package helm-mode
-  :defer t
-  :config (progn
-            (setq helm-mode-handle-completion-in-region nil)
-            (add-to-list 'helm-completing-read-handlers-alist
-                         '(multi-occur . ido-completing-read)))
-  :diminish helm-mode)
-
-(use-package helm-files
-  :defer t
-  :config
-  (progn
-    (require 'dired-x) ; For `dired-omit-extensions'
-    (setq helm-ff-newfile-prompt-p nil)
-    (setq helm-ff-file-name-history-use-recentf t)
-    (setq helm-ff-search-library-in-sexp t)
-    (setq helm-ff-skip-boring-files t)
-    (setq helm-recentf-fuzzy-match t)
-    (setq helm-boring-file-regexp-list
-          (mapcar (lambda (e) (concat (regexp-quote e) "$"))
-                  dired-omit-extensions))
-    (let ((map helm-find-files-map))
-      (define-key map (kbd "TAB")     #'helm-execute-persistent-action)
-      (define-key map (kbd "M-s")     #'helm-select-action)
-      (define-key map (kbd "DEL")     #'basis/helm-backspace)
-      (define-key map (kbd "C-c C-b") #'basis/helm-run-bookmarks)
-      (define-key map (kbd "C-x g")   #'basis/helm-ff-run-magit-status))
-    ;; Disable `ffap' behavior
-    (advice-add 'helm-find-files-input :override #'ignore)))
-
-(use-package helm-flx
-  :ensure t
-  :after helm
-  :config (progn (require 'helm)
-                 (require 'helm-files)
-                 (helm-flx-mode)))
-
-(use-package helm-locate
-  :defer t
-  :config (setq helm-locate-fuzzy-match nil))
-
-(use-package helm-buffers
-  :defer t
-  :config
-  (progn
-    (setq helm-buffers-fuzzy-matching t)
-    (define-key helm-buffer-map (kbd "C-c C-b") #'basis/helm-run-bookmarks)))
-
-(use-package helm-command
-  :after helm
-  :config (setq helm-M-x-fuzzy-match t))
-
-(use-package helm-imenu
-  :defer t
-  :config (progn (setq helm-imenu-execute-action-at-once-if-one nil)
-                 (setq helm-imenu-fuzzy-match t)))
-
-(use-package helm-ring
-  :defer t
-  :init (progn (global-set-key (kbd "M-y") #'helm-show-kill-ring)
-               ;; (global-set-key (kbd "M-`") #'helm-mark-ring)
-               (global-set-key (kbd "M-~") #'helm-all-mark-rings)))
-
-(use-package helm-elisp
-  :defer t
-  :init (global-set-key (kbd "C-h SPC") #'helm-apropos)
-  :config (progn (setq helm-apropos-fuzzy-match t)
-                 (setq helm-lisp-fuzzy-completion t)))
-
-(use-package helm-man
-  :defer t
-  :config (or (executable-find "man")
-              (setq helm-man-or-woman-function #'woman)))
-
-(use-package helm-descbinds
-  :ensure t
-  :defer t
-  :init (global-set-key (kbd "C-h b") #'helm-descbinds))
-
-(use-package helm-projectile
-  :ensure t
-  :defer t
-  :config (setq helm-projectile-fuzzy-match t))
-
-(use-package helm-ag
-  :ensure t
-  :defer t)
-
-(use-package helm-swoop
-  :ensure t
-  :defer t
-  :config (progn
-            (setq helm-swoop-use-line-number-face t)
-            (define-key helm-swoop-map (kbd "C-s") #'helm-next-line)
-            (define-key helm-swoop-map (kbd "C-r") #'helm-previous-line)))
-
-(use-package helm-external
-  :defer t)
-
-(use-package helm-grep
-  :defer t)
-
-(use-package helm-make
-  :ensure t
-  :defer t)
-
-(use-package helm-flycheck
-  :ensure t
-  :defer t)
-
-(use-package helm-open-github
-  :ensure t
-  :defer t)
-
-(use-package helm-unicode
-  :ensure t
-  :defer t
-  :init (define-key ctl-x-map (kbd "8 M-RET") #'helm-unicode))
-
-(use-package helm-pages
-  :ensure t
-  :defer t
-  :config (advice-add 'helm-pages-get-next-header :override
-                      #'basis/helm-pages-get-next-header))
 
 (use-package ivy
   :ensure t
@@ -1990,17 +1814,17 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package flycheck
   :ensure t
   :defer t
-  :init (progn
-          (basis/define-prefix-command 'basis/flycheck-map (kbd "<f8>"))
-          (let ((map basis/flycheck-map))
-            (define-key map (kbd "c")    #'flycheck-buffer)
-            (define-key map (kbd "n")    #'flycheck-next-error)
-            (define-key map (kbd "p")    #'flycheck-previous-error)
-            (define-key map (kbd "l")    #'flycheck-list-errors)
-            (define-key map (kbd "s")    #'flycheck-select-checker)
-            (define-key map (kbd "C")    #'flycheck-clear)
-            (define-key map (kbd "<f8>") #'basis/flycheck-check-and-list-errors)
-            (define-key map (kbd "h")    #'helm-flycheck)))
+  :init
+  (progn
+    (basis/define-prefix-command 'basis/flycheck-map (kbd "<f8>"))
+    (let ((map basis/flycheck-map))
+      (define-key map (kbd "c")    #'flycheck-buffer)
+      (define-key map (kbd "n")    #'flycheck-next-error)
+      (define-key map (kbd "p")    #'flycheck-previous-error)
+      (define-key map (kbd "l")    #'flycheck-list-errors)
+      (define-key map (kbd "s")    #'flycheck-select-checker)
+      (define-key map (kbd "C")    #'flycheck-clear)
+      (define-key map (kbd "<f8>") #'basis/flycheck-check-and-list-errors)))
   :config (progn
             (setq flycheck-check-syntax-automatically nil)
             ;; Check buffers with errors more frequently than ones without
@@ -2333,7 +2157,6 @@ Create the directory if it does not exist and CREATE is non-nil."
       (define-key map (kbd "C-d") #'basis/sp-comint-delchar-or-maybe-eof)
       (define-key map (kbd "M-p") #'comint-previous-matching-input-from-input)
       (define-key map (kbd "M-n") #'comint-next-matching-input-from-input)
-      (define-key map (kbd "C-c C-l") #'helm-comint-input-ring)
       (define-key map (kbd "C-M-r") #'comint-history-isearch-backward-regexp))
     (dolist (cmd '(comint-previous-input
                    comint-next-input

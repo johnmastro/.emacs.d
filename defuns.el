@@ -753,7 +753,6 @@ is read-only and empty."
   (interactive "P")
   (call-interactively
    (or (and arg #'imenu-list-minor-mode)
-       (and (bound-and-true-p helm-mode) #'helm-imenu)
        #'idomenu)))
 
 
@@ -924,66 +923,12 @@ no matches."
   (propertize "> " 'face 'font-lock-function-name-face)
   "Text to place before the selection during `ivy' completion.")
 
-(defun basis/helm-backspace (n)
-  "Delete N chars backwards.
-If already at the beginning of the field, call
-`helm-keyboard-quit'."
-  (interactive "*p")
-  (if (= n 1)
-      (condition-case nil
-          (backward-delete-char 1)
-        (error (helm-keyboard-quit)))
-    (backward-delete-char n)))
-
-(defvar helm-ff-skip-boring-files)
-
-(defun basis/helm-find-files (&optional arg)
-  "Slightly augmented version of `helm-find-files'.
-If called with a negative argument, temporarily invert
-`helm-ff-skip-boring-files'. Otherwise, behave the same as
-`helm-find-files.'"
-  (interactive "P")
-  (pcase-let ((`(,helm-ff-skip-boring-files ,current-prefix-arg)
-               (if (eq arg '-)
-                   (list (not helm-ff-skip-boring-files) nil)
-                 (list helm-ff-skip-boring-files current-prefix-arg))))
-    (call-interactively #'helm-find-files)))
-
-(defun basis/helm-run-bookmarks ()
-  "Run `helm-bookmarks'."
-  (interactive)
-  (if (bound-and-true-p helm-alive-p)
-      (helm-exit-and-execute-action (lambda (&rest _) (helm-bookmarks)))
-    (error "Running helm command outside of context")))
-
-(defun basis/helm-ff-run-magit-status ()
-  "Run `magit-status' from `helm-source-find-files'."
-  (interactive)
-  (if (bound-and-true-p helm-alive-p)
-      (helm-exit-and-execute-action #'magit-status)
-    (error "Running helm command outside of context")))
-
 (defun basis/insert-file-name (file)
-  "Read FILE with `helm' and insert it in the current buffer.
-Intended for use in `minibuffer-local-shell-command-map'."
-  (interactive (list (helm-read-file-name "File: ")))
+  "Read FILE completion and insert it in the current buffer."
+  (interactive "f")
   (insert (abbreviate-file-name (if (file-directory-p file)
                                     (file-name-as-directory file)
                                   file))))
-
-(defun basis/helm-pages-get-next-header ()
-  "Alternative implementation of `helm-pages-get-next-header'.
-Like the above but skip over lines that contain only whitespace
-or comment starters."
-  (save-restriction
-    (save-excursion
-      (narrow-to-page)
-      (beginning-of-line)
-      (let ((regexp (format "^\\(\\s<\\|%c\\|\\s-\\)*$" (elt comment-start 0))))
-        (while (and (not (eobp))
-                    (looking-at-p regexp))
-          (forward-line)))
-      (buffer-substring-no-properties (point) (line-end-position)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1135,12 +1080,6 @@ Use `slime-expand-1' to produce the expansion."
   (interactive)
   (call-interactively
    (if (use-region-p) #'cider-eval-region #'cider-eval-defun-at-point)))
-
-(defun basis/helm-clj-headlines ()
-  (interactive)
-  (helm :sources '(((name . "Clojure Headlines")
-                    (volatile)
-                    (headline "^[;(]")))))
 
 (defvar httpd-port)
 
