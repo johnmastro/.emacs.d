@@ -1782,6 +1782,10 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :init (put 'css-indent-offset 'safe-local-variable #'integerp))
 
+(use-package dockerfile-mode
+  :ensure t
+  :defer t)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Error checking
