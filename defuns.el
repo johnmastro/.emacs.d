@@ -751,9 +751,7 @@ is read-only and empty."
 (defun basis/imenu-dwim (arg)
   "Invoke `imenu'."
   (interactive "P")
-  (call-interactively
-   (or (and arg #'imenu-list-minor-mode)
-       #'idomenu)))
+  (call-interactively (if arg #'imenu-list-minor-mode #'idomenu)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
