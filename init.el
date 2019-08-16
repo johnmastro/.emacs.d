@@ -1786,6 +1786,10 @@ Create the directory if it does not exist and CREATE is non-nil."
   :ensure t
   :defer t)
 
+(use-package terraform-mode
+  :ensure t
+  :defer t)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Error checking
