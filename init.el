@@ -1236,11 +1236,10 @@ Create the directory if it does not exist and CREATE is non-nil."
               (define-key map (kbd "C-c C-e") #'scheme-expand-current-form))
             (add-hook 'scheme-mode-hook #'basis/init-lisp-generic)))
 
-;; (use-package quack
-;;   :ensure t
-;;   :after scheme
-;;   :config (progn (setq quack-default-program "guile")
-;;                  (setq quack-fontify-style 'emacs)))
+(use-package quack
+  :after scheme
+  :config (progn (setq quack-default-program "guile")
+                 (setq quack-fontify-style 'emacs)))
 
 (use-package cmuscheme
   :defer t
