@@ -1301,6 +1301,14 @@ Create the directory if it does not exist and CREATE is non-nil."
     (when (basis/jedi-installed-p)
       (add-hook 'python-mode-hook #'jedi:setup))))
 
+(use-package blacken
+  :ensure t
+  :defer t)
+
+(use-package py-isort
+  :ensure t
+  :defer t)
+
 (use-package pyvenv
   :ensure t
   :defer t)
