@@ -815,6 +815,15 @@ Create the directory if it does not exist and CREATE is non-nil."
   (define-key map (kbd "<left>")        #'isearch-repeat-backward)
   (define-key map (kbd "<right>")       #'isearch-repeat-forward))
 
+(use-package ripgrep
+  :ensure t
+  :defer t
+  :config (add-to-list 'ripgrep-arguments "-S"))
+
+(use-package deadgrep
+  :ensure t
+  :defer t)
+
 (use-package swiper
   :ensure t
   :defer t
