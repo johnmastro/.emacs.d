@@ -1220,10 +1220,6 @@ Create the directory if it does not exist and CREATE is non-nil."
                  (cljr-add-keybindings-with-prefix "C-c m"))
   :diminish clj-refactor-mode)
 
-(use-package clojure-cheatsheet
-  :ensure t
-  :defer t)
-
 (use-package scheme
   :defer t
   :config (progn
