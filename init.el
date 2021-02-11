@@ -376,22 +376,6 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
 
-(use-package solarized-theme
-  :ensure color-theme-solarized
-  :init (let ((val (if (and (display-graphic-p)
-                            (getenv "DISPLAY")
-                            (getenv "SSH_CLIENT"))
-                       'light
-                     'dark)))
-          (set-frame-parameter nil 'background-mode val)
-          (set-terminal-parameter nil 'background-mode val)
-          (setq solarized-termcolors 256)
-          (setq solarized-italic nil)
-          (add-to-list 'custom-theme-load-path
-                       (basis/emacs-dir "themes/solarized-moar/")))
-  :config (progn (load-theme 'solarized t)
-                 (load-theme 'solarized-moar t)))
-
 (setq frame-title-format
       (list "%b " '(:eval (and buffer-file-name '(" | " buffer-file-name)))))
 
