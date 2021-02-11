@@ -748,11 +748,6 @@ is read-only and empty."
         (_  (other-window 1)))
     (funcall original arg)))
 
-(defun basis/imenu-dwim (arg)
-  "Invoke `imenu'."
-  (interactive "P")
-  (call-interactively (if arg #'imenu-list-minor-mode #'idomenu)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Search
@@ -878,26 +873,6 @@ non-matching patterns. See bug #23590."
                                     (and (symbolp default)
                                          (symbol-name default)))))))
   (describe-face face frame))
-
-(defun basis/ido-selected-file ()
-  "Return the current selection during `ido' file completion.
-Return the current directory if no text is entered or there are
-no matches."
-  (if (or (equal ido-text "")
-          (null ido-matches))
-      default-directory
-    (expand-file-name (car ido-matches))))
-
-(defun basis/ido-open-file-externally-1 (file)
-  (interactive (list (basis/ido-selected-file)))
-  (basis/open-file-externally-1 (basis/default-program-for-file file) file))
-
-(defun basis/ido-open-file-externally ()
-  "Open a file externally during `ido' completion."
-  (interactive)
-  (setq ido-exit 'fallback)
-  (setq ido-fallback 'basis/ido-open-file-externally-1)
-  (exit-minibuffer))
 
 (defun basis/company-maybe-block-completion (&rest _)
   "Prevent `company-auto-begin' from running in some circumstances."
@@ -1810,36 +1785,6 @@ user-error, automatically move point to the command line."
               (inc (ignore-errors (basis/find-clang-includes-path language))))
     (cons (format "-std=%s" std) inc)))
 
-(defvar basis/ido-man-topics nil)
-
-(defun basis/ido-man-init (&optional arg)
-  (require 'woman)
-  (when (or arg (null basis/ido-man-topics))
-    (setq woman-expanded-directory-path
-          (woman-expand-directory-path woman-manpath woman-path))
-    (setq woman-topic-all-completions
-          (woman-topic-all-completions woman-expanded-directory-path))
-    (setq basis/ido-man-topics (mapcar #'car woman-topic-all-completions))))
-
-(defun basis/read-manual-page-file-name ()
-  (let* ((topic (completing-read
-                 "Manual entry: " basis/ido-man-topics nil t nil nil
-                 (let ((def (current-word)))
-                   (if (and def (member def basis/ido-man-topics))
-                       def
-                     (car basis/ido-man-topics)))))
-         (files (mapcar #'car (woman-file-name-all-completions topic))))
-    (if (cdr files)
-        (completing-read "Manual file: " files nil t)
-      (car files))))
-
-(defun basis/ido-man (arg)
-  "Select a manual page via `ido' and show it in a buffer.
-If ARG is non-nil, reinitialize the cache of topics."
-  (interactive "P")
-  (basis/ido-man-init arg)
-  (manual-entry (concat "-l " (basis/read-manual-page-file-name))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File utilities
@@ -1894,13 +1839,6 @@ If ARG is non-nil, reinitialize the cache of topics."
                            "Buffer `%s' is not visiting a file; kill it? "
                            (buffer-name))))
         (kill-buffer)))))
-
-(defun basis/find-file-recentf ()
-  "Find recently open files using ido and recentf."
-  (interactive)
-  (find-file (completing-read "Recent file: "
-                              (mapcar #'abbreviate-file-name recentf-list)
-                              nil t)))
 
 (defun basis/read-file (file)
   "Read a Lisp form from FILE."

@@ -418,7 +418,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package man
   :defer t
-  :init (global-set-key (kbd "C-h C-k") #'basis/ido-man)
+  :init (global-set-key (kbd "C-h C-k") #'consult-man)
   :config (progn (setq Man-width 88)
                  (setq Man-notify-method 'aggressive)))
 
@@ -496,7 +496,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key (kbd "C-c M-e") #'basis/eval-and-replace)
 
-(global-set-key (kbd "M-i") #'basis/imenu-dwim)
+(global-set-key (kbd "M-i") #'consult-imenu)
 
 ;; I use M-SPC for `avy-goto-word-1'
 (global-set-key (kbd "C-c SPC") #'just-one-space)
@@ -515,7 +515,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (global-set-key (kbd "<f9>") #'basis/google)
 
-(global-set-key (kbd "C-x C-r") #'basis/find-file-recentf)
+(global-set-key (kbd "C-x C-r") #'consult-recent-file)
 
 (basis/define-prefix-command 'basis/file-map (kbd "C-c f"))
 (define-key basis/file-map "d" #'basis/diff-buffer-with-file)
@@ -889,78 +889,52 @@ Create the directory if it does not exist and CREATE is non-nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Completion
 
-(defun basis/init-ido-keys ()
-  (let ((map ido-file-completion-map))
-    (define-key map (kbd "C-w")   nil)
-    (define-key map (kbd "M-w")   #'ido-copy-current-file-name)
-    (define-key map (kbd "C-x g") #'ido-enter-magit-status)
-    (define-key map (kbd "C-c e") #'basis/ido-open-file-externally)))
+(use-package selectrum
+  :ensure t
+  :config (selectrum-mode))
 
-(use-package ido
+(use-package prescient
+  :ensure t)
+
+(use-package selectrum-prescient
+  :ensure t
   :config
-  (progn (setq ido-enable-prefix nil)
-         (setq ido-enable-flex-matching t)
-         (setq ido-auto-merge-work-directories-length -1)
-         (setq ido-create-new-buffer 'always)
-         (setq ido-use-filename-at-point nil)
-         (setq ido-use-virtual-buffers t)
-         (setq ido-use-faces nil)
-         (setq ido-ignore-extensions t)
-         (setq ido-save-directory-list-file (basis/emacs-file "var/ido.last"))
-         (setq ido-enable-tramp-completion t)
-         (add-hook 'ido-setup-hook #'basis/init-ido-keys)
-         (ido-mode)
-         (ido-everywhere)))
+  (progn
+    (require 'prescient)
+    (prescient-persist-mode 1)
+    (selectrum-prescient-mode 1)))
 
-(use-package ido-completing-read+
+(use-package embark
   :ensure t
-  :init (progn (setq ido-cr+-auto-update-blacklist t)
-               (setq ido-cr+-max-items nil)
-               (ido-ubiquitous-mode)))
-
-(use-package flx-ido
-  :ensure t
-  :config (progn (setq flx-ido-threshhold 10000)
-                 (flx-ido-mode)))
-
-(use-package ido-vertical-mode
-  :ensure t
-  :config (ido-vertical-mode))
-
-(use-package idomenu
-  :ensure t
-  :defer t)
-
-(use-package smex
-  :ensure t
-  :config (progn (setq smex-save-file (basis/emacs-file "var/smex-items"))
-                 (global-set-key (kbd "M-x") #'smex)
-                 (global-set-key (kbd "M-X") #'smex-major-mode-commands)))
-
-(use-package ivy
-  :ensure t
-  :defer t
   :config
-  (progn (setq ivy-format-function #'ivy-format-function-arrow)
-         (setq ivy-use-selectable-prompt t)
-         (let ((map ivy-minibuffer-map))
-           (define-key map (kbd "C-r")     #'ivy-previous-line-or-history)
-           (define-key map (kbd "<up>")    #'ivy-previous-line-or-history)
-           (define-key map (kbd "<left>")  #'ivy-previous-line-or-history)
-           (define-key map (kbd "<down>")  #'ivy-next-line-or-history)
-           (define-key map (kbd "<right>") #'ivy-next-line-or-history))))
+  (progn
+    (setq embark-prompter #'embark-completing-read-prompter)
+    (define-key selectrum-minibuffer-map (kbd "C-c C-o") #'embark-export)
+    (define-key selectrum-minibuffer-map (kbd "C-c C-c") #'embark-act)))
 
-(use-package counsel
+(use-package consult
   :ensure t
-  :commands (counsel-mark-ring)
-  :init (global-set-key (kbd "M-`") #'counsel-mark-ring)
-  :defer t)
+  :config
+  (progn
+    (setq-default consult-project-root-function #'projectile-project-root)
+    (setq-default consult-preview-key nil)
+    (global-set-key [remap switch-to-buffer] #'consult-buffer)
+    (global-set-key [remap switch-to-buffer-other-window] #'consult-buffer-other-window)
+    (global-set-key [remap switch-to-buffer-other-frame] #'consult-buffer-other-frame)))
+
+(use-package embark-consult
+  :ensure t
+  :config (add-hook 'embark-collect-mode-hook #'embark-consult-preview-minor-mode))
+
+(use-package marginalia
+  :ensure t
+  :config (marginalia-mode)
+  (setq-default marginalia-annotators '(marginalia-annotators-heavy)))
 
 (use-package company
   :ensure t
   :config
   (progn
-    (add-hook 'after-init-hook #'global-company-mode)
     (define-key company-active-map (kbd "TAB") #'company-complete)
     (define-key company-active-map [tab] #'company-complete)
     (define-key company-active-map (kbd "<C-f1>") #'company-show-location)
@@ -1620,7 +1594,6 @@ Create the directory if it does not exist and CREATE is non-nil."
     (setq org-agenda-files (mapcar (lambda (name)
                                      (expand-file-name name org-directory))
                                    '("todo.org" "work.org")))
-    (setq org-completion-use-ido t)
     (setq org-outline-path-complete-in-steps nil)
     (setq org-reverse-note-order t)
     (setq org-log-done t)
@@ -1886,7 +1859,6 @@ Create the directory if it does not exist and CREATE is non-nil."
     (setq magit-save-repository-buffers 'dontask)
     (setq magit-clone-set-remote.pushDefault t)
     (setq magit-branch-popup-show-variables nil)
-    (setq magit-completing-read-function #'magit-ido-completing-read)
     (setq magit-revision-show-gravatars nil)
     (setq magit-use-sticky-arguments 'current)
     (setq magit-display-buffer-function
@@ -2061,7 +2033,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   :config
   (progn
     (setq projectile-keymap-prefix (kbd "C-c p"))
-    (setq projectile-completion-system 'ido)
     (setq projectile-known-projects-file
           (basis/emacs-file "var/projectile-bookmarks.eld"))
     (setq projectile-cache-file (basis/emacs-file "var/projectile.cache"))
