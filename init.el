@@ -1551,6 +1551,10 @@ Create the directory if it does not exist and CREATE is non-nil."
   :defer t
   :config (add-hook 'sh-mode-hook #'basis/init-sh-mode))
 
+(use-package fish-mode
+  :ensure t
+  :defer t)
+
 (use-package gforth
   :defer t
   :mode ("\\.f\\'" "\\.fs\\'" "\\.fth\\'")
