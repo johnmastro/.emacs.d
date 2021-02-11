@@ -2080,13 +2080,9 @@ Create the directory if it does not exist and CREATE is non-nil."
       (define-key map (kbd "RET")   #'dired-find-alternate-file)
       (define-key map (kbd "M-RET") #'dired-find-file)
       (define-key map (kbd "e")     #'basis/open-file-externally)
-      (define-key map (kbd "-")     #'diredp-up-directory-reuse-dir-buffer)
-      (define-key map (kbd "^")     #'diredp-up-directory-reuse-dir-buffer)
+      (define-key map (kbd "-")     #'dired-up-directory)
       (define-key map (kbd "Y")     #'basis/dired-rsync)
-      (define-key map (kbd "M-^")   #'diredp-up-directory)
       (define-key map (kbd "M-m")   #'dired-omit-mode)
-      (define-key map (kbd "M-n")   #'diredp-next-subdir)
-      (define-key map (kbd "M-p")   #'diredp-prev-subdir)
       (define-key map (kbd "M-e")   #'dired-next-dirline)
       (define-key map (kbd "M-a")   #'dired-prev-dirline)
       (define-key map (kbd "M-o")   nil)
@@ -2115,11 +2111,6 @@ Create the directory if it does not exist and CREATE is non-nil."
   ;; Set `image-dired-dir' before loading the package because several other
   ;; options' default values are defined relative to it.
   :init (setq image-dired-dir (basis/emacs-dir "var/image-dired/")))
-
-(use-package dired+
-  :after dired
-  :config (progn (define-key dired-mode-map (kbd "M-b") nil)
-                 (define-key dired-mode-map (kbd "M-B") #'diredp-do-bookmark)))
 
 (defun basis/init-comint-mode ()
   (setq comint-scroll-to-bottom-on-input 'this))
