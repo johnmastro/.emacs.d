@@ -1539,7 +1539,8 @@ Handle the special string literals in Python and SQL."
     markdown-indent-line
     python-indent-line-function
     haskell-indentation-indent-line
-    yaml-indent-line)
+    yaml-indent-line
+    go-mode-indent-line)
   "Indentation functions for which to inhibit smartparens's cleanup.")
 
 (defun basis/sp-unwrap-no-cleanup (args)
