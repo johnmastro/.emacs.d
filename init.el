@@ -170,6 +170,7 @@ Create the directory if it does not exist and CREATE is non-nil."
   (setq-local next-line-add-newlines nil))
 
 (defun basis/init-eval-expression-minibuffer ()
+  (smartparens-mode -1)
   (setq-local indent-line-function #'lisp-indent-line)
   (setq-local tab-always-indent 'complete)
   (local-set-key (kbd "TAB") #'indent-for-tab-command))
