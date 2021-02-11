@@ -148,7 +148,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (setq-default major-mode #'basis/default-major-mode)
 (setq-default indent-tabs-mode nil)
-(setq-default fill-column 80)
+(setq-default fill-column 88)
 (setq-default truncate-lines t)
 
 (add-hook 'kill-buffer-query-functions #'basis/kill-scratch-query-function)
@@ -313,7 +313,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package whitespace
   :config (progn (setq whitespace-style '(face trailing lines-tail tab-mark))
-                 (setq whitespace-line-column 80)
+                 (setq whitespace-line-column 88)
                  (put 'whitespace-line-column 'safe-local-variable #'integerp))
   :diminish whitespace-mode)
 
@@ -419,7 +419,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 (use-package man
   :defer t
   :init (global-set-key (kbd "C-h C-k") #'basis/ido-man)
-  :config (progn (setq Man-width 80)
+  :config (progn (setq Man-width 88)
                  (setq Man-notify-method 'aggressive)))
 
 
@@ -1258,9 +1258,9 @@ Create the directory if it does not exist and CREATE is non-nil."
 (defun basis/init-python-mode ()
   (subword-mode)
   (basis/maybe-enable-flycheck)
-  (setq fill-column 79)
+  (setq fill-column 88)
   (setq tab-width 4)
-  (setq-local whitespace-line-column 79)
+  (setq-local whitespace-line-column 88)
   (setq-local electric-indent-chars (remove ?: electric-indent-chars)))
 
 (defun basis/init-inferior-python-mode ()
