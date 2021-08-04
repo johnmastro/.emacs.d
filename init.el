@@ -891,7 +891,12 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (use-package selectrum
   :ensure t
-  :config (selectrum-mode))
+  :config
+  (progn
+    (selectrum-mode)
+    (define-key
+      selectrum-minibuffer-map
+      (kbd "M-DEL") #'basis/selectrum-delete-something)))
 
 (use-package prescient
   :ensure t)

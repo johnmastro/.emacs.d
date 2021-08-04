@@ -348,6 +348,12 @@ if not."
       (kill-region (region-beginning) (region-end))
     (backward-kill-word arg)))
 
+(defun basis/selectrum-delete-something (arg)
+  (interactive "*p")
+  (if (use-region-p)
+      (delete-region (region-beginning) (region-end))
+    (delete-region (point) (progn (forward-word (- arg)) (point)))))
+
 (defun basis/smart-kill-whole-line (&optional arg)
   "Variant of `kill-whole-line'.
 Kill the current line and move point to the first non-whitespace
