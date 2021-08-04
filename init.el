@@ -428,7 +428,7 @@ Create the directory if it does not exist and CREATE is non-nil."
 
 (when (eq system-type 'darwin)
   (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'super))
+  (setq mac-option-modifier 'meta))
 
 (use-package which-key
   :ensure t
