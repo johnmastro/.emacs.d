@@ -183,9 +183,7 @@
 (use-package eglot
   :ensure t
   :hook ((haskell-mode . eglot-ensure))
-  :init (customize-set-variable
-         'eglot-ignored-server-capabilities
-         '(:inlayHintProvider))
+  :init (setopt eglot-ignored-server-capabilities '(:inlayHintProvider))
   :config (add-to-list 'eglot-server-programs '(haskell-mode . ("static-ls")))
   :bind (:map eglot-mode-map
               ("C-c l r" . eglot-rename)
@@ -240,10 +238,9 @@
   :ensure t
   :init
   (progn
-    (customize-set-variable 'completion-styles '(orderless basic))
-    (customize-set-variable
-     'completion-category-overrides
-     '((file (styles basic partial-completion))))))
+    (setopt completion-styles '(orderless basic))
+    (setopt completion-category-overrides
+	    '((file (styles basic partial-completion))))))
 
 (use-package marginalia
   :ensure t
@@ -256,7 +253,7 @@
 (use-package vertico-prescient
   :ensure t
   :after (vertico prescient)
-  :init (customize-set-variable 'vertico-prescient-enable-filtering nil)
+  :init (setopt vertico-prescient-enable-filtering nil)
   :config (vertico-prescient-mode))
 
 (use-package consult
@@ -284,7 +281,7 @@
 
 (use-package corfu
   :ensure t
-  :init (customize-set-variable 'corfu-auto t)
+  :init (setopt corfu-auto t)
   :config
   (progn
     (keymap-set corfu-map "RET" nil)
@@ -295,7 +292,7 @@
 (use-package corfu-prescient
   :ensure t
   :after (corfu prescient)
-  :init (customize-set-variable 'corfu-prescient-enable-filtering nil)
+  :init (setopt corfu-prescient-enable-filtering nil)
   :config (corfu-prescient-mode))
 
 (use-package cape
