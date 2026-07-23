@@ -6,18 +6,18 @@
 
 (require 'use-package)
 
-(setq use-package-verbose t)
+(setopt use-package-verbose t)
 
 (use-package emacs
   :init
   (progn
-    (setq inhibit-startup-screen t)
-    (setq initial-scratch-message nil)
-    (setq enable-recursive-minibuffers t)
-    (setq use-short-answers t)
-    (setq scroll-conservatively 101)
-    (setq scroll-preserve-screen-position t)
-    (setq gc-cons-threshold (* 128 1024 1024))
+    (setopt inhibit-startup-screen t)
+    (setopt initial-scratch-message nil)
+    (setopt enable-recursive-minibuffers t)
+    (setopt use-short-answers t)
+    (setopt scroll-conservatively 101)
+    (setopt scroll-preserve-screen-position t)
+    (setopt gc-cons-threshold (* 128 1024 1024))
     (setq-default bidi-display-reordering 'left-to-right
                   bidi-paragraph-direction 'left-to-right)
     (setq bidi-inhibit-bpa t)
@@ -26,8 +26,8 @@
     (setq ffap-machine-p-known 'reject)
     (setq-default truncate-lines t)
     (when (eq system-type 'darwin)
-      (setq mac-command-modifier 'meta)
-      (setq mac-option-modifier 'meta))
+      (setopt mac-command-modifier 'meta)
+      (setopt mac-option-modifier 'meta))
     (when (and (display-graphic-p)
 	       (null (assq 'font default-frame-alist))
 	       (find-font (font-spec :name "JetBrains Mono NL")))
@@ -37,7 +37,7 @@
 (use-package custom
   :config
   (progn
-    (setq custom-file (expand-file-name "~/.emacs.d/custom.el"))
+    (setopt custom-file (expand-file-name "~/.emacs.d/custom.el"))
     (when (file-exists-p custom-file)
       (load custom-file))))
 
@@ -51,9 +51,9 @@
 (use-package simple
   :init
   (progn
-    (setq indent-tabs-mode nil)
-    (setq save-interprogram-paste-before-kill t)
-    (setq kill-do-not-save-duplicates t))
+    (setopt indent-tabs-mode nil)
+    (setopt save-interprogram-paste-before-kill t)
+    (setopt kill-do-not-save-duplicates t))
   :config
   (progn
     (keymap-global-set
@@ -71,15 +71,15 @@
       (make-directory backup-dir t)
       (make-directory auto-save-dir t)
       (make-directory auto-save-list-dir t)
-      (setq backup-directory-alist `((".*" . ,backup-dir)))
-      (setq auto-save-file-name-transforms `((".*" ,auto-save-dir t)))
-      (setq auto-save-list-file-prefix (concat auto-save-list-dir ".saves-"))
-      (setq backup-by-copying t)
-      (setq version-control t)
-      (setq delete-old-versions t)
-      (setq kept-new-versions 6)
-      (setq kept-old-versions 2)
-      (setq create-lockfiles nil)
+      (setopt backup-directory-alist `((".*" . ,backup-dir)))
+      (setopt auto-save-file-name-transforms `((".*" ,auto-save-dir t)))
+      (setopt auto-save-list-file-prefix (concat auto-save-list-dir ".saves-"))
+      (setopt backup-by-copying t)
+      (setopt version-control t)
+      (setopt delete-old-versions t)
+      (setopt kept-new-versions 6)
+      (setopt kept-old-versions 2)
+      (setopt create-lockfiles nil)
       ;; Buck2 things... pretend Starlark is Python
       (add-to-list 'auto-mode-alist '("BUCK\\'" . python-mode))
       (add-to-list 'auto-mode-alist '("PACKAGE\\'" . python-mode)))))
@@ -87,8 +87,8 @@
 (use-package whitespace
   :init
   (progn
-    (setq whitespace-style '(face trailing lines-tail tab-mark))
-    (setq whitespace-line-column 88))
+    (setopt whitespace-style '(face trailing lines-tail tab-mark))
+    (setopt whitespace-line-column 88))
   :config (whitespace-mode))
 
 (use-package mb-depth
@@ -98,22 +98,22 @@
   :config (blink-cursor-mode -1))
 
 (use-package help
-  :init (setq help-window-select t))
+  :init (setopt help-window-select t))
 
 (use-package autorevert
-  :init (setq global-auto-revert-non-file-buffers t)
+  :init (setopt global-auto-revert-non-file-buffers t)
   :config (global-auto-revert-mode))
 
 (use-package savehist
-  :init (setq savehist-file (expand-file-name "~/.emacs.d/var/history"))
+  :init (setopt savehist-file (expand-file-name "~/.emacs.d/var/history"))
   :config (savehist-mode))
 
 (use-package saveplace
-  :init (setq save-place-file (expand-file-name "~/.emacs.d/var/places"))
+  :init (setopt save-place-file (expand-file-name "~/.emacs.d/var/places"))
   :config (save-place-mode))
 
 (use-package recentf
-  :init (setq recentf-save-file (expand-file-name "~/.emacs.d/var/recentf"))
+  :init (setopt recentf-save-file (expand-file-name "~/.emacs.d/var/recentf"))
   :config (recentf-mode))
 
 (use-package delsel
@@ -123,7 +123,7 @@
   :config (windmove-default-keybindings))
 
 (use-package uniquify
-  :init (setq uniquify-buffer-name-style 'forward))
+  :init (setopt uniquify-buffer-name-style 'forward))
 
 (use-package compat
   :ensure t)
@@ -137,7 +137,7 @@
   :config (direnv-mode))
 
 (use-package project
-  :init (setq project-list-file (expand-file-name "~/.emacs.d/var/projects")))
+  :init (setopt project-list-file (expand-file-name "~/.emacs.d/var/projects")))
 
 (use-package diminish
   :ensure t)
@@ -311,3 +311,20 @@
   :ensure t
   :bind (("C-x g"   . magit-status)
          ("C-x M-g" . magit-dispatch)))
+
+(defun migrate-setq->setopt ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "(\\_<setq\\_>" nil t)
+      (let ((setq-start (match-beginning 0))
+            (setq-end (point)))
+        (when (ignore-errors
+                (let ((var (save-excursion
+                             (goto-char setq-end)
+                             (read (current-buffer)))))
+                  (and (symbolp var)
+                       (custom-variable-p var))))
+          (delete-region setq-start setq-end)
+          (goto-char setq-start)
+          (insert "(setopt"))))))
