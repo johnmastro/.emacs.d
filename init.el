@@ -171,6 +171,9 @@
   :ensure t
   :bind ("C-x u" . vundo))
 
+(use-package fish-mode
+  :ensure t)
+
 (use-package haskell-mode
   :ensure t)
 
